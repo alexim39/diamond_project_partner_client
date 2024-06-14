@@ -1,0 +1,28 @@
+
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span class="logo"><async-logo></async-logo></span>
+    <span class="nav-spacer"></span>
+    
+    <ng-content *ngIf="isDesktop">
+      <button mat-button>
+        <mat-icon>output</mat-icon> Sign In
+      </button>
+      <button mat-button>
+        <mat-icon>input</mat-icon> Sign Up
+      </button>
+    </ng-content>
+  </mat-toolbar-row>
+
+  <mat-toolbar-row *ngIf="isMobile">
+    <!-- <span>Second Line</span> -->
+    <span class="nav-spacer"></span>
+      <button mat-button>
+        <mat-icon>output</mat-icon> Sign In
+      </button>
+      <button mat-button>
+        <mat-icon>input</mat-icon> Sign Up
+      </button>
+  </mat-toolbar-row>
+
+</mat-toolbar>
