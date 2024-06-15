@@ -1,26 +1,26 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavComponent } from './index/nav/nav.component';
 import { FooterComponent } from './index/footer/footer.component';
-import { BannerComponent } from './index/banner/banner.component';
-import { WhyWeExistComponent } from './index/why-we-exist/why-we-exist.component';
+import { NavComponent } from './index/nav/nav.component';
+
 
 @Component({
   selector: 'async-root',
   standalone: true,
-  imports: [RouterOutlet, NavComponent, FooterComponent, BannerComponent, WhyWeExistComponent],
+  imports: [RouterOutlet, FooterComponent, NavComponent],
   template: `
     <async-nav></async-nav>
-
-    <async-banner></async-banner>
-
-    <async-index-why-we-exist></async-index-why-we-exist>
-
-    <async-footer></async-footer>
+    <div class="body">
+      <router-outlet></router-outlet>
+    </div>
+    <async-footer class="footer"></async-footer>
   `,
   styles: [`
+  .body {
+    display: grid;
+    min-height: 100vh;
+    grid-template-rows: auto 1fr auto;
+  }
   `]
 })
-export class AppComponent {
-  title = 'partners vae';
-}
+export class AppComponent {}

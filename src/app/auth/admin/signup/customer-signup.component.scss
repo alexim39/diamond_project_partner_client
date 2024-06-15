@@ -1,0 +1,128 @@
+.main-container {
+    background: url('/assets/img/cust-signup.jpg') no-repeat center center;
+    background-size: cover;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .content {
+        display: flex;
+        width: 80%;
+        .left-content {
+        flex: 1;
+        padding: 20px;
+        color: white;
+        .bold-text {
+            font-weight: bold;
+            font-size: 4em;
+            margin: 1em 0;
+        }
+        .normal-text {
+            font-size: 1.1em;
+            width: 70%;
+            font-family: cursive;
+        }
+        }
+        .right-panel {
+        flex: 1;
+        .panel-content {
+            width: 60%;
+            height: inherit;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 0 2em 2em 2em;
+            margin: 20px;
+            form {
+            display: flex;
+            flex-direction: column;
+            .names-field {
+                display: flex;
+                justify-content: space-between;
+                mat-form-field {
+                  width: 49%;
+                }
+              }
+            }
+            p {
+            font-family: cursive;
+            margin-top: 2em;
+            a {
+                color: #00838F;
+                text-decoration: none;
+            }
+            }
+        }
+        }
+    }
+}
+
+
+.benefit {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 2em 0;
+    h1, h2, h3 {
+      font-family: cursive;
+    }
+    .sub-title {
+      color: rgb(116, 116, 116);
+      text-align: center;
+      p {
+        padding: 0 15em;   
+        font-family: cursive;     
+      }
+    }
+    .benefit-container {
+      display: flex;
+      flex-direction: row;
+      text-align: center;
+      justify-content: space-between;
+      padding: 4em 10em;
+      flex-wrap: wrap;
+      background-color: #eee;
+      .benefit-content {
+        width: 20em;
+        .fa-icon {
+          font-size: 3em;
+          color:#00838F;
+          .fa {
+            border-radius: 50%;
+            //border: 1px solid #ccc;
+            width: 50px;
+            height: 50px;
+          }
+        }
+        p {
+          font-family: cursive;
+          text-align: justify;
+        }
+      }
+    }
+  }
+  
+  .step-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 2em 0;
+    .step-content {
+      width: 50%;
+      color: white;
+      background: rgb(56, 56, 56);
+      border-radius: 20px;
+      padding: 1em 0 2em 3em;
+      ol {
+        li {
+          text-align: left;
+          p, h2 {
+            font-family: cursive;
+          }
+        }
+      }
+    }
+  }
+ 

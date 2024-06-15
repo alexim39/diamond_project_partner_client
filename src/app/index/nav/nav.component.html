@@ -5,24 +5,24 @@
     <span class="nav-spacer"></span>
     
     <ng-content *ngIf="isDesktop">
-      <button mat-button>
+      <a mat-button routerLink="auth/partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>output</mat-icon> Sign In
-      </button>
-      <button mat-button>
+      </a>
+      <a mat-button routerLink="auth/partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>input</mat-icon> Sign Up
-      </button>
+      </a>
     </ng-content>
   </mat-toolbar-row>
 
   <mat-toolbar-row *ngIf="isMobile">
     <!-- <span>Second Line</span> -->
     <span class="nav-spacer"></span>
-      <button mat-button>
+      <a mat-button routerLink="auth/partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>output</mat-icon> Sign In
-      </button>
-      <button mat-button>
+      </a>
+      <a mat-button routerLink="auth/partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>input</mat-icon> Sign Up
-      </button>
+      </a>
   </mat-toolbar-row>
 
 </mat-toolbar>

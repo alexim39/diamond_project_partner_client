@@ -1,0 +1,34 @@
+<div class="page">
+    <div class="login-panel">
+      <h1>Partner Sign in</h1>
+      <h2>Log in into your account</h2>
+      <form>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Phone Number</mat-label>
+          <input matInput type="tel">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Enter your password</mat-label>
+          <input matInput [type]="hide ? 'password' : 'text'">
+          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary">Sign in</button>
+
+      </form>
+
+      <p>
+        <a href="">Forgot password?</a>
+      </p>
+
+      <div class="line"></div>
+
+      <p>
+        Not a Diamond Project partner yet? <a routerLink="../../../auth/partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign up</a>
+      </p>
+    </div>
+</div>

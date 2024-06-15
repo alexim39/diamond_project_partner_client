@@ -31,6 +31,19 @@ import { RouterModule } from '@angular/router';
         }
       }
     }
+
+/* Media Query for Mobile Responsiveness */
+@media screen and (max-width: 600px) {
+  a {
+    span {
+      font-size: 16px;
+      img {
+        width: 1.3em;
+        height: 1.3em;
+      }
+    }
+  }
+}
   `]
 })
 export class LogoComponent {

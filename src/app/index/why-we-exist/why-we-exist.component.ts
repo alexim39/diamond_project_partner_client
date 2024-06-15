@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -44,7 +42,7 @@ import { CommonModule } from '@angular/common';
 
       <!-- <small>Use our flexible learning path, adjust your learning to suit your time  — all in one place. Open a free account in minutes and learn any time.</small> -->
 
-      <a mat-flat-button color="primary">Sign In Now</a>
+      <a mat-flat-button color="primary" routerLink="auth/partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
     </aside>
   `,
   styles: [`
@@ -97,7 +95,7 @@ import { CommonModule } from '@angular/common';
   }
 
 
-  /* Media Query for Mobile Responsiveness */
+/* Media Query for Mobile Responsiveness */
 @media screen and (max-width: 600px) {
   aside {
     //padding: 1em;
@@ -117,12 +115,8 @@ import { CommonModule } from '@angular/common';
   `],
 })
 export class WhyWeExistComponent implements OnInit{
-  // init subscriptions list
-  subscriptions: Subscription[] = [];
 
-  constructor(
-    public dialog: MatDialog,
-  ) { }
+  constructor() { }
 
   ngOnInit(): void {  }
 
@@ -133,11 +127,6 @@ export class WhyWeExistComponent implements OnInit{
 
 
 
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-  }
+  ngOnDestroy() {}
 
 }

@@ -1,0 +1,135 @@
+
+ /* Media Query for Mobile Responsiveness */
+ @media screen and (max-width: 600px) {
+    .main-container {
+      .content {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          .left-content {
+            .bold-text {
+              font-size: 2em;
+              font-weight: bold;
+            }
+            .normal-text {
+              font-size: 1em;
+              width: 100%;
+              font-weight: bold;
+            }
+          }
+          .right-panel {
+            .panel-content {
+              width: auto;
+              form {
+                display: flex;
+                flex-direction: column;
+                .names-field {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    mat-form-field {
+                      width: 100%;
+                    }
+                  }
+                }
+            }
+          }
+        }
+      }
+      
+      .benefit {
+        h1 {
+          font-size: 1.5em;
+        }
+        p {
+          padding: 0 1em;
+        }
+        .sub-title {
+          font-size: 1em;
+        }
+        .benefit-container {
+          display: flex;
+          flex-direction: column;
+        }
+        .car-portal {
+          h1 {
+            font-size: 1.5em;
+          }
+          .sub-title {
+            width: auto;
+            padding: 1em;
+          }
+        }
+      }
+    
+      .step-container {
+        padding: 0 1em;
+        padding: 2em 0;
+        .step-content {
+          width: auto;
+          padding: 1em;
+          h1 {
+            font-size: 1em;
+          }
+        }
+      }   
+    }
+    
+    
+    /* iPads/tablet (portrait and landscape) */
+    @media only screen and (min-device-width: 601px) and (max-device-width: 1024px) {
+     
+      .main-container {
+        .content {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            .left-content {
+              .bold-text {
+                font-size: 2em;
+              }
+              .normal-text {
+                font-size: 1em;
+                width: 100%;
+              }
+            }
+            .right-panel {
+              .panel-content {
+                width: auto;
+              }
+            }
+          }
+        }
+        
+        .benefit {
+          .sub-title {
+            font-size: 1em;
+          }
+          .benefit-container {
+            display: flex;
+            flex-direction: column;
+          }
+          .car-portal {
+            margin-top: -5em;
+            h1 {
+              font-size: 2em;
+            }
+            .sub-title {
+              width: auto;
+              padding: 1em;
+            }
+          }
+        }
+      
+        .step-container {
+          padding: 0 1em;
+          padding: 2em 0;
+          .step-content {
+            width: auto;
+            padding: 1em;
+            h1 {
+              font-size: 1em;
+            }
+          }
+        }
+    }

@@ -1,0 +1,126 @@
+ 
+   /* Media Query for Mobile Responsiveness */
+   @media screen and (max-width: 600px) {
+    .main-container {
+      .content {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          .left-content {
+            .bold-text {
+              font-size: 2em;
+            }
+            .normal-text {
+              font-size: 1em;
+              width: 100%;
+            }
+          }
+          .right-panel {
+            .panel-content {
+              width: auto;
+              form {
+                display: flex;
+                flex-direction: column;
+                .names-field {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    mat-form-field {
+                      width: 100%;
+                    }
+                  }
+                }
+            }
+          }
+        }
+      }
+      
+      .benefit {
+        h1 {
+          font-size: 1.5em;
+        }
+        
+        .sub-title {
+          font-size: 1em;
+          text-align: justify;
+          p {
+              padding: 1em;
+          }
+        }
+        .benefit-container {
+          display: flex;
+          flex-wrap: wrap;
+          padding: 1em;
+          width: 100%;
+          .benefit-content {
+            width: auto;
+            p {
+                width: 90%;
+            }
+          }
+        }
+      }
+    
+      .step-container {
+        padding: 0 1em;
+        .step-content {
+          width: auto;
+          padding: 1em;
+          h1 {
+            font-size: 1em;
+          }
+        }
+      }   
+    }
+    
+    
+    /* iPads/tablet (portrait and landscape) */
+    @media only screen and (min-device-width: 601px) and (max-device-width: 1024px) {
+     
+      .main-container {
+        .content {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            .left-content {
+              .bold-text {
+                font-size: 2em;
+              }
+              .normal-text {
+                font-size: 1em;
+                width: 100%;
+              }
+            }
+            .right-panel {
+              .panel-content {
+                width: auto;
+              }
+            }
+          }
+        }
+        
+        .benefit {
+          .sub-title {
+            font-size: 1em;
+          }
+          .benefit-container {
+            display: flex;
+            flex-wrap: wrap;
+            .benefit-content {
+              width: auto;
+            }
+          }
+        }
+      
+        .step-container {
+          padding: 0 1em;
+          .step-content {
+            width: auto;
+            padding: 1em;
+            h1 {
+              font-size: 1em;
+            }
+          }
+        }
+    }
+  
