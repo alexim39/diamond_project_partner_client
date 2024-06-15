@@ -1,0 +1,34 @@
+.page {
+    //background: #eee;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding-top: 2em;
+    .login-panel {
+      display: flex;
+      flex-direction: column;
+      h1 {
+        //color: #ffab40;
+      }
+      h2 {
+        font-size: 1em;
+        color: #ffab40;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+      p {
+        margin: 2em 0;
+        font-family: cursive;
+        a {
+          text-decoration: none;
+          color: #00838f;
+        }
+      }
+      .line {
+        border: 1px solid #ccc;
+        margin: 1em 0;
+      }
+    }
+}
