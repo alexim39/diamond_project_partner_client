@@ -1,11 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { PartnerAuthService } from '../partner-auth.service';
+import Swal from 'sweetalert2';
+import { PartnerSignInData } from '../partner-auth.interface';
+import { CommonModule } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 /**
  * @title Partner signin
@@ -13,10 +20,80 @@ import { RouterModule } from '@angular/router';
 @Component({
     selector: 'async-partner-signin',
     standalone: true,
-    imports: [MatButtonModule, MatDividerModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+    providers: [PartnerAuthService],
+    imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
     templateUrl: 'partner-signin.component.html' ,
     styleUrls: ['partner-signin.component.scss']
 })
-export class PartnerSigninComponent {
+export class PartnerSigninComponent implements OnInit, OnDestroy {
   hide = true;
+
+  signInForm: FormGroup = new FormGroup({}); // Assigning a default value
+  subscriptions: Array<Subscription> = [];
+  isSpinning = false;
+
+  constructor(
+    private router: Router,
+    private fb: FormBuilder,
+    private partnerSignInService: PartnerAuthService
+  ) { }
+
+  ngOnInit(): void {
+    this.signInForm = this.fb.group({
+      email: ['', [Validators.email, Validators.required]],
+      password: ['', Validators.required],
+    });
+  }
+
+  onSubmit(): void {
+    this.isSpinning = true;
+
+    // Mark all form controls as touched to trigger the display of error messages
+    this.markAllAsTouched();
+
+    if (this.signInForm.valid) {
+      // Send the form value to your Node.js backend
+     const formData: PartnerSignInData = this.signInForm.value;
+      this.subscriptions.push(
+        this.partnerSignInService.siginin(formData).subscribe((res: any) => {
+          Swal.fire({
+            position: "top-end",
+            icon: 'success',
+            text: 'Thank you for sign in up online. We will support you grow your business online',
+            showConfirmButton: false,
+            timer: 10000
+          });
+          this.isSpinning = false;
+          //this.router.navigateByUrl('get-started/connected-economy');
+        }, (error: Error) => {
+          this.isSpinning = false;
+          Swal.fire({
+            position: "top-end",
+            icon: 'info',
+            text: 'Server error occured, please try again',
+            showConfirmButton: false,
+            timer: 4000
+          });
+        })
+      )
+    } else {
+     this.isSpinning = false;
+    }
+  }
+
+   // Helper method to mark all form controls as touched
+   private markAllAsTouched() {
+    Object.keys(this.signInForm.controls).forEach(controlName => {
+      this.signInForm.get(controlName)?.markAsTouched();
+    });
+  }
+
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+  }
+
+
 }

@@ -1,157 +1,120 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { PartnerSignUpData } from '../partner-auth.interface';
+import Swal from 'sweetalert2';
+import { PartnerAuthService } from '../partner-auth.service';
+import { CommonModule } from '@angular/common';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule} from '@angular/material/dialog';
+import { ReservationCodeDialogComponent } from './reservation-code.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 /**
  * @title Partner signup
  */
 @Component({
-    selector: 'async-partner-signup',
-    standalone: true,
-    imports: [MatButtonModule, MatDividerModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-    template: `
-<div class="main-container">
-  <div class="content">
-
-    <div class="left-content">
-      <div class="bold-text">Join Diamond Projecat and earn more</div>
-      <div class="normal-text">
-        As a Diamond Project partner, you can manage your business from one easy-to-use dashboard and grow your business online
-      </div>
-    </div>
-
-    <div class="right-panel">
-      <div class="panel-content">
-        <form>
-          <h2>Partner sign up</h2>
-
-          <div class="names-field">
-            <mat-form-field appearance="outline">
-              <mat-label>Name</mat-label>
-              <input matInput>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Surname</mat-label>
-              <input matInput>
-            </mat-form-field>
-          </div>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Reservation Code</mat-label>
-            <input matInput type="reservationCode">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Phone Number</mat-label>
-            <input matInput type="tel">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Email Address</mat-label>
-            <input matInput type="email">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Enter your password</mat-label>
-            <input matInput [type]="hide ? 'password' : 'text'">
-            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-              <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-          </mat-form-field>
-
-          <button mat-flat-button color="primary">Sign up</button>
-        </form>
-
-        <p>Already have an account? <a routerLink="../../../auth/partner" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign in</a></p>
-
-        <p>By Signing up, you agree to our <a href="">Terms of Service</a> and <a href=""> Privacy policy</a></p>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="benefit">
-  <h1>Why partner with us?</h1>
-  <p class="sub-title">Bonnyride is trusted by partners from across the States of Nigeria. We’re known for:</p>
-
-  <div class="benefit-container">
-
-    <div class="benefit-content">
-      <div class="fa-icon">
-        <div class="fa fa-dollar" aria-hidden="true"></div>
-      </div>
-      <h3>String, stable earnings</h3>
-      <p>
-        Reliable returns with consistent demand.
-      </p>
-    </div>
-
-    <div class="benefit-content">
-      <div class="fa-icon">
-        <div class="fa fa-eye" aria-hidden="true"></div>
-      </div>
-      <h3>Complete transparency</h3>
-      <p>
-        A sleek, modern portal to manage all aspects of your business.
-      </p>
-    </div>
-
-    <div class="benefit-content">
-      <div class="fa-icon">
-        <div class="fa fa-support" aria-hidden="true"></div>
-      </div>
-      <h3>Great customer support</h3>
-      <p>
-        Short response times for business-related queries.
-      </p>
-    </div>
-
-  </div>
-</div>
-
-<div class="benefit">
-  <div class="car-portal">
-    <h1>How our partner portal works</h1>
-    <p class="sub-title">
-    Operate your business in real-time with the most extensive and easy to use cab management software available on the market today.
-    </p>
-  </div>
-</div>
-
-<div class="step-container">
-  <div class="step-content">
-    <h1>Boost your cab earning with Bonnyride</h1>
-    <ol>
-      <li>
-        <h2>Sign up</h2>
-        <p>It takes just 2 minutes to register a partner account.</p>
-      </li>
-      <li>
-        <h2>Get approved</h2>
-        <p>Add car details such as vehicles and drivers while we activate your account.</p>
-      </li>
-      <li>
-        <h2>Start earning</h2>
-        <p>Once approved, your car is ready to start earning on the roads.</p>
-      </li>
-    </ol>
-
-    <a mat-raised-button color="primary" (click)="scrollToTop()">Sign up now</a>
-  </div>
-</div>
-`,
-styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
+  selector: 'async-partner-signup',
+  standalone: true,
+  providers: [PartnerAuthService],
+  imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, CommonModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+  templateUrl: 'partner-signup.component.html',
+  styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
 })
-export class PartnerSignupComponent {
+export class PartnerSignupComponent implements OnInit, OnDestroy {
   hide = true;
+
+  signUpForm: FormGroup = new FormGroup({}); // Assigning a default value
+  subscriptions: Array<Subscription> = [];
+  isSpinning = false;
+
+  readonly dialog = inject(MatDialog);
+
+  constructor(
+    private router: Router,
+    private fb: FormBuilder,
+    private partnerSignUpService: PartnerAuthService
+  ) { }
+
+  ngOnInit(): void {
+    this.signUpForm = this.fb.group({
+      reservationCode: ['', Validators.required],
+      phone: ['', Validators.required],
+      email: ['', [Validators.email, Validators.required]],
+      name: ['', Validators.required],
+      surname: ['', Validators.required],
+      password: ['', Validators.required],
+    });
+  }
+
+  onSubmit(): void {
+    this.isSpinning = true;
+
+    // Mark all form controls as touched to trigger the display of error messages
+    this.markAllAsTouched();
+
+    if (this.signUpForm.valid) {
+      // Send the form value to your Node.js backend
+     const formData: PartnerSignUpData = this.signUpForm.value;
+      this.subscriptions.push(
+        this.partnerSignUpService.signup(formData).subscribe((res: any) => {
+          Swal.fire({
+            position: "top-end",
+            icon: 'success',
+            text: 'Thank you for sign in up online. We will support you grow your business online',
+            showConfirmButton: false,
+            timer: 10000
+          });
+          this.isSpinning = false;
+          //this.router.navigateByUrl('get-started/connected-economy');
+        }, (error: Error) => {
+          this.isSpinning = false;
+          Swal.fire({
+            position: "top-end",
+            icon: 'info',
+            text: 'Server error occured, please try again',
+            showConfirmButton: false,
+            timer: 4000
+          });
+        })
+      )
+    } else {
+     this.isSpinning = false;
+    }
+    
+  }
+
+   // Helper method to mark all form controls as touched
+   private markAllAsTouched() {
+    Object.keys(this.signUpForm.controls).forEach(controlName => {
+      this.signUpForm.get(controlName)?.markAsTouched();
+    });
+  }
+
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+  }
 
   // Method to scroll to the top of the page
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  openDialog(enterAnimationDuration: string, exitAnimationDuration: string): void {
+    this.dialog.open(ReservationCodeDialogComponent, {
+      //width: '50em',
+      enterAnimationDuration,
+      exitAnimationDuration,
+    });
   }
 }

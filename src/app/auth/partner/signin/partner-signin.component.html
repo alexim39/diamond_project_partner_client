@@ -2,22 +2,33 @@
     <div class="login-panel">
       <h1>Partner Sign in</h1>
       <h2>Log in into your account</h2>
-      <form>
+      <form [formGroup]="signInForm" (submit)="onSubmit()">
 
         <mat-form-field appearance="outline">
           <mat-label>Phone Number</mat-label>
-          <input matInput type="tel">
+          <input matInput type="email" formControlName="email">
+          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
+            Email is invalid
+          </mat-error>
+          <mat-error *ngIf="signInForm.get('email')?.hasError('required') ">
+            Email is required
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Enter your password</mat-label>
-          <input matInput [type]="hide ? 'password' : 'text'">
+          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
+            Email is invalid
+          </mat-error>
           <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
             <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
         </mat-form-field>
 
-        <button mat-flat-button color="primary">Sign in</button>
+        <mat-progress-bar class="progress-bar" mode="indeterminate" *ngIf="isSpinning"></mat-progress-bar>
+
+        <button mat-flat-button color="primary" [disabled]="isSpinning">Sign in</button>
 
       </form>
 

@@ -1,5 +1,5 @@
 .main-container {
-  background: url('./../../../../../public/img/img4.jpg') no-repeat center center;
+  background: url('./../../../../../public/img/img1.jpg') no-repeat center center;
   background-size: cover;
   height: auto;
   display: flex;
@@ -42,12 +42,15 @@
               width: 49%;
             }
           }
+          .progress-bar {
+            margin-bottom: 1em;
+          }
         }
         p {
           font-family: cursive;
           margin-top: 2em;
           a {
-            color: #00838F;
+            color: #ffab40;
             text-decoration: none;
           }
         }
@@ -79,10 +82,10 @@
     .benefit-content {
       .fa-icon {
         font-size: 3em;
-        color:#00838F;
+        color:#ffab40;
         .fa {
           border-radius: 50%;
-          border: 1px solid #ccc;
+          border: 1px solid #bdc16e;
           width: 50px;
           height: 50px;
         }
@@ -115,7 +118,7 @@
   .step-content {
     width: 50%;
     color: white;
-    background: rgb(56, 56, 56);
+    background: #111111;
     border-radius: 20px;
     padding: 1em 0 2em 3em;
     ol {
@@ -126,5 +129,30 @@
         }
       }
     }
+     h1 {
+      text-align: center;
+    }
+    a {
+      float: right;
+      margin-right: 3em;
+    }
   }
 }
+
+
+.reservation-code-container {
+  display: flex;
+  align-items: center;
+  .form-field {
+    flex: 9; /* Takes 90% of the available space */
+  }
+  
+  .fa-icon {
+    flex: 1; /* Takes 10% of the available space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+

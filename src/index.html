@@ -1,15 +1,46 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <style type="text/css">
+    body, html {height: 100%;}
+    .app-loading { position: relative;  display: flex;  flex-direction: column; align-items: center; justify-content: center; height: 100%; font-size: 12px; }
+    .app-loading .spinner {  height: 160px;  width: 160px;  animation: rotate 2s linear infinite;  transform-origin: center center;  position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto; }
+    .app-loading .spinner .path {  stroke-dasharray: 1, 200;  stroke-dashoffset: 0;  animation: dash 1.5s ease-in-out infinite;  stroke-linecap: round; stroke: #050111;  /* stroke: #006064 */;  }
+    @keyframes rotate {
+      100% {   transform: rotate(360deg);  }
+    }
+    @keyframes dash {
+      0% {   stroke-dasharray: 1, 200;   stroke-dashoffset: 0;  }
+      50% {  stroke-dasharray: 89, 200;  stroke-dashoffset: -35px;  }
+      100% { stroke-dasharray: 89, 200; stroke-dashoffset: -124px;   }
+    }
+  </style>
   <meta charset="utf-8">
-  <title>Partners</title>
+  <title>Diamond Project - Online Business Management Platform</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="keywords" content="Diamond project, La buena vida, Amazon project, How to make money online, Financial freedom, Financial freedom training, Easy ways to make money online, How to make money from home, best online business, Make money online, Online training to make money">
+  <meta name="description" content="At Diamond Project, We are dedicated to guiding you towards becoming the ultimate versions of themselves.">
+  <meta name="description" content="Our transformative platform empowers individuals to elevate lives through a multifaceted approach.">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="mat-typography">
-  <async-root></async-root>
+  <async-root>
+    <main class="app-loading">
+      <div class="logo">Getting system ready!</div>
+      <svg class="spinner" viewBox="25 25 50 50">
+        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="1" stroke-miterlimit="10"/>
+      </svg>
+    </main>
+  </async-root>
 </body>
 </html>
+
+
+
+
+
+

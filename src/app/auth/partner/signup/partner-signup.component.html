@@ -1,0 +1,160 @@
+<div class="main-container">
+    <div class="content">
+  
+      <div class="left-content">
+        <div class="bold-text">Join Diamond Projecat and earn more</div>
+        <div class="normal-text">
+          As a Diamond Project partner, you can manage your business from one easy-to-use dashboard and grow your business online
+        </div>
+      </div>
+  
+      <div class="right-panel">
+        <div class="panel-content">
+          <form [formGroup]="signUpForm" (submit)="onSubmit()">
+            <h2>Partner sign up</h2>
+  
+            <div class="names-field">
+              <mat-form-field appearance="outline">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name">
+                <mat-error *ngIf="signUpForm.get('name')?.hasError('required') ">
+                  Name is required
+                </mat-error>
+              </mat-form-field>
+  
+              <mat-form-field appearance="outline">
+                <mat-label>Surname</mat-label>
+                <input matInput formControlName="surname">
+                <mat-error *ngIf="signUpForm.get('surname')?.hasError('required') ">
+                Surname is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="reservation-code-container">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Reservation Code</mat-label>
+                <input matInput formControlName="reservationCode">
+                <mat-error *ngIf="signUpForm.get('reservationCode')?.hasError('required')">
+                  Reservation code is required
+                </mat-error>
+              </mat-form-field>
+              <div class="fa-icon">
+                <i class="fa fa-info-circle" aria-hidden="true" matTooltip="Info about reservation code" (click)="openDialog('30ms', '30ms')"></i>
+              </div>
+            </div>
+  
+            <mat-form-field appearance="outline">
+              <mat-label>Phone Number</mat-label>
+              <input matInput type="tel" formControlName="phone">
+              <mat-error *ngIf="signUpForm.get('phone')?.hasError('required') ">
+                  Phone number is required
+                </mat-error>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline">
+              <mat-label>Email Address</mat-label>
+              <input matInput type="email" formControlName="email">
+                <mat-error *ngIf="signUpForm.get('email')?.hasError('email') ">
+                  Email is invalid
+                </mat-error>
+                <mat-error *ngIf="signUpForm.get('email')?.hasError('required') ">
+                  Email is required
+                </mat-error>
+            </mat-form-field>
+  
+            <mat-form-field appearance="outline">
+              <mat-label>Enter your password</mat-label>
+              <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+              <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="signUpForm.get('password')?.hasError('required') ">
+                  Password is required
+                </mat-error>
+            </mat-form-field>
+
+            <mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
+
+  
+            <button mat-flat-button color="primary" [disabled]="isSpinning">Sign up</button>
+          </form>
+  
+          <p>Already have an account? <a routerLink="../../../auth/partner" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign in</a></p>
+  
+          <p>By Signing up, you agree to our <a href="http://diamondprojectonline.com/#/legal/terms" target="_blank">Terms of Service</a> and <a href="http://diamondprojectonline.com/#/legal/privacy" target="_blank"> Privacy policy</a></p>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="benefit">
+    <h1>Why partner with us?</h1>
+    <p class="sub-title">Diamond Project is trusted by partners from across Africa and around the World. We’re known for:</p>
+  
+    <div class="benefit-container">
+  
+      <div class="benefit-content">
+        <div class="fa-icon">
+          <div class="fa fa-dollar" aria-hidden="true"></div>
+        </div>
+        <h3>String, Stable earnings</h3>
+        <p>
+          Reliable returns on your investment (ROI) with consistent demand.
+        </p>
+      </div>
+  
+      <div class="benefit-content">
+        <div class="fa-icon">
+          <div class="fa fa-eye" aria-hidden="true"></div>
+        </div>
+        <h3>Complete Transparency</h3>
+        <p>
+          A sleek, modern portal to manage all aspects of your business.
+        </p>
+      </div>
+  
+      <div class="benefit-content">
+        <div class="fa-icon">
+          <div class="fa fa-support" aria-hidden="true"></div>
+        </div>
+        <h3>Great customer support</h3>
+        <p>
+          Short response times for all business-related queries.
+        </p>
+      </div>
+  
+    </div>
+  </div>
+  
+  <div class="benefit">
+    <div class="car-portal">
+      <h1>How our partner portal works</h1>
+      <p class="sub-title">
+      Operate your business in real-time with the most extensive and easy to use custom business management software available on the market today.
+      </p>
+    </div>
+  </div>
+  
+  <div class="step-container">
+    <div class="step-content">
+      <h1>Steps To Start Earning</h1>
+      <ol>
+        <li>
+          <h2>Sign up</h2>
+          <p>It takes just 2 minutes to register a partner account after you have joined our business.</p>
+        </li>
+        <li>
+          <h2>Learn & Apply Our System </h2>
+          <p>Learn how our leverage system works and fellow step by step as we guild you.</p>
+        </li>
+        <li>
+          <h2>Start Earning</h2>
+          <p>Once approved, your are ready to start and grow your business with our leverage system. You start earn.</p>
+        </li>
+      </ol>
+  
+      <a mat-raised-button color="primary" (click)="scrollToTop()">Sign up now</a>
+    </div>
+  </div>
