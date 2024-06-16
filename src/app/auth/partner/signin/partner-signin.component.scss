@@ -1,5 +1,5 @@
 .page {
-    //background: #eee;
+    background: #eee;
     display: flex;
     justify-content: center;
     text-align: center;
@@ -17,13 +17,17 @@
       form {
         display: flex;
         flex-direction: column;
+        .progress-bar {
+          margin-bottom: 1em;
+        }
+        
       }
       p {
         margin: 2em 0;
         font-family: cursive;
         a {
           text-decoration: none;
-          color: #00838f;
+          color: #ffab40;
         }
       }
       .line {

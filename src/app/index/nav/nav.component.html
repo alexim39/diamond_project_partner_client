@@ -5,6 +5,9 @@
     <span class="nav-spacer"></span>
     
     <ng-content *ngIf="isDesktop">
+      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        Home
+      </a>
       <a mat-button routerLink="auth/partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>output</mat-icon> Sign In
       </a>
@@ -16,7 +19,9 @@
 
   <mat-toolbar-row *ngIf="isMobile">
     <!-- <span>Second Line</span> -->
+
     <span class="nav-spacer"></span>
+    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
       <a mat-button routerLink="auth/partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>output</mat-icon> Sign In
       </a>
@@ -26,3 +31,7 @@
   </mat-toolbar-row>
 
 </mat-toolbar>
+
+<div *ngIf="isLoading">
+  <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+</div>
