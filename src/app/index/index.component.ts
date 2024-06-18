@@ -1,21 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { BannerComponent } from '../index/banner/banner.component';
-import { WhyWeExistComponent } from '../index/why-we-exist/why-we-exist.component';
-import { BePartnerComponent } from './be-partner/be-partner.component';
-
-
+import { FooterComponent } from '../index/footer/footer.component';
+import { NavComponent } from '../index/nav/nav.component';
 @Component({
   selector: 'async-index',
   standalone: true,
-  imports: [BannerComponent, WhyWeExistComponent, RouterModule, BePartnerComponent],
+  imports: [RouterModule, FooterComponent, NavComponent],
   template: `
-    
-    <async-banner></async-banner>
-    <async-be-partner></async-be-partner>
-    <async-index-why-we-exist></async-index-why-we-exist>
-    
-
+    <async-nav></async-nav>
+    <router-outlet></router-outlet>
+    <async-footer class="footer"></async-footer>
   `,
   styles: [`
   `]
