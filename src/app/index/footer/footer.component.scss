@@ -10,6 +10,11 @@ mat-toolbar {
     
     p {
         font-size: 0.6em;
+        a {
+            text-decoration: none;
+            color: inherit;
+            font-weight: bold;
+        }
     }
     
     .courtesy {

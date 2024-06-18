@@ -1,15 +1,17 @@
 import { Routes } from "@angular/router";
-import { PartnerSigninComponent } from "./partner/signin/partner-signin.component";
-import { PartnerSignupComponent } from "./partner/signup/partner-signup.component";
+import { DashboardComponent } from "./dashboard.component";
 
 
-export const authRoutes: Routes = [
+
+export const dashboardRoutes: Routes = [
     {
-        path: '',
+        /* path: '',
         redirectTo: 'partner',
-        pathMatch: 'full'
+        pathMatch: 'full' */
+        path: '',
+        component: DashboardComponent,
     },
-    { 
+   /*  { 
         path: 'partner', 
         children: [
             {
@@ -25,12 +27,7 @@ export const authRoutes: Routes = [
                 component: PartnerSignupComponent, 
                 title: "Diamond Project Partner Sign up"
             },
-            /* { path: 'get-involved', 
-                component: GettingInvolvedComponent, 
-                title: "Project Summary - Get involved as a member"
-            }, */
-
         ]
-    },
+    }, */
 
 ]

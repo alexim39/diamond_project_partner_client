@@ -1,20 +1,17 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FooterComponent } from './index/footer/footer.component';
-import { NavComponent } from './index/nav/nav.component';
+
 
 
 @Component({
   selector: 'async-root',
   standalone: true,
-  imports: [RouterOutlet, FooterComponent, NavComponent],
+  imports: [RouterOutlet],
   template: `
   <div id="container">
-    <async-nav></async-nav>
     <div class="body">
       <router-outlet></router-outlet>
     </div>
-    <async-footer class="footer"></async-footer>
   </div>
   `,
   styles: [`
