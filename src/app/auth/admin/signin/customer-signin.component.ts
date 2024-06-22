@@ -30,9 +30,9 @@ import { RouterModule } from '@angular/router';
           <mat-form-field appearance="outline">
             <mat-label>Enter your password</mat-label>
             <input matInput [type]="hide ? 'password' : 'text'">
-            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+            <a mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
               <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
+            </a>
           </mat-form-field>
 
           <button mat-flat-button color="primary">Sign in</button>
