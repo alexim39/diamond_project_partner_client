@@ -1,0 +1,28 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10em;
+  border-bottom: 1px solid #ccc;
+  img {
+    width: 3em;
+    height: 3em;
+    border-radius: 50%;
+  }
+  .name {
+    font-size: 0.7em;
+  }
+  .title {
+    font-size: 0.6em;
+    color: gray;
+    //margin-top: 0.8em;
+  }
+  .social {
+    a {
+      margin-right: 1em;
+      font-size: small;
+      color: black;
+    }
+  }
+}

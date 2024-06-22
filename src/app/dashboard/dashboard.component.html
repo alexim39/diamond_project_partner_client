@@ -3,27 +3,99 @@
       [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
       [opened]="(isHandset$ | async) === false">
-    <mat-toolbar>Menu</mat-toolbar>
+    
+    <!-- User profile -->
+    <mat-toolbar>
+      <async-profile></async-profile>
+    </mat-toolbar>
+    <!-- User profile -->
+
     <mat-nav-list>
-      <a mat-list-item href="#">Link 1</a>
-      <a mat-list-item href="#">Link 2</a>
-      <a mat-list-item href="#">Link 3</a>
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>dashboard</mat-icon> 
+          <span>Dashboard</span>
+        </div>
+      </a>
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>trending_up</mat-icon> 
+          <span>Activity</span>
+        </div>
+      </a>
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>settings_heart</mat-icon> 
+          <span>Tools</span>
+        </div>
+      </a>
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>analytics</mat-icon> 
+          <span>Analytics</span>
+        </div>
+      </a>
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>settings</mat-icon> 
+          <span>Settings</span>
+        </div>
+      </a>
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>help</mat-icon> 
+          <span>Help</span>
+        </div>
+      </a>
+     
+
+
+      <a class="sign-out" mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>logout</mat-icon> 
+          <span> Sign Out</span>
+        </div>
+      </a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      @if (isHandset$ | async) {
-        <button
-          type="button"
-          aria-label="Toggle sidenav"
-          mat-icon-button
-          (click)="drawer.toggle()">
-          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-        </button>
-      }
-      <span>partners</span>
-    </mat-toolbar>
+  <mat-toolbar-row color="primary">
+    @if (isHandset$ | async) {
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+    }
+
+    <span class="logo"><async-logo></async-logo></span>
+    <span class="nav-spacer"></span>
+    
+    <ng-content *ngIf="isDesktop">
+     <!--  <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        Home
+      </a>
+      <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <mat-icon>output</mat-icon> Sign In
+      </a>
+      <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <mat-icon>input</mat-icon> Sign Up
+      </a> -->
+    </ng-content>
+  </mat-toolbar-row>
+
+  <mat-toolbar-row *ngIf="isMobile">
+    <!-- <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
+    <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>output</mat-icon> Sign In</a>
+    <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>input</mat-icon> Sign Up</a> -->
+  </mat-toolbar-row>
+     
+
+    
     <!-- Add Content Here -->
     <router-outlet></router-outlet>
+    
   </mat-sidenav-content>
 </mat-sidenav-container>
