@@ -56,24 +56,43 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
      const formData: PartnerSignInData = this.signInForm.value;
       this.subscriptions.push(
         this.partnerSignInService.siginin(formData).subscribe((res: any) => {
-          Swal.fire({
+         /*  Swal.fire({
             position: "top-end",
             icon: 'success',
             text: 'Thank you for sign in up online. We will support you grow your business online',
             showConfirmButton: false,
             timer: 10000
-          });
+          }); */
           this.isSpinning = false;
-          //this.router.navigateByUrl('get-started/connected-economy');
-        }, (error: Error) => {
-          this.isSpinning = false;
+          this.router.navigateByUrl('dashboard');
+        }, error => {
+         /*  this.isSpinning = false;
           Swal.fire({
             position: "top-end",
             icon: 'info',
             text: 'Server error occured, please try again',
             showConfirmButton: false,
             timer: 4000
-          });
+          }); */
+          this.isSpinning = false;
+          if (error.code == 404) {// user not found
+            Swal.fire({
+              position: 'bottom',
+              icon: 'warning',
+              text: "Check your email or password",
+              showConfirmButton: false,
+              timer: 4000
+            });
+          }
+          if (error.code == 400) {// invalid credentail
+            Swal.fire({
+              position: 'bottom',
+              icon: 'warning',
+              text: "Check your email or password",
+              showConfirmButton: false,
+              timer: 4000
+            });
+          }
         })
       )
     } else {

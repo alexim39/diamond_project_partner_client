@@ -5,10 +5,10 @@ export interface PartnerSignUpData {
     reservationCode: string;
     phone: string;
     password: string;
+    username: string;
 }
 
 export interface PartnerSignInData {
     email: string;
-   
     password: string;
 }
