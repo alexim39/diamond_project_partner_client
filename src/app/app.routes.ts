@@ -5,7 +5,7 @@ export const routes: Routes = [
  // { path: '', component: IndexComponent },
   { path: '', loadChildren: () => import('./index/index-routes').then(r => r.IndexRoutes) },
   //{ path: 'auth', loadChildren: () => import('./auth/auth-routes').then(r => r.authRoutes) },
-  { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard-routes').then(r => r.dashboardRoutes) },
+  { path: 'dashboard', loadChildren: () => import('./dashboard/partner/dashboard-routes').then(r => r.dashboardRoutes) },
 
     // should be the last path on routes
   {path: '**', component: PageNotFoundComponent}

@@ -23,6 +23,7 @@ mat-sidenav {
   mat-nav-list {
     margin-top: 12em;
     a {
+      
       div {
         display: flex;
         align-items: center;
@@ -45,6 +46,9 @@ mat-sidenav {
 mat-sidenav-content {
   .nav-spacer {
     flex: 1 1 auto;
+  }
+  a {
+    color: black;
   }
 }
 

@@ -17,30 +17,42 @@
           <span>Dashboard</span>
         </div>
       </a>
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <div>
-          <mat-icon>trending_up</mat-icon> 
-          <span>Activity</span>
-        </div>
-      </a>
+
       <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
           <mat-icon>settings_heart</mat-icon> 
           <span>Tools</span>
         </div>
       </a>
+
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>trending_up</mat-icon> 
+          <span>Activities</span>
+        </div>
+      </a>
+
       <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
           <mat-icon>analytics</mat-icon> 
           <span>Analytics</span>
         </div>
       </a>
+
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+        <div>
+          <mat-icon>Communities</mat-icon> 
+          <span>Community</span>
+        </div>
+      </a>
+
       <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
           <mat-icon>settings</mat-icon> 
           <span>Settings</span>
         </div>
       </a>
+      
       <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
           <mat-icon>help</mat-icon> 
@@ -74,10 +86,10 @@
     <span class="nav-spacer"></span>
     
     <ng-content *ngIf="isDesktop">
-     <!--  <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        Home
+      <a mat-button [matMenuTriggerFor]="manage_accounts">
+        <mat-icon>manage_accounts</mat-icon>  User profile
       </a>
-      <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+      <!-- <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>output</mat-icon> Sign In
       </a>
       <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
@@ -87,6 +99,9 @@
   </mat-toolbar-row>
 
   <mat-toolbar-row *ngIf="isMobile">
+    <a mat-button [matMenuTriggerFor]="manage_accounts">
+      <mat-icon>manage_accounts</mat-icon>  User profile
+    </a>
     <!-- <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
     <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>output</mat-icon> Sign In</a>
     <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>input</mat-icon> Sign Up</a> -->
@@ -99,3 +114,9 @@
     
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<mat-menu #manage_accounts="matMenu">
+  <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>
+  <button mat-menu-item><mat-icon>groups</mat-icon> Team members</button>
+  <button mat-menu-item><mat-icon>rsvp</mat-icon> Invitation</button>
+</mat-menu>

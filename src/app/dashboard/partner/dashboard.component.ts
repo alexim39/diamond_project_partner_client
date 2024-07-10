@@ -9,10 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { LogoComponent } from '../_common/logo.component';
+import { LogoComponent } from '../../_common/logo.component';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { NavigationEnd, NavigationStart, Router, RouterModule, } from '@angular/router';
 import { ProfileComponent } from './profile/profile.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'async-dashboard',
@@ -20,7 +21,7 @@ import { ProfileComponent } from './profile/profile.component';
   styleUrl: './dashboard.component.scss',
   standalone: true,
   imports: [
-    MatToolbarModule,    MatButtonModule, ProfileComponent,   MatSidenavModule,    MatListModule,    MatIconModule,    AsyncPipe,    RouterModule,    CommonModule,    LogoComponent  ]
+    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent]
 })
 export class DashboardComponent {
   private breakpointObserver = inject(BreakpointObserver);
@@ -31,8 +32,8 @@ export class DashboardComponent {
 
   isLoading: boolean = false; // Flag for loading state
 
-  
-  constructor(private deviceService: DeviceDetectorService,  private router: Router  ) {
+
+  constructor(private deviceService: DeviceDetectorService, private router: Router) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.isLoading = true; // Set loading to true on navigation start
@@ -54,8 +55,8 @@ export class DashboardComponent {
       shareReplay()
     );
 
-     // scroll to top when clicked
-   scrollToTop() {
+  // scroll to top when clicked
+  scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
