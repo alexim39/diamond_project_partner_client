@@ -5,7 +5,7 @@
       <form [formGroup]="signInForm" (submit)="onSubmit()">
 
         <mat-form-field appearance="outline">
-          <mat-label>Phone Number</mat-label>
+          <mat-label>Email address</mat-label>
           <input matInput type="email" formControlName="email">
           <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
             Email is invalid
@@ -21,9 +21,9 @@
           <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
             Email is invalid
           </mat-error>
-          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+          <a mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
             <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-          </button>
+          </a>
         </mat-form-field>
 
         <mat-progress-bar class="progress-bar" mode="indeterminate" *ngIf="isSpinning"></mat-progress-bar>

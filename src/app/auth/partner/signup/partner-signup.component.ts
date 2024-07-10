@@ -16,6 +16,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule} from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { minDigitsValidator } from '../../../_common/services/phone-number-checker';
 
 /**
  * @title Partner signup
@@ -46,7 +47,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.signUpForm = this.fb.group({
       reservationCode: ['', Validators.required],
-      phone: ['', Validators.required],
+      phone: ['', [Validators.required, minDigitsValidator(6)]],
       email: ['', [Validators.email, Validators.required]],
       name: ['', Validators.required],
       surname: ['', Validators.required],
@@ -68,12 +69,18 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "top-end",
             icon: 'success',
-            text: 'Thank you for sign in up online. We will support you grow your business online',
-            showConfirmButton: false,
-            timer: 10000
+            text: 'Thank you for partnering with us. We will support you grow your business online',
+            showConfirmButton: true,
+            timer: 15000,
+            confirmButtonColor: "#131c2b",
+            confirmButtonText: "Sign in Now",
+          }).then((result) => {
+            if (result.isConfirmed) {
+             this.router.navigateByUrl('partner/signin');
+            }
           });
           this.isSpinning = false;
-          //this.router.navigateByUrl('get-started/connected-economy');
+          
         }, (error: Error) => {
           this.isSpinning = false;
           Swal.fire({

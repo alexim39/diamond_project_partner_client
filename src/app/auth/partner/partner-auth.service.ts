@@ -41,7 +41,7 @@ export class PartnerAuthService {
   signup(signUpData: PartnerSignUpData): Observable<PartnerSignUpData> {
     console.log('form record', signUpData);
     return this.http
-      .post<PartnerSignUpData>(this.api + '/user/signup', signUpData)
+      .post<PartnerSignUpData>(this.api + '/partners/signup', signUpData)
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -49,7 +49,14 @@ export class PartnerAuthService {
    siginin(signInData: PartnerSignInData): Observable<PartnerSignInData> {
     console.log('form record', signInData);
     return this.http
-      .post<PartnerSignInData>(this.api + '/user/sigin', signInData)
+      .post<PartnerSignInData>(this.api + '/partners/signin', signInData)
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+   // user sign out
+   signOut(formObject: {}): Observable<any> {
+    return this.http
+      .post<any>(this.api + '/partners/signout', formObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
