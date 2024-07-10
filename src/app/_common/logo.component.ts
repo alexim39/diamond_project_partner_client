@@ -10,7 +10,7 @@ import { RouterModule } from '@angular/router';
     <a [routerLink]="['/']" [style.color]="color">
       <span>
         <img src="./img/logo.PNG">
-        Diamond Project (Online) - Partners
+        Diamond Project (Online) <span class="partners"> Partners</span>
       </span>
     </a>
   `,
@@ -21,13 +21,18 @@ import { RouterModule } from '@angular/router';
         display: flex;
         justify-content: center;
         font-family: "Audiowide", sans-serif;
-        font-size: 20px;
+        font-size: 0.9em;
         font-weight: bold;
         img {
           width: 1.3em;
           height: 1.3em;
           border-radius: 10%;
           margin-right: 1px;
+        }
+        .partners {
+          color: gray;
+          font-size: 0.6em;
+          //font-family: Verdana;
         }
       }
     }
