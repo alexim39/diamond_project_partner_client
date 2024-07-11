@@ -1,0 +1,176 @@
+<!-- <button mat-raised-button (click)="isLinear = !isLinear" id="toggle-linear">
+    {{!isLinear ? 'Enable linear mode' : 'Disable linear mode'}}
+  </button> -->
+  <mat-stepper orientation="vertical" #stepper>
+
+    <mat-step [stepControl]="firstFormGroup">
+      <form [formGroup]="firstFormGroup">
+        <ng-template matStepLabel>Target Audience</ng-template>
+
+        <div class="form">
+            <mat-form-field appearance="outline">
+                <mat-label>Age range</mat-label>
+                <mat-select required>
+                  <mat-option value="18-24">18-24</mat-option>
+                  <mat-option value="25-34">25-34</mat-option>
+                  <mat-option value="35-44"> 35-44</mat-option>
+                  <mat-option value="45-54">45-54</mat-option>
+                  <mat-option value="55-64">55-64</mat-option>
+                  <mat-option value="65+">65+</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Gender</mat-label>
+                <mat-select required>
+                  <mat-option value="All">All</mat-option>
+                  <mat-option value="Men">Men</mat-option>
+                  <mat-option value="Women">Women</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Location</mat-label>
+                <mat-select required>
+                  <mat-option value="States">States</mat-option>
+                  <mat-option value="Countries">Countries</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Education</mat-label>
+                <mat-select required>
+                  <mat-option value="All">All</mat-option>
+                  <mat-option value="High School">High School</mat-option>
+                  <mat-option value="College">College</mat-option>
+                  <mat-option value="Graduate School">Graduate School</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Relationship status</mat-label>
+                <mat-select required>
+                  <mat-option value="Single">Single</mat-option>
+                  <mat-option value="Married">Married</mat-option>
+                  <mat-option value="In a Relationship">In a Relationship</mat-option>
+                </mat-select>
+            </mat-form-field>
+    
+            <!-- <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="firstCtrl" required>
+            </mat-form-field> -->
+        </div>
+
+        <button mat-button matStepperNext>Next</button>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="secondFormGroup">
+      <form [formGroup]="secondFormGroup">
+        <ng-template matStepLabel>Marketing Objectives</ng-template>
+        
+        <div class="form">
+            <mat-form-field appearance="outline">
+                <mat-label>Primary Objective</mat-label>
+                <mat-select required>
+                  <mat-option value="Brand awareness">Brand awareness</mat-option>
+                  <mat-option value="Reach">Reach</mat-option>
+                  <mat-option value="Messages">Messages</mat-option>
+                  <mat-option value="Conversions">Conversions</mat-option>
+                  <mat-option value="Traffic">Traffic</mat-option>
+                  <mat-option value="Engagement">Engagement</mat-option>
+                  <mat-option value="Video views">Video views</mat-option>
+                  <mat-option value="Lead generation">Lead generation</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Success Measurement</mat-label>
+                <mat-select required>
+                  <mat-option value="Return on Ad Spend (ROAS)">Return on Ad Spend (ROAS)</mat-option>
+                  <mat-option value="Cost per Click (CPC)">Cost per Click (CPC)</mat-option>
+                  <mat-option value="Cost per Thousand Impressions (CPM)">Cost per Thousand Impressions (CPM)</mat-option>
+                  <mat-option value="Cost per Acquisition (CPA)">Cost per Acquisition (CPA)</mat-option>
+                  <mat-option value="Engagement rate">Engagement rate</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="secondFormGroup">
+        <form [formGroup]="secondFormGroup">
+          <ng-template matStepLabel>Budget</ng-template>
+          <mat-form-field>
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY"
+                   required>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+    </mat-step>
+
+    <mat-step [stepControl]="secondFormGroup">
+    <form [formGroup]="secondFormGroup">
+        <ng-template matStepLabel>Ad Duration</ng-template>
+        <mat-form-field>
+        <mat-label>Address</mat-label>
+        <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY"
+                required>
+        </mat-form-field>
+        <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+        </div>
+    </form>
+    </mat-step>
+
+    <mat-step [stepControl]="secondFormGroup">
+        <form [formGroup]="secondFormGroup">
+          <ng-template matStepLabel>Ad Format</ng-template>
+          <mat-form-field>
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY"
+                   required>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </form>
+    </mat-step>
+
+    <mat-step [stepControl]="secondFormGroup">
+        <form [formGroup]="secondFormGroup">
+            <ng-template matStepLabel>Ad Placement</ng-template>
+            <mat-form-field>
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY"
+                    required>
+            </mat-form-field>
+            <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+            </div>
+        </form>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Done</ng-template>
+      <p>You are now done.</p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div>
+    </mat-step>
+
+  </mat-stepper>

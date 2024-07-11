@@ -15,6 +15,11 @@ import { NavigationEnd, NavigationStart, Router, RouterModule, } from '@angular/
 import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { PartnerAuthService } from '../../auth/partner/partner-auth.service';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+import { MarketingChannelsComponent } from './marketing-channels/marketing-channels.component';
+
+// Define the SubmenuKey type
+type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities';
 
 @Component({
   selector: 'async-dashboard',
@@ -22,7 +27,25 @@ import { PartnerAuthService } from '../../auth/partner/partner-auth.service';
   styleUrl: './dashboard.component.scss',
   standalone: true,
   imports: [
-    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent
+    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
+    MarketingChannelsComponent
+  ],
+  animations: [
+    trigger('submenuToggle', [
+      state('closed', style({
+        height: '0',
+        overflow: 'hidden',
+        opacity: 0,
+      })),
+      state('open', style({
+        height: '*',
+        overflow: 'hidden',
+        opacity: 1,
+      })),
+      transition('closed <=> open', [
+        animate('300ms ease-in-out')
+      ]),
+    ])
   ],
   providers: [PartnerAuthService]
 })
@@ -36,7 +59,16 @@ export class DashboardComponent implements OnDestroy {
   isDesktop!: boolean;
 
   isLoading: boolean = false; // Flag for loading state
+  
 
+  submenus: Record<SubmenuKey, boolean> = {
+    tools: false,
+    community: false,
+    analytics: false,
+    settings: false,
+    activities: false
+  };
+  
 
   constructor(
     private deviceService: DeviceDetectorService, 
@@ -89,5 +121,13 @@ export class DashboardComponent implements OnDestroy {
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe();
     });
+  }
+
+  toggleSubmenu(menu: SubmenuKey) {
+    this.submenus[menu] = !this.submenus[menu];
+  }
+
+  isSubmenuOpen(menu: SubmenuKey): boolean {
+    return this.submenus[menu];
   }
 }
