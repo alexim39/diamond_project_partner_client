@@ -53,7 +53,10 @@ mat-sidenav-content {
   }
 }
 
-
+.submenu {
+  padding-left: 20px;
+  border-bottom: 1px solid #e2e2e2;
+}
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {

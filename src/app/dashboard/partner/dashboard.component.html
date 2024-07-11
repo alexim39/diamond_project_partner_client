@@ -11,47 +11,74 @@
     <!-- User profile -->
 
     <mat-nav-list>
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
           <mat-icon>dashboard</mat-icon> 
           <span>Dashboard</span>
         </div>
       </a>
 
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+    
+      <a mat-list-item (click)="toggleSubmenu('tools')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>settings_heart</mat-icon> 
           <span>Tools</span>
         </div>
       </a>
+      <div [@submenuToggle]="isSubmenuOpen('tools') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="marketing-channels" routerLinkActive="active" (click)="scrollToTop()" title="Marketing Channels">Marketing Channels</a>
+        <a mat-list-item routerLink="/tool2" routerLinkActive="active" (click)="scrollToTop()">Create Campaign</a>
+        <a mat-list-item routerLink="/tool2" routerLinkActive="active" (click)="scrollToTop()">Manage Campaign</a>
+      </div>
 
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <div>
-          <mat-icon>trending_up</mat-icon> 
-          <span>Activities</span>
-        </div>
-      </a>
 
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+      <a mat-list-item (click)="toggleSubmenu('analytics')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>analytics</mat-icon> 
           <span>Analytics</span>
         </div>
       </a>
+      <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Performance Reports</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Channel Analytics</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Conversion Tracking</a>
+      </div>
 
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+
+      <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <div>
+          <mat-icon>trending_up</mat-icon> 
+          <span>Activities</span>
+        </div>
+      </a>
+      <div [@submenuToggle]="isSubmenuOpen('activities') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Webinars & Live Sessions</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">eBooks & Articles</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Training Videos</a>
+      </div>
+
+    
+      <a mat-list-item (click)="toggleSubmenu('community')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>Communities</mat-icon> 
           <span>Community</span>
         </div>
       </a>
-
-      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+      <div [@submenuToggle]="isSubmenuOpen('community') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Forum</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Events</a>
+      </div>
+    
+      <a mat-list-item (click)="toggleSubmenu('settings')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>settings</mat-icon> 
           <span>Settings</span>
         </div>
       </a>
+      <div [@submenuToggle]="isSubmenuOpen('settings') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Account Settings</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Billing</a>
+      </div>
       
       <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
@@ -59,9 +86,7 @@
           <span>Help</span>
         </div>
       </a>
-     
-
-
+    
       <a class="sign-out" mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="signOut()">
         <div>
           <mat-icon>logout</mat-icon> 
@@ -69,6 +94,7 @@
         </div>
       </a>
     </mat-nav-list>
+
   </mat-sidenav>
   <mat-sidenav-content>
   <mat-toolbar-row color="primary">
