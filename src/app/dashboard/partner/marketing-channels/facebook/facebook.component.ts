@@ -6,6 +6,9 @@ import {MatStepperModule} from '@angular/material/stepper';
 import {MatButtonModule} from '@angular/material/button';
 import {MatSelectModule} from '@angular/material/select';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { CommonModule } from '@angular/common';  
 
 /**
  * @title Stepper vertical
@@ -17,12 +20,14 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
   standalone: true,
   imports: [
     MatButtonModule, MatSelectModule, MatCheckboxModule,
-    MatStepperModule,
+    MatStepperModule, MatDatepickerModule, CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
   ],
+  providers: [provideNativeDateAdapter()],
+
 })
 export class FacebookComponent {
   targetAudienceFormGroup!: FormGroup;
@@ -31,6 +36,10 @@ export class FacebookComponent {
   adDurationFormGroup!: FormGroup;
   adFormatFormGroup!: FormGroup;
   adPreferences!: FormGroup;
+
+  minDate!: Date; // New property to store the minimum allowed date
+  duration!: null | number;
+
 
   constructor(private _formBuilder: FormBuilder) {}
 
@@ -54,8 +63,8 @@ export class FacebookComponent {
     });
 
     this.adDurationFormGroup = this._formBuilder.group({
-      compaignStartDate: ['', Validators.required],
-      compaignEndDate: ['', Validators.required],
+      campaignStartDate: ['', Validators.required],
+      campaignEndDate: new FormControl({ value: '', disabled: false }), // Initially disabled
       noEndDate: [false]
     });
 
@@ -73,15 +82,89 @@ export class FacebookComponent {
       MessengerInbox: new FormControl(false),
     })
 
+    // Set minimum date to today
+    this.minDate = new Date();
+    
+    this.adDurationFormGroup.valueChanges.subscribe(() => {
+      this.calculateDuration();
+    });
+
+   
   }
 
+  onNoEndDateChange(event: any) {
+    const isChecked = event.source.checked;
+    const endDateControl = this.adDurationFormGroup.get('campaignEndDate');
+    if (isChecked) {
+      endDateControl?.disable();
+      endDateControl?.setValue(''); // Set empty value when disabled
+    } else {
+      endDateControl?.enable();
+    }
+  }
+
+ private calculateDuration() {
+
+    if (!this.adDurationFormGroup.get('noEndDate')?.value) {
+
+      const startDateControl = this.adDurationFormGroup.get('campaignStartDate');
+      const endDateControl = this.adDurationFormGroup.get('campaignEndDate');
+      if (startDateControl && endDateControl) {
+        const startDate = new Date(startDateControl.value);
+        const endDate = new Date(endDateControl.value);
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          const durationInMilliseconds = endDate.getTime() - startDate.getTime();
+          this.duration = durationInMilliseconds / (1000 * 3600 * 24);
+        } else {
+          this.duration = null;
+        }
+      }
+    } else {
+      this.duration = null;
+    }
+  }
+
+
+  getSelectedAdPreferences(): string[] {
+    const adPreferencesGroup = this.adPreferences.value;
+    if (!adPreferencesGroup) {
+      return [];
+    }
+
+    const selectedPreferences = Object.keys(adPreferencesGroup)
+      .filter(key => adPreferencesGroup[key])
+      .map(key => this.separateCamelCase(key));
+
+    return selectedPreferences;
+  }
+
+  private separateCamelCase(input: string): string {
+    let result = '';
+
+    for (let i = 0; i < input.length; i++) {
+      const char = input.charAt(i);
+      // Check if the character is uppercase and not the first character
+      if (char === char.toUpperCase() && i !== 0) {
+        // Separate the words at this position
+        result = `${input.substring(0, i)} ${input.substring(i)}`;
+        break;
+      }
+    }
+
+    return result.trim();
+  }
 
   onSubmit() {
     const campaignData = {
       targetAudience: this.targetAudienceFormGroup.value,
       marketingObjectives: this.marketingObjectivesFormGroup.value,
       budget: this.budgetFormGroup.value,
-      adDuration: this.adDurationFormGroup.value,
+      adDuration: {
+        campaignStartDate: this.adDurationFormGroup.get('campaignStartDate')?.value,
+        noEndDate: this.adDurationFormGroup.get('noEndDate')?.value,
+        // If noEndDate is true, set campaignEndDate to null (optional)
+        campaignEndDate: this.adDurationFormGroup.get('noEndDate')?.value ? null : this.adDurationFormGroup.get('campaignEndDate')?.value
+      },
       adFormat: {
         ...this.adFormatFormGroup.value,
         adPreferences: this.adPreferences.value,
