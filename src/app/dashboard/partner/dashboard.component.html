@@ -86,7 +86,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('settings') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Account Settings</a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Billing</a>
+        <a mat-list-item routerLink="billing" routerLinkActive="active" (click)="scrollToTop()">Billing</a>
       </div>
       
       <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
