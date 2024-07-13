@@ -53,6 +53,12 @@ mat-sidenav-content {
   }
 }
 
+.active {
+  color: #ffab40 !important;
+  text-decoration:overline;
+  font-size: 1.2em;
+}
+
 .submenu {
   padding-left: 20px;
   border-bottom: 1px solid #e2e2e2;
