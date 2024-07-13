@@ -1,5 +1,5 @@
-import {Component, inject} from '@angular/core';
-import {FormBuilder, Validators, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {Component} from '@angular/core';
+import {FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatStepperModule} from '@angular/material/stepper';
@@ -25,22 +25,71 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
   ],
 })
 export class FacebookComponent {
-  firstFormGroup = this.formBuilder.group({
-    firstCtrl: ['', Validators.required],
-  });
-  secondFormGroup = this.formBuilder.group({
-    secondCtrl: ['', Validators.required],
-  });
+  targetAudienceFormGroup!: FormGroup;
+  marketingObjectivesFormGroup!: FormGroup;
+  budgetFormGroup!: FormGroup;
+  adDurationFormGroup!: FormGroup;
+  adFormatFormGroup!: FormGroup;
+  adPreferences!: FormGroup;
 
-  private readonly _formBuilder = inject(FormBuilder);
+  constructor(private _formBuilder: FormBuilder) {}
 
-  readonly toppings = this._formBuilder.group({
-    pepperoni: false,
-    extracheese: false,
-    mushroom: false,
-  });
+  ngOnInit() {
+    this.targetAudienceFormGroup = this._formBuilder.group({
+      ageRangeTarget: ['', Validators.required],
+      genderTarget: ['', Validators.required],
+      locationTarget: ['', Validators.required],
+      educationTarget: ['', Validators.required],
+      relationshipTarget: ['', Validators.required]
+    });
 
-  constructor(private formBuilder: FormBuilder) {}
+    this.marketingObjectivesFormGroup = this._formBuilder.group({
+      adObjective: ['', Validators.required],
+      successMeasurement: ['', Validators.required]
+    });
+
+    this.budgetFormGroup = this._formBuilder.group({
+      budgetType: ['', Validators.required],
+      budgetAmount: ['', [Validators.required, Validators.pattern('^[0-9]*$')]]
+    });
+
+    this.adDurationFormGroup = this._formBuilder.group({
+      compaignStartDate: ['', Validators.required],
+      compaignEndDate: ['', Validators.required],
+      noEndDate: [false]
+    });
+
+    this.adFormatFormGroup = this._formBuilder.group({
+      adFormat: ['', Validators.required],
+      deviceType: ['', Validators.required]
+    });
+
+    this.adPreferences = this._formBuilder.group({
+      FacebookFeed: new FormControl(false),
+      InstagramFeed: new FormControl(false),
+      InstagramStories: new FormControl(false),
+      FacebookStories: new FormControl(false),
+      AudienceNetwork: new FormControl(false),
+      MessengerInbox: new FormControl(false),
+    })
+
+  }
+
+
+  onSubmit() {
+    const campaignData = {
+      targetAudience: this.targetAudienceFormGroup.value,
+      marketingObjectives: this.marketingObjectivesFormGroup.value,
+      budget: this.budgetFormGroup.value,
+      adDuration: this.adDurationFormGroup.value,
+      adFormat: {
+        ...this.adFormatFormGroup.value,
+        adPreferences: this.adPreferences.value,
+      }
+    }; 
+
+    console.log('Campaign submitted successfully', campaignData);
+  }
 
   
 }
