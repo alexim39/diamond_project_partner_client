@@ -9,6 +9,7 @@
             <mat-form-field appearance="outline">
                 <mat-label>Age range</mat-label>
                 <mat-select required formControlName="ageRangeTarget">
+                  <mat-option value="All">All</mat-option>
                   <mat-option value="18-24">18-24</mat-option>
                   <mat-option value="25-34">25-34</mat-option>
                   <mat-option value="35-44"> 35-44</mat-option>
@@ -133,15 +134,21 @@
         <div class="form">
           <mat-form-field appearance="outline">
             <mat-label>Campaign Start Date</mat-label>
-            <input matInput formControlName="compaignStartDate" required>
+            <input matInput [matDatepicker]="campaignStartDatePicker" formControlName="campaignStartDate" [min]="minDate" required>
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="campaignStartDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #campaignStartDatePicker></mat-datepicker>
           </mat-form-field>
-  
+
           <mat-form-field appearance="outline">
             <mat-label>Campaign End Date</mat-label>
-            <input matInput formControlName="compaignEndDate" required>
+            <input matInput [matDatepicker]="campaignEndDatePicker" formControlName="campaignEndDate" [min]="minDate" required>
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="campaignEndDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #campaignEndDatePicker></mat-datepicker>
           </mat-form-field>
           
-          <mat-checkbox class="no-end-date" formControlName="noEndDate">No End Date</mat-checkbox>
+          <mat-checkbox class="no-end-date" formControlName="noEndDate" (change)="onNoEndDateChange($event)">No End Date</mat-checkbox>
   
         </div>
 
@@ -199,17 +206,74 @@
     <mat-step>
       <ng-template matStepLabel>Done</ng-template>
       <p>You are now done. But before publishing here are your summary</p>
+      <p>Landing page URL: www.diamondprojectonline.com/username</p>
 
       <div class="summary">
-        <div>Campaign duration is: </div>
-        <div>Landing page URL: www.diamondprojectonline.com/username</div>
 
+        <div class="summary-target-audience">
+          <details open>
+            <summary>Target Audience Summary</summary>
+            <p>Target Age Range: {{ targetAudienceFormGroup.get('ageRangeTarget')?.value }}</p>
+            <p>Target Gender: {{ targetAudienceFormGroup.get('genderTarget')?.value }}</p>
+            <p>Target Location: {{ targetAudienceFormGroup.get('locationTarget')?.value }}</p>
+            <p>Target Education Level: {{ targetAudienceFormGroup.get('educationTarget')?.value }}</p>
+            <p>Target Relationship Status: {{ targetAudienceFormGroup.get('relationshipTarget')?.value }}</p>
+          </details>
+        </div>
+
+        <div class="summary-marketing-objective">
+          <details open>
+            <summary>Marketing Objective Summary</summary>
+            <p>Marketing Primary Objective: {{ marketingObjectivesFormGroup.get('adObjective')?.value }}</p>
+            <p>Marketing Success Measure: {{ marketingObjectivesFormGroup.get('successMeasurement')?.value }}</p>
+           
+          </details>
+        </div>
+
+        <div class="summary-marketing-budget">
+          <details open>
+            <summary>Marketing Budget Summary</summary>
+            <p>Budget Type: {{ budgetFormGroup.get('budgetType')?.value }}</p>
+            <p>Budget Amount: {{ budgetFormGroup.get('budgetAmount')?.value | currency:'₦':'symbol':'1.0-0' }}</p>
+            
+          </details>
+        </div>
+
+        <div class="summary-ad-duration">
+          <details open>
+            <summary>Ad Duration Summary</summary>
+            <p>Campaign Start Date: {{ adDurationFormGroup.get('campaignStartDate')?.value | date }} </p>
+            <p>Campaign End Date: {{ adDurationFormGroup.get('noEndDate')?.value ? 'No end date' : this.adDurationFormGroup.get('campaignEndDate')?.value | date}}</p>
+            <p>Duration: {{ adDurationFormGroup.get('noEndDate')?.value ? 'Continuous' : duration + ' days' }}</p>
+          
+          </details>
+        </div>
+
+        <div class="summary-ad-format">
+          <details open>
+            <summary>Ad Format Summary</summary>
+            <p>Ad Primary Format: {{ adFormatFormGroup.get('adFormat')?.value }}</p>
+            <!-- <p>Ad Placements: {{ adFormatFormGroup.get('adPreferences')?.value }}</p> -->
+            <p>Ad Target Device: {{ adFormatFormGroup.get('deviceType')?.value }}</p>
+            <p>Ad Placements: </p>
+              <ul>
+                <li *ngFor="let preference of getSelectedAdPreferences()">{{ preference }}</li>
+              </ul>
+            
+          </details>
+        </div>
       </div>
-
+        
+    
       <div>
         <button mat-button matStepperPrevious>Back</button>
         <button mat-button (click)="stepper.reset()">Reset</button>
-        <button mat-raised-button class="publish" (click)="onSubmit()">Publish</button>
+        <button mat-flat-button class="publish" (click)="onSubmit()" color="primary" [disabled]="
+        targetAudienceFormGroup.invalid || 
+        marketingObjectivesFormGroup.invalid || 
+        budgetFormGroup.invalid || 
+        adDurationFormGroup.invalid || 
+        adFormatFormGroup.invalid">Publish</button>
       </div>
     </mat-step>
 
