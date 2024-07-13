@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
       <div>
 
         <span class="mark">
-          <strong>Manage Your Business: </strong>You can manage and monitor your business on our partners platform
+          <strong>Manage Your Business: </strong>You can manage, monitor and grow your business on our partners platform
           <!-- <div class="more">
             <a routerLink="cab-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
           </div> -->
@@ -29,7 +29,7 @@ import { CommonModule } from '@angular/common';
         </span>
 
         <span>
-          <strong>Grow Your Business: </strong>The platform will help you grow your business as you can reach out to other partners
+          <strong>Grow Your Business: </strong>The platform will help you grow your business as you can reach out to new partners and stay connected with member partners
           <!-- <div class="more">
             <a routerLink="tow-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
           </div> -->

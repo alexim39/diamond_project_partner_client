@@ -26,9 +26,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('tools') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="marketing-channels" routerLinkActive="active" (click)="scrollToTop()" title="Marketing Channels">Marketing Channels</a>
-        <a mat-list-item routerLink="/tool2" routerLinkActive="active" (click)="scrollToTop()">Create Campaign</a>
-        <a mat-list-item routerLink="/tool2" routerLinkActive="active" (click)="scrollToTop()">Manage Campaign</a>
+        <a mat-list-item routerLink="marketing-channels" routerLinkActive="active" (click)="scrollToTop()" title="Marketing Channels">Create Campaign</a>
+        <a mat-list-item routerLink="/tool2" routerLinkActive="active" (click)="scrollToTop()" title="Manage Campaign">Manage Campaign</a>
       </div>
 
 
@@ -39,9 +38,9 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Performance Reports</a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Channel Analytics</a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Conversion Tracking</a>
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Performance Reports">Performance Reports</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Channel Analytics">Channel Analytics</a>
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Conversion Tracking">Conversion Tracking</a>
       </div>
 
 
