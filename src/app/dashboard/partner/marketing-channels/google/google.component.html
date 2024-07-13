@@ -38,24 +38,38 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>Education</mat-label>
+                <mat-label>Interests</mat-label>
                 <mat-select required>
                   <mat-option value="All">All</mat-option>
-                  <mat-option value="High School">High School</mat-option>
-                  <mat-option value="College">College</mat-option>
-                  <mat-option value="Graduate School">Graduate School</mat-option>
+                  <mat-option value="Technology">Technology</mat-option>
+                  <mat-option value="Fashion">Fashion</mat-option>
+                  <mat-option value="Sports">Sports</mat-option>
+                  <mat-option value="Travel">Travel</mat-option>
+                  <mat-option value="Food & Drink">Food & Drink</mat-option>
+                  <mat-option value="Entertainment">Entertainment</mat-option>
+                  <mat-option value="Health & Fitness">Health & Fitness</mat-option>
+                  <mat-option value="Business">Business</mat-option>
+                  <mat-option value="Education">Education</mat-option>
                 </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>Relationship status</mat-label>
+                <mat-label>Behaviors</mat-label>
                 <mat-select required>
-                  <mat-option value="Single">Single</mat-option>
-                  <mat-option value="Married">Married</mat-option>
-                  <mat-option value="In a Relationship">In a Relationship</mat-option>
+                  <mat-option value="All">All</mat-option>
+                  <mat-option value="Online shoppers">Online shoppers</mat-option>
+                  <mat-option value="Mobile users">Mobile users</mat-option>
+                  <mat-option value="Gamers">Gamers</mat-option>
+                  <mat-option value="Frequent travelers">Frequent travelers</mat-option>
+                  <mat-option value="Video streamers">Video streamers</mat-option>
+                  <mat-option value="Tech enthusiasts">Tech enthusiasts</mat-option>
                 </mat-select>
             </mat-form-field>
     
+            <!-- <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="firstCtrl" required>
+            </mat-form-field> -->
         </div>
 
         <button mat-button matStepperNext>Next</button>
@@ -71,17 +85,13 @@
                 <mat-label>Primary Objective</mat-label>
                 <mat-select required>
                   <mat-option value="Brand awareness">Brand awareness</mat-option>
-                  <mat-option value="Reach">Reach</mat-option>
-                  <mat-option value="Messages">Messages</mat-option>
-                  <mat-option value="Conversions">Conversions</mat-option>
-                  <mat-option value="Traffic">Traffic</mat-option>
-                  <mat-option value="Engagement">Engagement</mat-option>
-                  <mat-option value="Video views">Video views</mat-option>
                   <mat-option value="Lead generation">Lead generation</mat-option>
+                  <mat-option value="Sales">Sales</mat-option>
+                  <mat-option value="Website traffic">Website traffic</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+           <!--  <mat-form-field appearance="outline">
                 <mat-label>Success Measurement</mat-label>
                 <mat-select required>
                   <mat-option value="Return on Ad Spend (ROAS)">Return on Ad Spend (ROAS)</mat-option>
@@ -90,7 +100,7 @@
                   <mat-option value="Cost per Acquisition (CPA)">Cost per Acquisition (CPA)</mat-option>
                   <mat-option value="Engagement rate">Engagement rate</mat-option>
                 </mat-select>
-            </mat-form-field>
+            </mat-form-field> -->
         </div>
 
         <div>
@@ -110,6 +120,12 @@
                 <mat-select required>
                   <mat-option value="Daily budget">Daily budget</mat-option>
                   <mat-option value="Lifetime budget">Lifetime budget</mat-option>
+                 <!--  <mat-option value="Messages">Messages</mat-option>
+                  <mat-option value="Conversions">Conversions</mat-option>
+                  <mat-option value="Traffic">Traffic</mat-option>
+                  <mat-option value="Engagement">Engagement</mat-option>
+                  <mat-option value="Video views">Video views</mat-option>
+                  <mat-option value="Lead generation">Lead generation</mat-option> -->
                 </mat-select>
             </mat-form-field>
 
@@ -144,7 +160,7 @@
           
           <mat-checkbox>No End Date</mat-checkbox>
   
-          
+          <div>Campaign duration is: </div>
         </div>
 
         <div>
@@ -154,64 +170,32 @@
     </form>
     </mat-step>
 
+
     <mat-step [stepControl]="secondFormGroup">
         <form [formGroup]="secondFormGroup">
-          <ng-template matStepLabel>Ad Format</ng-template>
-          
-          <div class="form">
-            <mat-form-field appearance="outline">
-                <mat-label>Primary Ad Format</mat-label>
+            <ng-template matStepLabel>Ad Placement</ng-template>
+            
+            <div class="form">
+              <mat-form-field appearance="outline">
+                <mat-label>Device Targeting</mat-label>
                 <mat-select required>
-                  <mat-option value="Single Image Ad">Single Image Ad</mat-option>
-                  <mat-option value="Video Ad">Video Ad</mat-option>
-                  <mat-option value="Carousel Ad (multiple images or videos)">Carousel Ad (multiple images or videos)</mat-option>
-                  <mat-option value="Stories Ad">Stories Ad</mat-option>
-                  <!-- <mat-option value="Traffic">Traffic</mat-option>
-                  <mat-option value="Engagement">Engagement</mat-option>
-                  <mat-option value="Video views">Video views</mat-option>
-                  <mat-option value="Lead generation">Lead generation</mat-option> -->
+                  <mat-option value="All devices">All devices</mat-option>
+                  <mat-option value="Mobile only">Mobile only</mat-option>
+                  <mat-option value="Desktop only">Desktop only</mat-option>
                 </mat-select>
             </mat-form-field>
-
-
-            <section class="ad-preference" [formGroup]="toppings">
-              <h4>Select Placement Preferences</h4>
-              <p><mat-checkbox formControlName="pepperoni">Facebook Feed</mat-checkbox></p>
-              <p><mat-checkbox formControlName="extracheese">Instagram Feed</mat-checkbox></p>
-              <p><mat-checkbox formControlName="mushroom">Instagram Stories</mat-checkbox></p>
-              <p><mat-checkbox formControlName="mushroom">Facebook Stories</mat-checkbox></p>
-              <p><mat-checkbox formControlName="mushroom">Audience Network</mat-checkbox></p>
-              <p><mat-checkbox formControlName="mushroom">Messenger Inbox</mat-checkbox></p>
-            </section>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Device Targeting</mat-label>
-              <mat-select required>
-                <mat-option value="All devices">All devices</mat-option>
-                <mat-option value="Mobile only">Mobile only</mat-option>
-                <mat-option value="Desktop only">Desktop only</mat-option>
-              </mat-select>
-          </mat-form-field>
-
-          </div>
-
-          <div>
-            <button mat-button matStepperPrevious>Back</button>
-            <button mat-button matStepperNext>Next</button>
-          </div>
+            </div>
+            
+            <div>
+              <button mat-button matStepperPrevious>Back</button>
+              <button mat-button matStepperNext>Next</button>
+            </div>
         </form>
     </mat-step>
 
     <mat-step>
       <ng-template matStepLabel>Done</ng-template>
-      <p>You are now done. But before publishing here are your summary</p>
-
-      <div class="summary">
-        <div>Campaign duration is: </div>
-        <div>Landing page URL: www.diamondprojectonline.com/username</div>
-
-      </div>
-
+      <p>You are now done.</p>
       <div>
         <button mat-button matStepperPrevious>Back</button>
         <button mat-button (click)="stepper.reset()">Reset</button>

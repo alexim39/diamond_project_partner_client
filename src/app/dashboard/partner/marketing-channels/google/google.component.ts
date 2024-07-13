@@ -11,9 +11,9 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
  * @title Stepper vertical
  */
 @Component({
-  selector: 'async-facebook',
-  templateUrl: 'facebook.component.html',
-  styleUrl: 'facebook.component.scss',
+  selector: 'async-google',
+  templateUrl: 'google.component.html',
+  styleUrl: 'google.component.scss',
   standalone: true,
   imports: [
     MatButtonModule, MatSelectModule, MatCheckboxModule,
@@ -24,7 +24,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatInputModule,
   ],
 })
-export class FacebookComponent {
+export class GoogleComponent {
   firstFormGroup = this.formBuilder.group({
     firstCtrl: ['', Validators.required],
   });
