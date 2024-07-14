@@ -16,7 +16,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { PartnerAuthService } from '../../auth/partner/partner-auth.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { MarketingChannelsComponent } from './marketing-channels/marketing-channels.component';
+import { MarketingChannelsComponent } from './create-campaign/marketing-channels.component';
 
 // Define the SubmenuKey type
 type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities';
