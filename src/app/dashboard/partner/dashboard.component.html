@@ -26,8 +26,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('tools') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="marketing-channels" routerLinkActive="active" (click)="scrollToTop()" title="Marketing Channels">Create Campaign</a>
-        <a mat-list-item routerLink="/tool2" routerLinkActive="active" (click)="scrollToTop()" title="Manage Campaign">Manage Campaign</a>
+        <a mat-list-item routerLink="create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Marketing Channels">Create Campaign</a>
+        <a mat-list-item routerLink="manage-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Manage Campaign">Manage Campaign</a>
       </div>
 
 
@@ -124,10 +124,10 @@
       <a mat-button [matMenuTriggerFor]="manage_accounts">
         <mat-icon>manage_accounts</mat-icon>  User profile
       </a>
-      <!-- <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <mat-icon>output</mat-icon> Sign In
+      <a mat-button [matMenuTriggerFor]="notifications">
+        <mat-icon>notifications</mat-icon> Notification
       </a>
-      <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+      <!-- <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>input</mat-icon> Sign Up
       </a> -->
     </ng-content>
@@ -154,4 +154,9 @@
   <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>
   <button mat-menu-item><mat-icon>groups</mat-icon> Team members</button>
   <button mat-menu-item><mat-icon>rsvp</mat-icon> Invitation</button>
+</mat-menu>
+<mat-menu #notifications="matMenu">
+  <!-- <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>
+  <button mat-menu-item><mat-icon>groups</mat-icon> Team members</button>
+  <button mat-menu-item><mat-icon>rsvp</mat-icon> Invitation</button> -->
 </mat-menu>
