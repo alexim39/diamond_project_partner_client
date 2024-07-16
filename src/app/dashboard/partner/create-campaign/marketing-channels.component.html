@@ -5,16 +5,16 @@
 
         <mat-tab-group>
             <mat-tab label="Facebook"> 
-                <async-facebook></async-facebook>
+                <async-facebook *ngIf="partner" [partner]="partner"></async-facebook>
             </mat-tab>
             <mat-tab label="Youtube">
-               <!--  <async-youtube></async-youtube> -->
+               <!--  <async-youtube *ngIf="partner" [partner]="partner"></async-youtube> -->
             </mat-tab>
             <mat-tab label="Google (Search Engine)">
-                <!-- <async-google></async-google> -->
+                <!-- <async-google *ngIf="partner" [partner]="partner"></async-google> -->
             </mat-tab>
             <mat-tab label="LinkedIn">
-               <!--  <async-linkedin></async-linkedin> -->
+               <!--  <async-linkedin *ngIf="partner" [partner]="partner"></async-linkedin> -->
             </mat-tab>
             <!-- <mat-tab label="Email"> Content 3 </mat-tab> -->
         </mat-tab-group>

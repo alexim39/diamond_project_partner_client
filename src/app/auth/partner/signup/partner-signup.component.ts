@@ -66,13 +66,14 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
      const formData: PartnerSignUpData = this.signUpForm.value;
       this.subscriptions.push(
         this.partnerSignUpService.signup(formData).subscribe((res: any) => {
+          
           Swal.fire({
-            position: "top-end",
+            position: "bottom",
             icon: 'success',
             text: 'Thank you for partnering with us. We will support you grow your business online',
             showConfirmButton: true,
             timer: 15000,
-            confirmButtonColor: "#131c2b",
+            confirmButtonColor: "#ffab40",
             confirmButtonText: "Sign in Now",
           }).then((result) => {
             if (result.isConfirmed) {
@@ -81,15 +82,35 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
           });
           this.isSpinning = false;
           
-        }, (error: Error) => {
+        }, (error: any) => {
+          console.log(error)
           this.isSpinning = false;
+          if (error.code == 400) {
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'This reservation code does not exist',
+              showConfirmButton: false,
+              timer: 4000
+            });
+          } else if(error.code == 401) {
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'This reservation code has been used',
+              showConfirmButton: false,
+              timer: 4000
+            });
+          }  else {
+                      
           Swal.fire({
-            position: "top-end",
+            position: "bottom",
             icon: 'info',
             text: 'Server error occured, please try again',
             showConfirmButton: false,
             timer: 4000
-          });
+          })
+          };
         })
       )
     } else {

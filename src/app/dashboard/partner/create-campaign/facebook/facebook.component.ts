@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -9,6 +9,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule } from '@angular/common';  
+import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { RouterModule } from '@angular/router';
 
 /**
  * @title Stepper vertical
@@ -21,7 +23,7 @@ import { CommonModule } from '@angular/common';
   imports: [
     MatButtonModule, MatSelectModule, MatCheckboxModule,
     MatStepperModule, MatDatepickerModule, CommonModule,
-    FormsModule,
+    FormsModule, RouterModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -39,6 +41,8 @@ export class FacebookComponent {
 
   minDate!: Date; // New property to store the minimum allowed date
   duration!: null | number;
+
+  @Input() partner!: PartnerInterface;
 
 
   constructor(private _formBuilder: FormBuilder) {}
@@ -89,7 +93,7 @@ export class FacebookComponent {
       this.calculateDuration();
     });
 
-   
+   //console.log(this.partner)
   }
 
   onNoEndDateChange(event: any) {

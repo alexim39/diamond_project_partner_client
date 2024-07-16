@@ -17,6 +17,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { PartnerAuthService } from '../../auth/partner/partner-auth.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { MarketingChannelsComponent } from './create-campaign/marketing-channels.component';
+import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
+import { Emitters } from '../../_common/emitters/emitters';
 
 // Define the SubmenuKey type
 type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities';
@@ -26,6 +28,7 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   standalone: true,
+  providers: [PartnerService, PartnerAuthService],
   imports: [
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
     MarketingChannelsComponent
@@ -47,7 +50,6 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
       ]),
     ])
   ],
-  providers: [PartnerAuthService]
 })
 export class DashboardComponent implements OnDestroy {
   private breakpointObserver = inject(BreakpointObserver);
@@ -68,12 +70,15 @@ export class DashboardComponent implements OnDestroy {
     settings: false,
     activities: false
   };
+
+  partner!: PartnerInterface;
   
 
   constructor(
     private deviceService: DeviceDetectorService, 
     private router: Router,
-    private partnerAuthService: PartnerAuthService
+    private partnerAuthService: PartnerAuthService,
+    private partnerService: PartnerService,
   ) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
@@ -88,6 +93,23 @@ export class DashboardComponent implements OnDestroy {
     this.isMobile = this.deviceService.isMobile();
     this.isTablet = this.deviceService.isTablet();
     this.isDesktop = this.deviceService.isDesktop();
+
+    // get current signed in user
+    this.subscriptions.push(
+      this.partnerService.getPartner().subscribe(
+        res => {
+          this.partner = res as PartnerInterface
+          Emitters.authEmitter.emit(true);
+          //console.log(this.partner)
+        },
+        error => {
+          console.log(error)
+          Emitters.authEmitter.emit(false);
+          // redirect to home page
+          this.router.navigate(['/'])
+        }
+      )
+    )
   }
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -115,6 +137,7 @@ export class DashboardComponent implements OnDestroy {
 
     this.scrollToTop();
   }
+
 
   ngOnDestroy() {
     // unsubscribe list
