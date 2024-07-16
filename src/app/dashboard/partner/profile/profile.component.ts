@@ -1,5 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
+import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
+import { CommonModule } from '@angular/common';
 
 /**
  * @title Profile
@@ -9,7 +11,17 @@ import {MatButtonModule} from '@angular/material/button';
   templateUrl: 'profile.component.html',
   styleUrls: ['profile.component.scss'],
   standalone: true,
-  imports: [MatButtonModule,],
+  imports: [MatButtonModule, CommonModule],
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
+  @Input() partner!: PartnerInterface;
+
+  constructor(
+    private partnerService: PartnerService
+  ) {  }
+
+  ngOnInit() {
+    // Update the partner object sharing service
+    this.partnerService.updatePartnerService(this.partner);
+  }
 }

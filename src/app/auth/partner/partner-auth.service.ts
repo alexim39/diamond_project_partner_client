@@ -39,17 +39,17 @@ export class PartnerAuthService {
 
   // user sign up 
   signup(signUpData: PartnerSignUpData): Observable<PartnerSignUpData> {
-    console.log('form record', signUpData);
+    //console.log('form record', signUpData);
     return this.http
-      .post<PartnerSignUpData>(this.api + '/partners/signup', signUpData)
+      .post<PartnerSignUpData>(this.api + '/partners/signup', signUpData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
    // user sign in 
    siginin(signInData: PartnerSignInData): Observable<PartnerSignInData> {
-    console.log('form record', signInData);
+    //console.log('form record', signInData);
     return this.http
-      .post<PartnerSignInData>(this.api + '/partners/signin', signInData)
+      .post<PartnerSignInData>(this.api + '/partners/signin', signInData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 

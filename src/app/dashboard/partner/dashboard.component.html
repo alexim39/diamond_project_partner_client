@@ -6,7 +6,7 @@
     
     <!-- User profile -->
     <mat-toolbar>
-      <async-profile></async-profile>
+      <async-profile *ngIf="partner" [partner]="partner"></async-profile>
     </mat-toolbar>
     <!-- User profile -->
 
