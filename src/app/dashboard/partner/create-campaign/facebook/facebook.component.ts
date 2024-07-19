@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -11,6 +11,9 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule } from '@angular/common';  
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { RouterModule } from '@angular/router';
+import { CreateCampaignService } from '../create-campaign.service';
+import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 /**
  * @title Stepper vertical
@@ -28,10 +31,10 @@ import { RouterModule } from '@angular/router';
     MatFormFieldModule,
     MatInputModule,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideNativeDateAdapter(), CreateCampaignService],
 
 })
-export class FacebookComponent {
+export class FacebookComponent implements OnInit, OnDestroy {
   targetAudienceFormGroup!: FormGroup;
   marketingObjectivesFormGroup!: FormGroup;
   budgetFormGroup!: FormGroup;
@@ -44,8 +47,14 @@ export class FacebookComponent {
 
   @Input() partner!: PartnerInterface;
 
+  subscriptions: Array<Subscription> = [];
+  isSpinning = false;
 
-  constructor(private _formBuilder: FormBuilder) {}
+
+  constructor(
+    private _formBuilder: FormBuilder,
+    private createCampaignService: CreateCampaignService
+  ) {}
 
   ngOnInit() {
     this.targetAudienceFormGroup = this._formBuilder.group({
@@ -172,11 +181,43 @@ export class FacebookComponent {
       adFormat: {
         ...this.adFormatFormGroup.value,
         adPreferences: this.adPreferences.value,
-      }
+      },
+      createdBy: this.partner._id,
     }; 
 
-    console.log('Campaign submitted successfully', campaignData);
+    this.subscriptions.push(
+      this.createCampaignService.facebook(campaignData).subscribe((res: any) => {
+        
+        Swal.fire({
+          position: "bottom",
+          icon: 'success',
+          text: 'Thank you for creating your ad campaign. We will publish this campaign on Facebook soon',
+          showConfirmButton: true,
+          timer: 15000,
+        })
+        this.isSpinning = false;
+        
+      }, (error: any) => {
+        console.log(error)
+        this.isSpinning = false;     
+        Swal.fire({
+          position: "bottom",
+          icon: 'info',
+          text: 'Server error occured, please try again',
+          showConfirmButton: false,
+          timer: 4000
+        })
+      })
+    )
   }
+
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+  }
+
 
   
 }

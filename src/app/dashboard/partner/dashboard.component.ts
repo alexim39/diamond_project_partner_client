@@ -103,7 +103,7 @@ export class DashboardComponent implements OnDestroy {
           //console.log(this.partner)
         },
         error => {
-          console.log(error)
+          //console.log(error)
           Emitters.authEmitter.emit(false);
           // redirect to home page
           this.router.navigate(['/'])
