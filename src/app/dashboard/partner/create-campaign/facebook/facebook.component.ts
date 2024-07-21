@@ -183,6 +183,8 @@ export class FacebookComponent implements OnInit, OnDestroy {
         adPreferences: this.adPreferences.value,
       },
       createdBy: this.partner._id,
+      campaignName: 'Facebook',
+      deliveryStatus: 'Pending',
     }; 
 
     this.subscriptions.push(

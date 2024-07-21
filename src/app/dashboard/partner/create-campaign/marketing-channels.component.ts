@@ -30,7 +30,7 @@ export class MarketingChannelsComponent implements OnInit {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.sharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           //console.log(this.partner)

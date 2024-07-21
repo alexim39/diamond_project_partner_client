@@ -1,0 +1,28 @@
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        .title {
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .back {
+                cursor: pointer;
+            }
+            .back:hover {
+                cursor: pointer;
+                opacity: 0.5;
+
+            }
+            h3 {
+                margin-top: 1em; 
+            }
+        }
+    }
+}

@@ -17,11 +17,10 @@ export class ProfileComponent implements OnInit {
   @Input() partner!: PartnerInterface;
 
   constructor(
-    private partnerService: PartnerService
+    
   ) {  }
 
   ngOnInit() {
-    // Update the partner object sharing service
-    this.partnerService.updatePartnerService(this.partner);
+    
   }
 }
