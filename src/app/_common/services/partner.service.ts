@@ -65,9 +65,10 @@ export class PartnerService {
 
   private partnerSubject = new BehaviorSubject<any>(null); // Initial value can be anything
 
-  sharedPartnerData$ = this.partnerSubject.asObservable();
+  getSharedPartnerData$ = this.partnerSubject.asObservable();
 
   updatePartnerService(data: PartnerInterface) {
+    //console.log('login ',data)
     this.partnerSubject.next(data);
   }
 
