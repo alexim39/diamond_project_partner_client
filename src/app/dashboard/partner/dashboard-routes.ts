@@ -5,6 +5,7 @@ import { MarketingChannelsComponent } from "./create-campaign/marketing-channels
 import { BillingComponent } from "./billing/billing.component";
 import { ManageCampaignContainerComponent } from "./manage-campaign/manage-campaign-container.component";
 import { ManageCampaignDetailContainerComponent } from "./manage-campaign/details/manage-campaign-detail-container.component";
+import { MonthlyPurchaseContainerComponent } from "./monthly-purchase/monthly-purchase-container.component";
 
 
 
@@ -39,6 +40,11 @@ export const dashboardRoutes: Routes = [
                 path: 'billing',
                 component: BillingComponent,
                 title: "Payment and billing",
+            },        
+            {
+                path: 'monthly-purchase',
+                component: MonthlyPurchaseContainerComponent,
+                title: "Monthly Product Purchases",
             },        
         ]
     },

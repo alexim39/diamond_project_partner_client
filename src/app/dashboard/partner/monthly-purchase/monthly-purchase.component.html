@@ -1,0 +1,36 @@
+<section class="async-background">
+    <h2>Monthly Product Order</h2>
+
+    <section class="async-container">
+        <div class="title">
+            <h3>Product List</h3>
+            <div class="fund-area">
+                <a mat-list-item routerLink="../create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign" mat-raised-button><mat-icon>shopping_cart_checkout</mat-icon>Checkout</a>
+            </div>
+        </div>
+
+        <div class="search">
+            <mat-form-field appearance="outline">
+                <mat-label>Filter by products name</mat-label>
+                <input matInput type="search" name="filterProducts" [(ngModel)]="filterText">
+            </mat-form-field>
+        </div>
+
+        <section class="main">
+            <div class="product-grid">
+                <!-- Example product card -->
+                <div class="product-card" *ngFor="let product of products | productFilter:filterText">
+                    <img src="/img/products/{{product.img}}.PNG" alt="{{product.name | titlecase}}">
+                    <h3>{{product.name | titlecase}}</h3>
+                    <p>{{product.price | currency:'₦':'symbol':'1.0-0' }}</p>
+                    <button mat-flat-button (click)="openDialog(product)">Learn more</button>
+                    <button mat-flat-button>Add to Cart</button>
+                </div>
+                <!-- Repeat for more products -->
+            </div>
+        </section>
+
+    </section>
+
+
+</section>

@@ -51,7 +51,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('activities') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Monthly Purchase">Monthly Purchase</a>
+        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()" title="Order Products">Order Products</a>
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Purchases">Purchases</a>
       </div>
 
       <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
