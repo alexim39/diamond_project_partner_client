@@ -1,14 +1,14 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl} from '@angular/forms';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatStepperModule} from '@angular/material/stepper';
-import {MatButtonModule} from '@angular/material/button';
-import {MatSelectModule} from '@angular/material/select';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatDatepickerModule} from '@angular/material/datepicker';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { CommonModule } from '@angular/common';  
+import { CommonModule } from '@angular/common';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { RouterModule } from '@angular/router';
 import { CreateCampaignService } from '../create-campaign.service';
@@ -54,7 +54,7 @@ export class FacebookComponent implements OnInit, OnDestroy {
   constructor(
     private _formBuilder: FormBuilder,
     private createCampaignService: CreateCampaignService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.targetAudienceFormGroup = this._formBuilder.group({
@@ -97,12 +97,12 @@ export class FacebookComponent implements OnInit, OnDestroy {
 
     // Set minimum date to today
     this.minDate = new Date();
-    
+
     this.adDurationFormGroup.valueChanges.subscribe(() => {
       this.calculateDuration();
     });
 
-   //console.log(this.partner)
+    //console.log(this.partner)
   }
 
   onNoEndDateChange(event: any) {
@@ -116,7 +116,7 @@ export class FacebookComponent implements OnInit, OnDestroy {
     }
   }
 
- private calculateDuration() {
+  private calculateDuration() {
 
     if (!this.adDurationFormGroup.get('noEndDate')?.value) {
 
@@ -185,11 +185,11 @@ export class FacebookComponent implements OnInit, OnDestroy {
       createdBy: this.partner._id,
       campaignName: 'Facebook',
       deliveryStatus: 'Pending',
-    }; 
+    };
 
     this.subscriptions.push(
       this.createCampaignService.facebook(campaignData).subscribe((res: any) => {
-        
+
         Swal.fire({
           position: "bottom",
           icon: 'success',
@@ -198,10 +198,10 @@ export class FacebookComponent implements OnInit, OnDestroy {
           timer: 15000,
         })
         this.isSpinning = false;
-        
+
       }, (error: any) => {
         console.log(error)
-        this.isSpinning = false;     
+        this.isSpinning = false;
         Swal.fire({
           position: "bottom",
           icon: 'info',
@@ -221,5 +221,5 @@ export class FacebookComponent implements OnInit, OnDestroy {
   }
 
 
-  
+
 }

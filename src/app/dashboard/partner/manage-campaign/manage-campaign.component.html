@@ -18,14 +18,14 @@
             <div class="search">
                 <mat-form-field appearance="outline">
                     <mat-label>Filter by campaign name</mat-label>
-                    <input matInput type="search">
+                    <input matInput type="search" name="campaignFilter" [(ngModel)]="filterText">
                 </mat-form-field>
             </div>
     
             <div class="table">
     
     
-                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+                <table mat-table [dataSource]="dataSource | campaignFilter:filterText" class="mat-elevation-z8">
     
                     <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->
