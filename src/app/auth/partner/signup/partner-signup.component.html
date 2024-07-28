@@ -71,7 +71,10 @@
               </button>
               <mat-error *ngIf="signUpForm.get('password')?.hasError('required') ">
                   Password is required
-                </mat-error>
+              </mat-error>
+              <mat-error *ngIf="signUpForm.get('password')?.errors?.['minlength'] && signUpForm.get('password')?.touched">  
+                Password must be at least 6 characters long.  
+              </mat-error> 
             </mat-form-field>
 
             <mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>

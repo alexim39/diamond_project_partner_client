@@ -14,6 +14,7 @@ export interface PartnerInterface {
   phone: string;
   password: string;
   username: string;
+  bio?: string;
 }
 
 @Injectable()

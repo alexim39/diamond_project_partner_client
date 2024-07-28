@@ -5,6 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
 
 
 export interface transactionInterface {
@@ -29,7 +30,7 @@ const ELEMENT_DATA: transactionInterface[] = [
   styleUrl: 'billing.component.scss',
   templateUrl: 'billing.component.html',
   standalone: true,
-  imports: [FormsModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule],
+  imports: [FormsModule, CommonModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule],
 })
 export class BillingComponent {
   displayedColumns: string[] = ['transactionId', 'dateOfPayment', 'amount', 'paymentMethod', 'paymentStatus', 'action'];

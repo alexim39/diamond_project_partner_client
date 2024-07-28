@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import { FacebookComponent } from './facebook/facebook.component';
 import { YoutubeComponent } from './youtube/youtube.component';
@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [MatTabsModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule],
 })
-export class MarketingChannelsComponent implements OnInit {
+export class MarketingChannelsComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
 
@@ -41,5 +41,12 @@ export class MarketingChannelsComponent implements OnInit {
         }
       )
     )
+  }
+
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
   }
 }
