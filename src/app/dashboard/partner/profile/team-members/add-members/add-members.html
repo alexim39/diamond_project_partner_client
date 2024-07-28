@@ -1,0 +1,51 @@
+<section class="async-background">
+    <h2>Add team members</h2>
+
+    <section class="async-container">
+        <div class="title">
+            <!-- <h3>Invite using different channels</h3> -->
+            <div class="fund-area">
+                <!-- <a mat-raised-button><mat-icon>monitoring</mat-icon>Check invites status</a> -->
+
+                <!-- <div class="fund">
+                    Prepaid balance
+                    N5,000
+                </div> -->
+            </div>
+        </div>
+
+        <!-- <div class="search">
+            <mat-form-field appearance="outline">
+                <mat-label>Filter by transanction amount</mat-label>
+                <input matInput placeholder="0.00" type="search">
+            </mat-form-field>
+        </div> -->
+
+
+        <div class="container">
+            <mat-card appearance="outlined">
+                
+                <form class="example-form">
+                    <mat-form-field class="example-full-width">
+                      <mat-label>Assignee</mat-label>
+                      <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto">
+                      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+                        @for (option of filteredOptions | async; track option) {
+                          <mat-option [value]="option">{{option.name}}</mat-option>
+                        }
+                      </mat-autocomplete>
+                    </mat-form-field>
+                  </form>
+                  
+            </mat-card>
+        </div>
+
+    
+
+
+
+
+    </section>
+
+
+</section>

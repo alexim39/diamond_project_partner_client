@@ -152,9 +152,9 @@
 </mat-sidenav-container>
 
 <mat-menu #manage_accounts="matMenu">
-  <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>
-  <button mat-menu-item><mat-icon>groups</mat-icon> Team members</button>
-  <button mat-menu-item><mat-icon>rsvp</mat-icon> Invitation</button>
+  <a mat-menu-item routerLink="profile-mgr" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
+  <a mat-menu-item routerLink="team-members" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>groups</mat-icon> Team members</a>
+  <a mat-menu-item routerLink="prospect-invite" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> Prospect invitation</a>
 </mat-menu>
 <mat-menu #notifications="matMenu">
   <!-- <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>

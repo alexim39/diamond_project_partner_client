@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import { MonthlyPurchaseComponent } from './monthly-purchase.component';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
   providers: [ProductService],
   imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule],
 })
-export class MonthlyPurchaseContainerComponent {
+export class MonthlyPurchaseContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   productsObject!: ProductObjectInterface;
@@ -51,6 +51,13 @@ export class MonthlyPurchaseContainerComponent {
         }
       )
     )
+  }
+
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
   }
 
 }

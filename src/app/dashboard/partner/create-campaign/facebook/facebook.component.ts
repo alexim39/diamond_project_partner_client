@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 import { CreateCampaignService } from '../create-campaign.service';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 /**
  * @title Stepper vertical
@@ -26,7 +27,7 @@ import Swal from 'sweetalert2';
   imports: [
     MatButtonModule, MatSelectModule, MatCheckboxModule,
     MatStepperModule, MatDatepickerModule, CommonModule,
-    FormsModule, RouterModule,
+    FormsModule, RouterModule, MatProgressBarModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -168,6 +169,7 @@ export class FacebookComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.isSpinning = true;
     const campaignData = {
       targetAudience: this.targetAudienceFormGroup.value,
       marketingObjectives: this.marketingObjectivesFormGroup.value,

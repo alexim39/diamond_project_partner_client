@@ -1,0 +1,177 @@
+<section class="async-background">
+    <h2>Profile manager</h2>
+
+    <section class="async-container">
+        <div class="title">
+            <h1>Update Profile Datail</h1>
+            <div class="fund-area">
+                <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
+
+                <!-- <div class="fund">
+                    Prepaid balance
+                    N5,000
+                </div> -->
+            </div>
+        </div>
+
+        <!-- <div class="search">
+            <mat-form-field appearance="outline">
+                <mat-label>Filter by transanction amount</mat-label>
+                <input matInput placeholder="0.00" type="search">
+            </mat-form-field>
+        </div> -->
+
+
+        <mat-accordion>
+            <mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
+            <mat-expansion-panel [expanded]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title> Personal data </mat-panel-title>
+              </mat-expansion-panel-header>
+
+
+
+
+                <div class="form-container">
+                    <form class="flex-form" [formGroup]="profileMgrForm" (ngSubmit)="onProfileSubmit()">
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Name</mat-label>
+                                <input matInput formControlName="name" required>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Surname</mat-label>
+                                <input matInput type="email" formControlName="surname" required>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Email Address</mat-label>
+                                <input matInput formControlName="email" required>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Phone Number</mat-label>
+                                <input matInput formControlName="phone" required>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Reservation Code</mat-label>
+                                <input matInput formControlName="reservationCode" readonly="true" required>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-slide-toggle [checked]="status"[disabled]="disabled" (change)="onToggleChange($event)">Active Status</mat-slide-toggle>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Short Bio</mat-label>
+                                <textarea matInput formControlName="bio"></textarea>
+                            </mat-form-field>
+                        </div>
+                        <div class="form-group"></div>
+                        <div class="form-group"></div>
+                        <button mat-raised-button color="primary">Submit</button>
+                    </form>
+                </div>
+    
+
+            </mat-expansion-panel>
+          
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Username </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="form-container">
+                <form class="flex-form" [formGroup]="usernameForm" (ngSubmit)="onUsernameSubmit()">
+                    <div class="form-group">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Username</mat-label>
+                            <input matInput formControlName="username" required>
+                        </mat-form-field>
+                    </div>
+                    <div class="form-group"></div>
+                    <div class="form-group"></div>
+                    <button mat-raised-button color="primary">Submit</button>
+                </form>
+              </div>
+          
+          
+
+            </mat-expansion-panel>
+          
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Password </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="form-container">
+                <form class="flex-form" [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+                    <div class="form-group">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Current Password</mat-label>
+                            <input matInput [type]="hideCurrent() ? 'password' : 'text'" formControlName="currentPassword" required/>
+                                <a
+                                mat-icon-button
+                                matSuffix
+                                (click)="onHideCurrent($event)"
+                                [attr.aria-label]="'Hide password'"
+                                [attr.aria-pressed]="hideCurrent()"
+                                >
+                                <mat-icon>{{hideCurrent() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                                </a>
+                                <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required') ">
+                                    Password is required
+                                </mat-error>
+                                <mat-error *ngIf="passwordForm.get('currentPassword')?.errors?.['minlength'] && passwordForm.get('currentPassword')?.touched">  
+                                  Password must be at least 6 characters long.  
+                                </mat-error> 
+                        </mat-form-field>
+                    </div>
+                    <div class="form-group">
+                        <mat-form-field appearance="outline">
+                            <mat-label>New Password</mat-label>
+                            <input matInput [type]="hideNew() ? 'password' : 'text'" formControlName="newPassword" required/>
+                            <a
+                            mat-icon-button
+                            matSuffix
+                            (click)="onHideNew($event)"
+                            [attr.aria-label]="'Hide password'"
+                            [attr.aria-pressed]="hideNew()"
+                            >
+                            <mat-icon>{{hideNew() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            </a>
+                            <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required') ">
+                                Password is required
+                            </mat-error>
+                            <mat-error *ngIf="passwordForm.get('newPassword')?.errors?.['minlength'] && passwordForm.get('newPassword')?.touched">  
+                              Password must be at least 6 characters long.  
+                            </mat-error> 
+                        </mat-form-field>
+                    </div>
+                    <div class="form-group"></div>
+                    <button mat-raised-button color="primary">Submit</button>
+                </form>
+              </div>
+          
+
+
+            </mat-expansion-panel>
+          </mat-accordion>
+
+
+    </section>
+
+
+</section>

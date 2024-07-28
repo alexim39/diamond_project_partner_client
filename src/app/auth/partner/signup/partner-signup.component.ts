@@ -6,14 +6,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { PartnerSignUpData } from '../partner-auth.interface';
 import Swal from 'sweetalert2';
 import { PartnerAuthService } from '../partner-auth.service';
 import { CommonModule } from '@angular/common';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule} from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { minDigitsValidator } from '../../../_common/services/phone-number-checker';
@@ -51,7 +51,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
       email: ['', [Validators.email, Validators.required]],
       name: ['', Validators.required],
       surname: ['', Validators.required],
-      password: ['', Validators.required],
+      password: ['', Validators.required, Validators.minLength(6)],
     });
   }
 
@@ -63,10 +63,10 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
 
     if (this.signUpForm.valid) {
       // Send the form value to your Node.js backend
-     const formData: PartnerSignUpData = this.signUpForm.value;
+      const formData: PartnerSignUpData = this.signUpForm.value;
       this.subscriptions.push(
         this.partnerSignUpService.signup(formData).subscribe((res: any) => {
-          
+
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -77,11 +77,11 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
             confirmButtonText: "Sign in Now",
           }).then((result) => {
             if (result.isConfirmed) {
-             this.router.navigateByUrl('partner/signin');
+              this.router.navigateByUrl('partner/signin');
             }
           });
           this.isSpinning = false;
-          
+
         }, (error: any) => {
           console.log(error)
           this.isSpinning = false;
@@ -93,7 +93,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               showConfirmButton: false,
               timer: 4000
             });
-          } else if(error.code == 401) {
+          } else if (error.code == 401) {
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -101,26 +101,26 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               showConfirmButton: false,
               timer: 4000
             });
-          }  else {
-                      
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
+          } else {
+
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Server error occured, please try again',
+              showConfirmButton: false,
+              timer: 4000
+            })
           };
         })
       )
     } else {
-     this.isSpinning = false;
+      this.isSpinning = false;
     }
-    
+
   }
 
-   // Helper method to mark all form controls as touched
-   private markAllAsTouched() {
+  // Helper method to mark all form controls as touched
+  private markAllAsTouched() {
     Object.keys(this.signUpForm.controls).forEach(controlName => {
       this.signUpForm.get(controlName)?.markAsTouched();
     });
