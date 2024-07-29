@@ -21,7 +21,7 @@ import { PartnerInterface, PartnerService } from '../../_common/services/partner
 import { Emitters } from '../../_common/emitters/emitters';
 
 // Define the SubmenuKey type
-type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities';
+type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship';
 
 @Component({
   selector: 'async-dashboard',
@@ -68,7 +68,8 @@ export class DashboardComponent implements OnDestroy {
     community: false,
     analytics: false,
     settings: false,
-    activities: false
+    activities: false,
+    mentorship: false,
   };
 
   partner!: PartnerInterface;
