@@ -38,11 +38,27 @@
     padding: 1em 0;
     display: flex;
     mat-card {
+        margin: 0 1em;
         .whatsApp {
             color: #075E54;
+        }
+        .facebook {
+            color: #3b5998;
         }
         p {
             font-size: 1.1em;
         }
     }
 }
+
+
+ /* Media Query for Mobile Responsiveness */
+ @media screen and (max-width: 600px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        mat-card {
+            margin: 1em 0;
+        }
+    }
+ }

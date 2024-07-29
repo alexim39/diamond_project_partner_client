@@ -55,13 +55,14 @@
         <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Purchases">Purchases</a>
       </div>
 
-      <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>on_device_training</mat-icon> 
           <span>Mentorship</span>
         </div>
       </a>
-      <div [@submenuToggle]="isSubmenuOpen('activities') ? 'open' : 'closed'" class="submenu">
+      <div [@submenuToggle]="isSubmenuOpen('mentorship') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Cell Meetings">Cell Meetings</a>
         <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()">Webinars & Live Sessions</a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">eBooks & Articles</a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()">Training Videos</a>
