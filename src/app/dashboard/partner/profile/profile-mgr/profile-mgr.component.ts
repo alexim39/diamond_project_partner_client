@@ -15,6 +15,8 @@ import { ProfileService } from '../profile.service';
 import Swal from 'sweetalert2';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {MatSlideToggleChange, MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 /**
  * @title Button toggle appearance
@@ -24,8 +26,8 @@ import {MatSlideToggleChange, MatSlideToggleModule} from '@angular/material/slid
   templateUrl: 'profile-mgr.component.html',
   styleUrl: 'profile-mgr.component.scss',
   standalone: true,
-  providers: [ProfileService],
-  imports: [FormsModule, CommonModule, MatSlideToggleModule, MatExpansionModule, MatProgressBarModule, ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule],
+  providers: [provideNativeDateAdapter(), ProfileService],
+  imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule, ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule],
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
 
@@ -40,6 +42,8 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   isSpinning = false;
   disabled = true;
   status = false;
+
+  minDate!: Date; 
 
   constructor(
     private profileService: ProfileService
@@ -57,6 +61,9 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Set the minimum date to today  
+    this.minDate = new Date(); 
+    
     if (this.partner) {
       this.profileMgrForm = new FormGroup({
         name: new FormControl(this.partner.name, Validators.required),
@@ -65,6 +72,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
         email: new FormControl(this.partner.email, Validators.required),
         phone: new FormControl(this.partner.phone, Validators.required),
         reservationCode: new FormControl(this.partner.reservationCode, Validators.required),
+        dobDatePicker: new FormControl(this.partner.dobDatePicker),
         //status: new FormControl(this.partner.status, Validators.required),
         bio: new FormControl(this.partner.bio),
         id: new FormControl(this.partner._id),

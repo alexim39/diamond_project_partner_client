@@ -16,6 +16,8 @@ export interface PartnerInterface {
   username: string;
   bio?: string;
   address: string;
+  visits?: number;
+  dobDatePicker?: Date;
 }
 
 @Injectable()
