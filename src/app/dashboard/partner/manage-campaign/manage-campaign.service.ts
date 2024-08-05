@@ -37,6 +37,7 @@ export interface ManageCampaignInterface {
       adDuration: any;
       adFormat: any;
       _id: string;
+      visits?: number;
 }
   
 
