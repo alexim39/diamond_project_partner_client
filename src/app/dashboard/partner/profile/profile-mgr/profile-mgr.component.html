@@ -72,7 +72,7 @@
                         <div class="form-group">
                             <mat-form-field appearance="outline">
                                 <mat-label>Residential Address</mat-label>
-                                <textarea matInput formControlName="address" required></textarea>
+                                <textarea matInput formControlName="address"></textarea>
                                 <mat-hint>Address will used for shipping</mat-hint>
                             </mat-form-field>
                         </div>
@@ -86,7 +86,7 @@
 
                         <div class="form-group">
                             <mat-form-field appearance="outline">
-                                <mat-label>Update Date of birth</mat-label>
+                                <mat-label>Date of Birth</mat-label>
                                 <input matInput [matDatepicker]="dobDatePicker" formControlName="dobDatePicker" [max]="minDate">
                                 <mat-hint>MM/DD/YYYY</mat-hint>
                                 <mat-datepicker-toggle matIconSuffix [for]="dobDatePicker"></mat-datepicker-toggle>

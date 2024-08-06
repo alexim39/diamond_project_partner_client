@@ -68,7 +68,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.profileMgrForm = new FormGroup({
         name: new FormControl(this.partner.name, Validators.required),
         surname: new FormControl(this.partner.surname, Validators.required),
-        address: new FormControl(this.partner.address, Validators.required),
+        address: new FormControl(this.partner.address),
         email: new FormControl(this.partner.email, Validators.required),
         phone: new FormControl(this.partner.phone, Validators.required),
         reservationCode: new FormControl(this.partner.reservationCode, Validators.required),

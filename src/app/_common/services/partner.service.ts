@@ -18,6 +18,7 @@ export interface PartnerInterface {
   address: string;
   visits?: number;
   dobDatePicker?: Date;
+  balance?: number;
 }
 
 @Injectable()
