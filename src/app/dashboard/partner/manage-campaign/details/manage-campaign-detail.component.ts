@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ManageCampaignInterface } from '../manage-campaign.service';
+import { CampaignInterface } from '../manage-campaign.service';
 
 /** @title Disabled select */
 @Component({
@@ -26,7 +26,7 @@ import { ManageCampaignInterface } from '../manage-campaign.service';
 })
 export class ManageCampaignDetailComponent implements OnInit {
 
-  @Input() campaign!: ManageCampaignInterface;
+  @Input() campaign!: CampaignInterface;
 
   constructor(private router: Router, private route: ActivatedRoute) { }
 

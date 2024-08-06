@@ -41,25 +41,22 @@ export class BillingComponent implements OnInit {
 
   constructor(private paystackService: PaystackService) {}
 
-  /* private shuffleArray(array: any[]): any[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  } */
 
   ngOnInit() {
     this.currentBalance = this.partner ? this.partner.balance : 0; 
 
     if (this.transactions) {
-     //console.log('t=',this.transactions)
-      this.dataSource = this.transactions.data;//this.shuffleArray(this.transactions.data);
+      this.dataSource = this.transactions.data.sort((a, b) => {  
+        // Use the getTime() method to compare the Date values  
+        return new Date(b.date).getTime() - new Date(a.date).getTime();  
+      });  
+
       if (this.transactions?.data.length === 0) {
         this.isEmptyRecord = true;
       }
     }
   }
+
 
   addFunds() {
     const dialogRef = this.dialog.open(BillingAmountComponent, {

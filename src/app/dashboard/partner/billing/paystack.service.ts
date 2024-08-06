@@ -69,7 +69,7 @@ export class PaystackService {
   // Initialize Paystack payment
   payWithPaystack(email: string, amount: number, callback: (response: any) => void): void {
     const handler = (window as any).PaystackPop.setup({
-      key: 'pk_test_1d5627d8d06cb2c937cee6ce4b0ed56c7fe2159a', // Replace with your Paystack public key
+      key: 'pk_live_ef4b274402e6786a901e106596f1904e3e08a713', // Replace with your Paystack public key
       email: email,
       amount: amount * 100, // Paystack expects the amount in kobo
       currency: 'NGN',

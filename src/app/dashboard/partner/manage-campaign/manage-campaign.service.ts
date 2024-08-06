@@ -3,34 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 
-export interface ManageCampaignInterface {
-    transactionId?: string;
-    dateOfPayment?: string;
-    amount?: number;
-    paymentMethod?: string;
-    paymentStatus?: boolean;
-    action?: null;
-    data?: [];
-   /*  ageRangeTarget:  string;
-      genderTarget:  string;
-      locationTarget:  string;
-      educationTarget: string;
-      relationshipTarget:  string;
-      adObjective:  string;
-      successMeasurement:  string;
-      budgetType:  string;
-      budgetAmount: number;
-      campaignStartDate:  string;
-      campaignEndDate: string;
-      noEndDate: boolean;
-      adFormat:  string;
-      deviceType: string;
-      FacebookFeed: boolean
-      InstagramFeed: boolean
-      InstagramStories:boolean
-      FacebookStories: boolean
-      AudienceNetwork: boolean
-      MessengerInbox: boolean; */
+export interface CampaignInterface {
+    message: string;
+    data?: Array<{
       targetAudience: any;
       marketingObjectives: any;
       budget: any;
@@ -38,6 +13,8 @@ export interface ManageCampaignInterface {
       adFormat: any;
       _id: string;
       visits?: number;
+      createdAt: Date;
+    }>;      
 }
   
 
@@ -75,9 +52,9 @@ export class ManageCampaignService {
 
 
   // get campaigns createdby
-  getCampaignCreatedBy(id: string): Observable<ManageCampaignInterface> {
+  getCampaignCreatedBy(id: string): Observable<CampaignInterface> {
     return this.http
-      .get<ManageCampaignInterface>(this.api + `/campaign/all-createdBy/${id}`, { withCredentials: true })
+      .get<CampaignInterface>(this.api + `/campaign/all-createdBy/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
    
