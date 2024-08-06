@@ -2,7 +2,6 @@ import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardIndexComponent } from "./index/index.component";
 import { MarketingChannelsComponent } from "./create-campaign/marketing-channels.component";
-import { BillingComponent } from "./billing/billing.component";
 import { ManageCampaignContainerComponent } from "./manage-campaign/manage-campaign-container.component";
 import { ManageCampaignDetailContainerComponent } from "./manage-campaign/details/manage-campaign-detail-container.component";
 import { MonthlyPurchaseContainerComponent } from "./monthly-purchase/monthly-purchase-container.component";
@@ -10,6 +9,7 @@ import { InvitationContainerComponent } from "./profile/invitation/invitation-co
 import { ProfileMrgContainerComponent } from "./profile/profile-mgr/profile-mgr-container.component";
 import { TeamMembersContainerComponent } from "./profile/team-members/team-members-container.component";
 import { AddMembersContainerComponent } from "./profile/team-members/add-members/add-members-container";
+import { BillingContainerComponent } from "./billing/billing-container.component";
 
 
 
@@ -42,7 +42,7 @@ export const dashboardRoutes: Routes = [
             },         
             {
                 path: 'billing',
-                component: BillingComponent,
+                component: BillingContainerComponent,
                 title: "Payment and billing",
             },        
             {
