@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ManageCampaignDetailComponent } from './manage-campaign-detail.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ManageCampaignInterface } from '../manage-campaign.service';
+import { CampaignInterface } from '../manage-campaign.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ManageCampaignDetailContainerComponent implements OnInit {
 
-  campaign!: ManageCampaignInterface;
+  campaign!: CampaignInterface;
   campaignId!: string | null;
 
   constructor(private router: Router, private route: ActivatedRoute) { }

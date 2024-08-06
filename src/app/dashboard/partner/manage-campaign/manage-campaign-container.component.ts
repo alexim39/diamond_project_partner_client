@@ -3,7 +3,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ManageCampaignComponent } from './manage-campaign.component';
-import { ManageCampaignInterface, ManageCampaignService } from './manage-campaign.service';
+import { CampaignInterface, ManageCampaignService } from './manage-campaign.service';
 
 
 /**
@@ -21,7 +21,7 @@ import { ManageCampaignInterface, ManageCampaignService } from './manage-campaig
 export class ManageCampaignContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
-  campaigns!: ManageCampaignInterface;
+  campaigns!: CampaignInterface;
   subscriptions: Subscription[] = [];
 
   constructor(
@@ -38,7 +38,7 @@ export class ManageCampaignContainerComponent implements OnInit, OnDestroy {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.manageCampaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: ManageCampaignInterface) => {
+            this.manageCampaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
               this.campaigns = campaigns;
               //console.log('campaign ',campaigns)
             })
