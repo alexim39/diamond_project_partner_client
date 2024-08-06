@@ -47,11 +47,11 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.signUpForm = this.fb.group({
       reservationCode: ['', Validators.required],
-      phone: ['', [Validators.required, minDigitsValidator(6)]],
+      phone: ['', [Validators.required, ]],
       email: ['', [Validators.email, Validators.required]],
       name: ['', Validators.required],
       surname: ['', Validators.required],
-      password: ['', Validators.required, Validators.minLength(6)],
+      password: ['', [Validators.required, minDigitsValidator(6)]],
     });
   }
 

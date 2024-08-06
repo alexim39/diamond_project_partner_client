@@ -72,8 +72,11 @@
               <mat-error *ngIf="signUpForm.get('password')?.hasError('required') ">
                   Password is required
               </mat-error>
-              <mat-error *ngIf="signUpForm.get('password')?.errors?.['minlength'] && signUpForm.get('password')?.touched">  
+              <!-- <mat-error *ngIf="signUpForm.get('password')?.errors?.['minlength'] && signUpForm.get('password')?.touched">  
                 Password must be at least 6 characters long.  
+              </mat-error> --> 
+              <mat-error *ngIf="signUpForm.get('password')?.errors?.['minDigits']">  
+                Password must have at least 6 digits.   
               </mat-error> 
             </mat-form-field>
 
