@@ -76,9 +76,17 @@ export class CreateCampaignService {
   
   // youtube campaign
   youtube(campaignData: CreateCampaignInterface): Observable<CreateCampaignInterface> {
-    console.log('form record', campaignData);
+    //console.log('form record', campaignData);
     return this.http
       .post<CreateCampaignInterface>(this.api + '/campaign/youtube', campaignData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  // youtube campaign
+  linkedin(campaignData: CreateCampaignInterface): Observable<CreateCampaignInterface> {
+    //console.log('form record', campaignData);
+    return this.http
+      .post<CreateCampaignInterface>(this.api + '/campaign/linkedin', campaignData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 

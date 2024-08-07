@@ -13,8 +13,34 @@
         padding: 0 1em;
         margin-top: 0.7em;
     }
+
+    .no-end-date {
+        margin-top: 1em;
+    }
 }
        
 .publish {
     float: right;
+}
+
+.summary {  
+    display: flex;  
+    flex-wrap: wrap;  
+    div {  
+        flex: 1; /* Equal sizing for all elements */  
+        margin: 10px; /* Add spacing between elements */  
+        details {
+            summary {
+                font-size:small;
+                font-weight: bold;
+            }
+        }
+      }  
+}  
+  
+  
+@media (max-width: 768px) {  
+.summary {  
+    flex-direction: column; /* Stack elements vertically on smaller screens */  
+}  
 }

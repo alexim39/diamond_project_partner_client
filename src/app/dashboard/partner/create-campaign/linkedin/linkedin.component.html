@@ -1,40 +1,45 @@
-<!-- <button mat-raised-button (click)="isLinear = !isLinear" id="toggle-linear">
-    {{!isLinear ? 'Enable linear mode' : 'Disable linear mode'}}
-  </button> -->
+<mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
   <mat-stepper orientation="vertical" #stepper>
 
-    <mat-step [stepControl]="firstFormGroup">
-      <form [formGroup]="firstFormGroup">
+
+
+    <mat-step [stepControl]="targetAudienceFormGroup">
+      <form [formGroup]="targetAudienceFormGroup">
         <ng-template matStepLabel>Target Audience</ng-template>
 
         <div class="form">
             <mat-form-field appearance="outline">
-                <mat-label>Industry</mat-label>
-                <mat-select required>
+                <mat-label>Age range</mat-label>
+                <mat-select required formControlName="ageRangeTarget">
                   <mat-option value="All">All</mat-option>
-                  <mat-option value="Technology">Technology</mat-option>
-                  <mat-option value="Finance">Finance</mat-option>
-                  <mat-option value="Healthcare"> Healthcare</mat-option>
-                  <mat-option value="Education">Education</mat-option>
+                  <mat-option value="18-24">18-24</mat-option>
+                  <mat-option value="25-34">25-34</mat-option>
+                  <mat-option value="35-44"> 35-44</mat-option>
+                  <mat-option value="45-54">45-54</mat-option>
+                  <mat-option value="55-64">55-64</mat-option>
+                  <mat-option value="65+">65+</mat-option>
                 </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-                <mat-label>Company size</mat-label>
-                <mat-select required>
-                  <mat-option value="1-10 employees">1-10 employees</mat-option>
-                  <mat-option value="11-50 employees">11-50 employees</mat-option>
-                  <mat-option value="51-200 employees">51-200 employees</mat-option>
-                  <mat-option value="201-500 employees">201-500 employees</mat-option>
-                  <mat-option value="501-1000 employees">501-1000 employees</mat-option>
-                  <mat-option value="1001-5000 employees">1001-5000 employees</mat-option>
-                  <mat-option value="5001+ employees">5001+ employees</mat-option>
-                </mat-select>
-            </mat-form-field>
+              <mat-label>Industry</mat-label>
+              <mat-select required formControlName="industryTarget">
+                <mat-option value="All">All</mat-option>
+                <mat-option value="Technology">Technology</mat-option>
+                <mat-option value="Fashion">Fashion</mat-option>
+                <mat-option value="Sports">Sports</mat-option>
+                <mat-option value="Travel">Travel</mat-option>
+                <mat-option value="Food & Drink">Food & Drink</mat-option>
+                <mat-option value="Entertainment">Entertainment</mat-option>
+                <mat-option value="Health & Fitness">Health & Fitness</mat-option>
+                <mat-option value="Business">Business</mat-option>
+                <mat-option value="Education">Education</mat-option>
+              </mat-select>
+          </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Location</mat-label>
-                <mat-select required>
+                <mat-select required formControlName="locationTarget">
                   <mat-option value="States">States</mat-option>
                   <mat-option value="Countries">Countries</mat-option>
                 </mat-select>
@@ -42,7 +47,7 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Education</mat-label>
-                <mat-select required>
+                <mat-select required formControlName="educationTarget">
                   <mat-option value="All">All</mat-option>
                   <mat-option value="High School">High School</mat-option>
                   <mat-option value="Associate's Degree">Associate's Degree</mat-option>
@@ -52,31 +57,38 @@
                   <mat-option value="Professional Degree">Professional Degree</mat-option>
                 </mat-select>
             </mat-form-field>
-            
+    
         </div>
 
         <button mat-button matStepperNext>Next</button>
       </form>
     </mat-step>
 
-    <mat-step [stepControl]="secondFormGroup">
-      <form [formGroup]="secondFormGroup">
+    <mat-step [stepControl]="marketingObjectivesFormGroup">
+      <form [formGroup]="marketingObjectivesFormGroup">
         <ng-template matStepLabel>Marketing Objectives</ng-template>
         
         <div class="form">
             <mat-form-field appearance="outline">
                 <mat-label>Primary Objective</mat-label>
-                <mat-select required>
+                <mat-select required formControlName="adObjective">
                   <mat-option value="Brand awareness">Brand awareness</mat-option>
                   <mat-option value="Website visits">Website visits</mat-option>
-                  <mat-option value="Video views">Video views</mat-option>
-                  <mat-option value="Job applications">Job applications</mat-option>
                   <mat-option value="Engagement">Engagement</mat-option>
                   <mat-option value="Video views">Video views</mat-option>
                   <mat-option value="Lead generation">Lead generation</mat-option>
+                  <mat-option value="Job applications">Job applications</mat-option>
                 </mat-select>
             </mat-form-field>
 
+            <mat-form-field appearance="outline">
+                <mat-label>Key performance indicators (KPIs)</mat-label>
+                <mat-select required formControlName="successMeasurement">
+                  <mat-option value="Click-through rate (CTR)">Click-through rate (CTR)</mat-option>
+                  <mat-option value="Conversion goals">Conversion goals</mat-option>
+                  <mat-option value="Engagement rate">Engagement rate</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
 
         <div>
@@ -86,28 +98,24 @@
       </form>
     </mat-step>
 
-    <mat-step [stepControl]="secondFormGroup">
-        <form [formGroup]="secondFormGroup">
+    <mat-step [stepControl]="budgetFormGroup">
+        <form [formGroup]="budgetFormGroup">
           <ng-template matStepLabel>Budget</ng-template>
 
           <div class="form">
             <mat-form-field appearance="outline">
                 <mat-label>Budget Type</mat-label>
-                <mat-select required>
+                <mat-select required formControlName="budgetType">
                   <mat-option value="Daily budget">Daily budget</mat-option>
                   <mat-option value="Lifetime budget">Lifetime budget</mat-option>
-                 <!--  <mat-option value="Messages">Messages</mat-option>
-                  <mat-option value="Conversions">Conversions</mat-option>
-                  <mat-option value="Traffic">Traffic</mat-option>
-                  <mat-option value="Engagement">Engagement</mat-option>
-                  <mat-option value="Video views">Video views</mat-option>
-                  <mat-option value="Lead generation">Lead generation</mat-option> -->
                 </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Budget Amount</mat-label>
-              <input matInput formControlName="" required>
+              <input matInput type="number" required formControlName="budgetAmount"/>
+              <span matTextPrefix>₦</span>
+              <span matTextSuffix>.00</span>
             </mat-form-field>
 
         </div>
@@ -119,24 +127,29 @@
         </form>
     </mat-step>
 
-    <mat-step [stepControl]="secondFormGroup">
-    <form [formGroup]="secondFormGroup">
+    <mat-step [stepControl]="adDurationFormGroup">
+    <form [formGroup]="adDurationFormGroup">
         <ng-template matStepLabel>Ad Duration</ng-template>
 
         <div class="form">
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Campaign Start Date</mat-label>
-            <input matInput formControlName="" required>
+            <input matInput [matDatepicker]="campaignStartDatePicker" formControlName="campaignStartDate" [min]="minDate" required>
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="campaignStartDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #campaignStartDatePicker></mat-datepicker>
           </mat-form-field>
-  
-          <mat-form-field>
+
+          <mat-form-field appearance="outline">
             <mat-label>Campaign End Date</mat-label>
-            <input matInput formControlName="" required>
+            <input matInput [matDatepicker]="campaignEndDatePicker" formControlName="campaignEndDate" [min]="minDate" required>
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="campaignEndDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #campaignEndDatePicker></mat-datepicker>
           </mat-form-field>
           
-          <mat-checkbox>No End Date</mat-checkbox>
+          <mat-checkbox class="no-end-date" formControlName="noEndDate" (change)="onNoEndDateChange($event)">No End Date</mat-checkbox>
   
-          <div>Campaign duration is: </div>
         </div>
 
         <div>
@@ -146,22 +159,25 @@
     </form>
     </mat-step>
 
-    <mat-step [stepControl]="secondFormGroup">
-        <form [formGroup]="secondFormGroup">
+    <mat-step [stepControl]="adFormatFormGroup">
+        <form [formGroup]="adFormatFormGroup">
           <ng-template matStepLabel>Ad Format</ng-template>
           
           <div class="form">
             <mat-form-field appearance="outline">
                 <mat-label>Primary Ad Format</mat-label>
-                <mat-select required>
-                  <mat-option value="Single Image Ad">Single Image Ad</mat-option>
-                  <mat-option value="Video Ad">Video Ad</mat-option>
+                <mat-select required formControlName="adFormat">
+                  <mat-option value="Sponsored content">Sponsored content</mat-option>
+                  <mat-option value="Sponsored InMail">Sponsored InMail</mat-option>
+                  <mat-option value="Text ads">Text ads</mat-option>
+                  <mat-option value="Dynamic ads">Dynamic ads</mat-option>
                 </mat-select>
             </mat-form-field>
 
+
             <mat-form-field appearance="outline">
               <mat-label>Device Targeting</mat-label>
-              <mat-select required>
+              <mat-select required formControlName="deviceType">
                 <mat-option value="All devices">All devices</mat-option>
                 <mat-option value="Mobile only">Mobile only</mat-option>
                 <mat-option value="Desktop only">Desktop only</mat-option>
@@ -179,11 +195,69 @@
 
     <mat-step>
       <ng-template matStepLabel>Done</ng-template>
-      <p>You are now done.</p>
+      <p>You are now done. But before publishing here are your summary</p>
+      <p>Landing page URL: <a href="http://diamondprojectonline.com/{{partner.username | lowercase}}" target="_blank">www.diamondprojectonline.com/{{partner.username | lowercase}}</a></p>
+
+      <div class="summary">
+
+        <div class="summary-target-audience">
+          <details open>
+            <summary>Target Audience Summary</summary>
+            <p>Target Age Range: {{ targetAudienceFormGroup.get('ageRangeTarget')?.value }}</p>
+            <p>Target Industry: {{ targetAudienceFormGroup.get('industryTarget')?.value }}</p>
+            <p>Target Location: {{ targetAudienceFormGroup.get('locationTarget')?.value }}</p>
+            <p>Target Education Level: {{ targetAudienceFormGroup.get('educationTarget')?.value }}</p>
+          </details>
+        </div>
+
+        <div class="summary-marketing-objective">
+          <details open>
+            <summary>Marketing Objective Summary</summary>
+            <p>Marketing Primary Objective: {{ marketingObjectivesFormGroup.get('adObjective')?.value }}</p>
+            <p>Marketing Success Measure: {{ marketingObjectivesFormGroup.get('successMeasurement')?.value }}</p>
+           
+          </details>
+        </div>
+
+        <div class="summary-marketing-budget">
+          <details open>
+            <summary>Marketing Budget Summary</summary>
+            <p>Budget Type: {{ budgetFormGroup.get('budgetType')?.value }}</p>
+            <p>Budget Amount: {{ budgetFormGroup.get('budgetAmount')?.value | currency:'₦':'symbol':'1.0-0' }}</p>
+            
+          </details>
+        </div>
+
+        <div class="summary-ad-duration">
+          <details open>
+            <summary>Ad Duration Summary</summary>
+            <p>Campaign Start Date: {{ adDurationFormGroup.get('campaignStartDate')?.value | date }} </p>
+            <p>Campaign End Date: {{ adDurationFormGroup.get('noEndDate')?.value ? 'No end date' : this.adDurationFormGroup.get('campaignEndDate')?.value | date}}</p>
+            <p>Duration: {{ adDurationFormGroup.get('noEndDate')?.value ? 'Continuous' : duration + ' days' }}</p>
+          
+          </details>
+        </div>
+
+        <div class="summary-ad-format">
+          <details open>
+            <summary>Ad Format Summary</summary>
+            <p>Ad Primary Format: {{ adFormatFormGroup.get('adFormat')?.value }}</p>
+            <p>Ad Target Device: {{ adFormatFormGroup.get('deviceType')?.value }}</p>
+            
+          </details>
+        </div>
+      </div>
+        
+    
       <div>
         <button mat-button matStepperPrevious>Back</button>
         <button mat-button (click)="stepper.reset()">Reset</button>
-        <button mat-raised-button class="publish">Publish</button>
+        <button mat-flat-button class="publish" (click)="onSubmit()" color="primary" [disabled]="
+        targetAudienceFormGroup.invalid || 
+        marketingObjectivesFormGroup.invalid || 
+        budgetFormGroup.invalid || 
+        adDurationFormGroup.invalid || 
+        adFormatFormGroup.invalid">Publish</button>
       </div>
     </mat-step>
 

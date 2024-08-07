@@ -62,22 +62,12 @@ mat-sidenav-content {
 .submenu {
   padding: 0 0 5px 20px;
   border-bottom: 1px solid #e2e2e2;
+  .subsubmenu {
+    padding: 0 0 5px 20px;
+  }
 }
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
