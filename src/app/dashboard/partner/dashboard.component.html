@@ -13,21 +13,37 @@
     <mat-nav-list>
       <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <div>
-          <mat-icon>dashboard</mat-icon> 
+          <mat-icon>home</mat-icon> 
           <span>Dashboard</span>
         </div>
       </a>
 
-    
       <a mat-list-item (click)="toggleSubmenu('tools')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
-          <mat-icon>settings_heart</mat-icon> 
+          <mat-icon>construction</mat-icon> 
           <span>Tools</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('tools') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign">Create Campaign</a>
-        <a mat-list-item routerLink="manage-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Manage Campaign">Manage Campaign</a>
+        <a mat-list-item (click)="toggleSubSubmenu('tools-create-campaign')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Campaigns</a>
+        <div [@submenuToggle]="isSubSubmenuOpen('tools-create-campaign') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign">Create Campaign</a>
+          <a mat-list-item  routerLink="manage-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Manage Campaign">Manage Campaign</a>
+        </div>
+        
+        <a mat-list-item (click)="toggleSubSubmenu('tools-sms')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">SMS</a>
+        <div [@submenuToggle]="isSubSubmenuOpen('tools-sms') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send SMS</a>
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Message Log">Message Log</a>
+        </div>
+
+        <a mat-list-item (click)="toggleSubSubmenu('tools-contacts')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Contacts</a>
+        <div [@submenuToggle]="isSubSubmenuOpen('tools-contacts') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Create Contacts</a>
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a>
+        </div>
+
+        <!-- <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()">Create Contacts</a> -->
       </div>
 
 
@@ -57,7 +73,7 @@
 
       <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
-          <mat-icon>on_device_training</mat-icon> 
+          <mat-icon>menu_book</mat-icon> 
           <span>Mentorship</span>
         </div>
       </a>
@@ -71,7 +87,7 @@
     
       <a mat-list-item (click)="toggleSubmenu('community')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
-          <mat-icon>Communities</mat-icon> 
+          <mat-icon>groups</mat-icon> 
           <span>Community</span>
         </div>
       </a>
