@@ -14,12 +14,13 @@ export interface CampaignInterface {
       _id: string;
       visits?: number;
       createdAt: Date;
+      campaignName: string;
     }>;      
 }
   
 
 @Injectable()
-export class ManageCampaignService {
+export class CampaignService {
   // Define API
   //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   api = 'http://localhost:3000';
@@ -55,6 +56,14 @@ export class ManageCampaignService {
   getCampaignCreatedBy(id: string): Observable<CampaignInterface> {
     return this.http
       .get<CampaignInterface>(this.api + `/campaign/all-createdBy/${id}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  // get campaign by id
+  getCampaignById(id: string): Observable<CampaignInterface> {
+    //console.log('id',id)
+    return this.http
+      .get<CampaignInterface>(this.api + `/campaign/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
    
