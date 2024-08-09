@@ -18,93 +18,103 @@
                 <article class="flex-item">  
                     <h2>Ads information</h2>  
                     <!-- <p>Ads information</p> -->
-                    <mat-list>
     
-                        <mat-list-item lines="3">
-                            <span matListItemTitle> Campaign </span>
-                            <span matListItemLine class="data">{{campaignData.campaignName | titlecase}} </span>
-                        </mat-list-item>
+                        <div class="list">
+                            <h5> Campaign </h5>
+                            <span class="data">{{campaignData.campaignName | titlecase}} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
     
-                        <mat-list-item lines="3">
-                            <span matListItemTitle> Status </span>
-                            <span matListItemLine class="data">{{campaignData.deliveryStatus | titlecase}} </span>
-                        </mat-list-item>
+                        <div class="list">
+                            <h5> Status </h5>
+                            <span class="data">{{campaignData.deliveryStatus | titlecase}} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
     
-                        <mat-list-item lines="3">
-                            <span matListItemTitle> Created Date </span>
-                            <span matListItemLine class="data">{{campaignData.updatedAt | date}} </span>
-                        </mat-list-item>
+                        <div class="list">
+                            <h5> Created Date </h5>
+                            <span class="data">{{campaignData.updatedAt | date}} </span>
+                        </div>
     
-                    </mat-list>
                       
                 </article>  
     
                 <article class="flex-item">  
                     <h2>Ads Duration</h2>  
                     <!-- <p>The campaign will run for 30 days starting from June 1, 2023.</p>   -->
-                    <mat-list>
     
-                        <mat-list-item lines="3">
-                            <span matListItemTitle title="title"> Start Date </span>
-                            <span matListItemLine class="data">{{campaignData.adDuration.campaignStartDate | date}} </span>
-                        </mat-list-item>
+                        <div class="list">
+                            <h5> Start Date </h5>
+                            <span class="data">{{campaignData.adDuration.campaignStartDate | date}} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
     
-                        <mat-list-item lines="3">
-                            <span matListItemTitle> End Date </span>
-                            <span matListItemLine class="data">{{ campaignData.adDuration.noEndDate ? 'No end date' : campaignData.adDuration.campaignEndDate | date}}</span>
-                        </mat-list-item>
+                        <div class="list">
+                            <h5> End Date </h5>
+                            <span class="data">{{ campaignData.adDuration.noEndDate ? 'No end date' : campaignData.adDuration.campaignEndDate | date}}</span>
+                        </div>
+                        <mat-divider></mat-divider>
+
     
-                        <mat-list-item lines="3">
-                            <span matListItemTitle> Duration </span>
-                            <span matListItemLine class="data">{{ campaignData.adDuration.campaignEndDate ? duration + ' days' : 'Continuous' }}</span>
-                        </mat-list-item>
+                        <div class="list">
+                            <h5> Duration </h5>
+                            <span class="data">{{ campaignData.adDuration.campaignEndDate ? duration + ' days' : 'Continuous' }}</span>
+                        </div>
     
-                    </mat-list>
                 </article>  
     
                 <article class="flex-item">  
                     <h2>Ads Objective</h2>  
                     <!-- <p>The main objective is to increase brand awareness.</p>   -->
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Campaign Objective </span>
-                        <span matListItemLine class="data">{{campaignData.marketingObjectives.adObjective }} </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Campaign Objective </h5>
+                        <span class="data">{{campaignData.marketingObjectives.adObjective }} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
     
-                    <mat-list-item lines="3" *ngIf="campaignData.marketingObjectives.successMeasurement">
-                        <span matListItemTitle> Campaign Measurement Metrics </span>
-                        <span matListItemLine class="data">{{campaignData.marketingObjectives.successMeasurement}} </span>
-                    </mat-list-item>
-                </article>  
+                    <div class="list" *ngIf="campaignData.marketingObjectives.successMeasurement">
+                        <h5> Campaign Measurement Metrics </h5>
+                        <span class="data">{{campaignData.marketingObjectives.successMeasurement}} </span>
+                    </div>
+                </article>   
 
                 <article class="flex-item">  
                     <h2>Ads Result</h2>  
                     <!-- <p>The main objective is to increase brand awareness.</p>   -->
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Ads Number of Visits </span>
-                        <span matListItemLine class="data">{{campaignData.visits }} </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Ads Number of Visits </h5>
+                        <span class="data">{{campaignData.visits }} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Ads Converstion </span>
-                        <span matListItemLine class="data"> </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Ads Converstion </h5>
+                        <span class="data"> </span>
+                    </div>
                 </article>  
     
                 <article class="flex-item">  
                     <h2>Ads Budget</h2>  
                     <!-- <p>The budget for this campaign is $5000.</p>  --> 
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Ads Budget Amount </span>
-                        <span matListItemLine class="data">{{campaignData.budget.budgetAmount | currency:'₦':'symbol':'1.0-0' }} </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Ads Budget Amount </h5>
+                        <span class="data">{{campaignData.budget.budgetAmount | currency:'₦':'symbol':'1.0-0' }} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Ads Budget Type </span>
-                        <span matListItemLine class="data">{{campaignData.budget.budgetType | titlecase}} </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Ads Budget Type </h5>
+                        <span class="data">{{campaignData.budget.budgetType | titlecase}} </span>
+                    </div>
                 </article>  
     
                
@@ -113,22 +123,28 @@
                     <h2>Ads Format</h2>  
                     <!-- <p>Formats include video ads and carousel images.</p>  --> 
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Ads Format </span>
-                        <span matListItemLine class="data">{{campaignData.adFormat.adFormat | titlecase}} </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Ads Format </h5>
+                        <span class="data">{{campaignData.adFormat.adFormat | titlecase}} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
     
-                    <mat-list-item lines="3">
-                        <span matListItemTitle> Target Device </span>
-                        <span matListItemLine class="data">{{campaignData.adFormat.deviceType | titlecase}} </span>
-                    </mat-list-item>
+                    <div class="list">
+                        <h5> Target Device </h5>
+                        <span class="data">{{campaignData.adFormat.deviceType | titlecase}} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
     
-                    <mat-list-item lines="3" *ngIf="campaignData.campaignName === 'Facebook'">
-                        <span matListItemTitle> Ads Preferences </span>
-                        <span matListItemLine class="data">
-                            <span *ngFor="let preference of getSelectedAdPreferences()">{{ preference }}, </span>
+                    <div class="list" *ngIf="campaignData.campaignName === 'Facebook'">
+                        <h5> Ads Preferences </h5>
+                        <span class="data">
+                            <ul>
+                                <li *ngFor="let preference of getSelectedAdPreferences()">{{ preference }} </li>
+                            </ul>
                         </span>
-                    </mat-list-item>
+                    </div>
     
                 </article>  
     
@@ -138,37 +154,48 @@
                     <h2>Ads Audience Target</h2>  
                     <!-- <p>The target audience is males and females aged 18-35.</p>   -->
     
-                    <mat-list-item lines="3" *ngIf="campaignData.targetAudience.ageRangeTarget">
-                        <span matListItemTitle> Campaign Age Range </span>
-                        <span matListItemLine class="data">{{campaignData.targetAudience.ageRangeTarget }} </span>
-                    </mat-list-item>
+                    <div class="list" *ngIf="campaignData.targetAudience.ageRangeTarget">
+                        <h5> Campaign Age Range </h5>
+                        <span class="data">{{campaignData.targetAudience.ageRangeTarget }} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
     
-                    <mat-list-item lines="3" *ngIf="campaignData.targetAudience.educationTarget">
-                        <span matListItemTitle> Educational Level</span>
-                        <span matListItemLine class="data">{{campaignData.targetAudience.educationTarget}} </span>
-                    </mat-list-item>
-                    <mat-list-item lines="3" *ngIf="campaignData.targetAudience.genderTarget">
-                        <span matListItemTitle> Gender </span>
-                        <span matListItemLine class="data">{{campaignData.targetAudience.genderTarget}} </span>
-                    </mat-list-item>
-                    <mat-list-item lines="3" *ngIf="campaignData.targetAudience.industryTarget">
-                        <span matListItemTitle> Industry</span>
-                        <span matListItemLine class="data">{{campaignData.targetAudience.industryTarget}} </span>
-                    </mat-list-item>
-                    <mat-list-item lines="3" *ngIf="campaignData.targetAudience.locationTarget">
-                        <span matListItemTitle> Location/Area</span>
-                        <span matListItemLine class="data">{{campaignData.targetAudience.locationTarget}} </span>
-                    </mat-list-item>
-                    <mat-list-item lines="3" *ngIf="campaignData.targetAudience.relationshipTarget">
-                        <span matListItemTitle> Marital Status</span>
-                        <span matListItemLine class="data">{{campaignData.targetAudience.relationshipTarget}} </span>
-                    </mat-list-item>
+                    <div class="list" *ngIf="campaignData.targetAudience.educationTarget">
+                        <h5> Educational Level</h5>
+                        <span class="data">{{campaignData.targetAudience.educationTarget}} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+
+                    <div class="list" *ngIf="campaignData.targetAudience.genderTarget">
+                        <h5> Gender </h5>
+                        <span class="data">{{campaignData.targetAudience.genderTarget}} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+
+                    <div class="list" *ngIf="campaignData.targetAudience.industryTarget">
+                        <h5> Industry</h5>
+                        <span class="data">{{campaignData.targetAudience.industryTarget}} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+
+                    <div class="list" *ngIf="campaignData.targetAudience.locationTarget">
+                        <h5> Location/Area</h5>
+                        <span class="data">{{campaignData.targetAudience.locationTarget}} </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+
+                    <div class="list" *ngIf="campaignData.targetAudience.relationshipTarget">
+                        <h5> Marital Status</h5>
+                        <span class="data">{{campaignData.targetAudience.relationshipTarget}} </span>
+                    </div>
                 </article>  
     
             </section>
-
-        
-
 
     </section>
 

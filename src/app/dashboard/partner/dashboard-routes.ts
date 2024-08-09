@@ -10,6 +10,7 @@ import { ProfileMrgContainerComponent } from "./profile/profile-mgr/profile-mgr-
 import { TeamMembersContainerComponent } from "./profile/team-members/team-members-container.component";
 import { AddMembersContainerComponent } from "./profile/team-members/add-members/add-members-container";
 import { BillingContainerComponent } from "./billing/billing-container.component";
+import { CreateContactsContainerComponent } from "./contacts/create/create-contacts-container.component";
 
 
 
@@ -69,6 +70,11 @@ export const dashboardRoutes: Routes = [
                 path: 'add-members',
                 component: AddMembersContainerComponent,
                 title: "Add Team Members",
+            },        
+            {
+                path: 'create-contacts',
+                component: CreateContactsContainerComponent,
+                title: "Create Contacts List",
             },        
         ]
     },

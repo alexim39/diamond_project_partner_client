@@ -37,9 +37,15 @@
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Message Log">Message Log</a>
         </div>
 
+        <a mat-list-item (click)="toggleSubSubmenu('tools-email')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Email</a>
+        <div [@submenuToggle]="isSubSubmenuOpen('tools-email') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send Email</a>
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Message Log">Message Log</a>
+        </div>
+
         <a mat-list-item (click)="toggleSubSubmenu('tools-contacts')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Contacts</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-contacts') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Create Contacts</a>
+          <a mat-list-item routerLink="create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Create Contacts</a>
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a>
         </div>
 
@@ -56,7 +62,13 @@
       <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Performance Reports">Performance Reports</a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Channel Analytics">Channel Analytics</a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Conversion Tracking">Conversion Tracking</a>
+        <!-- <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Conversion Tracking">Conversion Tracking</a> -->
+
+        <a mat-list-item (click)="toggleSubSubmenu('analytics-convertion-tracking')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Conversion Tracking">Conversion Tracking</a>
+        <div [@submenuToggle]="isSubSubmenuOpen('analytics-convertion-tracking') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Prospect List</a>
+          <!-- <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a> -->
+        </div>
       </div>
 
 
