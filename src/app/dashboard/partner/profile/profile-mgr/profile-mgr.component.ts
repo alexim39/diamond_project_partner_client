@@ -10,11 +10,11 @@ import { MatTableModule } from '@angular/material/table';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PartnerInterface, } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import {MatExpansionModule} from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { ProfileService } from '../profile.service';
 import Swal from 'sweetalert2';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import {MatSlideToggleChange, MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
@@ -37,19 +37,19 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   passwordForm!: FormGroup;
   hideCurrent = signal(true);
   hideNew = signal(true);
-  
-  subscriptions: Subscription[] = [];
+
+  subscriptions: Array<Subscription> = [];
   isSpinning = false;
   disabled = true;
   status = false;
 
-  minDate!: Date; 
+  minDate!: Date;
 
   constructor(
     private profileService: ProfileService
   ) { }
 
-  
+
   onHideCurrent(event: MouseEvent) {
     this.hideCurrent.set(!this.hideCurrent());
     event.stopPropagation();
@@ -62,8 +62,8 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Set the minimum date to today  
-    this.minDate = new Date(); 
-    
+    this.minDate = new Date();
+
     if (this.partner) {
       this.profileMgrForm = new FormGroup({
         name: new FormControl(this.partner.name, Validators.required),
@@ -95,20 +95,20 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       } else {
         this.disabled = false;
       }
-    }   
+    }
   }
 
-  onToggleChange(event: MatSlideToggleChange) {  
-    if (event.checked) {  
-      console.log('Send email');  
+  onToggleChange(event: MatSlideToggleChange) {
+    if (event.checked) {
+      console.log('Send email');
       // Call your method when checked  
-    } else {  
-      console.log('Do nothing');  
+    } else {
+      console.log('Do nothing');
       // Call your method when unchecked  
-    }  
-  } 
+    }
+  }
 
-  onProfileSubmit() { 
+  onProfileSubmit() {
     this.isSpinning = true;
     const profileObject = this.profileMgrForm.value;
 
@@ -176,10 +176,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           })
         }
         this.isSpinning = false;
-       
+
       })
     )
-   }
+  }
 
   onPasswordSubmit() {
     this.isSpinning = true;
@@ -207,7 +207,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
             showConfirmButton: false,
             timer: 4000
           })
-        } else if(error.code === 401) {
+        } else if (error.code === 401) {
           Swal.fire({
             position: "bottom",
             icon: 'info',
@@ -225,10 +225,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           })
         }
         this.isSpinning = false;
-        
+
       })
     )
-   }
+  }
 
   ngOnDestroy() {
     // unsubscribe list

@@ -73,17 +73,17 @@ p {
     color: #555; /* Slightly darker text for paragraphs */  
 }  
 
-mat-list-item {
-    margin-bottom: -1em;
-    mat-list-item {
-        .title {
-            color: rgb(202, 201, 201);
-        }
-        .datas {
-            font-weight: bold;
-        }
+
+.list {
+    margin-bottom: 1em;
+    h5 {
+        color: gray
+    }
+    .datas {
+        font-weight: bold;
     }
 }
+
 
 /* Media Queries for Responsiveness */  
 @media (max-width: 600px) {  

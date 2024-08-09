@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import { FacebookComponent } from './facebook/facebook.component';
 import { YoutubeComponent } from './youtube/youtube.component';
@@ -7,6 +7,9 @@ import { LinkedinComponent } from './linkedin/linkedin.component';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import {MatIconModule} from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { HelpDialogComponent } from '../../../_common/help-dialog.component';
 
 /**
  * @title marketing channesl tab
@@ -16,11 +19,12 @@ import { CommonModule } from '@angular/common';
   templateUrl: 'marketing-channels.component.html',
   styleUrls: ['marketing-channels.component.scss'],
   standalone: true,
-  imports: [MatTabsModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule],
+  imports: [MatTabsModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule, MatIconModule],
 })
 export class MarketingChannelsComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
+  readonly dialog = inject(MatDialog);
 
   constructor(
     private partnerService: PartnerService
@@ -41,6 +45,12 @@ export class MarketingChannelsComponent implements OnInit, OnDestroy {
         }
       )
     )
+  }
+
+  showDescription () {
+    this.dialog.open(HelpDialogComponent, {
+      data: {help: 'In this section, you can create a paid campaign on your selected social media platform to promote your unique link'},
+    });
   }
 
   ngOnDestroy() {
