@@ -39,7 +39,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
 
 
     ngOnInit(): void {
-        console.log(this.partner)
+       // console.log(this.partner)
 
         if (this.partner) {
           this.prospectContactForm = new FormGroup({
@@ -88,7 +88,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     showDescription () {
       this.dialog.open(HelpDialogComponent, {
         data: {help: `
-          Here, you can easily import or create contact list for your potential prospect
+          Here, you can easily import (from campaign prospect list) or create contact list for your potential prospect
         `},
       });
     }

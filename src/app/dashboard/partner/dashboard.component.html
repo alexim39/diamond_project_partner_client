@@ -46,7 +46,7 @@
         <a mat-list-item (click)="toggleSubSubmenu('tools-contacts')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Contacts</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-contacts') ? 'open' : 'closed'" class="subsubmenu">
           <a mat-list-item routerLink="create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Create Contacts</a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a>
+          <a mat-list-item  routerLink="manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a>
         </div>
 
         <!-- <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()">Create Contacts</a> -->

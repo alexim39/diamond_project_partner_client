@@ -4,7 +4,16 @@ import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 
 export interface ContactsInterface {
-     id: string;
+  message: string;
+  data?: Array<{
+    prospectName: string;
+    prospectSurname: string;
+    prospectEmail: string;
+    prospectPhone: string;
+    prospectSource: string;
+    prospectRemark?: string;
+    createdAt: Date;
+  }>  
 }
   
 
@@ -49,13 +58,13 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  /*  // username Update 
-   usernameUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    //console.log('form record', dataObject);
-    return this.http
-      .put<ProfileInterface>(this.api + `/partners/update-username/`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  } */
+ // get contacts createdby
+ getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
+  //console.log('record', id);
+  return this.http
+    .get<ContactsInterface>(this.api + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
 
   /*  // change Password 
    changePassword(dataObject: ProfileInterface): Observable<ProfileInterface> {
