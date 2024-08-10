@@ -16,6 +16,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ConctactFilterPipe } from '../contacts-filter.pipe';
 import { RouterModule } from '@angular/router';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 /**
  * @title Contacts
@@ -26,7 +27,7 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['manage-contacts.component.scss'],
   standalone: true,
   providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, ConctactFilterPipe, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
+  imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, ConctactFilterPipe, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
 })
 export class ManageContactsComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;
@@ -41,7 +42,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
   
     filterText: string = '';
   
-    displayedColumns: string[] = ['name', 'phone', 'email', 'channel', 'remark', 'date', 'action'];
+    displayedColumns: string[] = ['name', 'phone', 'email', 'channel', 'status', 'remark', 'date', 'action'];
 
     constructor(
       private contactsService: ContactsService,
@@ -62,11 +63,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
       }  
     }
 
-
-    preview(prospectId: string) {
-
-    }
-
+    preview(prospectId: string) {  }
 
     showDescription () {
       this.dialog.open(HelpDialogComponent, {

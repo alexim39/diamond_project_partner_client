@@ -1,16 +1,12 @@
 <section class="async-background ">
-    <h2>Manage Prospect Contact List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Manage Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
 
         <div class="title">
-            <h3>Contact List</h3>
+            <h3>Online Survey List</h3>
             <div class="action-area">
-                <!-- <a mat-list-item routerLink="../create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign" mat-raised-button><mat-icon>add</mat-icon>New Contact</a> -->
-                <mat-button-toggle-group>
-                    <mat-button-toggle style="background: white" routerLink="../create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign"><mat-icon>add</mat-icon>New Contact</mat-button-toggle>
-                    <mat-button-toggle style="background: white" routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon>Online Prospect Contact</mat-button-toggle>
-                </mat-button-toggle-group>
+                <a mat-list-item routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign" mat-raised-button><mat-icon>view_list</mat-icon>Contact List</a>
 
                 <!-- <div class="action">
                     Prepaid balance
@@ -32,50 +28,59 @@
             <div class="table">
     
     
-                <table mat-table [dataSource]="dataSource | contactFilter:filterText" class="mat-elevation-z8">
+                <table mat-table [dataSource]="dataSource | prospectListFilter:filterText" class="mat-elevation-z8">
     
                     <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->
                   
                     <ng-container matColumnDef="name">
                       <th mat-header-cell *matHeaderCellDef> Name </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectName | titlecase }} {{element.prospectSurname | titlecase}} </td>
+                      <td mat-cell *matCellDef="let element"> {{element.name | titlecase }} {{element.surname | titlecase}} </td>
                     </ng-container>
                   
                     <ng-container matColumnDef="phone">
                       <th mat-header-cell *matHeaderCellDef> Phone Number </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectPhone}} </td>
+                      <td mat-cell *matCellDef="let element"> {{element.phoneNumber}} </td>
                     </ng-container>
                   
                     <ng-container matColumnDef="email">
                       <th mat-header-cell *matHeaderCellDef> Email Address </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectEmail | lowercase}} </td>
+                      <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
                     </ng-container>
     
-                    <ng-container matColumnDef="channel">
+                   <!--  <ng-container matColumnDef="channel">
                       <th mat-header-cell *matHeaderCellDef> Channel </th>
                       <td mat-cell *matCellDef="let element"> {{element.prospectSource}} </td>
-                    </ng-container>
+                    </ng-container> -->
 
-                    <ng-container matColumnDef="status">
+                   <!--  <ng-container matColumnDef="status">
                       <th mat-header-cell *matHeaderCellDef> Status </th>
                       <td mat-cell *matCellDef="let element"> {{element.status}} </td>
-                    </ng-container>
+                    </ng-container> -->
     
-                    <ng-container matColumnDef="remark">
+                  <!--   <ng-container matColumnDef="remark">
                         <th mat-header-cell *matHeaderCellDef> Remark/Comment </th>
                         <td mat-cell *matCellDef="let element"> {{element.prospectRemark}} </td>
-                    </ng-container>
+                    </ng-container> -->
 
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef> Date </th>
                         <td mat-cell *matCellDef="let element"> {{element.updatedAt | date}} </td>
                     </ng-container>
     
+
+                    <ng-container matColumnDef="detail">
+                        <th mat-header-cell *matHeaderCellDef> Detail </th>
+                        <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
+                            <mat-icon (click)="ViewResponse(element)" title="View detailed responses">preview</mat-icon>
+                            <mat-icon (click)="deleteProspect(element._id)" title="Delete" style="margin-left: 1em; color: red;">delete</mat-icon>
+                        </td>
+                    </ng-container>
+
                     <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef> Action </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <mat-icon title="View" (click)="preview(element._id)">zoom_in</mat-icon>
+                            <button (click)="moveToContact(element._id)" mat-button>Move to Contact</button>
                         </td>
                     </ng-container>
                   

@@ -60,13 +60,13 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Performance Reports">Performance Reports</a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Channel Analytics">Channel Analytics</a>
+        <!-- <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Performance Reports">Performance Reports</a> -->
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Channel Analytics">Campaign Analytics</a>
         <!-- <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Conversion Tracking">Conversion Tracking</a> -->
 
         <a mat-list-item (click)="toggleSubSubmenu('analytics-convertion-tracking')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Conversion Tracking">Conversion Tracking</a>
         <div [@submenuToggle]="isSubSubmenuOpen('analytics-convertion-tracking') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Prospect List</a>
+          <a mat-list-item routerLink="prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List">Prospect List</a>
           <!-- <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a> -->
         </div>
       </div>
@@ -126,12 +126,12 @@
         </div>
       </a>
     
-      <a class="sign-out" mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="signOut()">
+      <!-- <a class="sign-out" mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="signOut()">
         <div>
           <mat-icon>logout</mat-icon> 
           <span> Sign Out</span>
         </div>
-      </a>
+      </a> -->
     </mat-nav-list>
 
   </mat-sidenav>
@@ -157,9 +157,9 @@
       <a mat-button [matMenuTriggerFor]="notifications">
         <mat-icon>notifications</mat-icon> Notification
       </a>
-      <!-- <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <mat-icon>input</mat-icon> Sign Up
-      </a> -->
+      <a mat-button (click)="signOut()" title="Sign off application">
+        <mat-icon>power_off</mat-icon> Sign Off
+      </a>
     </ng-content>
   </mat-toolbar-row>
 

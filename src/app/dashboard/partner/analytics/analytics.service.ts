@@ -3,23 +3,20 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 
-export interface ContactsInterface {
+export interface ProspectListInterface {
   message: string;
   data?: Array<{
-    prospectName: string;
-    prospectSurname: string;
-    prospectEmail: string;
-    prospectPhone: string;
-    prospectSource: string;
-    prospectRemark?: string;
+    surname: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
     createdAt: Date;
-    status: string;
   }>  
 }
   
 
 @Injectable()
-export class ContactsService {
+export class AnalyticsService {
   // Define API
   //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   api = 'http://localhost:3000';
@@ -51,37 +48,31 @@ export class ContactsService {
   }
 
 
-  // contact creatioin
-  create(dataObject: ContactsInterface): Observable<ContactsInterface> {
-    //console.log('form record', dataObject);
+ 
+  // get contacts createdby
+  getProspectFor(createdBy: string): Observable<ProspectListInterface> {
+    //console.log('record', id);
     return this.http
-      .post<ContactsInterface>(this.api + `/prospect/create`, dataObject, { withCredentials: true })
+      .get<ProspectListInterface>(this.api + `/prospect/for/${createdBy}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
- // get contacts createdby
- getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
-  //console.log('record', id);
+  // get contacts createdby
+  importSingle(importId: any): Observable<ProspectListInterface> {
+  //console.log('record', importId);
   return this.http
-    .get<ContactsInterface>(this.api + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
+    .get<ProspectListInterface>(this.api + `/prospect/import-single/${importId.partnerId}/${importId.prospectId}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
-}
+  }
 
- // get contacts createdby
- import(partnerId: string): Observable<ContactsInterface> {
-  //console.log('record', partnerId);
-  return this.http
-    .get<ContactsInterface>(this.api + `/prospect/import/${partnerId}`, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
-}
-
-  /*  // change Password 
-   changePassword(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    //console.log('form record', dataObject);
+   // detele single prospect
+   deleteSingle(prospectId: string): Observable<ProspectListInterface> {
+    console.log('record', prospectId);
     return this.http
-      .put<ProfileInterface>(this.api + `/partners/change-password/`, dataObject, { withCredentials: true })
+      .get<ProspectListInterface>(this.api + `/prospect/delete-single/${prospectId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
-  } */
+    }
+  
 
    
 }
