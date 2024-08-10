@@ -1,0 +1,108 @@
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+
+        .title {
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .control {
+                display: flex;
+                justify-content: space-between;
+                .back {
+                    cursor: pointer;
+                }
+                .back:hover {
+                    cursor: pointer;
+                    opacity: 0.5;
+    
+                }
+            }
+
+           
+            h3 {
+                margin-top: 1em; 
+            }
+        }
+    }
+}
+
+
+section.flex-container {  
+    display: flex;  
+    flex-wrap: wrap; /* Allow items to wrap to the next line */  
+    justify-content: space-around; /* Distribute space around items */  
+    padding: 40px; /* Add padding around the container */  
+    background-color: #ffffff; /* White background for each article */  
+    border-radius: 10px;
+}  
+
+article.flex-item {  
+    flex: 1 1 20em; /* Allow flex items to grow and shrink with a minimum width of 200px */  
+    min-width: 20em; /* Maximum width for articles */  
+    max-width: 40em; /* Maximum width for articles */  
+    margin: 15px; /* Add space around items */  
+    padding: 15px; /* Padding inside articles */  
+    border: 1px solid #ddd; /* Light gray border */  
+    border-radius: 8px; /* Rounded corners */  
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */  
+    transition: transform 0.2s; /* Transition effect for hover */  
+}  
+
+article.flex-item:hover {  
+    transform: translateY(-5px); /* Lift effect on hover */  
+}  
+
+h2 {  
+    font-size: 1.5em; /* Font size for headings */  
+    margin-bottom: 10px; /* Space below headings */  
+    //color: #007BFF; /* Blue color for headings */  
+    border-bottom: 1px solid rgb(227, 225, 225);
+    padding-bottom: 0.5em;
+}  
+
+p {  
+    font-size: 1em; /* Font size for paragraph text */  
+    //line-height: 1.5; /* Line height for readability */  
+    color: #555; /* Slightly darker text for paragraphs */  
+}  
+
+
+.list {
+    margin-bottom: 1em;
+    h5 {
+        color: gray
+    }
+    .data {
+        font-weight: bold;
+    }
+    .wrap {
+        word-wrap: break-word;
+        max-width: 10px !important; /* Adjust as needed */
+    }
+}
+
+/* Media Queries for Responsiveness */  
+@media (max-width: 600px) {  
+    section.flex-container {  
+        justify-content: center; /* Center content on small screens */  
+    }  
+
+    article.flex-item {  
+        flex-basis: 100%; /* Full width for items on small screens */  
+        max-width: none; /* Remove max-width restriction */  
+    }  
+}  
+
+@media (min-width: 601px) and (max-width: 900px) {  
+    article.flex-item {  
+        flex-basis: calc(50% - 30px); /* Two items per row on medium screens */  
+    }  
+}

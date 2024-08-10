@@ -64,7 +64,7 @@
     
                     <ng-container matColumnDef="remark">
                         <th mat-header-cell *matHeaderCellDef> Remark/Comment </th>
-                        <td mat-cell *matCellDef="let element"> {{element.prospectRemark}} </td>
+                        <td mat-cell *matCellDef="let element"> {{element.prospectRemark | truncate: 40 }} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="date">
@@ -75,7 +75,7 @@
                     <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef> Action </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <mat-icon title="View" (click)="preview(element._id)">zoom_in</mat-icon>
+                            <mat-icon title="View" (click)="preview(element._id)">read_more</mat-icon>
                         </td>
                     </ng-container>
                   

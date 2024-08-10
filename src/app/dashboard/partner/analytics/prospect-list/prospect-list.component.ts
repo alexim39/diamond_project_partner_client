@@ -34,7 +34,6 @@ export class ProspectListComponent implements OnInit, OnDestroy {
     readonly dialog = inject(MatDialog);
     @Input() prospectList!: ProspectListInterface;
 
-    isSpinning = false;
     subscriptions: Array<Subscription> = [];
 
     dataSource: Array<any> = [];
@@ -75,7 +74,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
       /* set confirmation dialog */
 
       Swal.fire({
-        title: "Are you sure move prospect to contact list?",
+        title: "Are you sure of moving prospect to contact list?",
         text: "You won't be able to revert this!",
         icon: "warning",
         showCancelButton: true,
@@ -92,7 +91,6 @@ export class ProspectListComponent implements OnInit, OnDestroy {
 
           this.scrollToTop();
   
-          this.isSpinning = true;  
           const partnerId = this.partner._id;
         
             this.subscriptions.push(
@@ -101,7 +99,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
                 Swal.fire({
                   position: "bottom",
                   icon: 'success',
-                  text: `Your have successfully move prospect to contact list`,
+                  text: `Your have successfully moved prospect to contact list`,
                   showConfirmButton: true,
                   confirmButtonText: "View Contacts",
                   timer: 15000,
@@ -110,11 +108,9 @@ export class ProspectListComponent implements OnInit, OnDestroy {
                     this.router.navigateByUrl('dashboard/manage-contacts');
                   }
                 });
-                this.isSpinning = false;
         
               }, (error: any) => {
                 //console.log(error)
-                this.isSpinning = false;
                 Swal.fire({
                   position: "bottom",
                   icon: 'info',
@@ -148,7 +144,6 @@ export class ProspectListComponent implements OnInit, OnDestroy {
             icon: "success"
           }); */
 
-          this.isSpinning = true;  
           //const partnerId = this.partner._id;
         
             this.subscriptions.push(
@@ -167,11 +162,9 @@ export class ProspectListComponent implements OnInit, OnDestroy {
                     location.reload();
                   }
                 });
-                this.isSpinning = false;
         
               }, (error: any) => {
                 //console.log(error)
-                this.isSpinning = false;
                 Swal.fire({
                   position: "bottom",
                   icon: 'info',

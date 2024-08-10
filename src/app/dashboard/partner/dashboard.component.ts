@@ -14,11 +14,11 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { NavigationEnd, NavigationStart, Router, RouterModule, } from '@angular/router';
 import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
-import { PartnerAuthService } from '../../auth/partner/partner-auth.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { MarketingChannelsComponent } from './create-campaign/marketing-channels.component';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { Emitters } from '../../_common/emitters/emitters';
+import { PartnerAuthService } from '../../auth/auth.service';
 
 type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship';
 
@@ -28,9 +28,9 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
   providers: [PartnerService, PartnerAuthService],
-  imports: [
+  imports: [ 
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
-    MarketingChannelsComponent
+    MarketingChannelsComponent, 
   ],
   animations: [
     trigger('submenuToggle', [

@@ -13,6 +13,7 @@ import { BillingContainerComponent } from "./billing/billing-container.component
 import { CreateContactsContainerComponent } from "./contacts/create/create-contacts-container.component";
 import { ManageContactsContainerComponent } from "./contacts/manage/manage-contacts-container.component";
 import { ProspectListContainerComponent } from "./analytics/prospect-list/prospect-list-container.component";
+import { ManageContactsDetailContainerComponent } from "./contacts/manage/details/manage-contacts-detail-container.component";
 
 
 
@@ -87,6 +88,11 @@ export const dashboardRoutes: Routes = [
                 path: 'prospect-list',
                 component: ProspectListContainerComponent,
                 title: "Manage Prospect List",
+            },        
+            {
+                path: 'prospect-detail/:id',
+                component: ManageContactsDetailContainerComponent,
+                title: "Campaign Details",
             },        
         ]
     },

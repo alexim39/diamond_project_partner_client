@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {Component, signal} from '@angular/core';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatButtonModule} from '@angular/material/button';
@@ -10,6 +11,6 @@ import {MatButtonModule} from '@angular/material/button';
   templateUrl: 'index.component.html',
   styleUrls: ['index.component.scss'],
   standalone: true,
-  imports: [MatButtonModule, MatBadgeModule],
+  imports: [MatButtonModule, MatBadgeModule, CommonModule],
 })
 export class DashboardIndexComponent {}

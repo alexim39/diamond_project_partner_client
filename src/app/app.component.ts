@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SpinnerComponent } from './_common/services/loader/spinner.component';
 
 
 
 @Component({
   selector: 'async-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, SpinnerComponent],
   template: `
+  <async-spinner></async-spinner>
   <div id="container">
     <div class="body">
       <router-outlet></router-outlet>
