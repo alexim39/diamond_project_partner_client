@@ -13,6 +13,7 @@ import { ContactsService } from '../contacts.service';
 import { MatInputModule } from '@angular/material/input';  
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Router } from '@angular/router';
 
 /**
  * @title Contacts
@@ -35,6 +36,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
 
     constructor(
       private contactsService: ContactsService,
+      private router: Router,
     ) {}
 
 
@@ -73,14 +75,25 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
   
         }, (error: any) => {
           //console.log(error)
-          this.isSpinning = false;
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
+          if (error.code == 400) {
+            this.isSpinning = false;
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Prospect already exists with this phone number or email',
+              showConfirmButton: false,
+              timer: 4000
+            })
+          } else {
+            this.isSpinning = false;
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Server error occured, please try again',
+              showConfirmButton: false,
+              timer: 4000
+            })
+          }
         })
       )
     }
@@ -94,8 +107,57 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     }
 
     // scroll to top when clicked
-  scrollToTop() {
+  private scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  importContacts(): void {
+    this.scrollToTop();
+
+    this.isSpinning = true;  
+    const partnerId = this.partner._id;
+  
+      this.subscriptions.push(
+        this.contactsService.import(partnerId).subscribe((res: any) => {
+  
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: `Your have successfully imported ${res.data.numberOfImports} contact(s)`,
+            showConfirmButton: true,
+            confirmButtonText: "View Contacts",
+            timer: 15000,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.router.navigateByUrl('dashboard/manage-contacts');
+            }
+          });
+          this.isSpinning = false;
+  
+        }, (error: any) => {
+         // console.log(error)
+          if (error.code == 401) {
+            this.isSpinning = false;
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'No prospect found',
+              showConfirmButton: false,
+              timer: 4000
+            })
+          } else {
+            this.isSpinning = false;
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Server error occured, please try again',
+              showConfirmButton: false,
+              timer: 4000
+            })
+          }
+          
+        })
+      )
   }
 
     
