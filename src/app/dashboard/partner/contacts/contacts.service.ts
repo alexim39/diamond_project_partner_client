@@ -14,6 +14,7 @@ export interface ContactsInterface {
     prospectRemark?: string;
     createdAt: Date;
     status: string;
+    id: string;
   }>  
 }
   
@@ -59,8 +60,8 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
- // get contacts createdby
- getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
+// get contacts createdby
+getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
   //console.log('record', id);
   return this.http
     .get<ContactsInterface>(this.api + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
@@ -75,13 +76,46 @@ export class ContactsService {
     .pipe(retry(1), catchError(this.handleError));
 }
 
-  /*  // change Password 
-   changePassword(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    //console.log('form record', dataObject);
-    return this.http
-      .put<ProfileInterface>(this.api + `/partners/change-password/`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  } */
+// get prospect byId
+getProspectById(prospectId: string): Observable<ContactsInterface> {
+  //console.log('record', id);
+  return this.http
+    .get<ContactsInterface>(this.api + `/prospect/getById/${prospectId}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
+
+// update prospect status
+updateProspectStatus(obj: {status: string; prospectId: string}): Observable<ContactsInterface> {
+  //console.log('record', obj);
+  return this.http
+    .post<ContactsInterface>(this.api + `/prospect/updateStatus`, obj, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
+
+// update prospect remark
+updateProspectRemark(obj: {remark: string; prospectId: string}): Observable<ContactsInterface> {
+  //console.log('record', obj);
+  return this.http
+    .post<ContactsInterface>(this.api + `/prospect/updateRemark`, obj, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
+
+// delete prospect 
+deleteProspect(id: string): Observable<ContactsInterface> {
+  //console.log('record', obj);
+  return this.http
+    .get<ContactsInterface>(this.api + `/prospect/delete/${id}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
+
+// delete prospect 
+promoteProspectToPartner(obj: {prospectId: string; code: string}): Observable<ContactsInterface> {
+  console.log('record', obj);
+  return this.http
+    .post<ContactsInterface>(this.api + `/prospect/promte`, obj, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
+
 
    
 }

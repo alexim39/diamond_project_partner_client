@@ -8,15 +8,15 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { PartnerSignUpData } from '../partner-auth.interface';
+import { PartnerSignUpData } from '../auth.interface';
 import Swal from 'sweetalert2';
-import { PartnerAuthService } from '../partner-auth.service';
+import { PartnerAuthService } from '../auth.service';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { minDigitsValidator } from '../../../_common/services/phone-number-checker';
+import { minDigitsValidator } from '../../_common/services/phone-number-checker';
 
 /**
  * @title Partner signup

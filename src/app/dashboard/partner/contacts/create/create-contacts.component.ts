@@ -13,7 +13,8 @@ import { ContactsService } from '../contacts.service';
 import { MatInputModule } from '@angular/material/input';  
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 /**
  * @title Contacts
@@ -24,14 +25,13 @@ import { Router } from '@angular/router';
   styleUrls: ['create-contacts.component.scss'],
   standalone: true,
   providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+  imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
 })
 export class CreateContactsComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;
     readonly dialog = inject(MatDialog);
 
     prospectContactForm!: FormGroup;
-    isSpinning = false;
     subscriptions: Array<Subscription> = [];
 
     constructor(
@@ -57,7 +57,6 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     }
 
     onSubmit() {
-      this.isSpinning = true;
       const prospectObject = this.prospectContactForm.value;
   
   
@@ -71,12 +70,10 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
             showConfirmButton: true,
             timer: 15000,
           })
-          this.isSpinning = false;
   
         }, (error: any) => {
           //console.log(error)
           if (error.code == 400) {
-            this.isSpinning = false;
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -85,7 +82,6 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
               timer: 4000
             })
           } else {
-            this.isSpinning = false;
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -106,15 +102,10 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
       });
     }
 
-    // scroll to top when clicked
-  private scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 
   importContacts(): void {
     this.scrollToTop();
 
-    this.isSpinning = true;  
     const partnerId = this.partner._id;
   
       this.subscriptions.push(
@@ -132,12 +123,10 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
               this.router.navigateByUrl('dashboard/manage-contacts');
             }
           });
-          this.isSpinning = false;
   
         }, (error: any) => {
          // console.log(error)
           if (error.code == 401) {
-            this.isSpinning = false;
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -146,7 +135,6 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
               timer: 4000
             })
           } else {
-            this.isSpinning = false;
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -158,6 +146,11 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
           
         })
       )
+  }
+
+   // scroll to top when clicked
+   scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
     

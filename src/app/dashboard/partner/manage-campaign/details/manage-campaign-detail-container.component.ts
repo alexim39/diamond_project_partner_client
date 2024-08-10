@@ -15,7 +15,7 @@ import {MatIconModule} from '@angular/material/icon';
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
           <p class="no-content">Something Went Wrong</p>
-          <button mat-flat-button (click)="browserBackHistory()"><mat-icon>arrow_back</mat-icon>Go back</button>
+          <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
         </div>
     </ng-container>
   `,
@@ -67,7 +67,7 @@ export class ManageCampaignDetailContainerComponent implements OnInit {
       });
   }
 
-  browserBackHistory () {
+ /*  browserBackHistory () {
     window.history.back();  
-  }
+  } */
 }

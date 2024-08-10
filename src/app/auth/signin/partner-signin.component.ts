@@ -8,9 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { PartnerAuthService } from '../partner-auth.service';
+import { PartnerAuthService } from '../auth.service';
 import Swal from 'sweetalert2';
-import { PartnerSignInData } from '../partner-auth.interface';
+import { PartnerSignInData } from '../auth.interface';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 

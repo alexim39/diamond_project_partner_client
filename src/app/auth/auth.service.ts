@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { PartnerSignInData, PartnerSignUpData } from './partner-auth.interface';
+import { PartnerSignInData, PartnerSignUpData } from './auth.interface';
 
 @Injectable()
 export class PartnerAuthService {

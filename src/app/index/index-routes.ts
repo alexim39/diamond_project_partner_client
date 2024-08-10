@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { IndexComponent } from "./index.component";
-import { PartnerSigninComponent } from "../auth/partner/signin/partner-signin.component";
-import { PartnerSignupComponent } from "../auth/partner/signup/partner-signup.component";
+import { PartnerSigninComponent } from "../auth/signin/partner-signin.component";
+import { PartnerSignupComponent } from "../auth/signup/partner-signup.component";
 import { IndexBodyComponent } from "./index-body.component";
 
 export const IndexRoutes: Routes = [

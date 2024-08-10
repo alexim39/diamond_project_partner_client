@@ -15,8 +15,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { ConctactFilterPipe } from '../contacts-filter.pipe';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 
 /**
  * @title Contacts
@@ -27,7 +28,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
   styleUrls: ['manage-contacts.component.scss'],
   standalone: true,
   providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, ConctactFilterPipe, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
+  imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, ConctactFilterPipe, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
 })
 export class ManageContactsComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;
@@ -46,6 +47,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
 
     constructor(
       private contactsService: ContactsService,
+      private router: Router,
     ) {}
 
 
@@ -63,7 +65,9 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
       }  
     }
 
-    preview(prospectId: string) {  }
+    preview(id: string) {
+      this.router.navigate(['/dashboard/prospect-detail', id]);
+    }
 
     showDescription () {
       this.dialog.open(HelpDialogComponent, {

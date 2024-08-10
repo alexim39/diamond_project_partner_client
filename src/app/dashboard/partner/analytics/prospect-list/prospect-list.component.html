@@ -6,7 +6,7 @@
         <div class="title">
             <h3>Online Survey List</h3>
             <div class="action-area">
-                <a mat-list-item routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign" mat-raised-button><mat-icon>view_list</mat-icon>Contact List</a>
+                <a mat-list-item routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list" mat-raised-button><mat-icon>view_list</mat-icon>Contact List</a>
 
                 <!-- <div class="action">
                     Prepaid balance
@@ -15,7 +15,6 @@
             </div>
         </div>
 
-        <mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
 
         <ng-container *ngIf="!isEmptyRecord">
             <div class="search">
