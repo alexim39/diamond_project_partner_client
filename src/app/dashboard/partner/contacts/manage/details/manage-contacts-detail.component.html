@@ -105,11 +105,11 @@
                             <mat-form-field appearance="outline">
                                 <mat-label>Enter remark/comment</mat-label>
                                 <textarea matInput [(ngModel)]="remark"  #message maxlength="256"></textarea>
-                                <mat-hint align="start"><strong>Short remark about prospect info</strong> </mat-hint>
+                                <mat-hint align="start" style="color: orange"><strong>Short remark about prospect info</strong> </mat-hint>
                                 <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button (click)="updateProspectRemark()">Update remark</button>
+                            <button mat-raised-button (click)="updateProspectRemark()" style="margin-top: 2em">Update remark</button>
                         </span>
                     </div>
                 </article>   
@@ -144,13 +144,20 @@
     
                     <div class="list">
                         <h5> Email</h5>
+                        <div class="copy-link">
+                            <p>
+                                www.diamondprojectonline.com/{{partner.username}}
+                            </p>
+                            <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
+                        </div>
                         <span class="data" style="display: flex; flex-direction: column;">
                             <mat-form-field appearance="outline">
                                 <mat-label>Write Email</mat-label>
                                 <textarea matInput></textarea>
+                                <mat-hint align="start" style="color: orange"><strong>Write Email to prospect email address (Don't forget to include your link)</strong> </mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button>Send</button>
+                            <button mat-raised-button style="margin-top: 2em">Send</button>
                         </span>
                     </div>
                 </article>  
@@ -160,14 +167,22 @@
                     <!-- <p>The campaign will run for 30 days starting from June 1, 2023.</p>   -->
 
                     <div class="list">
-                        <h5> Email</h5>
+                        <h5> SMS</h5>
+                        <div class="copy-link">
+                            <p>
+                                www.diamondprojectonline.com/{{partner.username}}
+                            </p>
+                            <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
+                        </div>
                         <span class="data" style="display: flex; flex-direction: column;">
                             <mat-form-field appearance="outline">
                                 <mat-label>Write SMS</mat-label>
-                                <textarea matInput></textarea>
+                                <textarea matInput #SMS maxlength="160" [(ngModel)]="sms"></textarea>
+                                <mat-hint align="start" style="color: orange"><strong>Short SMS to prospect phone number (Don't forget to include your link)</strong> </mat-hint>
+                                <mat-hint align="end">{{SMS.value.length}} / 160</mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button>Send</button>
+                            <button mat-raised-button style="margin-top: 2em" (click)="sendSMS()">Send</button>
                         </span>
                     </div>    
                 </article>  

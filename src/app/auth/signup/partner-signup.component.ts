@@ -97,7 +97,16 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               showConfirmButton: false,
               timer: 4000
             });
-          } else {
+          }  else if (error.code == 402) {
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'This reservation code is pending approval from an administrator',
+              showConfirmButton: false,
+              timer: 4000
+            });
+          } 
+           else {
 
             Swal.fire({
               position: "bottom",
