@@ -30,7 +30,6 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
 
   signInForm: FormGroup = new FormGroup({}); // Assigning a default value
   subscriptions: Array<Subscription> = [];
-  isSpinning = false;
 
   constructor(
     private router: Router,
@@ -46,7 +45,6 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    this.isSpinning = true;
 
     // Mark all form controls as touched to trigger the display of error messages
     this.markAllAsTouched();
@@ -56,10 +54,8 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
      const formData: PartnerSignInData = this.signInForm.value;
       this.subscriptions.push(
         this.partnerSignInService.siginin(formData).subscribe((res: any) => {
-          this.isSpinning = false;
           this.router.navigateByUrl('dashboard');
         }, error => {
-          this.isSpinning = false;
           if (error.code == 404) {// user not found
             Swal.fire({
               position: 'bottom',
@@ -81,7 +77,6 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
         })
       )
     } else {
-     this.isSpinning = false;
     }
   }
 

@@ -49,8 +49,6 @@ export class FacebookComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
 
   subscriptions: Array<Subscription> = [];
-  isSpinning = false;
-
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -169,7 +167,6 @@ export class FacebookComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    this.isSpinning = true;
     const campaignData = {
       targetAudience: this.targetAudienceFormGroup.value,
       marketingObjectives: this.marketingObjectivesFormGroup.value,
@@ -199,11 +196,9 @@ export class FacebookComponent implements OnInit, OnDestroy {
           showConfirmButton: true,
           timer: 15000,
         })
-        this.isSpinning = false;
 
       }, (error: any) => {
-        console.log(error)
-        this.isSpinning = false;
+        //console.log(error)
         Swal.fire({
           position: "bottom",
           icon: 'info',

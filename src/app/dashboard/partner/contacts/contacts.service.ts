@@ -109,10 +109,10 @@ deleteProspect(id: string): Observable<ContactsInterface> {
 }
 
 // delete prospect 
-promoteProspectToPartner(obj: {prospectId: string; code: string}): Observable<ContactsInterface> {
-  console.log('record', obj);
+promoteProspectToPartner(prospect: {partnerId: string; prospectId: string; code: string;}): Observable<ContactsInterface> {
+  //console.log('record', prospect);
   return this.http
-    .post<ContactsInterface>(this.api + `/prospect/promte`, obj, { withCredentials: true })
+    .post<ContactsInterface>(this.api + `/reservationCode/submit`, prospect, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 

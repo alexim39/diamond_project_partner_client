@@ -66,7 +66,7 @@
                     <div class="list">
                         <h5> Update Status </h5>
                         <span class="data" style="display: flex; flex-direction: column;">
-                            <mat-form-field>
+                            <mat-form-field appearance="outline">
                                 <mat-label>Choose status to update</mat-label>
                                 <mat-select [(value)]="selectedStatus" required>
                                     <mat-option  value="New Prospect">New Prospect</mat-option>
@@ -102,7 +102,7 @@
                     <div class="list">
                         <h5> Update Remark/Comment </h5>
                         <span class="data" style="display: flex; flex-direction: column;">
-                            <mat-form-field>
+                            <mat-form-field appearance="outline">
                                 <mat-label>Enter remark/comment</mat-label>
                                 <textarea matInput [(ngModel)]="remark"  #message maxlength="256"></textarea>
                                 <mat-hint align="start"><strong>Short remark about prospect info</strong> </mat-hint>
@@ -145,7 +145,7 @@
                     <div class="list">
                         <h5> Email</h5>
                         <span class="data" style="display: flex; flex-direction: column;">
-                            <mat-form-field>
+                            <mat-form-field appearance="outline">
                                 <mat-label>Write Email</mat-label>
                                 <textarea matInput></textarea>
                             </mat-form-field>
@@ -162,7 +162,7 @@
                     <div class="list">
                         <h5> Email</h5>
                         <span class="data" style="display: flex; flex-direction: column;">
-                            <mat-form-field>
+                            <mat-form-field appearance="outline">
                                 <mat-label>Write SMS</mat-label>
                                 <textarea matInput></textarea>
                             </mat-form-field>

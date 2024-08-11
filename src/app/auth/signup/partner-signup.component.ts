@@ -34,7 +34,6 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
 
   signUpForm: FormGroup = new FormGroup({}); // Assigning a default value
   subscriptions: Array<Subscription> = [];
-  isSpinning = false;
 
   readonly dialog = inject(MatDialog);
 
@@ -56,7 +55,6 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    this.isSpinning = true;
 
     // Mark all form controls as touched to trigger the display of error messages
     this.markAllAsTouched();
@@ -80,11 +78,9 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               this.router.navigateByUrl('partner/signin');
             }
           });
-          this.isSpinning = false;
 
         }, (error: any) => {
           console.log(error)
-          this.isSpinning = false;
           if (error.code == 400) {
             Swal.fire({
               position: "bottom",
@@ -113,8 +109,6 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
           };
         })
       )
-    } else {
-      this.isSpinning = false;
     }
 
   }

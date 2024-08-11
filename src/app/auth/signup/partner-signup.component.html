@@ -79,11 +79,8 @@
                 Password must have at least 6 digits.   
               </mat-error> 
             </mat-form-field>
-
-            <mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
-
   
-            <button mat-flat-button color="primary" [disabled]="isSpinning">Sign up</button>
+            <button mat-flat-button color="primary">Sign up</button>
           </form>
   
           <p>Already have an account? <a routerLink="../../partner" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign in</a></p>
