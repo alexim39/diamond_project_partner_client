@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +14,7 @@ import { ContactsInterface, ContactsService } from '../../contacts.service';
 import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
 import { CollectCodeComponent } from './collect-code.component';
+import { Subscription } from 'rxjs';
 
 /** @title Prospect details */
 @Component({
@@ -32,7 +33,7 @@ import { CollectCodeComponent } from './collect-code.component';
     MatDividerModule, MatListModule, CommonModule
   ],
 })
-export class ManageContactsDetailComponent implements OnInit {
+export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   @Input() prospect!: ContactsInterface;
   prospectData!: any; 
@@ -41,7 +42,7 @@ export class ManageContactsDetailComponent implements OnInit {
   selectedStatus: string; 
   remark: string; 
   readonly dialog = inject(MatDialog);
-
+  subscriptions: Array<Subscription> = [];
 
   constructor(
     private router: Router, 
@@ -76,27 +77,30 @@ export class ManageContactsDetailComponent implements OnInit {
       })
       return;
     }
-    this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
-      // this.prospectContact = prospectContact;
-      //console.log('prospectContact ',prospectStatus)
-      Swal.fire({
-        position: "bottom",
-        icon: 'success',
-        text: `Your have successfully updated prospect status`,
-        showConfirmButton: true,
-        timer: 15000,
+    this.subscriptions.push(
+      this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
+        // this.prospectContact = prospectContact;
+        //console.log('prospectContact ',prospectStatus)
+        Swal.fire({
+          position: "bottom",
+          icon: 'success',
+          text: `Your have successfully updated prospect status`,
+          showConfirmButton: true,
+          timer: 15000,
+        })
+  
+      }, (error: any) => {
+        //console.log(error)
+        Swal.fire({
+          position: "bottom",
+          icon: 'info',
+          text: 'Server error occured, please and try again',
+          showConfirmButton: false,
+          timer: 4000
+        })
       })
-
-    }), (error: any) => {
-      //console.log(error)
-      Swal.fire({
-        position: "bottom",
-        icon: 'info',
-        text: 'Server error occured, please and try again',
-        showConfirmButton: false,
-        timer: 4000
-      })
-    }
+    )
+   
    }
 
    updateProspectRemark() {
@@ -112,27 +116,31 @@ export class ManageContactsDetailComponent implements OnInit {
       })
       return;
     }
-    this.contactsService.updateProspectRemark(obj).subscribe((prospectRemark: ContactsInterface) => {
-      // this.prospectContact = prospectContact;
-      //console.log('prospectContact ',prospectStatus)
-      Swal.fire({
-        position: "bottom",
-        icon: 'success',
-        text: `Your have successfully updated remark on for prospect`,
-        showConfirmButton: true,
-        timer: 15000,
-      })
 
-    }), (error: any) => {
-      //console.log(error)
-      Swal.fire({
-        position: "bottom",
-        icon: 'info',
-        text: 'Server error occured, please and try again',
-        showConfirmButton: false,
-        timer: 4000
+    this.subscriptions.push(
+      this.contactsService.updateProspectRemark(obj).subscribe((prospectRemark: ContactsInterface) => {
+        // this.prospectContact = prospectContact;
+        //console.log('prospectContact ',prospectStatus)
+        Swal.fire({
+          position: "bottom",
+          icon: 'success',
+          text: `Your have successfully updated remark on for prospect`,
+          showConfirmButton: true,
+          timer: 15000,
+        })
+  
+      }, (error: any) => {
+        //console.log(error)
+        Swal.fire({
+          position: "bottom",
+          icon: 'info',
+          text: 'Server error occured, please and try again',
+          showConfirmButton: false,
+          timer: 4000
+        })
       })
-    }
+    )
+
    }
 
    deleteProspect() {
@@ -149,31 +157,33 @@ export class ManageContactsDetailComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
 
-        this.contactsService.deleteProspect(this.prospectData._id ).subscribe((prospect: ContactsInterface) => {
-          // this.prospectContact = prospectContact;
-          //console.log('prospectContact ',prospectStatus)
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: `Your have successfully deleted  ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}`,
-            showConfirmButton: true,
-            timer: 15000,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.router.navigateByUrl('dashboard/manage-contacts');
-            }
-          });
-    
-        }), (error: any) => {
-          //console.log(error)
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
-            showConfirmButton: false,
-            timer: 4000
+        this.subscriptions.push(
+          this.contactsService.deleteProspect(this.prospectData._id ).subscribe((prospect: ContactsInterface) => {
+            // this.prospectContact = prospectContact;
+            //console.log('prospectContact ',prospectStatus)
+            Swal.fire({
+              position: "bottom",
+              icon: 'success',
+              text: `Your have successfully deleted  ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}`,
+              showConfirmButton: true,
+              timer: 15000,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.router.navigateByUrl('dashboard/manage-contacts');
+              }
+            });
+      
+          }, (error: any) => {
+            //console.log(error)
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Server error occured, please and try again',
+              showConfirmButton: false,
+              timer: 4000
+            })
           })
-        }
+        )
 
       }
     });
@@ -198,37 +208,15 @@ export class ManageContactsDetailComponent implements OnInit {
         this.dialog.open(CollectCodeComponent, {
           data: this.prospectData
         });
-
-       /*  this.contactsService.promoteProspectToPartner(obj).subscribe((prospect: ContactsInterface) => {
-          // this.prospectContact = prospectContact;
-          //console.log('prospectContact ',prospectStatus)
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: `Your have successfully promoted ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)} to your partner`,
-            showConfirmButton: true,
-            timer: 15000,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.router.navigateByUrl('dashboard/manage-contacts');
-            }
-          });
-    
-        }), (error: any) => {
-          //console.log(error)
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        } */
-
       }
     });
   }
 
-
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+  }
 
 }
