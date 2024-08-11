@@ -23,7 +23,7 @@ import { Subscription } from 'rxjs';
   providers: [ContactsService],
   template: `
 
-<h2 mat-dialog-title>{{this.data.prospectSurname | titlecase}} {{this.data.prospectSurname | titlecase}} Reservation Code</h2>
+<h2 mat-dialog-title>{{this.data.prospectName | titlecase}} {{this.data.prospectSurname | titlecase}} Reservation Code</h2>
 
 <mat-dialog-content>
 <p>Please provide reservation code for this partner</p>

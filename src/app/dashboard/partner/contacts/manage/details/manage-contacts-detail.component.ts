@@ -15,6 +15,9 @@ import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
 import { CollectCodeComponent } from './collect-code.component';
 import { Subscription } from 'rxjs';
+import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
+import { MatSnackBar } from '@angular/material/snack-bar';  
+import { SmsService } from '../../../../../_common/services/sms.service';
 
 /** @title Prospect details */
 @Component({
@@ -41,18 +44,26 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   selectedStatus: string; 
   remark: string; 
+  sms: string; 
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
+  partner!: PartnerInterface;
 
+  
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
-    private contactsService: ContactsService
+    private contactsService: ContactsService,
+    private partnerService: PartnerService,
+    private snackBar: MatSnackBar,
+    private smsService: SmsService
   ) {
      // You can initialize selectedStatus if needed  
      this.selectedStatus = ''; // Default value or nothing 
      this.remark = ''; // Default value or nothing 
+     this.sms = ''; // Default value or nothing 
   }
+
 
   back(): void {
     this.router.navigateByUrl('dashboard/manage-contacts');
@@ -63,6 +74,21 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
     }
+
+    // get current signed in user
+    this.subscriptions.push(
+      this.partnerService.getSharedPartnerData$.subscribe(
+        partnerObject => {
+          this.partner = partnerObject as PartnerInterface
+          //console.log(this.partner)
+        },
+        error => {
+          console.log(error)
+          // redirect to home page
+        }
+      )
+    )
+
    }
 
    updateProspectStatus() {
@@ -212,11 +238,52 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  copyLink() {  
+    const link = `www.diamondprojectonline.com/${this.partner.username}`;  
+    navigator.clipboard.writeText(link).then(() => {  
+      this.snackBar.open('Link copied to clipboard!', 'Close', {  
+        duration: 2000,  
+      });  
+    }).catch(err => {  
+      console.error('Failed to copy: ', err);  
+    });  
+  }  
+
+  sendSMS() {  
+    this.subscriptions.push(
+
+      this.smsService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
+        response => {  
+          //console.log('SMS sent successfully:', response);  
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: 'SMS sent successfully',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        },  
+        error => {  
+          //console.error('Error sending SMS:', error);  
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'SMS not sent, there was an error sending SMS',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        }  
+      )
+
+    );  
+  }  
+
   ngOnDestroy() {
     // unsubscribe list
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe();
     });
   }
+
 
 }
