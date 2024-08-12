@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface ProspectListInterface {
   message: string;
@@ -18,8 +19,11 @@ export interface ProspectListInterface {
 @Injectable()
 export class AnalyticsService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -53,7 +57,7 @@ export class AnalyticsService {
   getProspectFor(createdBy: string): Observable<ProspectListInterface> {
     //console.log('record', id);
     return this.http
-      .get<ProspectListInterface>(this.api + `/prospect/for/${createdBy}`, { withCredentials: true })
+      .get<ProspectListInterface>(this.apiURL + `/prospect/for/${createdBy}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -61,7 +65,7 @@ export class AnalyticsService {
   importSingle(importId: any): Observable<ProspectListInterface> {
   //console.log('record', importId);
   return this.http
-    .get<ProspectListInterface>(this.api + `/prospect/import-single/${importId.partnerId}/${importId.prospectId}`, { withCredentials: true })
+    .get<ProspectListInterface>(this.apiURL + `/prospect/import-single/${importId.partnerId}/${importId.prospectId}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -69,7 +73,7 @@ export class AnalyticsService {
    deleteSingle(prospectId: string): Observable<ProspectListInterface> {
     console.log('record', prospectId);
     return this.http
-      .get<ProspectListInterface>(this.api + `/prospect/delete-single/${prospectId}`, { withCredentials: true })
+      .get<ProspectListInterface>(this.apiURL + `/prospect/delete-single/${prospectId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
     }
   

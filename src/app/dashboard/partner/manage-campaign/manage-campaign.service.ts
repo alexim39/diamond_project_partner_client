@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface CampaignInterface {
     message: string;
@@ -22,8 +23,11 @@ export interface CampaignInterface {
 @Injectable()
 export class CampaignService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -55,7 +59,7 @@ export class CampaignService {
   // get campaigns createdby
   getCampaignCreatedBy(id: string): Observable<CampaignInterface> {
     return this.http
-      .get<CampaignInterface>(this.api + `/campaign/all-createdBy/${id}`, { withCredentials: true })
+      .get<CampaignInterface>(this.apiURL + `/campaign/all-createdBy/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -63,7 +67,7 @@ export class CampaignService {
   getCampaignById(id: string): Observable<CampaignInterface> {
     //console.log('id',id)
     return this.http
-      .get<CampaignInterface>(this.api + `/campaign/${id}`, { withCredentials: true })
+      .get<CampaignInterface>(this.apiURL + `/campaign/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
    

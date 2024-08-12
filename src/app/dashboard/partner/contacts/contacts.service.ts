@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface ContactsInterface {
   message: string;
@@ -22,8 +23,12 @@ export interface ContactsInterface {
 @Injectable()
 export class ContactsService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
+  
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -56,7 +61,7 @@ export class ContactsService {
   create(dataObject: ContactsInterface): Observable<ContactsInterface> {
     //console.log('form record', dataObject);
     return this.http
-      .post<ContactsInterface>(this.api + `/prospect/create`, dataObject, { withCredentials: true })
+      .post<ContactsInterface>(this.apiURL + `/prospect/create`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -64,7 +69,7 @@ export class ContactsService {
 getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
   //console.log('record', id);
   return this.http
-    .get<ContactsInterface>(this.api + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
+    .get<ContactsInterface>(this.apiURL + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
@@ -72,7 +77,7 @@ getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
  import(partnerId: string): Observable<ContactsInterface> {
   //console.log('record', partnerId);
   return this.http
-    .get<ContactsInterface>(this.api + `/prospect/import/${partnerId}`, { withCredentials: true })
+    .get<ContactsInterface>(this.apiURL + `/prospect/import/${partnerId}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
@@ -80,7 +85,7 @@ getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
 getProspectById(prospectId: string): Observable<ContactsInterface> {
   //console.log('record', id);
   return this.http
-    .get<ContactsInterface>(this.api + `/prospect/getById/${prospectId}`, { withCredentials: true })
+    .get<ContactsInterface>(this.apiURL + `/prospect/getById/${prospectId}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
@@ -88,7 +93,7 @@ getProspectById(prospectId: string): Observable<ContactsInterface> {
 updateProspectStatus(obj: {status: string; prospectId: string}): Observable<ContactsInterface> {
   //console.log('record', obj);
   return this.http
-    .post<ContactsInterface>(this.api + `/prospect/updateStatus`, obj, { withCredentials: true })
+    .post<ContactsInterface>(this.apiURL + `/prospect/updateStatus`, obj, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
@@ -96,7 +101,7 @@ updateProspectStatus(obj: {status: string; prospectId: string}): Observable<Cont
 updateProspectRemark(obj: {remark: string; prospectId: string}): Observable<ContactsInterface> {
   //console.log('record', obj);
   return this.http
-    .post<ContactsInterface>(this.api + `/prospect/updateRemark`, obj, { withCredentials: true })
+    .post<ContactsInterface>(this.apiURL + `/prospect/updateRemark`, obj, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
@@ -104,7 +109,7 @@ updateProspectRemark(obj: {remark: string; prospectId: string}): Observable<Cont
 deleteProspect(id: string): Observable<ContactsInterface> {
   //console.log('record', obj);
   return this.http
-    .get<ContactsInterface>(this.api + `/prospect/delete/${id}`, { withCredentials: true })
+    .get<ContactsInterface>(this.apiURL + `/prospect/delete/${id}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
@@ -112,10 +117,17 @@ deleteProspect(id: string): Observable<ContactsInterface> {
 promoteProspectToPartner(prospect: {partnerId: string; prospectId: string; code: string;}): Observable<ContactsInterface> {
   //console.log('record', prospect);
   return this.http
-    .post<ContactsInterface>(this.api + `/reservationCode/submit`, prospect, { withCredentials: true })
+    .post<ContactsInterface>(this.apiURL + `/reservationCode/submit`, prospect, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
+// single sms charge
+signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
+  //console.log('record', obj);
+  return this.http
+    .get<ContactsInterface>(this.apiURL + `/billing/single-sms-charge/${partnerId}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
 
    
 }

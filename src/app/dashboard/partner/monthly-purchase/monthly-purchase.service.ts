@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface ProductInterface {
     img: string;
@@ -21,8 +22,11 @@ export interface ProductObjectInterface {
 @Injectable()
 export class ProductService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -54,7 +58,7 @@ export class ProductService {
   // get all products
   getAllProducts(): Observable<ProductObjectInterface> {
     return this.http
-      .get<ProductObjectInterface>(this.api + `/products/getAll`, { withCredentials: true })
+      .get<ProductObjectInterface>(this.apiURL + `/products/getAll`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
    

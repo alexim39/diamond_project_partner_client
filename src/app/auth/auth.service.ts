@@ -3,12 +3,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { PartnerSignInData, PartnerSignUpData } from './auth.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class PartnerAuthService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+  
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -41,7 +45,7 @@ export class PartnerAuthService {
   signup(signUpData: PartnerSignUpData): Observable<PartnerSignUpData> {
     //console.log('form record', signUpData);
     return this.http
-      .post<PartnerSignUpData>(this.api + '/partners/signup', signUpData, { withCredentials: true })
+      .post<PartnerSignUpData>(this.apiURL + '/partners/signup', signUpData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -49,14 +53,14 @@ export class PartnerAuthService {
    siginin(signInData: PartnerSignInData): Observable<PartnerSignInData> {
     //console.log('form record', signInData);
     return this.http
-      .post<PartnerSignInData>(this.api + '/partners/signin', signInData, { withCredentials: true })
+      .post<PartnerSignInData>(this.apiURL + '/partners/signin', signInData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
    // user sign out
    signOut(formObject: {}): Observable<any> {
     return this.http
-      .post<any>(this.api + '/partners/signout', formObject, { withCredentials: true })
+      .post<any>(this.apiURL + '/partners/signout', formObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 

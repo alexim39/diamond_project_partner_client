@@ -8,8 +8,8 @@
                 <button mat-raised-button (click)="addFunds()"><mat-icon>credit_card</mat-icon>Add Funds</button>
 
                 <div class="fund">
-                    Current Balance:
-                    {{currentBalance | currency:'₦':'symbol':'1.0-0'}}
+                    <span>Current Balance: {{currentBalance | currency:'₦':'symbol':'1.2-2'}}</span>
+                    <mat-icon (click)="reloadBalance()" title="Refresh balance" class="refresh">refresh</mat-icon>
                 </div>
             </div>
         </div>
@@ -42,7 +42,7 @@
                   
                     <ng-container matColumnDef="amount">
                       <th mat-header-cell *matHeaderCellDef> Amount </th>
-                      <td mat-cell *matCellDef="let element"> {{element.amount | currency:'₦':'symbol':'1.0-0'}} </td>
+                      <td mat-cell *matCellDef="let element"> {{element.amount | currency:'₦':'symbol':'1.2-2'}} </td>
                     </ng-container>
     
                     <ng-container matColumnDef="paymentMethod">
@@ -51,8 +51,13 @@
                     </ng-container>
     
                     <ng-container matColumnDef="paymentStatus">
-                        <th mat-header-cell *matHeaderCellDef> Payment status </th>
+                        <th mat-header-cell *matHeaderCellDef> Status </th>
                         <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="transactionType">
+                        <th mat-header-cell *matHeaderCellDef> Type </th>
+                        <td mat-cell *matCellDef="let element"> {{element.transactionType}} </td>
                     </ng-container>
     
                     <ng-container matColumnDef="action">

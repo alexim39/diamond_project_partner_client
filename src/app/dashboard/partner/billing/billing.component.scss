@@ -12,9 +12,17 @@
             padding: 1em;
             .fund-area {
                 .fund {
-                    //display: flex;
+                    display: flex;
                     font-weight: bold;
                     margin-top: 1em;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    align-items: center;
+                    .refresh {
+                        margin-top: 5px; 
+                        font-size: 15px; 
+                        color: rgb(87, 87, 87);
+                    }
                 }
             }
         }
