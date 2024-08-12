@@ -2,6 +2,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, retry, throwError } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 
 export interface TransactionInterface {
@@ -20,8 +21,11 @@ export interface TransactionInterface {
 })
 export class PaystackService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -52,7 +56,7 @@ export class PaystackService {
   // confirm payment
   confirmPayment(reference: string, partnerId: string): Observable<any> {
     return this.http
-      .post<any>(this.api + `/billing/confirm-payment`, { reference, partnerId: partnerId }, { withCredentials: true })
+      .post<any>(this.apiURL + `/billing/confirm-payment`, { reference, partnerId: partnerId }, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -60,7 +64,7 @@ export class PaystackService {
    // get transactions
    getTransactions(partnerId: string): Observable<any> {
     return this.http
-      .get<any>(this.api + `/billing/transaction/${partnerId}`, { withCredentials: true })
+      .get<any>(this.apiURL + `/billing/transaction/${partnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 

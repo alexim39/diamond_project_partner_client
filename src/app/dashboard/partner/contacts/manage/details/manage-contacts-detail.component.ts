@@ -250,7 +250,63 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
   }  
 
   sendSMS() {  
+    /* if (currentBalance < smsCharges) {
+      Swal.fire({
+        position: "bottom",
+        icon: 'info',
+        text: 'Your balance is insufficient; please fund your account',
+        showConfirmButton: false,
+        timer: 4000
+      })
+      return;
+    } */
+
     this.subscriptions.push(
+      this.contactsService.signleSMSCharge(this.partner._id ).subscribe((smsCharge: ContactsInterface) => {
+       /*  console.log('prospectContact ',smsCharge)
+        Swal.fire({
+          position: "bottom",
+          icon: 'success',
+          text: `Your have successfully paid `,
+          showConfirmButton: true,
+          timer: 15000,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.router.navigateByUrl('dashboard/manage-contacts');
+          }
+        }); */
+
+        // call sms gateway
+        this.callSMSGate()
+  
+      }, (error: any) => {
+        //console.log(error)
+        if (error.code == 401) {
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'Insufficient balance for transaction, please fund your account.',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        } else {
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'Server error occured, please and try again',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        }
+        
+      })
+    )
+
+   
+  }  
+
+  private callSMSGate() {
+   this.subscriptions.push(
 
       this.smsService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
         response => {  
@@ -275,8 +331,8 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
         }  
       )
 
-    );  
-  }  
+    );
+  }
 
   ngOnDestroy() {
     // unsubscribe list

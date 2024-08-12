@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface CreateCampaignInterface {
    /*  ageRangeTarget:  string;
@@ -35,8 +36,11 @@ export interface CreateCampaignInterface {
 @Injectable()
 export class CreateCampaignService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -69,7 +73,7 @@ export class CreateCampaignService {
   facebook(campaignData: CreateCampaignInterface): Observable<CreateCampaignInterface> {
     //console.log('form record', campaignData);
     return this.http
-      .post<CreateCampaignInterface>(this.api + '/campaign/facebook', campaignData, { withCredentials: true })
+      .post<CreateCampaignInterface>(this.apiURL + '/campaign/facebook', campaignData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -78,7 +82,7 @@ export class CreateCampaignService {
   youtube(campaignData: CreateCampaignInterface): Observable<CreateCampaignInterface> {
     //console.log('form record', campaignData);
     return this.http
-      .post<CreateCampaignInterface>(this.api + '/campaign/youtube', campaignData, { withCredentials: true })
+      .post<CreateCampaignInterface>(this.apiURL + '/campaign/youtube', campaignData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -86,7 +90,7 @@ export class CreateCampaignService {
   linkedin(campaignData: CreateCampaignInterface): Observable<CreateCampaignInterface> {
     //console.log('form record', campaignData);
     return this.http
-      .post<CreateCampaignInterface>(this.api + '/campaign/linkedin', campaignData, { withCredentials: true })
+      .post<CreateCampaignInterface>(this.apiURL + '/campaign/linkedin', campaignData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 

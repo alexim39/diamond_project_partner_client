@@ -33,7 +33,7 @@ export class BillingComponent implements OnInit {
   currentBalance!: number | undefined;// Initial balance
 
   filterText: string = '';
-  displayedColumns: string[] = ['transactionId', 'dateOfPayment', 'amount', 'paymentMethod', 'paymentStatus', 'action'];
+  displayedColumns: string[] = ['transactionId', 'dateOfPayment', 'amount', 'paymentMethod', 'paymentStatus', 'transactionType', 'action'];
   dataSource: Array<any> = [];
   isEmptyRecord = false;
 
@@ -66,6 +66,10 @@ export class BillingComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       //console.log('The dialog was closed', result);
     });
+  }
+
+  reloadBalance() {
+    location.reload();
   }
   
 }

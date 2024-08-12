@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface ProfileInterface {
-     id: string;
+  id: string;
 }
   
 
@@ -12,7 +13,10 @@ export interface ProfileInterface {
 export class ProfileService {
   // Define API
   //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  api = 'http://localhost:3000';
+  //api = 'http://localhost:3000';
+
+  private apiURL: string = environment.apiUrl; 
+
   constructor(private http: HttpClient) {}
   /*========================================
     CRUD Methods for consuming RESTful API
@@ -45,15 +49,15 @@ export class ProfileService {
   profileUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
     //console.log('form record', dataObject);
     return this.http
-      .put<ProfileInterface>(this.api + `/partners/update-profile`, dataObject, { withCredentials: true })
+      .put<ProfileInterface>(this.apiURL + `/partners/update-profile`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
-   // username Update 
-   usernameUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
+  // username Update 
+  usernameUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
     //console.log('form record', dataObject);
     return this.http
-      .put<ProfileInterface>(this.api + `/partners/update-username/`, dataObject, { withCredentials: true })
+      .put<ProfileInterface>(this.apiURL + `/partners/update-username/`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -61,7 +65,7 @@ export class ProfileService {
    changePassword(dataObject: ProfileInterface): Observable<ProfileInterface> {
     //console.log('form record', dataObject);
     return this.http
-      .put<ProfileInterface>(this.api + `/partners/change-password/`, dataObject, { withCredentials: true })
+      .put<ProfileInterface>(this.apiURL + `/partners/change-password/`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
