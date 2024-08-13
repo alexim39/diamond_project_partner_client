@@ -16,7 +16,7 @@ export interface ContactsInterface {
     createdAt: Date;
     status: string;
     id: string;
-  }>  
+  }> 
 }
   
 
@@ -62,6 +62,14 @@ export class ContactsService {
     //console.log('form record', dataObject);
     return this.http
       .post<ContactsInterface>(this.apiURL + `/prospect/create`, dataObject, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  // contact creatioin
+  update(dataObject: ContactsInterface): Observable<ContactsInterface> {
+    //console.log('form record', dataObject);
+    return this.http
+      .put<ContactsInterface>(this.apiURL + `/prospect/update`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -126,6 +134,14 @@ signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
   //console.log('record', obj);
   return this.http
     .get<ContactsInterface>(this.apiURL + `/billing/single-sms-charge/${partnerId}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
+
+// send single email
+sendProspectEmail(emailObject: {partnerId: string, prospectEmail: string, emailBody: string}): Observable<ContactsInterface> {
+  console.log('record', emailObject);
+  return this.http
+    .post<ContactsInterface>(this.apiURL + `/prospect/send-single-email/`, emailObject, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 

@@ -45,6 +45,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
   selectedStatus: string; 
   remark: string; 
   sms: string; 
+  emailBody: string; 
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
@@ -61,7 +62,8 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
      // You can initialize selectedStatus if needed  
      this.selectedStatus = ''; // Default value or nothing 
      this.remark = ''; // Default value or nothing 
-     this.sms = ''; // Default value or nothing 
+     this.sms = ``; // Default value or nothing 
+     this.emailBody = ''; // Default value or nothing 
   }
 
 
@@ -215,7 +217,6 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-
   promoteProspectToPartner() {
     const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
     //const obj = {prospectId: this.prospectData._id, code: '' } 
@@ -301,8 +302,6 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
         
       })
     )
-
-   
   }  
 
   private callSMSGate() {
@@ -330,8 +329,47 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           })
         }  
       )
+    );
+  }
+
+  sendEmail() {
+    const emailObject = {
+      partnerId: this.partner._id, 
+      partnerEmail: this.partner.email, 
+      prospectEmail: this.prospectData.prospectEmail, 
+      emailBody: this.emailBody
+    }
+    this.subscriptions.push(
+
+      this.contactsService.sendProspectEmail(emailObject).subscribe(  
+        response => {  
+          //console.log('SMS sent successfully:', response);  
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: 'SMS sent successfully',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        },  
+        error => {  
+          //console.error('Error sending SMS:', error);  
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'SMS not sent, there was an error sending SMS',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        }  
+      )
 
     );
+  }
+
+  editProspectDetail() {
+    //this.router.navigateByUrl('dashboard/edit-contacts', );
+    this.router.navigate(['/dashboard/edit-contacts', this.prospectData._id]);
   }
 
   ngOnDestroy() {

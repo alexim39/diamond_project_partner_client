@@ -19,8 +19,9 @@ import { MarketingChannelsComponent } from './create-campaign/marketing-channels
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { Emitters } from '../../_common/emitters/emitters';
 import { PartnerAuthService } from '../../auth/auth.service';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
-type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship';
+type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training' | 'wibinarsEvents' | 'dailyActivity' | 'achievements';
 
 @Component({
   selector: 'async-dashboard',
@@ -30,7 +31,7 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
   providers: [PartnerService, PartnerAuthService],
   imports: [ 
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
-    MarketingChannelsComponent, 
+    MarketingChannelsComponent, MatTooltipModule
   ],
   animations: [
     trigger('submenuToggle', [
@@ -68,6 +69,11 @@ export class DashboardComponent implements OnDestroy {
     settings: false,
     activities: false,
     mentorship: false,
+    training: false,
+    help: false,
+    wibinarsEvents: false,
+    dailyActivity: false,
+    achievements: false,
   };
 
   subSubmenus: Record<string, boolean> = {};

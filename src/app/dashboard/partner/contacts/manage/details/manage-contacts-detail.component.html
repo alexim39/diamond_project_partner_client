@@ -129,6 +129,14 @@
                     <mat-divider></mat-divider>
 
                     <div class="list">
+                        <h5> Edit Prospect Details </h5>
+                        <span class="data">
+                            <button mat-raised-button (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit</button>
+                        </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+                    <div class="list">
                         <h5> Delete </h5>
                         <span class="data">
                             <button mat-raised-button style="color: rgba(255, 0, 0, 0.578)" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete</button>
@@ -153,18 +161,18 @@
                         <span class="data" style="display: flex; flex-direction: column;">
                             <mat-form-field appearance="outline">
                                 <mat-label>Write Email</mat-label>
-                                <textarea matInput></textarea>
+                                <textarea matInput class="custom-textarea" [(ngModel)]="emailBody"></textarea>
                                 <mat-hint align="start" style="color: orange"><strong>Write Email to prospect email address (Don't forget to include your link)</strong> </mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button style="margin-top: 2em">Send</button>
+                            <button mat-raised-button style="margin-top: 2em" (click)="sendEmail()">Send</button>
                         </span>
                     </div>
                 </article>  
     
                 <article class="flex-item">  
                     <h2>Send SMS</h2>  
-                    <!-- <p>The campaign will run for 30 days starting from June 1, 2023.</p>   -->
+                    <!-- <p></p>   -->
 
                     <div class="list">
                         <h5> SMS</h5>
