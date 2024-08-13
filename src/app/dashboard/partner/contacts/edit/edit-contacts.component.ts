@@ -9,7 +9,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import Swal from 'sweetalert2';
 import {MatSelectModule} from '@angular/material/select';
 import { Subscription } from 'rxjs';
-import { ContactsService } from '../contacts.service';
+import { ContactsInterface, ContactsService } from '../contacts.service';
 import { MatInputModule } from '@angular/material/input';  
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -20,15 +20,15 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
  * @title Contacts
  */
 @Component({
-  selector: 'async-create-contatcs',
-  templateUrl: 'create-contacts.component.html',
-  styleUrls: ['create-contacts.component.scss'],
+  selector: 'async-edit-contatcs',
+  templateUrl: 'edit-contacts.component.html',
+  styleUrls: ['edit-contacts.component.scss'],
   standalone: true,
   providers: [ContactsService],
   imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
 })
-export class CreateContactsComponent implements OnInit, OnDestroy {
-    @Input() partner!: PartnerInterface;
+export class EditContactsComponent implements OnInit, OnDestroy {
+    @Input() prospect!: ContactsInterface | any;
     readonly dialog = inject(MatDialog);
 
     prospectContactForm!: FormGroup;
@@ -43,36 +43,48 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
        // console.log(this.partner)
 
-        if (this.partner) {
+        if (this.prospect.data) {
           this.prospectContactForm = new FormGroup({
-            prospectName: new FormControl('', Validators.required),
-            prospectSurname: new FormControl('', Validators.required),
-            prospectEmail: new FormControl('', Validators.required),
-            prospectPhone: new FormControl('', Validators.required),
-            prospectSource: new FormControl('', Validators.required),
-            prospectRemark: new FormControl(''),
-            partnerId: new FormControl(this.partner._id),
+            prospectName: new FormControl(this.prospect?.data?.prospectName, Validators.required),
+            prospectSurname: new FormControl(this.prospect?.data?.prospectSurname, Validators.required),
+            prospectEmail: new FormControl(this.prospect?.data?.prospectEmail, Validators.required),
+            prospectPhone: new FormControl(this.prospect?.data?.prospectPhone, Validators.required),
+            prospectSource: new FormControl(this.prospect?.data?.prospectSource, Validators.required),
+            prospectRemark: new FormControl(this.prospect?.data?.prospectRemark),
+            prospectId: new FormControl(this.prospect?.data?._id),
           });
         }
     }
 
+    back(): void {  
+      if (window.history.length > 1) {  
+          window.history.back();  
+      } else {  
+          // Redirect to a default route if there's no history  
+          this.router.navigateByUrl('dashboard/manage-contacts');  
+      }  
+  }
+
     onSubmit() {
       const prospectObject = this.prospectContactForm.value;
   
-  
       this.subscriptions.push(
-        this.contactsService.create(prospectObject).subscribe((res: any) => {
+        this.contactsService.update(prospectObject).subscribe((res: any) => {
   
           Swal.fire({
             position: "bottom",
             icon: 'success',
-            text: 'Your contact has been created successfully',
+            text: 'Your contact has been updated successfully',
             showConfirmButton: true,
             timer: 15000,
-          })
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.router.navigate(['/dashboard/prospect-detail', this.prospect?.data?._id]);
+            }
+          });
   
         }, (error: any) => {
-          //console.log(error)
+          console.log(error)
           if (error.code == 400) {
             Swal.fire({
               position: "bottom",
@@ -101,52 +113,6 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
         `},
       });
     }
-
-
-  importContacts(): void {
-    this.scrollToTop();
-
-    const partnerId = this.partner._id;
-  
-      this.subscriptions.push(
-        this.contactsService.import(partnerId).subscribe((res: any) => {
-  
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: `Your have successfully imported ${res.data.numberOfImports} contact(s)`,
-            showConfirmButton: true,
-            confirmButtonText: "View Contacts",
-            timer: 15000,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.router.navigateByUrl('dashboard/manage-contacts');
-            }
-          });
-  
-        }, (error: any) => {
-         // console.log(error)
-          if (error.code == 401) {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'No prospect found',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          } else {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          }
-          
-        })
-      )
-  }
 
    // scroll to top when clicked
    scrollToTop() {

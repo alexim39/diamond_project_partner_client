@@ -82,6 +82,10 @@ p {
     }
     .data {
         font-weight: bold;
+        .custom-textarea {  
+            min-width: 500px;
+            min-height: 300px; 
+        }
     }
     .wrap {
         word-wrap: break-word;
