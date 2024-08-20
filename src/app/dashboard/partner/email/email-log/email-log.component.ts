@@ -22,18 +22,18 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 
 @Component({
-  selector: 'async-sms-log',
-  templateUrl: 'sms-log.component.html',
-  styleUrls: ['sms-log.component.scss'],
+  selector: 'async-email-log',
+  templateUrl: 'email-log.component.html',
+  styleUrls: ['email-log.component.scss'],
   standalone: true,
   providers: [],
   imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
     MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule],
 })
-export class SMSLogComponent implements OnInit, OnDestroy {
+export class EmailLogComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
-  @Input() smsObject!: any;
+  @Input() emails!: any;
 
   isSpinning = false;
   subscriptions: Array<Subscription> = [];
@@ -41,7 +41,7 @@ export class SMSLogComponent implements OnInit, OnDestroy {
   dataSource: Array<any> = [];
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = [ 'reference', 'message', 'recipients', 'cost', 'pages', 'status', 'date',];
+  displayedColumns: string[] = [ 'subject', 'message', 'recipients', 'date',];
 
   selection = new Set<any>();
 
@@ -53,8 +53,8 @@ export class SMSLogComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    if (this.smsObject.data) {
-      this.dataSource = this.smsObject.data.sort((a: any, b: any) => {
+    if (this.emails.data) {
+      this.dataSource = this.emails.data.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
@@ -108,7 +108,7 @@ export class SMSLogComponent implements OnInit, OnDestroy {
   showDescription() {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: `View and manage your SMS to potential prospect`,
+        help: `View and manage your email to potential prospect`,
       },
     });
   }

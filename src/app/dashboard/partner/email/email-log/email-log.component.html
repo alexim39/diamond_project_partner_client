@@ -1,12 +1,12 @@
 <section class="async-background ">
-    <h2>Manage Bulk SMS List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Manage Bulk Email List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
 
         <div class="title">
-            <h3>SMS History</h3>
+            <h3>Email History</h3>
             <div class="action-area">
-                <a mat-list-item routerLink="../send-sms" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button><mat-icon>add</mat-icon>New SMS</a>
+                <a mat-list-item routerLink="../send-email" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button><mat-icon>add</mat-icon>New Emails</a>
                 <!-- <mat-button-toggle-group>
                     <mat-button-toggle style="background: white" routerLink="../create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign"><mat-icon>add</mat-icon>New Contact</mat-button-toggle>
                     <mat-button-toggle style="background: white" routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon>Online Prospect Contact</mat-button-toggle>
@@ -54,35 +54,35 @@
                     <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->
                   
-                    <ng-container matColumnDef="reference">
-                      <th mat-header-cell *matHeaderCellDef> Reference </th>
-                      <td mat-cell *matCellDef="let element"> {{element.transaction.reference }} </td>
+                    <ng-container matColumnDef="subject">
+                      <th mat-header-cell *matHeaderCellDef> Email Subject </th>
+                      <td mat-cell *matCellDef="let element"> {{element.emailSubject | titlecase }} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="message">
-                      <th mat-header-cell *matHeaderCellDef> Message </th>
-                      <td mat-cell *matCellDef="let element"> {{element.smsBody }} </td>
+                      <th mat-header-cell *matHeaderCellDef> Email Body </th>
+                      <td mat-cell *matCellDef="let element"> {{element.emailBody }} </td>
                     </ng-container>
                   
                     <ng-container matColumnDef="recipients">
                       <th mat-header-cell *matHeaderCellDef> Recipients </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospect }} </td>
+                      <td mat-cell *matCellDef="let element"> {{element.prospects }} </td>
                     </ng-container>
                   
-                    <ng-container matColumnDef="cost">
+                    <!-- <ng-container matColumnDef="cost">
                       <th mat-header-cell *matHeaderCellDef> Cost</th>
                       <td mat-cell *matCellDef="let element"> {{element.transaction.amount }} </td>
-                    </ng-container>
+                    </ng-container> -->
     
-                    <ng-container matColumnDef="pages">
+                   <!--  <ng-container matColumnDef="pages">
                       <th mat-header-cell *matHeaderCellDef> Pages </th>
                       <td mat-cell *matCellDef="let element"> {{pages(element.smsBody)}} </td>
-                    </ng-container>
+                    </ng-container> -->
 
-                    <ng-container matColumnDef="status">
+                   <!--  <ng-container matColumnDef="status">
                       <th mat-header-cell *matHeaderCellDef> Status </th>
                       <td mat-cell *matCellDef="let element"> {{element.status}} </td>
-                    </ng-container>
+                    </ng-container> -->
 
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef> Date </th>

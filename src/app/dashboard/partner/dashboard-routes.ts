@@ -18,6 +18,8 @@ import { EditContactsContainerComponent } from "./contacts/edit/edit-contacts-co
 import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-meeting-container.component";
 import { smsContainerComponent } from "./sms/sms-container.component";
 import { smsLogContainerComponent } from "./sms/sms-log/sms-log-container.component";
+import { EmailContainerComponent } from "./email/email-container.component";
+import { EmailLogContainerComponent } from "./email/email-log/email-log-container.component";
 
 
 
@@ -114,9 +116,19 @@ export const dashboardRoutes: Routes = [
                 title: "Send Bulk SMS",
             },        
             {
+                path: 'send-email',
+                component: EmailContainerComponent,
+                title: "Send Bulk Email",
+            },        
+            {
                 path: 'sms-log',
                 component: smsLogContainerComponent,
                 title: "Bulk SMS Log Center",
+            },        
+            {
+                path: 'email-log',
+                component: EmailLogContainerComponent,
+                title: "Bulk Email Log Center",
             },        
         ]
     },

@@ -1,29 +1,32 @@
 import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
+import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { smsComponent } from './sms.component';
+import { EmailInterface, EmailService } from '../email.service';
+import { EmailLogComponent } from './email-log.component';
 
 
 /**
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-sms-container',
+  selector: 'async-email-log-container',
   standalone: true,
-  imports: [CommonModule, smsComponent],
-  providers: [],
+  imports: [CommonModule, EmailLogComponent],
+  providers: [EmailService],
   template: `
-  <async-sms *ngIf="partner" [partner]="partner"></async-sms>
+  <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"></async-email-log>
   `,
 })
-export class smsContainerComponent implements OnInit, OnDestroy {
+export class EmailLogContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
+  emails!: any;
 
   constructor(
     private partnerService: PartnerService,
+    private email: EmailService
   ) { }
 
   ngOnInit() {
@@ -36,10 +39,10 @@ export class smsContainerComponent implements OnInit, OnDestroy {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
             //console.log('=',this.partner)
-           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
-              this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
-            }) */
+            this.email.getEmailsCreatedBy(this.partner._id).subscribe((emails: EmailInterface) => {
+              this.emails = emails;
+              //console.log('emails ',this.emails)
+            })
           }
         },
         

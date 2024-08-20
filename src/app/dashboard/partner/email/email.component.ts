@@ -1,30 +1,30 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { PartnerInterface } from '../../../_common/services/partner.service';
-import { smsService } from './sms.service';
+import { EmailService } from './email.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../_common/help-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import {MatTabsModule} from '@angular/material/tabs';
-import { EnterPhoneNumbersComponent } from './enter-phone-numbers/enter-phone-numbers.component';
+import { EnterEmailComponent } from './enter-email/enter-email.component';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'async-sms',
+  selector: 'async-email',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, EnterPhoneNumbersComponent, CommonModule],
-  providers: [smsService],
-  templateUrl: 'sms.component.html',
-  styleUrls: ['sms.component.scss']
+  imports: [MatButtonModule, MatIconModule, MatTabsModule, EnterEmailComponent, CommonModule],
+  providers: [EmailService],
+  templateUrl: 'email.component.html',
+  styleUrls: ['email.component.scss']
 })
-export class smsComponent implements OnInit, OnDestroy {
+export class EmailComponent implements OnInit, OnDestroy {
 
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
 
   constructor(
-    private smsService: smsService,
+    private emailService: EmailService,
     private router: Router,
   ) {}
 
@@ -38,12 +38,12 @@ export class smsComponent implements OnInit, OnDestroy {
     showDescription () {
       this.dialog.open(HelpDialogComponent, {
         data: {help: `
-          Here, you can effortlessly send bulk SMS to your contact list and manage your SMS contacts.
+          Here, you can effortlessly send bulk email to your contact list and manage your email contacts.
         `},
       });
     }
   
-    importContactPhoneNumbers() {
+    importEmailsNumbers() {
       this.router.navigate(['/dashboard/manage-contacts']);
     }
   
