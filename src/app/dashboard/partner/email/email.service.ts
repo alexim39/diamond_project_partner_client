@@ -6,14 +6,14 @@ import { environment } from '../../../../environments/environment';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { FormGroup } from '@angular/forms';
 
-export interface smsInterface {
+export interface EmailInterface {
   message: string;
   data?: any
 }
   
 
 @Injectable()
-export class smsService {
+export class EmailService {
   // Define API
   //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   //apiURL = 'http://localhost:3000';
@@ -48,31 +48,22 @@ export class smsService {
     });
   }
 
-// send bulkc
-send(bulkSMSObject: {senderId: string, phoneNumbers: Array<string>, textMessage: string, partnerId: string}): Observable<smsInterface> {
-  //console.log('record', bulkSMSObject);
-  return this.http
-    .post<smsInterface>(this.apiURL + `/sms/send-bulk-sms/`, bulkSMSObject, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
-}
-
-// bulk sms charge
-bulkSMSCharge(chargeObject: {partnerId: string, numberOfContacts: number, pages: number}): Observable<smsInterface> {
-  //console.log('record', chargeObject);
-  return this.http
-    .post<smsInterface>(this.apiURL + `/billing/bulk-sms-charge/`, chargeObject, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
-}
 
 
 // get sms byId
-getSMSCreatedBy(partnerId: string): Observable<smsInterface> {
+getEmailsCreatedBy(partnerId: string): Observable<EmailInterface> {
   //console.log('record', id);
   return this.http
-    .get<smsInterface>(this.apiURL + `/sms/getById/${partnerId}`, { withCredentials: true })
+    .get<EmailInterface>(this.apiURL + `/emails/getById/${partnerId}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
-
+// send bulk email
+sendBulkEmail(bulkEmailObject: FormGroup): Observable<EmailInterface> {
+  //console.log('record', bulkEmailObject);
+  return this.http
+    .post<EmailInterface>(this.apiURL + `/emails/send-bulk-email/`, bulkEmailObject, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
    
 }

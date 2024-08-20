@@ -59,7 +59,6 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     onSubmit() {
       const prospectObject = this.prospectContactForm.value;
   
-  
       this.subscriptions.push(
         this.contactsService.create(prospectObject).subscribe((res: any) => {
   

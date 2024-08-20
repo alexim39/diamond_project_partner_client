@@ -143,7 +143,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
     } else {
       // export contacts
       this.exportContactAndEmailService.setData(this.getSelectedEmailAddresses());
-      this.router.navigate(['/dashboard/send-sms']); // redirect to bulk email page
+      this.router.navigate(['/dashboard/send-email']); // redirect to bulk email page
     }
   }  
 
