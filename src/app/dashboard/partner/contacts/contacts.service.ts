@@ -147,7 +147,7 @@ sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInt
 }
 
 // save sms 
-saveSMSRecord(SMSbject: {partner: PartnerInterface, prospect: ContactsInterface | null, smsBody: string}): Observable<ContactsInterface> {
+saveSMSRecord(SMSbject: {partner: string, prospect: string | Array<string>, smsBody: string}): Observable<ContactsInterface> {
   //console.log('record', SMSbject);
   return this.http
     .post<ContactsInterface>(this.apiURL + `/sms/save-sms/`, SMSbject, { withCredentials: true })
