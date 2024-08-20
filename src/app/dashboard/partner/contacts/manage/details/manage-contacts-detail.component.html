@@ -152,6 +152,14 @@
     
                     <div class="list">
                         <h5> Email</h5>
+
+                        <span class="data" style="display: flex; flex-direction: column;">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Email Subject</mat-label>
+                                <input matInput [(ngModel)]="emailSubject" placeholder="Eg. Join Us for a 30-Minute Insight Session Online!">
+                            </mat-form-field>
+                        </span>
+                        
                         <div class="copy-link">
                             <p>
                                 www.diamondprojectonline.com/{{partner.username}}
