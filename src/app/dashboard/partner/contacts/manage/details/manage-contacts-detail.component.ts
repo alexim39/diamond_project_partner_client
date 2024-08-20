@@ -298,15 +298,15 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
           if (response.data.status == 'success') {
             const smsObject = {
-              partner: this.partner, 
-              prospect: this.prospectData, 
+              partner: this.partner._id, 
+              prospect: this.prospectData.prospectPhone, 
               smsBody: this.sms,
               transactionId: transactionId,
               status: "success"
             }
             // record sms to database
             this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject ).subscribe((smsSave: ContactsInterface) => {
+              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
                 //console.log('smsSave ',smsSave)
 
                 Swal.fire({
@@ -320,15 +320,15 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             )
           } else {
             const smsObject = {
-              partner: this.partner, 
-              prospect: this.prospectData, 
+              partner: this.partner._id, 
+              prospect: this.prospectData.prospectPhone, 
               smsBody: this.sms,
               transactionId: transactionId,
               status: "failed"
             }
             // record sms to database
             this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject ).subscribe((smsSave: ContactsInterface) => {
+              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
                 //console.log('smsSave ',smsSave)
 
                 Swal.fire({
