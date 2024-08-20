@@ -25,7 +25,14 @@
                 width: 70%;
 
             }
-        }    
+        }  
+        
+        .export-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
         
         .table {
             padding: 0 1em;

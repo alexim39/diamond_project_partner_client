@@ -28,11 +28,33 @@
                     <input matInput type="search" name="contactFilter" [(ngModel)]="filterText">
                 </mat-form-field>
             </div>
+
+            <div class="export-button">
+                <mat-button-toggle-group>
+                    <mat-button-toggle value="contacts" (click)="onExportControlChange('contacts')">Export Selected Contacts</mat-button-toggle>
+                    <mat-button-toggle value="emails" (click)="onExportControlChange('emails')">Export Selected Emails</mat-button-toggle>
+                    <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
+                </mat-button-toggle-group>
+            </div>
     
             <div class="table">
     
     
                 <table mat-table [dataSource]="dataSource | contactFilter:filterText" class="mat-elevation-z8">
+
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox (change)="$event ? selectAll($event.checked) : null"
+                                        [checked]="isAllSelected()"
+                                        [indeterminate]="isSomeSelected()">
+                        </mat-checkbox>
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                        <mat-checkbox (change)="toggleSelection(element)" [checked]="selection.has(element)">
+                        </mat-checkbox>
+                        </td>
+                    </ng-container>
     
                     <!--- Note that these columns can be defined in any order.
                           The actual rendered columns are set as a property on the row definition" -->

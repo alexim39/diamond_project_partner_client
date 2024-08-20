@@ -104,6 +104,7 @@ export class DashboardComponent implements OnDestroy {
       this.partnerService.getPartner().subscribe(
         res => {
           this.partner = res as PartnerInterface;
+          //console.log('p',this.partner)
           Emitters.authEmitter.emit(true);
           this.partnerService.updatePartnerService(this.partner);
         },

@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatTabsModule} from '@angular/material/tabs';
 import { EnterPhoneNumbersComponent } from './enter-phone-numbers/enter-phone-numbers.component';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'async-sms',
@@ -24,6 +25,7 @@ export class smsComponent implements OnInit, OnDestroy {
 
   constructor(
     private smsService: smsService,
+    private router: Router,
   ) {}
 
   
@@ -41,7 +43,9 @@ export class smsComponent implements OnInit, OnDestroy {
       });
     }
   
-    
+    importContactPhoneNumbers() {
+      this.router.navigate(['/dashboard/manage-contacts']);
+    }
   
     
     ngOnDestroy() {
