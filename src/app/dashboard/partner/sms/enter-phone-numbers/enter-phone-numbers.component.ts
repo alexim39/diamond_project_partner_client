@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import { SmsService } from '../../../../_common/services/sms.service';
 import { ContactsService } from '../../contacts/contacts.service';
+import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 
 /**
  * @title enter-phone-numbers
@@ -33,20 +34,35 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
       private router: Router,
       private smsGatewayService: SmsService,
       private contactsService: ContactsService,
+      private exportContactAndEmailService: ExportContactAndEmailService
     ) {}
 
     
     ngOnInit(): void {
-        // console.log(this.partner)
- 
-         if (this.partner) {
-           this.bulckSMSForm = new FormGroup({
-            senderId: new FormControl('', Validators.required),
-            phoneNumbers: new FormControl('', Validators.required),
-            textMessage: new FormControl('', Validators.required),
-            //partnerId: new FormControl(this.partner._id),
-           });
-         }
+      // console.log(this.partner)
+
+      this.subscriptions.push(
+        this.exportContactAndEmailService.data$.subscribe(data => {
+          const contactPhoneNumbers: Array<string> = data;
+
+          if (contactPhoneNumbers) {
+            this.bulckSMSForm = new FormGroup({
+              senderId: new FormControl('', Validators.required),
+              phoneNumbers: new FormControl(contactPhoneNumbers, Validators.required),
+              textMessage: new FormControl('', Validators.required),
+              //partnerId: new FormControl(this.partner._id),
+              });
+          } else {
+            this.bulckSMSForm = new FormGroup({
+              senderId: new FormControl('', Validators.required),
+              phoneNumbers: new FormControl('', Validators.required),
+              textMessage: new FormControl('', Validators.required),
+              //partnerId: new FormControl(this.partner._id),
+              });
+          }
+         })
+      )
+
      }
 
     get pages(): number {  

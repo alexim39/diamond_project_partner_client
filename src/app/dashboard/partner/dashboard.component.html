@@ -300,6 +300,9 @@
     <span class="nav-spacer"></span>
     
     <ng-content *ngIf="isDesktop">
+      <a mat-button [matMenuTriggerFor]="admin" *ngIf="partner?.role=='admin'">
+        <mat-icon>admin_panel_settings</mat-icon>  Administrator
+      </a>
       <a mat-button [matMenuTriggerFor]="manage_accounts">
         <mat-icon>manage_accounts</mat-icon>  User profile
       </a>
@@ -313,8 +316,17 @@
   </mat-toolbar-row>
 
   <mat-toolbar-row *ngIf="isMobile">
+    <a mat-button [matMenuTriggerFor]="admin" *ngIf="partner?.role=='admin'">
+      <mat-icon>admin_panel_settings</mat-icon>  Administrator
+    </a>
     <a mat-button [matMenuTriggerFor]="manage_accounts">
       <mat-icon>manage_accounts</mat-icon>  User profile
+    </a>
+    <a mat-button [matMenuTriggerFor]="notifications">
+      <mat-icon>notifications</mat-icon> Notification
+    </a>
+    <a mat-button (click)="signOut()" title="Sign off application">
+      <mat-icon>power_off</mat-icon> Sign Off
     </a>
     <!-- <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
     <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>output</mat-icon> Sign In</a>
@@ -329,6 +341,11 @@
   </mat-sidenav-content>
 </mat-sidenav-container>
 
+<mat-menu #admin="matMenu">
+  <a mat-menu-item routerLink="profile-mgr" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
+  <a mat-menu-item routerLink="team-members" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>groups</mat-icon> Team members</a>
+  <a mat-menu-item routerLink="prospect-invite" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> Prospect invitation</a>
+</mat-menu>
 <mat-menu #manage_accounts="matMenu">
   <a mat-menu-item routerLink="profile-mgr" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
   <a mat-menu-item routerLink="team-members" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>groups</mat-icon> Team members</a>
