@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { PartnerInterface } from '../../../_common/services/partner.service';
 
 export interface ContactsInterface {
   message: string;
@@ -138,12 +139,19 @@ signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
 }
 
 // send single email
-sendProspectEmail(emailObject: {partnerId: string, prospectEmail: string, emailBody: string}): Observable<ContactsInterface> {
-  console.log('record', emailObject);
+sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<ContactsInterface> {
+  //console.log('record', emailObject);
   return this.http
-    .post<ContactsInterface>(this.apiURL + `/prospect/send-single-email/`, emailObject, { withCredentials: true })
+    .post<ContactsInterface>(this.apiURL + `/emails/send-emails/`, emailObject, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
 }
 
+// save sms 
+saveSMSRecord(SMSbject: {partner: PartnerInterface, prospect: ContactsInterface | null, smsBody: string}): Observable<ContactsInterface> {
+  //console.log('record', SMSbject);
+  return this.http
+    .post<ContactsInterface>(this.apiURL + `/sms/save-sms/`, SMSbject, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+}
    
 }

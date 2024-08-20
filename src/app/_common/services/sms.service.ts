@@ -11,12 +11,13 @@ export class SmsService {
   
   constructor(private http: HttpClient) { }  
 
-  sendSms( to: string | Array<string>, body: string): Observable<any> {  
+  sendSms( to: string | Array<string>, body: string, from = "DiamondProj"): Observable<any> {  
     //console.log('to ',to)
+    //console.log('from ',from)
     //console.log('body ',body)
     const smsData = {  
       body: body,  
-      from: "DiamondProj",  
+      from: from,  
       to: to,  
       api_token: "A96OEGodidxFWRn6UgOoqtk5CzFv47eJWX8Ix5NS0YxDxE1enFqSUz5kV2MW",  
       gateway: "direct-refund",  

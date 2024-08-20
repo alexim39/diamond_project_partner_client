@@ -46,6 +46,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
   remark: string; 
   sms: string; 
   emailBody: string; 
+  emailSubject: string; 
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
@@ -57,13 +58,14 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     private contactsService: ContactsService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsService: SmsService
+    private smsGatewayService: SmsService
   ) {
      // You can initialize selectedStatus if needed  
      this.selectedStatus = ''; // Default value or nothing 
      this.remark = ''; // Default value or nothing 
      this.sms = ``; // Default value or nothing 
      this.emailBody = ''; // Default value or nothing 
+     this.emailSubject = ''; // Default value or nothing 
   }
 
 
@@ -250,35 +252,15 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     });  
   }  
 
-  sendSMS() {  
-    /* if (currentBalance < smsCharges) {
-      Swal.fire({
-        position: "bottom",
-        icon: 'info',
-        text: 'Your balance is insufficient; please fund your account',
-        showConfirmButton: false,
-        timer: 4000
-      })
-      return;
-    } */
+  sendSMS() {
 
     this.subscriptions.push(
-      this.contactsService.signleSMSCharge(this.partner._id ).subscribe((smsCharge: ContactsInterface) => {
-       /*  console.log('prospectContact ',smsCharge)
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: `Your have successfully paid `,
-          showConfirmButton: true,
-          timer: 15000,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.router.navigateByUrl('dashboard/manage-contacts');
-          }
-        }); */
+      this.contactsService.signleSMSCharge(this.partner._id ).subscribe((smsCharge: any) => {
+        //console.log('sms ',smsCharge)
+        const transactionId = smsCharge?.data._id;
 
         // call sms gateway
-        this.callSMSGate()
+        this.callSMSGate(transactionId)
   
       }, (error: any) => {
         //console.log(error)
@@ -304,21 +286,65 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     )
   }  
 
-  private callSMSGate() {
+  private callSMSGate(transactionId: string) {
+
+   
+
    this.subscriptions.push(
 
-      this.smsService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
+      this.smsGatewayService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
         response => {  
           //console.log('SMS sent successfully:', response);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: 'SMS sent successfully',
-            showConfirmButton: false,
-            timer: 4000
-          })
+
+          if (response.data.status == 'success') {
+            const smsObject = {
+              partner: this.partner, 
+              prospect: this.prospectData, 
+              smsBody: this.sms,
+              transactionId: transactionId,
+              status: "success"
+            }
+            // record sms to database
+            this.subscriptions.push(
+              this.contactsService.saveSMSRecord(smsObject ).subscribe((smsSave: ContactsInterface) => {
+                //console.log('smsSave ',smsSave)
+
+                Swal.fire({
+                  position: "bottom",
+                  icon: 'success',
+                  text: 'SMS sent successfully',
+                  showConfirmButton: false,
+                  timer: 4000
+                });
+              })
+            )
+          } else {
+            const smsObject = {
+              partner: this.partner, 
+              prospect: this.prospectData, 
+              smsBody: this.sms,
+              transactionId: transactionId,
+              status: "failed"
+            }
+            // record sms to database
+            this.subscriptions.push(
+              this.contactsService.saveSMSRecord(smsObject ).subscribe((smsSave: ContactsInterface) => {
+                //console.log('smsSave ',smsSave)
+
+                Swal.fire({
+                  position: "bottom",
+                  icon: 'info',
+                  text: 'SMS was not sent successfully',
+                  showConfirmButton: false,
+                  timer: 4000
+                });
+              })
+            )
+          }
+         
+          
         },  
-        error => {  
+        (error) => {  
           //console.error('Error sending SMS:', error);  
           Swal.fire({
             position: "bottom",
@@ -334,10 +360,10 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   sendEmail() {
     const emailObject = {
-      partnerId: this.partner._id, 
-      partnerEmail: this.partner.email, 
-      prospectEmail: this.prospectData.prospectEmail, 
-      emailBody: this.emailBody
+      partner: this.partner, 
+      prospect: this.prospectData, 
+      emailBody: this.emailBody,
+      emailSubject: this.emailSubject
     }
     this.subscriptions.push(
 
@@ -347,7 +373,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'success',
-            text: 'SMS sent successfully',
+            text: 'Email sent successfully',
             showConfirmButton: false,
             timer: 4000
           })
@@ -357,7 +383,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: 'SMS not sent, there was an error sending SMS',
+            text: 'Email not sent, there was an error sending SMS',
             showConfirmButton: false,
             timer: 4000
           })

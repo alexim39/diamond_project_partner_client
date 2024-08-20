@@ -15,6 +15,8 @@ import { ManageContactsContainerComponent } from "./contacts/manage/manage-conta
 import { ProspectListContainerComponent } from "./analytics/prospect-list/prospect-list-container.component";
 import { ManageContactsDetailContainerComponent } from "./contacts/manage/details/manage-contacts-detail-container.component";
 import { EditContactsContainerComponent } from "./contacts/edit/edit-contacts-container.component";
+import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-meeting-container.component";
+import { smsContainerComponent } from "./sms/sms-container.component";
 
 
 
@@ -99,6 +101,16 @@ export const dashboardRoutes: Routes = [
                 path: 'prospect-detail/:id',
                 component: ManageContactsDetailContainerComponent,
                 title: "Campaign Details",
+            },        
+            {
+                path: 'cell-meeting',
+                component: CellMettingContainerComponent,
+                title: "Cell Meetings Mentorship",
+            },        
+            {
+                path: 'send-sms',
+                component: smsContainerComponent,
+                title: "Send Bulk SMS",
             },        
         ]
     },

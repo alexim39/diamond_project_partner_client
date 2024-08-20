@@ -33,13 +33,13 @@
         
         <a mat-list-item (click)="toggleSubSubmenu('tools-sms')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">SMS</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-sms') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send SMS</a>
+          <a mat-list-item routerLink="send-sms" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send SMS</a>
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Message Log">Message Log</a>
         </div>
 
         <a mat-list-item (click)="toggleSubSubmenu('tools-email')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Email</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-email') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send Email</a>
+          <a mat-list-item routerLink="send-email" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send Email</a>
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Message Log">Message Log</a>
         </div>
 
@@ -138,7 +138,7 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('mentorship') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" matToolti="Cell Meetings">Cell Meetings</a>
+        <a mat-list-item routerLink="cell-meeting" routerLinkActive="active" (click)="scrollToTop()" matToolti="Cell Meetings">Cell Meetings</a>
         <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Mentorship program">Mentors program</a>
       </div>
 
