@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
 /**
  * @title Profile
@@ -15,12 +16,18 @@ import { CommonModule } from '@angular/common';
 })
 export class ProfileComponent implements OnInit {
   @Input() partner!: PartnerInterface;
+  private apiURL: string = environment.apiUrl; 
+
+  profilePictureUrl = "./img/default_pp.png"
 
   constructor(
     
   ) {  }
 
   ngOnInit() {
-    
+    console.log(this.partner)
+    if (this.partner.profileImage) {
+      this.profilePictureUrl = this.apiURL + `/src/uploads/${this.partner.profileImage}`;
+    }
   }
 }
