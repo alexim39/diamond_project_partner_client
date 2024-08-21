@@ -17,9 +17,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { ProfilePictureUploadComponent } from './profile-image.component';
 
 /**
- * @title Button toggle appearance
+ * @title profile manager
  */
 @Component({
   selector: 'async-profile-mgr',
@@ -27,7 +28,9 @@ import { provideNativeDateAdapter } from '@angular/material/core';
   styleUrl: 'profile-mgr.component.scss',
   standalone: true,
   providers: [provideNativeDateAdapter(), ProfileService],
-  imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule, ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule],
+  imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule, 
+    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
+  ],
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
 
@@ -39,7 +42,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   hideNew = signal(true);
 
   subscriptions: Array<Subscription> = [];
-  isSpinning = false;
   disabled = true;
   status = false;
 
@@ -109,7 +111,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   }
 
   onProfileSubmit() {
-    this.isSpinning = true;
     const profileObject = this.profileMgrForm.value;
 
 
@@ -123,11 +124,9 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           showConfirmButton: true,
           timer: 15000,
         })
-        this.isSpinning = false;
 
       }, (error: any) => {
-        console.log(error)
-        this.isSpinning = false;
+        //console.log(error)
         Swal.fire({
           position: "bottom",
           icon: 'info',
@@ -140,9 +139,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   }
 
   onUsernameSubmit() {
-    this.isSpinning = true;
     const usernameObject = this.usernameForm.value;
-
 
     this.subscriptions.push(
       this.profileService.usernameUpdate(usernameObject).subscribe((res: any) => {
@@ -154,7 +151,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           showConfirmButton: true,
           timer: 15000,
         })
-        this.isSpinning = false;
 
       }, (error: any) => {
         if (error.code === 400) {
@@ -175,14 +171,12 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
             timer: 4000
           })
         }
-        this.isSpinning = false;
 
       })
     )
   }
 
   onPasswordSubmit() {
-    this.isSpinning = true;
     const passwordObject = this.passwordForm.value;
 
 
@@ -196,7 +190,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           showConfirmButton: true,
           timer: 15000,
         })
-        this.isSpinning = false;
 
       }, (error: any) => {
         if (error.code === 402) {
@@ -224,7 +217,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
             timer: 4000
           })
         }
-        this.isSpinning = false;
 
       })
     )

@@ -27,26 +27,26 @@
       <div [@submenuToggle]="isSubmenuOpen('tools') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item (click)="toggleSubSubmenu('tools-create-campaign')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Campaigns</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-create-campaign') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="create-campaign" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Create Campaign">Create Campaign</a>
-          <a mat-list-item  routerLink="manage-campaign" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Manage Campaign">Manage Campaign</a>
+          <a mat-list-item routerLink="create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign">Create Campaign</a>
+          <a mat-list-item  routerLink="manage-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Manage Campaign">Manage Campaign</a>
         </div>
         
         <a mat-list-item (click)="toggleSubSubmenu('tools-sms')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">SMS</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-sms') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="send-sms" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Send SMS">Send SMS</a>
-          <a mat-list-item  routerLink="sms-log" routerLinkActive="active" (click)="scrollToTop()" matTooltip="SMS Log">SMS Log</a>
+          <a mat-list-item routerLink="send-sms" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send SMS</a>
+          <a mat-list-item  routerLink="sms-log" routerLinkActive="active" (click)="scrollToTop()" title="SMS Log">SMS Log</a>
         </div>
 
         <a mat-list-item (click)="toggleSubSubmenu('tools-email')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Email</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-email') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="send-email" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Send SMS">Send Email</a>
-          <a mat-list-item  routerLink="email-log" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Email Log">Email Log</a>
+          <a mat-list-item routerLink="send-email" routerLinkActive="active" (click)="scrollToTop()" title="Send SMS">Send Email</a>
+          <a mat-list-item  routerLink="email-log" routerLinkActive="active" (click)="scrollToTop()" title="Email Log">Email Log</a>
         </div>
 
         <a mat-list-item (click)="toggleSubSubmenu('tools-contacts')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Contacts</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-contacts') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="create-contacts" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Create Contacts">Create Contacts</a>
-          <a mat-list-item  routerLink="manage-contacts" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Manage Contacts">Manage Contacts</a>
+          <a mat-list-item routerLink="create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Contacts">Create Contacts</a>
+          <a mat-list-item  routerLink="manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Manage Contacts">Manage Contacts</a>
         </div>
       </div>
 
@@ -58,16 +58,16 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Campaign Analytics">
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Campaign Analytics">
           Campaign Analytics
           <!-- Analyze the performance of different marketing campaigns (e.g., email, social media) based on various metrics. -->
         </a>
-        <a mat-list-item (click)="toggleSubSubmenu('analytics-convertion-tracking')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Conversion Tracking">
+        <a mat-list-item (click)="toggleSubSubmenu('analytics-convertion-tracking')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Conversion Tracking">
           Conversion Tracking
         </a>
         <div [@submenuToggle]="isSubSubmenuOpen('analytics-convertion-tracking') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="prospect-list" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Prospect List">Prospect List</a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Link Trackings">
+          <a mat-list-item routerLink="prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List">Prospect List</a>
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Link Trackings">
             Link Tracking
             <!-- View detailed metrics for their unique link, including click-through rates, conversion rates, and geographic data. -->
           </a>
@@ -78,15 +78,15 @@
       <a mat-list-item (click)="toggleSubmenu('dailyActivity')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>engineering</mat-icon> 
-          <span>Daily Challenges</span>
+          <span>Challenges</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('dailyActivity') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" matTooltip="Daily Challenge">
-          Daily Challenge 
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Current Challenge">
+          Current Challenge 
           <!-- Challenge of the Day: A new challenge is posted daily (e.g., "Share your link on Twitter with a personal story"). -->
         </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" matTooltip="Challenge Tracking">
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Challenge Tracking">
           Challenge Tracking
           <!-- Users can see which challenges they’ve completed and the rewards they’ve earned. -->
         </a>
@@ -104,8 +104,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('activities') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Order Products">Order Products</a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Purchases">Purchases</a>
+        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()" title="Order Products">Order Products</a>
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Purchases">Purchases</a>
       </div>
 
 
@@ -116,15 +116,15 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('achievements') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" matTooltip="Badges & Levels">
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Badges & Levels">
           Badges & Levels
           <!-- Lists all achievable badges, their requirements, and the user’s progress toward earning them. -->
         </a>
-        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()" matToolti="Leaderboards">
+        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()" title="Leaderboards">
           Leaderboards
           <!-- Displays rankings of top-performing members based on various criteria (e.g., most clicks, highest earnings). -->
         </a>
-        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()"  matToolti="Milestone Tracker">
+        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" (click)="scrollToTop()"  title="Milestone Tracker">
           Milestone Tracker
           <!-- Visual representation of progress toward major milestones (e.g., first 100 leads, first $1,000 earned). -->
         </a>
@@ -138,8 +138,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('mentorship') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="cell-meeting" routerLinkActive="active" (click)="scrollToTop()" matToolti="Cell Meetings">Cell Meetings</a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Mentorship program">Mentors program</a>
+        <a mat-list-item routerLink="cell-meeting" routerLinkActive="active" (click)="scrollToTop()" title="Cell Meetings">Cell Meetings</a>
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Mentorship program">Mentors program</a>
       </div>
 
       <a mat-list-item (click)="toggleSubmenu('training')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -149,11 +149,11 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('training') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" matToolti="Video Tutorials">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Video Tutorials">
           Video Tutorials
           <!-- A library of instructional videos covering topics such as marketing strategies, content creation, and platform navigation. -->
         </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" matToolti="eBooks & Guides">
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="eBooks & Guides">
           eBooks & Guides
           <!-- 
            A collection of articles, eBooks, and step-by-step guides on various topics related to digital marketing and network marketing.
@@ -164,21 +164,21 @@
           Resource Downloads
           <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
         </a>
-        <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matToolti="Content Creation & Sharing">Content Creation & Sharing</a>
+        <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Content Creation & Sharing">Content Creation & Sharing</a>
         <div [@submenuToggle]="isSubSubmenuOpen('content-creatioin') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Blog & Article Writing">
+          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Blog & Article Writing">
             Blog & Article Writing
             <!-- Provides templates and SEO tips for writing blog posts or articles. -->
           </a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Video Creatioin Tools">
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Video Creatioin Tools">
             Video Creatioin Tools
             <!-- Tips and resources for creating video content, including script templates and editing software recommendations. -->
           </a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Social Media Sharing">
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Social Media Sharing">
             Social Media Sharing
             <!-- Direct sharing options and suggested posts for various social media platforms. -->
           </a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="User Generated Contents">
+          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="User Generated Contents">
             User Generated Content
             <!-- A gallery where members can view and get inspiration from content created by others. -->
           </a>
@@ -193,15 +193,15 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('community') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" matToolti="Forums">
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Forums">
           Forums
           <!--  Access to discussion boards where members can ask questions, share experiences, and support one another. -->
         </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" matToolti="Success Stories">
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Success Stories">
           Success Stories
           <!-- : Features interviews or case studies of top performers, highlighting their journey and tips for success. -->
         </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" matToolti="Group Chats">
+        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Group Chats">
           Group Chats
           <!-- : Real-time chat rooms for different topics, allowing members to connect instantly. -->
         </a>
@@ -214,22 +214,22 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('wibinarsEvents') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Webinars & Live Sessions">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Webinars & Live Sessions">
           Webinars & Live Sessions
           <!-- Calendar and registration for upcoming live webinars, plus access to recordings of past sessions. -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Upcoming Events">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Upcoming Events">
           Upcoming Events
           <!-- 
           A calendar view of all upcoming webinars, training sessions, and live events.  
           Option to set reminders or sync events with personal calendars.
            -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Register for Events">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Register for Events">
           Register for Events
           <!-- Allows members to register for events directly through the platform.  -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Event Archives">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Event Archives">
           Event Archives
           <!-- Access to recordings and materials from past events, categorized by topic.  -->
         </a>
@@ -242,8 +242,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('settings') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" matToolti="Account settings">Account Settings</a>
-        <a mat-list-item routerLink="billing" routerLinkActive="active" (click)="scrollToTop()" matToolti="Billing">Billing</a>
+        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Account settings">Account Settings</a>
+        <a mat-list-item routerLink="billing" routerLinkActive="active" (click)="scrollToTop()" title="Billing">Billing</a>
       </div>
       
       <a mat-list-item (click)="toggleSubmenu('help')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -253,23 +253,23 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('help') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Support Center">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Support Center">
           Support Center
           <!-- A searchable database of FAQs and troubleshooting guides. -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Submit a Ticket">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Submit a Ticket">
           Submit a Ticket
           <!-- Allows members to report issues or ask for help from support staff. -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Live Chat Support">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Live Chat Support">
           Live Chat Support
           <!-- Real-time chat with customer support agents for immediate assistance. -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Feedback Portal">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Feedback Portal">
           Feedback Portal
           <!--  A place for members to submit suggestions for platform improvements or new features. -->
         </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" matToolti="Community Votes">
+        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Community Votes">
           Community Votes
           <!-- Members can vote on which new features or changes they’d like to see implemented. -->
         </a>

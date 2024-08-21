@@ -23,7 +23,6 @@
 
 
         <mat-accordion>
-            <mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
             <mat-expansion-panel [expanded]="true">
               <mat-expansion-panel-header>
                 <mat-panel-title> Personal data </mat-panel-title>
@@ -112,7 +111,11 @@
                         <div class="form-group">
                             <mat-slide-toggle [checked]="status"[disabled]="disabled" (change)="onToggleChange($event)">Active Status</mat-slide-toggle>
                         </div>
-                        <div class="form-group"></div>
+
+                        <div class="form-group">
+                            <async-profile-picture-upload *ngIf="partner" [partner]="partner"></async-profile-picture-upload>
+                        </div>
+
                         <div class="form-group"></div>
                         <button mat-raised-button color="primary">Submit</button>
                     </form>

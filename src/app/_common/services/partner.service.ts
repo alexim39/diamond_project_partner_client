@@ -21,6 +21,7 @@ export interface PartnerInterface {
   dobDatePicker?: Date;
   balance?: number;
   role?: string;
+  profileImage?: string;
 }
 
 @Injectable()

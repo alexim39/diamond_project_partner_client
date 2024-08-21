@@ -1,5 +1,5 @@
 <div class="card">
-  <img src="./img/default_pp.png" alt="Profile">
+  <img [src]="profilePictureUrl" alt="Profile Image">
   <div class="name">{{partner.name | titlecase}} {{partner.surname | titlecase}}</div>
   <div class="title">&#64;{{partner.username | lowercase}}</div>
   <!-- <div class="title">090 6365 8652</div> -->

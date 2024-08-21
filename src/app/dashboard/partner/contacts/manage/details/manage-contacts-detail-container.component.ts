@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
   </ng-container>
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
-          <p class="no-content">Something Went Wrong</p>
+          <p class="no-content">Something Went Wrong or may be you dont have contacts yet!</p>
           <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
         </div>
     </ng-container>
