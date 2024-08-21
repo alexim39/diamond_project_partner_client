@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { environment } from '../../../../../environments/environment';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'async-profile-picture-upload',
@@ -78,10 +79,31 @@ export class ProfilePictureUploadComponent {
       formData.append('userId', this.partner._id); 
 
       this.http.post(this.apiURL + `/upload-profile-picture/image/${this.partner._id}`, formData).subscribe(response => {
-        console.log('Upload successful!', response);
+        //console.log('Upload successful!', response);
         // Handle successful upload, e.g., update user profile data
+
+        Swal.fire({
+          position: "bottom",
+          icon: 'success',
+          text: 'Your profile image has been updated successfully',
+          showConfirmButton: true,
+          timer: 15000,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // reload page
+            location.reload();
+          }
+        });
+
       }, error => {
-        console.error('Upload failed!', error);
+        //console.error('Upload failed!', error);
+        Swal.fire({
+          position: "bottom",
+          icon: 'info',
+          text: 'Server error occured, please try again',
+          showConfirmButton: false,
+          timer: 4000
+        })
       });
     }
   }

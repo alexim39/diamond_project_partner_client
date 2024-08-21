@@ -20,14 +20,12 @@ export class ProfileComponent implements OnInit {
 
   profilePictureUrl = "./img/default_pp.png"
 
-  constructor(
-    
-  ) {  }
+  constructor( ) {  }
 
   ngOnInit() {
-    console.log(this.partner)
+    //console.log(this.partner)
     if (this.partner.profileImage) {
-      this.profilePictureUrl = this.apiURL + `/src/uploads/${this.partner.profileImage}`;
+      this.profilePictureUrl = this.apiURL + `/uploads/${this.partner.profileImage}`;
     }
   }
 }
