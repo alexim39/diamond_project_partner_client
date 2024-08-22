@@ -15,7 +15,7 @@ import { NavigationEnd, NavigationStart, Router, RouterModule, } from '@angular/
 import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { MarketingChannelsComponent } from './create-campaign/marketing-channels.component';
+import { MarketingChannelsComponent } from './campaigns/create-campaign/marketing-channels.component';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { Emitters } from '../../_common/emitters/emitters';
 import { PartnerAuthService } from '../../auth/auth.service';
