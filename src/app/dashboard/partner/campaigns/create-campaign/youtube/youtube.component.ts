@@ -9,7 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { RouterModule } from '@angular/router';
 import { CreateCampaignService } from '../create-campaign.service';
 import { Subscription } from 'rxjs';
@@ -20,9 +20,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Stepper vertical
  */
 @Component({
-  selector: 'async-linkedin',
-  templateUrl: 'linkedin.component.html',
-  styleUrl: 'linkedin.component.scss',
+  selector: 'async-youtube',
+  templateUrl: 'youtube.component.html',
+  styleUrl: 'youtube.component.scss',
   standalone: true,
   imports: [
     MatButtonModule, MatSelectModule, MatCheckboxModule,
@@ -35,12 +35,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   providers: [provideNativeDateAdapter(), CreateCampaignService],
 
 })
-export class LinkedinComponent implements OnInit, OnDestroy {
+export class YoutubeComponent implements OnInit, OnDestroy {
   targetAudienceFormGroup!: FormGroup;
   marketingObjectivesFormGroup!: FormGroup;
   budgetFormGroup!: FormGroup;
   adDurationFormGroup!: FormGroup;
   adFormatFormGroup!: FormGroup;
+  //adPreferences!: FormGroup;
 
   minDate!: Date; // New property to store the minimum allowed date
   duration!: null | number;
@@ -59,15 +60,13 @@ export class LinkedinComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.targetAudienceFormGroup = this._formBuilder.group({
       ageRangeTarget: ['', Validators.required],
-      industryTarget: ['', Validators.required],
+      genderTarget: ['', Validators.required],
       locationTarget: ['', Validators.required],
-      educationTarget: ['', Validators.required],
-      //relationshipTarget: ['', Validators.required]
+      interestsTarget: ['', Validators.required],
     });
 
     this.marketingObjectivesFormGroup = this._formBuilder.group({
       adObjective: ['', Validators.required],
-      successMeasurement: ['', Validators.required]
     });
 
     this.budgetFormGroup = this._formBuilder.group({
@@ -128,6 +127,7 @@ export class LinkedinComponent implements OnInit, OnDestroy {
     }
   }
 
+
   onSubmit() {
     this.isSpinning = true;
     const campaignData = {
@@ -142,19 +142,20 @@ export class LinkedinComponent implements OnInit, OnDestroy {
       },
       adFormat: {
         ...this.adFormatFormGroup.value,
+        //adPreferences: this.adPreferences.value,
       },
       createdBy: this.partner._id,
-      campaignName: 'LinkedIn',
+      campaignName: 'Youtube',
       deliveryStatus: 'Pending',
     };
 
     this.subscriptions.push(
-      this.createCampaignService.linkedin(campaignData).subscribe((res: any) => {
+      this.createCampaignService.youtube(campaignData).subscribe((res: any) => {
 
         Swal.fire({
           position: "bottom",
           icon: 'success',
-          text: 'Thank you for creating your ad campaign. We will publish this campaign on LinkedIn soon',
+          text: 'Thank you for creating your ad campaign. We will publish this campaign on Youtube soon',
           showConfirmButton: true,
           timer: 15000,
         })

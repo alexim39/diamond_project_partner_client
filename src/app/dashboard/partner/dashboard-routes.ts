@@ -1,9 +1,9 @@
 import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardIndexComponent } from "./index/index.component";
-import { MarketingChannelsComponent } from "./create-campaign/marketing-channels.component";
-import { ManageCampaignContainerComponent } from "./manage-campaign/manage-campaign-container.component";
-import { ManageCampaignDetailContainerComponent } from "./manage-campaign/details/manage-campaign-detail-container.component";
+import { MarketingChannelsComponent } from "./campaigns/create-campaign/marketing-channels.component";
+import { ManageCampaignContainerComponent } from "./campaigns/manage-campaign/manage-campaign-container.component";
+import { ManageCampaignDetailContainerComponent } from "./campaigns/manage-campaign/details/manage-campaign-detail-container.component";
 import { MonthlyPurchaseContainerComponent } from "./monthly-purchase/monthly-purchase-container.component";
 import { InvitationContainerComponent } from "./profile/invitation/invitation-container.component";
 import { ProfileMrgContainerComponent } from "./profile/profile-mgr/profile-mgr-container.component";
