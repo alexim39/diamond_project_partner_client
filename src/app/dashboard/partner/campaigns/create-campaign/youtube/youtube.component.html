@@ -1,4 +1,3 @@
-<mat-progress-bar mode="indeterminate" *ngIf="isSpinning" class="progress-bar"></mat-progress-bar>
   <mat-stepper orientation="vertical" #stepper>
 
 
@@ -101,6 +100,7 @@
             <mat-form-field appearance="outline">
               <mat-label>Budget Amount</mat-label>
               <input matInput type="number" required formControlName="budgetAmount"/>
+              <mat-hint>Minimum amount: ₦18,000</mat-hint>
               <span matTextPrefix>₦</span>
               <span matTextSuffix>.00</span>
             </mat-form-field>

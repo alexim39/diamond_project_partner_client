@@ -49,8 +49,6 @@ export class YoutubeComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
 
   subscriptions: Array<Subscription> = [];
-  isSpinning = false;
-
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -129,50 +127,75 @@ export class YoutubeComponent implements OnInit, OnDestroy {
 
 
   onSubmit() {
-    this.isSpinning = true;
-    const campaignData = {
-      targetAudience: this.targetAudienceFormGroup.value,
-      marketingObjectives: this.marketingObjectivesFormGroup.value,
-      budget: this.budgetFormGroup.value,
-      adDuration: {
-        campaignStartDate: this.adDurationFormGroup.get('campaignStartDate')?.value,
-        noEndDate: this.adDurationFormGroup.get('noEndDate')?.value,
-        // If noEndDate is true, set campaignEndDate to null (optional)
-        campaignEndDate: this.adDurationFormGroup.get('noEndDate')?.value ? null : this.adDurationFormGroup.get('campaignEndDate')?.value
-      },
-      adFormat: {
-        ...this.adFormatFormGroup.value,
-        //adPreferences: this.adPreferences.value,
-      },
-      createdBy: this.partner._id,
-      campaignName: 'Youtube',
-      deliveryStatus: 'Pending',
-    };
 
-    this.subscriptions.push(
-      this.createCampaignService.youtube(campaignData).subscribe((res: any) => {
+    if (
+      this.targetAudienceFormGroup.valid 
+      && this.marketingObjectivesFormGroup.valid 
+      && this.budgetFormGroup.valid 
+      && this.adDurationFormGroup 
+      && this.adFormatFormGroup) {
 
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: 'Thank you for creating your ad campaign. We will publish this campaign on Youtube soon',
-          showConfirmButton: true,
-          timer: 15000,
-        })
-        this.isSpinning = false;
+        const campaignData = {
+          targetAudience: this.targetAudienceFormGroup.value,
+          marketingObjectives: this.marketingObjectivesFormGroup.value,
+          budget: this.budgetFormGroup.value,
+          adDuration: {
+            campaignStartDate: this.adDurationFormGroup.get('campaignStartDate')?.value,
+            noEndDate: this.adDurationFormGroup.get('noEndDate')?.value,
+            // If noEndDate is true, set campaignEndDate to null (optional)
+            campaignEndDate: this.adDurationFormGroup.get('noEndDate')?.value ? null : this.adDurationFormGroup.get('campaignEndDate')?.value
+          },
+          adFormat: {
+            ...this.adFormatFormGroup.value,
+            //adPreferences: this.adPreferences.value,
+          },
+          createdBy: this.partner._id,
+          campaignName: 'Youtube',
+          deliveryStatus: 'Pending',
+        };
+    
+        this.subscriptions.push(
+          this.createCampaignService.youtube(campaignData).subscribe((res: any) => {
+    
+            Swal.fire({
+              position: "bottom",
+              icon: 'success',
+              text: 'Thank you for creating your ad campaign. We will publish this campaign on Youtube soon',
+              showConfirmButton: true,
+              timer: 15000,
+            })
+    
+          }, (error: any) => {
+            //console.log(error)
+            if (error.code == 401) {
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Insufficient balance for transaction, please fund your account.',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            } else if (error.code == 402) {
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Insufficient amount for transaction, please enter a valid account.',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            } else {
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Server error occured, please and try again',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            }
+          })
+        )
 
-      }, (error: any) => {
-        console.log(error)
-        this.isSpinning = false;
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
-      })
-    )
+      }
   }
 
   ngOnDestroy() {

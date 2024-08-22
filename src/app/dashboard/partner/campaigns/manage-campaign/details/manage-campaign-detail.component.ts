@@ -44,7 +44,7 @@ export class ManageCampaignDetailComponent implements OnInit {
 
   
   ngOnInit(): void { 
-    console.log(this.campaignData)
+    //console.log(this.campaignData)
     if (this.campaign.data) {
       this.campaignData = this.campaign.data;
       
