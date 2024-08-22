@@ -3,6 +3,7 @@ import {AfterViewInit, Component, ElementRef, signal, ViewChild} from '@angular/
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
+import { IndexSearchContainerComponent } from './search/search-container.component';
 
 /**
  * @title dashboard index
@@ -12,9 +13,6 @@ import {MatInputModule} from '@angular/material/input';
   templateUrl: 'index.component.html',
   styleUrls: ['index.component.scss'],
   standalone: true,
-  imports: [MatButtonModule, MatBadgeModule, CommonModule, MatInputModule],
+  imports: [MatButtonModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule],
 })
-export class DashboardIndexComponent  {
-
-   
-}
+export class DashboardIndexComponent  {}
