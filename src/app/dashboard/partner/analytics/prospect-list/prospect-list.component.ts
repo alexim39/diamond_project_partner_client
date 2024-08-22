@@ -68,9 +68,9 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
       }  
       
       // Custom filter predicate to filter by name
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
-    };
+      this.dataSource.filterPredicate = (data: any, filter: string) => {
+        return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
+      };
 
     }
 
