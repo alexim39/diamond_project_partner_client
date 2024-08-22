@@ -71,7 +71,7 @@ export class AnalyticsService {
 
    // detele single prospect
    deleteSingle(prospectId: string): Observable<ProspectListInterface> {
-    console.log('record', prospectId);
+    //console.log('record', prospectId);
     return this.http
       .get<ProspectListInterface>(this.apiURL + `/prospect/delete-single/${prospectId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
