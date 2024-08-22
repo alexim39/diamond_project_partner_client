@@ -43,7 +43,7 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
   
     filterText: string = '';
   
-    displayedColumns: string[] = ['name', 'phone', 'email',  'date', 'dateAgo', 'detail', 'action'];
+    displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'dateAgo', 'detail', 'action'];
     timeAgoList: string[] = [];  
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -107,12 +107,6 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
         confirmButtonText: "Yes, move it!"
       }).then((result) => {
         if (result.isConfirmed) {
-          /* Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success"
-          }); */
-
           this.scrollToTop();
   
           const partnerId = this.partner._id;

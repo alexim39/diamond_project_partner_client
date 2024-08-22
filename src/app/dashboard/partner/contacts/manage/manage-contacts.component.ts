@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -13,13 +13,14 @@ import { ContactsInterface, ContactsService } from '../contacts.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTableModule } from '@angular/material/table';
-import { ConctactFilterPipe } from '../contacts-filter.pipe';
+//import { ConctactFilterPipe } from '../contacts-filter.pipe';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 
 @Component({
   selector: 'async-manage-contatcs',
@@ -28,7 +29,7 @@ import { ExportContactAndEmailService } from '../../../../_common/services/expor
   standalone: true,
   providers: [ContactsService],
   imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
-    ConctactFilterPipe, MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule],
+    MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule],
 })
 export class ManageContactsComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
@@ -38,13 +39,14 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
   isSpinning = false;
   subscriptions: Array<Subscription> = [];
 
-  dataSource: Array<any> = [];
+  dataSource = new MatTableDataSource<any>([]);  
   isEmptyRecord = false;
   filterText: string = '';
   displayedColumns: string[] = ['select', 'name', 'phone', 'email', 'channel', 'status', 'remark', 'date', 'action'];
 
   selection = new Set<any>();
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private contactsService: ContactsService,
@@ -54,14 +56,28 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.prospectContact.data) {
-      this.dataSource = this.prospectContact.data.sort((a, b) => {
+      this.dataSource.data = this.prospectContact.data.sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
-      if (this.dataSource.length === 0) {
+      if (this.dataSource.data.length === 0) {
         this.isEmptyRecord = true;
       }
     }
+
+    // Custom filter predicate to filter by name
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      return data.prospectName.toLowerCase().includes(filter.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filter.toLowerCase());
+    };
+
+  }
+
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
   }
 
   toggleSelection(element: any) {
@@ -73,7 +89,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
   }
 
   isAllSelected() {
-    return this.selection.size === this.dataSource.length;
+    return this.selection.size === this.dataSource.data.length;
   }
 
   isSomeSelected() {
@@ -82,7 +98,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy {
 
   selectAll(checked: boolean) {
     if (checked) {
-      this.selection = new Set(this.dataSource);
+      this.selection = new Set(this.dataSource.data);
     } else {
       this.selection.clear();
     }

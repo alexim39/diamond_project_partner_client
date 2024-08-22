@@ -41,10 +41,10 @@
                       <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
                     </ng-container>
     
-                   <!--  <ng-container matColumnDef="channel">
-                      <th mat-header-cell *matHeaderCellDef> Channel </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectSource}} </td>
-                    </ng-container> -->
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef> Status </th>
+                      <td mat-cell *matCellDef="let element"> {{element.prospectStatus}} </td>
+                    </ng-container>
 
                    <!--  <ng-container matColumnDef="status">
                       <th mat-header-cell *matHeaderCellDef> Status </th>
