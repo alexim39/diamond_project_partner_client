@@ -30,6 +30,18 @@
             }
         }
 
+        .table {
+            padding: 0 1em;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+
        
     }
 }

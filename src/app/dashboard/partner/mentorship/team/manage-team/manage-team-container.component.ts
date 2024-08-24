@@ -2,28 +2,31 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { TeamMembersComponent } from './team-members.component';
+import { ManageTeamComponent } from './manage-team.component';
+import { TeamInterface, TeamService } from '../team.service';
 
 /**
  * @title Container
  */
 @Component({
-  selector: 'async-team-members-container',
+  selector: 'async-manage-team-container',
   template: `
-  <async-team-members *ngIf="partner" [partner]="partner" ></async-team-members>
+  <async-manage-team *ngIf="partner && teams" [partner]="partner" [teams]="teams" ></async-manage-team>
   `,
   standalone: true,
-  providers: [],
-  imports: [CommonModule, TeamMembersComponent],
+  providers: [TeamService],
+  imports: [CommonModule, ManageTeamComponent],
 })
-export class TeamMembersContainerComponent implements OnInit, OnDestroy {
+export class ManageTeamContainerComponent implements OnInit, OnDestroy {
 
     
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
+  teams!: Array<any>;
 
   constructor(
     private partnerService: PartnerService,
+    private teamService: TeamService
   ) { }
 
   ngOnInit() {
@@ -35,7 +38,10 @@ export class TeamMembersContainerComponent implements OnInit, OnDestroy {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            //console.log(this.partner)
+            this.teamService.getAllTeamsBy(this.partner._id).subscribe((teams: any) => {
+              this.teams = teams.data;
+              //console.log('teams ',teams)
+            })
           }
         },
         

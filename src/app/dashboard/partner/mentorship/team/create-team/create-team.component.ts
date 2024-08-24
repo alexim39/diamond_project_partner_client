@@ -15,7 +15,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
 import Swal from 'sweetalert2';
-import { CreateTeamService } from '../team.service';
+import { TeamService } from '../team.service';
 
 /**
  * @title Mentors Program
@@ -25,7 +25,7 @@ import { CreateTeamService } from '../team.service';
   templateUrl: 'create-team.component.html',
   styleUrls: ['create-team.component.scss'],
   standalone: true,
-  providers: [CreateTeamService],
+  providers: [TeamService],
   imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
 })
 export class CreateTeamComponent implements OnInit {
@@ -38,7 +38,7 @@ export class CreateTeamComponent implements OnInit {
     subscriptions: Array<Subscription> = [];
 
     constructor(
-     private createTeamService: CreateTeamService,
+     private createTeamService: TeamService,
       private router: Router,
     ) {}
 
