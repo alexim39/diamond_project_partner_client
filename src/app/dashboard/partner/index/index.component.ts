@@ -4,6 +4,7 @@ import {MatBadgeModule} from '@angular/material/badge';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import { IndexSearchContainerComponent } from './search/search-container.component';
+import { RouterModule } from '@angular/router';
 
 /**
  * @title dashboard index
@@ -13,6 +14,6 @@ import { IndexSearchContainerComponent } from './search/search-container.compone
   templateUrl: 'index.component.html',
   styleUrls: ['index.component.scss'],
   standalone: true,
-  imports: [MatButtonModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule],
+  imports: [MatButtonModule, RouterModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule],
 })
 export class DashboardIndexComponent  {}

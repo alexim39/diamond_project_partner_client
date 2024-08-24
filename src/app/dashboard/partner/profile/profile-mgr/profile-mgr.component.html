@@ -6,11 +6,6 @@
             <h1>Update Profile Datail</h1>
             <div class="fund-area">
                 <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
-
-                <!-- <div class="fund">
-                    Prepaid balance
-                    N5,000
-                </div> -->
             </div>
         </div>
 
@@ -25,11 +20,8 @@
         <mat-accordion>
             <mat-expansion-panel [expanded]="true">
               <mat-expansion-panel-header>
-                <mat-panel-title> Personal data </mat-panel-title>
+                <mat-panel-title> Personal Information </mat-panel-title>
               </mat-expansion-panel-header>
-
-
-
 
                 <div class="form-container">
                     <form class="flex-form" [formGroup]="profileMgrForm">
@@ -120,6 +112,74 @@
                         <button mat-raised-button color="primary" (click)="onProfileSubmit()">Submit</button>
                     </form>
                 </div>
+            </mat-expansion-panel>
+
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Profession Information </mat-panel-title>
+              </mat-expansion-panel-header>
+
+
+                <div class="form-container">
+                    <form class="flex-form" [formGroup]="professionalForm">
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Job Title</mat-label>
+                                <input matInput formControlName="jobTitle" required maxlength="50">
+                                <mat-error *ngIf="professionalForm.get('jobTitle')?.hasError('required') ">
+                                    This is required
+                                  </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                       <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Educational Background</mat-label>
+                                <mat-select formControlName="educationBackground" required>
+                                    <mat-option value="Basic Education Certificate (Primary School)">Basic Education Certificate (Primary School) </mat-option>
+                                    <mat-option value="WASSCE">WASSCE</mat-option>
+                                    <mat-option value="NECO">NECO</mat-option>
+                                    <mat-option value="GCE">GCE</mat-option>
+                                    <mat-option value="ND">ND</mat-option>
+                                    <mat-option value="HND">HND</mat-option>
+                                    <mat-option value="B.Sc., B.A., B.Eng.">B.Sc., B.A., B.Eng.</mat-option>
+                                    <mat-option value="M.Sc., M.A., M.B.A.">M.Sc., M.A., M.B.A.</mat-option>
+                                    <mat-option value="Ph.D.">Ph.D.</mat-option>
+                                    <mat-option value="NCE">NCE</mat-option>
+                                    <mat-option value="M.Sc., M.A., M.B.A.">M.Sc., M.A., M.B.A.</mat-option>
+                                    <mat-option value="None">None</mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="professionalForm.get('educationBackground')?.hasError('required') ">
+                                    This field is required.  
+                                </mat-error> 
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Best Hobby</mat-label>
+                                <input matInput formControlName="hobby" required maxlength="50">
+                                <mat-error *ngIf="profileMgrForm.get('hobby')?.hasError('required') ">
+                                    This is required
+                                  </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Best Skill</mat-label>
+                                <input matInput formControlName="skill" required maxlength="50">
+                                <mat-error *ngIf="profileMgrForm.get('skill')?.hasError('required') ">
+                                    This is required
+                                  </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="form-group"></div>
+                        <button mat-raised-button color="primary" (click)="onProfessionalSubmit()">Submit</button>
+                    </form>
+                </div>
     
 
             </mat-expansion-panel>
@@ -131,11 +191,12 @@
 
               <div class="form-container">
                 <form class="flex-form" [formGroup]="usernameForm" (ngSubmit)="onUsernameSubmit()">
-                    <div class="form-group">
-                        <mat-form-field appearance="outline">
+                    <div class="form-group" style="display: flex; flex-direction: row; justify-content: flex-start; align-items: center;">
+                        <mat-form-field appearance="outline" style="width: 50%;">
                             <mat-label>Username</mat-label>
                             <input matInput formControlName="username" required>
                         </mat-form-field>
+                        <mat-icon style="margin: 0  0 1em 6px; cursor: pointer;" (click)="showDescription()">help</mat-icon>
                     </div>
                     <div class="form-group"></div>
                     <div class="form-group">

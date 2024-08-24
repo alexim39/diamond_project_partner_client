@@ -1,0 +1,81 @@
+<section class="async-background ">
+    <h2>Create Team <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <div class="title">
+            <h3>Create A Team of Partners</h3>
+            <div class="action-area">
+                <!-- <a mat-list-item title="Import Numbers from Contact" mat-raised-button><mat-icon>cloud_download</mat-icon>Import Numbers from Contact</a> -->
+                <!-- <mat-button-toggle-group>
+                    <mat-button-toggle style="background: white" routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon>Contact List</mat-button-toggle>
+                    <mat-button-toggle style="background: white" (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon>Import Prospect from Online</mat-button-toggle>
+                </mat-button-toggle-group> -->
+
+            </div>
+        </div>
+
+
+        <div class="form-container">
+            <form class="flex-form" [formGroup]="createTeamForm" (ngSubmit)="onSubmit()">
+
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Team Name</mat-label>
+                        <input matInput formControlName="teamName" required>
+                        <mat-error *ngIf="createTeamForm.get('teamName')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Description/purpose of the team</mat-label>
+                        <textarea matInput formControlName="description"></textarea>
+                        <!-- <mat-error *ngIf="ticketForm.get('description')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> -->
+                    </mat-form-field>
+                </div>
+
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Team Purpose </mat-label>
+                        <mat-select formControlName="teamPurpose" required>
+                            <mat-option value="Recruitment Team">Recruitment Team</mat-option>
+                            <mat-option value="Training and Development Team">Training and Development Team</mat-option>
+                            <mat-option value="Strategic Planning Team">Strategic Planning Team</mat-option>
+                            <mat-option value="Partner Support Team">Partner Support Team</mat-option>
+                            <mat-option value="Marketing Team">Marketing Team</mat-option>
+                            <mat-option value="Sales Team">Sales Team</mat-option>
+                            <mat-option value="Product Development Team">Product Development Team</mat-option>
+                            <mat-option value="Events Management Team">Events Management Team</mat-option>
+                            <mat-option value="Tech Support Team">Tech Support Team</mat-option>
+                            <mat-option value="Content Creation Team">Content Creation Team</mat-option>
+                            <mat-option value="Compliance and Regulatory Team">Compliance and Regulatory Team</mat-option>
+                            <mat-option value="Innovation Team">Innovation Team</mat-option>
+                            <mat-option value="Recognition and Rewards Team">Recognition and Rewards Team</mat-option>
+                            <mat-option value="Networking Team">Networking Team</mat-option>
+                            <mat-option value="Feedback and Improvement Team">Feedback and Improvement Team</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="createTeamForm.get('teamPurpose')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+
+                <div class="form-group"></div>
+                <div class="form-group"></div>
+                <button mat-raised-button color="primary">Create</button>
+            </form>
+        </div>
+
+
+        
+    </section>
+    
+</section>

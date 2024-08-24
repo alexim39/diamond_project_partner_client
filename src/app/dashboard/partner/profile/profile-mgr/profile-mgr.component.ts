@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -18,6 +18,9 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProfilePictureUploadComponent } from './profile-image.component';
+import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSelectModule } from '@angular/material/select';
 
 /**
  * @title profile manager
@@ -29,15 +32,16 @@ import { ProfilePictureUploadComponent } from './profile-image.component';
   standalone: true,
   providers: [provideNativeDateAdapter(), ProfileService],
   imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule, 
-    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
+    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
   ],
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
-
+  readonly dialog = inject(MatDialog);
   @Input() partner!: PartnerInterface;
   profileMgrForm!: FormGroup;
   usernameForm!: FormGroup;
   passwordForm!: FormGroup;
+  professionalForm!: FormGroup;
   hideCurrent = signal(true);
   hideNew = signal(true);
 
@@ -86,6 +90,13 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.passwordForm = new FormGroup({
         currentPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
         newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
+        id: new FormControl(this.partner._id),
+      });
+      this.professionalForm = new FormGroup({
+        jobTitle: new FormControl(this.partner.jobTitle, [Validators.required]),
+        educationBackground: new FormControl(this.partner.educationBackground, [Validators.required]),
+        hobby: new FormControl(this.partner.hobby, [Validators.required]),
+        skill: new FormControl(this.partner.skill, [Validators.required]),
         id: new FormControl(this.partner._id),
       });
       this.status = this.partner.status;
@@ -138,6 +149,34 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     )
   }
 
+  onProfessionalSubmit() {
+    const professionalForm = this.professionalForm.value;
+
+
+    this.subscriptions.push(
+      this.profileService.professionUpdate(professionalForm).subscribe((res: any) => {
+
+        Swal.fire({
+          position: "bottom",
+          icon: 'success',
+          text: 'Your professional details has been updated successfully',
+          showConfirmButton: true,
+          timer: 15000,
+        })
+
+      }, (error: any) => {
+        //console.log(error)
+        Swal.fire({
+          position: "bottom",
+          icon: 'info',
+          text: 'Server error occured, please try again',
+          showConfirmButton: false,
+          timer: 4000
+        })
+      })
+    )
+  }
+
   onUsernameSubmit() {
     const usernameObject = this.usernameForm.value;
 
@@ -157,7 +196,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: 'That username is already in use, please try again',
+            text: 'This username is already in use, please try another name',
             showConfirmButton: false,
             timer: 4000
           })
@@ -220,6 +259,28 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
       })
     )
+  }
+
+  showDescription () {
+    this.dialog.open(HelpDialogComponent, {
+      data: {help: `
+        Make sure your username, which is part of your unique link, is meaningful and easy to remember. 
+        For example, in diamondprojectonline.com/business, "business" is a meaninful and easy to remember username.
+
+        <p>Other examples of good unique link:
+          <ul>
+            <li>diamondprojectonline.com/join</li>
+            <li>diamondprojectonline.com/connect</li>
+            <li>diamondprojectonline.com/link</li>
+            <li>diamondprojectonline.com/grow</li>
+          </ul>
+        </p>
+
+        <p>
+          Such links can enhance and boost engagement when link is shared
+        </p>
+      `},
+    });
   }
 
   ngOnDestroy() {

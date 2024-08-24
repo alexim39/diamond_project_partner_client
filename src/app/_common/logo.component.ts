@@ -33,6 +33,8 @@ import { RouterModule } from '@angular/router';
           color: gray;
           font-size: 0.6em;
           //font-family: Verdana;
+          color: #ffab40;
+          font-weight: bold;
         }
       }
     }

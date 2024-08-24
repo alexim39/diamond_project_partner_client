@@ -13,7 +13,8 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Mat
 <!-- <h2 mat-dialog-title>Hi</h2> -->
 
 <mat-dialog-content>
-  <p>{{data.help}}</p>
+  <div [innerHTML]="data.help"></div>
+  <!-- <p>{{data.help}}</p> -->
 
 </mat-dialog-content>
 

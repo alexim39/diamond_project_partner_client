@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { AddMembersComponent } from './add-members';
+import { TeamMembersComponent } from './team-members.component';
 
 /**
  * @title Container
@@ -10,13 +10,13 @@ import { AddMembersComponent } from './add-members';
 @Component({
   selector: 'async-team-members-container',
   template: `
-  <async-add-members *ngIf="partner" [partner]="partner" ></async-add-members>
+  <async-team-members *ngIf="partner" [partner]="partner" ></async-team-members>
   `,
   standalone: true,
   providers: [],
-  imports: [CommonModule, AddMembersComponent],
+  imports: [CommonModule, TeamMembersComponent],
 })
-export class AddMembersContainerComponent implements OnInit, OnDestroy {
+export class TeamMembersContainerComponent implements OnInit, OnDestroy {
 
     
   partner!: PartnerInterface;

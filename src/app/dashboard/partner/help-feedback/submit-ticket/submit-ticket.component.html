@@ -1,0 +1,111 @@
+<section class="async-background ">
+    <h2>Help & Feedback <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <div class="title">
+            <h3>Submit A New Ticket</h3>
+            <div class="action-area">
+                <!-- <a mat-list-item title="Import Numbers from Contact" mat-raised-button><mat-icon>cloud_download</mat-icon>Import Numbers from Contact</a> -->
+                <!-- <mat-button-toggle-group>
+                    <mat-button-toggle style="background: white" routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon>Contact List</mat-button-toggle>
+                    <mat-button-toggle style="background: white" (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon>Import Prospect from Online</mat-button-toggle>
+                </mat-button-toggle-group> -->
+
+            </div>
+        </div>
+
+
+        <div class="form-container">
+            <form class="flex-form" [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
+
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Subject of the issue</mat-label>
+                        <input matInput formControlName="subject" required>
+                        <mat-error *ngIf="ticketForm.get('subject')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Description of the challenge faced</mat-label>
+                        <textarea matInput formControlName="description"></textarea>
+                        <mat-error *ngIf="ticketForm.get('description')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Date the issue occurred</mat-label>
+                        <input matInput [matDatepicker]="dp" formControlName="date">
+                        <mat-hint>MMMM DD, YYYY</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+                        <mat-datepicker #dp></mat-datepicker>
+                        <mat-error *ngIf="ticketForm.get('date')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Category</mat-label>
+                        <mat-select formControlName="category" required>
+                            <mat-option value="Technical Issue">Technical Issue</mat-option>
+                            <mat-option value="Feature Request">Feature Request</mat-option>
+                            <mat-option value="Feedback/Suggestion">Feedback/Suggestion</mat-option>
+                            <mat-option value="Account Issues">Account Issues</mat-option>
+                            <mat-option value="Billing/Payment Issues">Billing/Payment Issues</mat-option>
+                            <mat-option value="Usability Issue">Usability Issue</mat-option>
+                            <mat-option value="Performance Issues">Performance Issues</mat-option>
+                            <mat-option value="Bug Report">Bug Report</mat-option>
+                            <mat-option value="Accessibility Issue">Accessibility Issue</mat-option>
+                            <mat-option value="Security Concern">Security Concern</mat-option>
+                            <mat-option value="Onboarding/Setup Assistance">Onboarding/Setup Assistance</mat-option>
+                            <mat-option value="Integration Questions">Integration Questions</mat-option>
+                            <mat-option value="General Inquiry">General Inquiry</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="ticketForm.get('category')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Priority Level </mat-label>
+                        <mat-select formControlName="priority" required>
+                            <mat-option value="Low">Low</mat-option>
+                            <mat-option value="Medium">Medium</mat-option>
+                            <mat-option value="High">High</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="ticketForm.get('priority')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Additional Comments (optional)</mat-label>
+                        <textarea matInput formControlName="comment"></textarea>
+                    </mat-form-field>
+                </div>
+
+
+                <div class="form-group"></div>
+                <button mat-raised-button color="primary">Submit</button>
+            </form>
+        </div>
+
+
+        
+    </section>
+    
+</section>

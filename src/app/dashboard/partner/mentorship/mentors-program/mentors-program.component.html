@@ -1,0 +1,152 @@
+<section class="async-background ">
+    <h2>Mentors Program <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <div class="title">
+            <h3>Start A New Mentors Program</h3>
+            <div class="action-area">
+                <!-- <a mat-list-item title="Import Numbers from Contact" mat-raised-button><mat-icon>cloud_download</mat-icon>Import Numbers from Contact</a> -->
+                <!-- <mat-button-toggle-group>
+                    <mat-button-toggle style="background: white" routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon>Contact List</mat-button-toggle>
+                    <mat-button-toggle style="background: white" (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon>Import Prospect from Online</mat-button-toggle>
+                </mat-button-toggle-group> -->
+
+            </div>
+        </div>
+
+
+        <div class="form-container">
+            <form class="flex-form" [formGroup]="mentorsProgramForm" (ngSubmit)="onSubmit()">
+
+                <!-- <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Name</mat-label>
+                        <input matInput formControlName="prospectName" required>
+                        <mat-error *ngIf="prospectContactForm.get('prospectName')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div> -->
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Mentorship</mat-label>
+                        <mat-select formControlName="type" required>
+                            <mat-option value="Onboarding ">Onboarding </mat-option>
+                            <mat-option value="Buddy system (peer-to-peer)">Buddy system (peer-to-peer)</mat-option>
+                            <mat-option value="Leadership mentorship (leader-to-member)">Leadership mentorship (leader-to-member)</mat-option>
+                            <mat-option value="Skill-based mentorship (expert-to-member)">Skill-based mentorship (expert-to-member)</mat-option>
+                            <mat-option value="Product Knowledge Mentorship">Product Knowledge Mentorship</mat-option>
+                            <mat-option value="Performance-Based Mentorship">Performance-Based Mentorship</mat-option>
+                            <mat-option value="Business Strategy Mentorship">Business Strategy Mentorship</mat-option>
+                            <mat-option value="Technology & Tools Mentorship">Technology & Tools Mentorship</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="mentorsProgramForm.get('type')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Mentorship Goal</mat-label>
+                        <mat-select formControlName="goal" required>
+                            <mat-option value=" Onboarding new partner"> Onboarding new partner</mat-option>
+                            <mat-option value="Skill development">Skill development</mat-option>
+                            <mat-option value="Leadership growth">Leadership growth</mat-option>
+                            <mat-option value="Career advancement">Career advancement</mat-option>
+                            <mat-option value="Knowledge Sharing">Knowledge Sharing</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="mentorsProgramForm.get('goal')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Mentor-Mentee Match</mat-label>
+                        <mat-select formControlName="match" required>
+                            <mat-option value="Mentee Experience and Expertise">Mentee Experience and Expertise</mat-option>
+                            <mat-option value="My Goals and Objectives">My Goals and Objectives</mat-option>
+                            <mat-option value="Mentee Personality and Communication Style">Mentee Personality and Communication Style</mat-option>
+                            <mat-option value="My Location and Availability">My Location and Availability</mat-option>
+                            <mat-option value="My Interests and Hobbies">My Interests and Hobbies</mat-option>
+                            <mat-option value="Mentee Interests and Hobbies">Mentee Interests and Hobbies</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="mentorsProgramForm.get('match')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Mentorship Duration</mat-label>
+                        <mat-select formControlName="duration" required>
+                            <mat-option value="Less than a month">Less than a month</mat-option>
+                            <mat-option value="1-month">1-month</mat-option>
+                            <mat-option value="2-months">2-months</mat-option>
+                            <mat-option value="3-months">3-months</mat-option>
+                            <mat-option value="6-months">6-months</mat-option>
+                            <mat-option value="9-months">9-months</mat-option>
+                            <mat-option value="1-year">1-year</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="mentorsProgramForm.get('duration')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Frequency</mat-label>
+                        <mat-select formControlName="frequency" required>
+                            <mat-option value="Weekly">Weekly</mat-option>
+                            <mat-option value="Bi-weekly">Bi-weekly</mat-option>
+                            <mat-option value="Monthly">Monthly</mat-option>
+                            <mat-option value="As-Needed">As-Needed</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="mentorsProgramForm.get('frequency')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Channel</mat-label>
+                        <mat-select formControlName="channel" required>
+                            <mat-option value="Email">Email</mat-option>
+                            <mat-option value="Phone">Phone</mat-option>
+                            <mat-option value="WhatsApp">Website</mat-option>
+                            <mat-option value="Video Call (Zoom, Google Meet, etc)">Video Call (Zoom, Google Meet, etc)</mat-option>
+                            <mat-option value="Other Option">Other Option</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="mentorsProgramForm.get('channel')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Short Remark/Comment</mat-label>
+                        <textarea matInput formControlName="remark"></textarea>
+                    </mat-form-field>
+                </div>
+
+
+
+                <div class="form-group"></div>
+                <div class="form-group"></div>
+                <button mat-raised-button color="primary">Submit</button>
+            </form>
+        </div>
+
+
+        
+    </section>
+    
+</section>
