@@ -1,126 +1,142 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {AsyncPipe} from '@angular/common';
-import {map, startWith} from 'rxjs/operators';
-import {Observable} from 'rxjs';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { Component, Input, OnInit } from '@angular/core';  
+import { MatInputModule } from '@angular/material/input';  
+import { MatFormFieldModule } from '@angular/material/form-field';  
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';  
+import { MatAutocompleteModule } from '@angular/material/autocomplete';  
+import { AsyncPipe, CommonModule } from '@angular/common';  
+import { map, startWith } from 'rxjs/operators';  
+import { Observable } from 'rxjs';  
+import { PartnerInterface } from '../../../../_common/services/partner.service';  
+import { environment } from '../../../../../environments/environment';  
+import { Router } from '@angular/router';
 
-export interface State {
-    flag: string;
-    name: string;
-    population: string;
-}
+@Component({  
+    selector: 'async-index-search',  
+    standalone: true,  
+    imports: [FormsModule, CommonModule, ReactiveFormsModule, AsyncPipe, MatFormFieldModule, MatInputModule, MatAutocompleteModule],  
+    providers: [],
+    template: `  
+    <section>  
+        <div class="search">  
+            <form class="search-form">  
+                <mat-form-field appearance="outline">  
+                    <mat-label>App Directory</mat-label>  
+                    <input matInput placeholder="Search for partner" [matAutocomplete]="auto" [formControl]="partnerCtrl">  
 
-/**
- * @title Main index search
- */
-@Component({
-  selector: 'async-index-search',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, AsyncPipe, MatFormFieldModule, MatInputModule, MatAutocompleteModule],
-  template: `
-  <section>
-    <div class="search">
-        <form class="search-form">
-            <mat-form-field appearance="outline">
-              <mat-label>App Directory</mat-label>
-              <input matInput placeholder="Search for partner" [matAutocomplete]="auto" [formControl]="stateCtrl">
-
-              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
-                @for (state of filteredStates | async; track state) {
-                    <mat-option [value]="state.name">
-                    <img alt="" class="example-option-img" [src]="state.flag" height="25">
-                    <span>{{state.name}}</span> |
-                    <small>Population: {{state.population}}</small>
+                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">  
+                    <mat-option *ngFor="let partner of filteredPartners | async" [value]="partner.name + ' ' + partner.surname" class="partner-option">  
+                        <div class="partner-content">  
+                            <img alt="Profile-image"   
+                                class="img"   
+                                [src]="partner.profileImage ? (apiURL + '/uploads/' + partner.profileImage) : './img/default_pp.png'"   
+                                height="25">  
+                            <span class="partner-name">{{partner.name | titlecase }} {{partner.surname | titlecase }}</span>  
+                        </div>  
                     </mat-option>
-                }
-                </mat-autocomplete>
-            </mat-form-field>
-        </form>
-    </div>
-</section>
-  `,
-  styles: `
-  section {
-    padding: 2em;
+                    </mat-autocomplete>  
+                </mat-form-field>  
+            </form>  
+        </div>  
+    </section>  
+    `,  
+    styles: `  
+    section {  
+        padding: 2em;  
 
-    .search {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        border-bottom: 1px solid rgb(225, 225, 225);
-        .search-form {
-            width: 50%;
-        }
-        mat-form-field {
-            width: 100%;
-        }
-    }
-}
-  `,
+        .search {  
+            display: flex;  
+            justify-content: center;  
+            align-items: center;  
+            width: 100%;  
+            border-bottom: 1px solid rgb(225, 225, 225);  
+            .search-form {  
+                width: 50%;  
+            }  
+            mat-form-field {  
+                width: 100%;  
+            }  
+        }  
+    }  
 
-})
-export class IndexSearchComponent implements OnInit {
+    .partner-option {  
+    display: flex;  
+    align-items: center; /* Center items vertically */  
+}  
 
-  @Input() partner!: PartnerInterface;
+.partner-content {  
+    display: flex;  
+    align-items: center; /* Center items vertically */  
+}  
+
+.img {  
+    width: 25px;     /* Set width of circle image */  
+    height: 25px;    /* Set height of circle image */  
+    border-radius: 50%; /* Make the image circular */  
+    object-fit: cover; /* Ensure the image covers the circle without distortion */  
+    margin-right: 10px; /* Space between the image and the name */  
+  }  
+
+  .partner-name {  
+      font-size: 14px; /* Adjust font size as needed */  
+      line-height: 25px; /* Align line height to center vertically with the image */  
+  }
+    `,  
+})  
+export class IndexSearchComponent implements OnInit {  
+
+    @Input() partner!: PartnerInterface;  
+    @Input() partners!: Array<PartnerInterface>;  
+
+    apiURL: string = environment.apiUrl;  
+
+    partnerCtrl = new FormControl('');  
+    filteredPartners: Observable<PartnerInterface[]>;  
+
+    profilePictureUrl = "./img/default_pp.png"
+
+    constructor(
+      private router: Router
+    ) {  
+        this.filteredPartners = this.partnerCtrl.valueChanges.pipe(  
+            startWith(''),  
+            map((value: string | PartnerInterface | null) => {  
+                return typeof value === 'string' ? value : (value ? value.name : '');  
+            }),  
+            map(name => {  
+                return name ? this._filterPartners(name) : this.partners.slice();  
+            })  
+        );  
+    }  
+
+    ngOnInit(): void {  
+        //console.log(this.partners);  
+    }  
+
+    private _filterPartners(value: string): PartnerInterface[] {  
+        const filterValue = value.toLowerCase();  
+        return this.partners.filter(partner =>   
+            partner.name.toLowerCase().includes(filterValue) ||  
+            partner.surname.toLowerCase().includes(filterValue)  
+        );  
+    }  
+
+    onOptionSelected(event: any): void {  
+      const selectedPartner: string = event.option.value;  
+      const [name, surname] = selectedPartner.split(" ");
   
-    stateCtrl = new FormControl('');
-    filteredStates: Observable<State[]>;
+      // Find the partner object where both name and surname match  
+      /* const partnerObject = this.partners.find(partner =>   
+          partner.name === selectedPartner.name && partner.surname === selectedPartner.surname  
+      );  
+      */
+      if (selectedPartner) {   
 
-  states: State[] = [
-    {
-      name: 'Arkansas',
-      population: '2.978M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Arkansas.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arkansas.svg',
-    },
-    {
-      name: 'California',
-      population: '39.14M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_California.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Flag_of_California.svg',
-    },
-    {
-      name: 'Florida',
-      population: '20.27M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Florida.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Florida.svg',
-    },
-    {
-      name: 'Texas',
-      population: '27.47M',
-      // https://commons.wikimedia.org/wiki/File:Flag_of_Texas.svg
-      flag: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Flag_of_Texas.svg',
-    },
-  ];
-
-  constructor() {
-    this.filteredStates = this.stateCtrl.valueChanges.pipe(
-      startWith(''),
-      map(state => (state ? this._filterStates(state) : this.states.slice())),
-    );
-  }
-
-  ngOnInit(): void {
-    console.log(this.partner)
-  }
-
-  private _filterStates(value: string): State[] {
-    const filterValue = value.toLowerCase();
-
-    return this.states.filter(state => state.name.toLowerCase().includes(filterValue));
-  }
-
-  onOptionSelected(event: any): void {  
-    const selectedState = event.option.value;  // This retrieves the selected value  
-    console.log('Selected state:', selectedState);  
-    // You can also find the full state object from the states array if needed  
-    const stateObject = this.states.find(state => state.name === selectedState);  
-    console.log('Full selected state object:', stateObject);  
-  } 
-
+        //this.router.navigate(['dashboard/search', name, surname]);  
+        // Navigate with query parameters  
+        this.router.navigate(['dashboard/search'], { queryParams: { name, surname } }); 
+          
+      } else {  
+          console.log('No matching partner found.');  
+      }  
+  }   
 }

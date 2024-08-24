@@ -86,7 +86,7 @@ import { RouterModule } from '@angular/router';
     <div class="contant_box_404">
         <h3 class="h2">It looks like you have clicked on the wrong link</h3>
         <p>The page you are looking for is not available!</p>
-        <button  mat-flat-button color="accent" routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Go to Home</button>
+        <button  mat-flat-button color="accent" routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Go to Home</button>
     </div>
 </section>
 `,

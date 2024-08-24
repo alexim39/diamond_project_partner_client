@@ -22,6 +22,10 @@ export interface PartnerInterface {
   balance?: number;
   role?: string;
   profileImage?: string;
+  jobTitle?: string;
+  educationBackground?: string;
+  hobby?: string;
+  skill?: string;
 }
 
 @Injectable()

@@ -1,24 +1,24 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { TeamMembersComponent } from './team-members.component';
+import { SubmitTicketComponent } from './submit-ticket.component';
+
 
 /**
- * @title Container
+ * @title cell meeting container
  */
 @Component({
-  selector: 'async-team-members-container',
-  template: `
-  <async-team-members *ngIf="partner" [partner]="partner" ></async-team-members>
-  `,
+  selector: 'async-submit-ticket-container',
   standalone: true,
+  imports: [CommonModule, SubmitTicketComponent],
   providers: [],
-  imports: [CommonModule, TeamMembersComponent],
+  template: `
+  <async-submit-ticket *ngIf="partner" [partner]="partner"></async-submit-ticket>
+  `,
 })
-export class TeamMembersContainerComponent implements OnInit, OnDestroy {
+export class SubmitTicketContainerComponent implements OnInit, OnDestroy {
 
-    
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
 
@@ -35,7 +35,11 @@ export class TeamMembersContainerComponent implements OnInit, OnDestroy {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            //console.log(this.partner)
+            //console.log('=',this.partner)
+           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
+              this.campaigns = campaigns;
+              //console.log('campaign ',campaigns)
+            }) */
           }
         },
         

@@ -7,8 +7,8 @@ import { ManageCampaignDetailContainerComponent } from "./campaigns/manage-campa
 import { MonthlyPurchaseContainerComponent } from "./monthly-purchase/monthly-purchase-container.component";
 import { InvitationContainerComponent } from "./profile/invitation/invitation-container.component";
 import { ProfileMrgContainerComponent } from "./profile/profile-mgr/profile-mgr-container.component";
-import { TeamMembersContainerComponent } from "./profile/team-members/team-members-container.component";
-import { AddMembersContainerComponent } from "./profile/team-members/add-members/add-members-container";
+//import { TeamMembersContainerComponent } from "./profile/team-members/team-members-container.component";
+//import { AddMembersContainerComponent } from "./profile/team-members/add-members/add-members-container";
 import { BillingContainerComponent } from "./billing/billing-container.component";
 import { CreateContactsContainerComponent } from "./contacts/create/create-contacts-container.component";
 import { ManageContactsContainerComponent } from "./contacts/manage/manage-contacts-container.component";
@@ -20,6 +20,12 @@ import { smsContainerComponent } from "./sms/sms-container.component";
 import { smsLogContainerComponent } from "./sms/sms-log/sms-log-container.component";
 import { EmailContainerComponent } from "./email/email-container.component";
 import { EmailLogContainerComponent } from "./email/email-log/email-log-container.component";
+import { LinkAnalyticsContainerComponent } from "./analytics/link-analytics/link-analytics-container.component";
+import { CampaignAnalyticsContainerComponent } from "./analytics/campaign-analytics/campaign-analytics-container.component";
+import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
+import { MentorsProgramContainerComponent } from "./mentorship/mentors-program/mentors-program-container.component";
+import { SubmitTicketContainerComponent } from "./help-feedback/submit-ticket/submit-ticket-container.component";
+import { CreateTeamContainerComponent } from "./mentorship/team/create-team/create-team-container.component";
 
 
 
@@ -34,6 +40,21 @@ export const dashboardRoutes: Routes = [
             {
                 path: '',
                 component: DashboardIndexComponent,
+                children: [
+                   /*  { path: '', 
+                        component: GetStartedComponent, 
+                        title: "Diamond Project Online - Get trained to get financially free",
+                    }, */
+                    {   path: 'search',
+                        component: SearchResultContainerComponent, 
+                        title: "Partners Search - Partners result details"
+                    },
+                    /* { path: 'get-involved', 
+                        component: GettingInvolvedComponent, 
+                        title: "Project Summary - Get involved as a member"
+                    }, */
+        
+                ]
             }, 
             {
                 path: 'create-campaign',
@@ -71,15 +92,15 @@ export const dashboardRoutes: Routes = [
                 title: "Prospect Invitation Manager",
             },        
             {
-                path: 'team-members',
-                component: TeamMembersContainerComponent,
-                title: "Team Members Manger",
+                path: 'create-team',
+                component: CreateTeamContainerComponent,
+                title: "Create Team - Create new team of partners",
             },        
-            {
+            /*{
                 path: 'add-members',
                 component: AddMembersContainerComponent,
                 title: "Add Team Members",
-            },        
+            },    */     
             {
                 path: 'create-contacts',
                 component: CreateContactsContainerComponent,
@@ -113,22 +134,42 @@ export const dashboardRoutes: Routes = [
             {
                 path: 'send-sms',
                 component: smsContainerComponent,
-                title: "Send Bulk SMS",
+                title: "Send Bulk SMS - Send bulk SMS to one or more contacts",
             },        
             {
                 path: 'send-email',
                 component: EmailContainerComponent,
-                title: "Send Bulk Email",
+                title: "Send Bulk Email - Send bulk email to one or more contacts",
             },        
             {
                 path: 'sms-log',
                 component: smsLogContainerComponent,
-                title: "Bulk SMS Log Center",
+                title: "Bulk SMS Log Center - View and manage your bulk SMS messages ",
             },        
             {
                 path: 'email-log',
                 component: EmailLogContainerComponent,
-                title: "Bulk Email Log Center",
+                title: "Bulk Email Log Center - View and manage your bulk email messages ",
+            },        
+            {
+                path: 'link-analytics',
+                component: LinkAnalyticsContainerComponent,
+                title: "Unique Link Analytics - Manage, understanding and Analyse your unique link",
+            },        
+            {
+                path: 'campaign-analytics',
+                component: CampaignAnalyticsContainerComponent,
+                title: "Campaign Analytics - Manage, understanding and Analyse each campaign",
+            },        
+            {
+                path: 'mentors-program',
+                component: MentorsProgramContainerComponent,
+                title: "Mentors Program - Manage, grow and collaborate with your team",
+            },        
+            {
+                path: 'submit-ticket',
+                component: SubmitTicketContainerComponent,
+                title: "Submit a Ticket - Reach out to app. administrator for support and feedback",
             },        
         ]
     },

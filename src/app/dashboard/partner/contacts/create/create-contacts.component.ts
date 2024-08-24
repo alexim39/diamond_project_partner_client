@@ -106,7 +106,17 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     this.scrollToTop();
 
     const partnerId = this.partner._id;
-  
+
+    Swal.fire({
+      title: `Ready to import contacts from online prospect list?`,
+      text: "This action may take a while!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, import!"
+    }).then((result) => {
+
       this.subscriptions.push(
         this.contactsService.import(partnerId).subscribe((res: any) => {
   
@@ -145,6 +155,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
           
         })
       )
+    });
   }
 
    // scroll to top when clicked

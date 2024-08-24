@@ -53,6 +53,14 @@ export class ProfileService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
+  // profession update
+  professionUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
+    console.log('form record', dataObject);
+    return this.http
+      .put<ProfileInterface>(this.apiURL + `/partners/update-profession`, dataObject, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
   // username Update 
   usernameUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
     //console.log('form record', dataObject);
