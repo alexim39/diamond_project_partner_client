@@ -35,7 +35,6 @@ export class EmailLogComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);
   @Input() emails!: any;
 
-  isSpinning = false;
   subscriptions: Array<Subscription> = [];
 
   dataSource: Array<any> = [];

@@ -5,16 +5,17 @@ import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import { FormGroup } from '@angular/forms';
 
-export interface CreateTeamInterface {  
+export interface TeamInterface {  
   teamName: string;          // The name of the team  
   description?: string;     // Description or purpose of the team (optional)  
   teamPurpose: string;      // Purpose of the team  
   partnerId: string;
+  createdAt?: any;
 } 
   
 
 @Injectable()
-export class CreateTeamService {
+export class TeamService {
   // Define API
   //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   //apiURL = 'http://localhost:3000';
@@ -49,13 +50,20 @@ export class CreateTeamService {
     });
   }
 
-// create team
-createTeam(teamObject: FormGroup): Observable<CreateTeamInterface> {
-  //console.log('record', teamObject);
-  return this.http
-    .post<CreateTeamInterface>(this.apiURL + `/team/create/`, teamObject, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
-}
+  // create team
+  createTeam(teamObject: FormGroup): Observable<TeamInterface> {
+    //console.log('record', teamObject);
+    return this.http
+      .post<TeamInterface>(this.apiURL + `/team/create/`, teamObject, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+   // get createdby
+   getAllTeamsBy(id: string): Observable<Array<TeamInterface>> {
+    return this.http
+      .get<Array<TeamInterface>>(this.apiURL + `/team/all-createdBy/${id}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
 
 
    

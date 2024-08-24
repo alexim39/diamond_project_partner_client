@@ -26,6 +26,7 @@ import { SearchResultContainerComponent } from "./index/search/search-result/sea
 import { MentorsProgramContainerComponent } from "./mentorship/mentors-program/mentors-program-container.component";
 import { SubmitTicketContainerComponent } from "./help-feedback/submit-ticket/submit-ticket-container.component";
 import { CreateTeamContainerComponent } from "./mentorship/team/create-team/create-team-container.component";
+import { ManageTeamContainerComponent } from "./mentorship/team/manage-team/manage-team-container.component";
 
 
 
@@ -96,11 +97,11 @@ export const dashboardRoutes: Routes = [
                 component: CreateTeamContainerComponent,
                 title: "Create Team - Create new team of partners",
             },        
-            /*{
-                path: 'add-members',
-                component: AddMembersContainerComponent,
-                title: "Add Team Members",
-            },    */     
+            {
+                path: 'manage-team',
+                component: ManageTeamContainerComponent,
+                title: "Manage Team - Manage list of created partners team",
+            },        
             {
                 path: 'create-contacts',
                 component: CreateContactsContainerComponent,
