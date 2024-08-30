@@ -5,10 +5,10 @@
           <div class="username">&#64;{{searchPartner.username}}</div>
         </div>  
         <div class="profile-info">  
-          <h1>{{searchPartner.name | titlecase}} {{searchPartner.surname | titlecase}}</h1>  
+          <h1>{{searchPartner.name | titlecase}} {{searchPartner.surname | titlecase}} <span *ngIf="isYou" style="font-size: 12px; color: gray">(Me)</span></h1>  
           <p class="bio">  
-            {{ searchPartner.jobTitle ? (searchPartner.jobTitle | titlecase) : 'No Job Title' }}   
-            | {{ searchPartner.skill ? (searchPartner.skill | titlecase) : 'No Skill' }}   
+            {{ searchPartner.jobTitle ? (searchPartner.jobTitle ) : 'No Job Title' }}   
+            | {{ searchPartner.skill ? (searchPartner.skill ) : 'No Skill' }}   
             | {{ searchPartner.hobby ? (searchPartner.hobby | titlecase) : 'No Hobby' }}  
           </p>  
           <div class="social-buttons">  
