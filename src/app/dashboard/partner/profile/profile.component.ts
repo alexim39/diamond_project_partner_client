@@ -2,7 +2,6 @@ import {Component, Input, OnInit} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
-import { environment } from '../../../../environments/environment';
 
 /**
  * @title Profile
@@ -15,8 +14,11 @@ import { environment } from '../../../../environments/environment';
   imports: [MatButtonModule, CommonModule],
 })
 export class ProfileComponent implements OnInit {
+    // Define API
+    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+    //apiURL = 'http://localhost:3000';
+
   @Input() partner!: PartnerInterface;
-  private apiURL: string = environment.apiUrl; 
 
   profilePictureUrl = "./img/default_pp.png"
 

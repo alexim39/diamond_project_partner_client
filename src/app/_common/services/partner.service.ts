@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';  
 
 export interface PartnerInterface {
   _id: string;
@@ -31,10 +30,9 @@ export interface PartnerInterface {
 @Injectable()
 export class PartnerService {
   // Define API
-  //apiURL = 'https://asynctrainingapi5-70vtakyj.b4a.run';
+  apiURL = 'https://asynctrainingapi5-70vtakyj.b4a.run';
   //apiURL = 'http://localhost:3000';
 
-  private apiURL: string = environment.apiUrl; 
 
   constructor(private http: HttpClient) {}
   /*========================================

@@ -7,7 +7,6 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { map, startWith } from 'rxjs/operators';  
 import { Observable } from 'rxjs';  
 import { PartnerInterface } from '../../../../_common/services/partner.service';  
-import { environment } from '../../../../../environments/environment';  
 import { Router } from '@angular/router';
 
 @Component({  
@@ -83,11 +82,12 @@ import { Router } from '@angular/router';
     `,  
 })  
 export class IndexSearchComponent implements OnInit {  
+  // Define API
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
 
     @Input() partner!: PartnerInterface;  
     @Input() partners!: Array<PartnerInterface>;  
-
-    apiURL: string = environment.apiUrl;  
 
     partnerCtrl = new FormControl('');  
     filteredPartners: Observable<PartnerInterface[]>;  
