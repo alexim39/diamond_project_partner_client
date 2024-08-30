@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { environment } from '../../../../environments/environment';
 
 export interface ProfileInterface {
   id: string;
@@ -12,10 +11,9 @@ export interface ProfileInterface {
 @Injectable()
 export class ProfileService {
   // Define API
-  //api = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //api = 'http://localhost:3000';
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
 
-  private apiURL: string = environment.apiUrl; 
 
   constructor(private http: HttpClient) {}
   /*========================================

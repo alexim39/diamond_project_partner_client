@@ -9,7 +9,6 @@ import { Observable, Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { ActivatedRoute } from '@angular/router';
 import { SearchService } from '../search.service';
-import { environment } from '../../../../../../environments/environment';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import Swal from 'sweetalert2';
@@ -24,12 +23,14 @@ import Swal from 'sweetalert2';
     styleUrls: ['search-result.component.scss'],  
 })  
 export class SearchResultComponent implements OnInit, OnDestroy {
+  // Define API
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
 
     @Input() searchPartner!: PartnerInterface;
 
     partner!: PartnerInterface;
     subscriptions: Subscription[] = [];
-    apiURL: string = environment.apiUrl; 
 
     isYou = false;
 

@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { environment } from '../../../../../environments/environment';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 
@@ -51,10 +50,13 @@ import Swal from 'sweetalert2';
   `
 })
 export class ProfilePictureUploadComponent {
+    // Define API
+    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+    //apiURL = 'http://localhost:3000';
+
   selectedFile: File | null = null;
   profilePictureUrl: string | ArrayBuffer | null = null;
 
-  private apiURL: string = environment.apiUrl; 
   @Input() partner!: PartnerInterface;
 
   constructor(private http: HttpClient) {}

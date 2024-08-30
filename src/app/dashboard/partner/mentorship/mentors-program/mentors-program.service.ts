@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { environment } from '../../../../../environments/environment';
 
 export interface MentorsProgramInterface {
   message: string;
@@ -13,10 +12,9 @@ export interface MentorsProgramInterface {
 @Injectable()
 export class MentorsProgramService {
   // Define API
-  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   //apiURL = 'http://localhost:3000';
 
-  private apiURL: string = environment.apiUrl; 
 
   
   constructor(private http: HttpClient) {}

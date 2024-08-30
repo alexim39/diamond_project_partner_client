@@ -2,7 +2,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, retry, throwError } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 
 
 export interface TransactionInterface {
@@ -21,10 +20,9 @@ export interface TransactionInterface {
 })
 export class PaystackService {
   // Define API
-  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   //apiURL = 'http://localhost:3000';
 
-  private apiURL: string = environment.apiUrl; 
 
   constructor(private http: HttpClient) {}
   /*========================================
