@@ -31,6 +31,8 @@ export class SearchResultComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
     apiURL: string = environment.apiUrl; 
 
+    isYou = false;
+
     isFollowing: boolean = false; // Track the follow status
 
     constructor(
@@ -56,16 +58,22 @@ export class SearchResultComponent implements OnInit, OnDestroy {
 
         // Initialize with the actual follow status from the server
         this.checkFollowStatus();
+        
     }
 
     checkFollowStatus() {
         this.subscriptions.push(
             this.searchService.checkFollowStatus(this.partner._id, this.searchPartner._id).subscribe((status: any) => {
                 this.isFollowing = status.isFollowing;
+                if (this.partner._id === this.searchPartner._id) {
+                    this.isYou = true;
+                } else {
+                    this.isYou = false;
+                }
             }, (error: any) => {
                 console.error('Error checking follow status:', error);
             })
-        )
+        ) 
     }
 
     follow() {
