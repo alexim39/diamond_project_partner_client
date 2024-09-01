@@ -27,6 +27,7 @@ import { MentorsProgramContainerComponent } from "./mentorship/mentors-program/m
 import { SubmitTicketContainerComponent } from "./help-feedback/submit-ticket/submit-ticket-container.component";
 import { CreateTeamContainerComponent } from "./mentorship/team/create-team/create-team-container.component";
 import { ManageTeamContainerComponent } from "./mentorship/team/manage-team/manage-team-container.component";
+import { CheckoutComponent } from "./monthly-purchase/checkout/checkout.component";
 
 
 
@@ -171,7 +172,11 @@ export const dashboardRoutes: Routes = [
                 path: 'submit-ticket',
                 component: SubmitTicketContainerComponent,
                 title: "Submit a Ticket - Reach out to app. administrator for support and feedback",
-            },        
+            },   
+            { path: 'checkout', 
+                component: CheckoutComponent,
+                title: "Monthly Purchase - Checkout summary",
+            },     
         ]
     },
 ]
