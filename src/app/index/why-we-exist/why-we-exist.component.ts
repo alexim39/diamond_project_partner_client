@@ -15,14 +15,14 @@ import { CommonModule } from '@angular/common';
       <div>
 
         <span class="mark">
-          <strong>Manage Your Business: </strong>You can manage, monitor and grow your business on our partners platform
+          <strong>Manage Your Business: </strong>You can manage, monitor, and expand your business using this partner's platform. All activities are now automated and easy to track
           <!-- <div class="more">
             <a routerLink="cab-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
           </div> -->
         </span>
 
         <span class="mark">
-          <strong>Run Your Business: </strong>Running your business is now a computer a smart phone away from you
+          <strong>Run Your Business: </strong>Running your business is now a smartphone or computer away. This platform can handle your business operations while you focus on your other life activities.
           <!-- <div class="more">
             <a routerLink="courier-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
           </div> -->
