@@ -30,7 +30,7 @@ export interface PartnerInterface {
 @Injectable()
 export class PartnerService {
   // Define API
-  apiURL = 'https://asynctrainingapi5-70vtakyj.b4a.run';
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   //apiURL = 'http://localhost:3000';
 
 

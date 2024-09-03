@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   title: "Production Environment Variables",
-  apiUrl: 'https://asynctrainingapi5-70vtakyj.b4a.run'
+  apiUrl: 'https://diamondprojectapi-y6u04o8b.b4a.run/'
 };
