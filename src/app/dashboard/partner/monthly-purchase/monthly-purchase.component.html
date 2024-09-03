@@ -32,7 +32,7 @@
                     <h3>{{product.name | titlecase}}</h3>
                     <p>{{product.price | currency:'₦':'symbol':'1.0-0' }}</p>
                     <button mat-flat-button (click)="openDialog(product)">Learn more</button>
-                    <button mat-flat-button (click)="addToCart(product)">Add to Cart</button>
+                    <button mat-flat-button (click)="addToCart(product)" [disabled]="selectedProducts.has(product._id)">Add to Cart</button>
                 </div>
             </div>
         </section>

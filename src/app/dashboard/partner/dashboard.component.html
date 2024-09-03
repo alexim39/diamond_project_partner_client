@@ -75,7 +75,7 @@
       </div>
 
 
-      <a mat-list-item (click)="toggleSubmenu('dailyActivity')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <!-- <a mat-list-item (click)="toggleSubmenu('dailyActivity')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>engineering</mat-icon> 
           <span>Challenges</span>
@@ -84,17 +84,17 @@
       <div [@submenuToggle]="isSubmenuOpen('dailyActivity') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Current Challenge">
           Current Challenge 
-          <!-- Challenge of the Day: A new challenge is posted daily (e.g., "Share your link on Twitter with a personal story"). -->
+          Challenge of the Day: A new challenge is posted daily (e.g., "Share your link on Twitter with a personal story").
         </a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Challenge Tracking">
           Challenge Tracking
-          <!-- Users can see which challenges they’ve completed and the rewards they’ve earned. -->
+          Users can see which challenges they’ve completed and the rewards they’ve earned.
         </a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Submit Proof">
           Submit Proof
-          <!--  Members can submit proof (e.g., screenshots) of challenge completion to earn points or badges. -->
+           Members can submit proof (e.g., screenshots) of challenge completion to earn points or badges.
         </a>
-      </div>
+      </div> -->
 
 
       <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -109,7 +109,7 @@
       </div>
 
 
-      <a mat-list-item (click)="toggleSubmenu('achievements')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+     <!--  <a mat-list-item (click)="toggleSubmenu('achievements')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>hotel_class</mat-icon> 
           <span>Achievements</span>
@@ -118,17 +118,17 @@
       <div [@submenuToggle]="isSubmenuOpen('achievements') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Badges & Levels">
           Badges & Levels
-          <!-- Lists all achievable badges, their requirements, and the user’s progress toward earning them. -->
+          Lists all achievable badges, their requirements, and the user’s progress toward earning them.
         </a>
         <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Leaderboards">
           Leaderboards
-          <!-- Displays rankings of top-performing members based on various criteria (e.g., most clicks, highest earnings). -->
+          Displays rankings of top-performing members based on various criteria (e.g., most clicks, highest earnings).
         </a>
         <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"  title="Milestone Tracker">
           Milestone Tracker
-          <!-- Visual representation of progress toward major milestones (e.g., first 100 leads, first $1,000 earned). -->
+          Visual representation of progress toward major milestones (e.g., first 100 leads, first $1,000 earned).
         </a>
-      </div>
+      </div> -->
 
 
       <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -192,7 +192,7 @@
       </div>
 
     
-      <a mat-list-item (click)="toggleSubmenu('community')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+<!--       <a mat-list-item (click)="toggleSubmenu('community')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>groups</mat-icon> 
           <span>Community</span>
@@ -201,19 +201,19 @@
       <div [@submenuToggle]="isSubmenuOpen('community') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Forums">
           Forums
-          <!--  Access to discussion boards where members can ask questions, share experiences, and support one another. -->
+           Access to discussion boards where members can ask questions, share experiences, and support one another.
         </a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Success Stories">
           Success Stories
-          <!-- : Features interviews or case studies of top performers, highlighting their journey and tips for success. -->
+          : Features interviews or case studies of top performers, highlighting their journey and tips for success.
         </a>
         <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Group Chats">
           Group Chats
-          <!-- : Real-time chat rooms for different topics, allowing members to connect instantly. -->
+          : Real-time chat rooms for different topics, allowing members to connect instantly.
         </a>
-      </div>
+      </div> -->
     
-      <a mat-list-item (click)="toggleSubmenu('wibinarsEvents')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+<!--       <a mat-list-item (click)="toggleSubmenu('wibinarsEvents')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>event_note</mat-icon> 
           <span>Webinar & Event</span>
@@ -222,24 +222,24 @@
       <div [@submenuToggle]="isSubmenuOpen('wibinarsEvents') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Webinars & Live Sessions">
           Live Sessions
-          <!-- Calendar and registration for upcoming live webinars, plus access to recordings of past sessions. -->
+          Calendar and registration for upcoming live webinars, plus access to recordings of past sessions.
         </a>
         <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Upcoming Events">
           Upcoming Event
-          <!-- 
+          
           A calendar view of all upcoming webinars, training sessions, and live events.  
           Option to set reminders or sync events with personal calendars.
-           -->
+          
         </a>
         <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Register for Events">
           Register for Event
-          <!-- Allows members to register for events directly through the platform.  -->
+          Allows members to register for events directly through the platform. 
         </a>
         <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Event Archives">
           Event Archives
-          <!-- Access to recordings and materials from past events, categorized by topic.  -->
+          Access to recordings and materials from past events, categorized by topic. 
         </a>
-      </div>
+      </div> -->
 
       <a mat-list-item (click)="toggleSubmenu('settings')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>

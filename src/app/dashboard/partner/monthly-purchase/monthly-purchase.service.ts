@@ -24,8 +24,8 @@ export interface ProductObjectInterface {
 export class ProductService {
 
   // Define API
-  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  apiURL = 'http://localhost:3000';
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //apiURL = 'http://localhost:3000';
 
 
   constructor(private http: HttpClient) {}
