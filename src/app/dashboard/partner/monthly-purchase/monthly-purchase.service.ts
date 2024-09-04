@@ -24,8 +24,8 @@ export interface ProductObjectInterface {
 export class ProductService {
 
   // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  apiURL = 'http://localhost:3000';
 
 
   constructor(private http: HttpClient) {}
@@ -62,6 +62,13 @@ export class ProductService {
     return this.http
       .get<ProductObjectInterface>(this.apiURL + `/products/getAll`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
+  }
+
+  checkout(cart: any): Observable<ProductInterface[]> {
+  //console.log('record', cart);
+  return this.http
+    .post<ProductInterface[]>(this.apiURL + `/products/cart`, cart, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
   }
    
 }

@@ -28,6 +28,7 @@ import { SubmitTicketContainerComponent } from "./help-feedback/submit-ticket/su
 import { CreateTeamContainerComponent } from "./mentorship/team/create-team/create-team-container.component";
 import { ManageTeamContainerComponent } from "./mentorship/team/manage-team/manage-team-container.component";
 import { CheckoutComponent } from "./monthly-purchase/checkout/checkout.component";
+import { PurchaseContainerComponent } from "./monthly-purchase/purchases/purchases-container.component";
 
 
 
@@ -176,6 +177,10 @@ export const dashboardRoutes: Routes = [
             { path: 'checkout', 
                 component: CheckoutComponent,
                 title: "Monthly Purchase - Checkout summary",
+            },     
+            { path: 'purchases', 
+                component: PurchaseContainerComponent,
+                title: "Purchase - List of purchase history",
             },     
         ]
     },

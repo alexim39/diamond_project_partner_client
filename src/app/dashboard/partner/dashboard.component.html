@@ -105,7 +105,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('activities') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Order Products">Order Products</a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Purchases">Purchases</a>
+        <a mat-list-item routerLink="purchases" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Purchases">Purchases</a>
       </div>
 
 
@@ -248,7 +248,7 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('settings') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Account settings">Account Settings</a>
+        <a mat-list-item routerLink="profile-mgr" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Account settings">Account Settings</a>
         <a mat-list-item routerLink="billing" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Billing">Billing</a>
       </div>
       

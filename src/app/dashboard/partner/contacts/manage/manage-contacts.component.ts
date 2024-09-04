@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -31,12 +31,11 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
   imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
     MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule],
 })
-export class ManageContactsComponent implements OnInit, OnDestroy {
+export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
   @Input() prospectContact!: ContactsInterface;
 
-  isSpinning = false;
   subscriptions: Array<Subscription> = [];
 
   dataSource = new MatTableDataSource<any>([]);  

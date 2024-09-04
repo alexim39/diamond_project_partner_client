@@ -130,7 +130,6 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
         })
       })
     )
-   
    }
 
    updateProspectRemark() {
