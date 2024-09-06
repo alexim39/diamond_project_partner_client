@@ -1,0 +1,57 @@
+<section class="async-background">
+    <h2>Ordered Products List</h2>
+  
+    <section class="async-container">
+      <div class="title">
+        <h3>Your Ordered Productst</h3>
+        <div class="fund-area">
+          <a 
+            mat-raised-button 
+            routerLink="../monthly-purchase" 
+            routerLinkActive="active" 
+            [routerLinkActiveOptions]="{exact: true}" 
+            (click)="scrollToTop()" 
+            aria-label="Create New"
+          >
+            <mat-icon>add</mat-icon>New Order
+          </a>
+        </div>
+      </div>
+  
+      <ng-container *ngIf="!isEmptyRecord">
+
+        <section class="cart">  
+            <div class="container">  
+                <!-- <h1 class="cart-title">Your Ordered Products</h1>   -->
+        
+                <div class="cart-items">   
+                    <div *ngFor="let cart of cartObject" class="cart-item">   
+                        <h3 class="status">Order Status: {{cart.orderStatus}}</h3>   
+                          
+        
+                        <div class="products">   
+                            <div *ngFor="let product of cart.products" class="product-card">   
+                                <img src="/img/products/{{ product.product.img }}.PNG" alt="{{ product.product.name | titlecase }}" class="product-image">   
+                                <div class="product-details">  
+                                    <h3 class="product-name">{{ product.product.name | titlecase }}</h3>   
+                                    <div class="product-price">Price: {{ product.product.price | currency:'₦':'symbol':'1.0-0' }}</div>   
+                                    <div class="product-quantity">Quantity: {{ product.quantity ?? 0 }}</div>   
+                                </div>  
+                            </div>   
+                        </div> 
+                        
+                        <h3 class="total-cost">Total Cost: {{ cart.totalCost | currency:'₦':'symbol':'1.0-0' }}</h3> 
+                    </div>   
+                </div>  
+            </div>  
+        </section>
+
+
+      </ng-container>
+      
+      <ng-container *ngIf="isEmptyRecord">
+        <p class="no-campaign">No product available yet</p>
+      </ng-container>
+    </section>
+  </section>
+  
