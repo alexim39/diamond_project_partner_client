@@ -7,17 +7,26 @@
                 <div class="back" (click)="back()" title="Back">
                     <mat-icon>arrow_back</mat-icon>
                 </div>
-                <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
                 <h3>Product Cart</h3>
             </div>
             
-            <!-- <div class="fund-area">
-                <a mat-list-item title="Checkout" mat-raised-button><mat-icon>payments</mat-icon>Pay</a>
+            <div class="fund-area">
+             <!--  <a 
+              mat-raised-button 
+              routerLink="../monthly-purchase" 
+              routerLinkActive="active" 
+              [routerLinkActiveOptions]="{exact: true}" 
+              (click)="scrollToTop()" 
+              aria-label="Create New"
+            >
+              <mat-icon>shopping_cart_checkout</mat-icon>New Order
+            </a>
+ -->
 
-                <div class="fund">
+                <!-- <div class="fund">
                     <span>Cost: {{currentCost | currency:'₦':'symbol':'1.2-2'}}</span>
-                </div>
-            </div> -->
+                </div> -->
+            </div>
         </div>
 
 
@@ -55,8 +64,6 @@
                 </div>
             </section>
               
-              
-           
         </section>
 
     </section>

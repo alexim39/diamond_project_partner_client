@@ -5,24 +5,24 @@ import { PartnerInterface, PartnerService } from '../../../../_common/services/p
 import { ProductInterface, ProductObjectInterface, ProductService } from '../monthly-purchase.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { PurchasesComponent } from './purchases.component';
 
 /**
  * @title Basic icons
  */
 @Component({
-  selector: 'async-purchase-container',
+  selector: 'async-purchases-container',
   template: `
-  show
-    <!-- <async-monthly-purchase *ngIf="productsObject" [productsObject]="productsObject"></async-monthly-purchase> -->
+    <async-purchases *ngIf="cartObject" [cartObject]="cartObject"></async-purchases>
   `,
   standalone: true,
   providers: [ProductService],
-  imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule],
+  imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule, PurchasesComponent],
 })
 export class PurchaseContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
-  productsObject!: ProductObjectInterface;
+  cartObject!: any;
   subscriptions: Subscription[] = [];
 
   constructor(
@@ -39,9 +39,9 @@ export class PurchaseContainerComponent implements OnInit, OnDestroy {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.productService.getAllProducts().subscribe((productsObject: ProductObjectInterface) => {
-              this.productsObject = productsObject;
-              //console.log('product ',productsObject)
+            this.productService.getAllOrderBy(this.partner._id).subscribe((cartObject: ProductObjectInterface) => {
+              this.cartObject = cartObject;
+              //console.log('product ',cartObject)
             })
           }
         },

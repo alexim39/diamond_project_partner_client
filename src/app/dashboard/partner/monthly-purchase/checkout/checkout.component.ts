@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { GetProductService } from '../get-product.service';
 import { FormsModule } from '@angular/forms';
 import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
@@ -17,7 +17,7 @@ import { PartnerInterface, PartnerService } from '../../../../_common/services/p
   styleUrls: ['./checkout.component.scss'],
   standalone: true,
   providers: [ProductService],
-  imports: [MatIconModule, CommonModule, TruncatePipe, MatButtonModule, FormsModule, MatButtonModule]
+  imports: [MatIconModule, CommonModule, RouterModule, TruncatePipe, MatButtonModule, FormsModule, MatButtonModule]
 })
 export class CheckoutComponent implements OnInit, OnDestroy  {
     cart: ProductInterface[] = [];
@@ -53,6 +53,11 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
           }
         )
       )
+    }
+
+    // Scroll to top when clicked
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     updateCurrentCost(): void {

@@ -42,197 +42,82 @@
 }
 
 
-.main {
-    padding: 20px;
 
 
-    .cart-container {
-        padding: 20px;
-        max-width: 800px;
-        margin: 0 auto;
-        background: #f9f9f9;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-    
-        .cart-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    
-            &-image img {
-                width: 100px;
-                height: auto;
-                border-radius: 8px;
-                margin-right: 20px;
-            }
-    
-            &-details {
-                flex: 1;
-    
-                h3 {
-                    margin: 0;
-                    font-size: 18px;
-                }
-    
-                .description {
-                    color: #666;
-                    font-size: 14px;
-                    margin-bottom: 10px;
-                }
-    
-                .price-quantity {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-    
-                    .price {
-                        font-weight: bold;
-                        font-size: 16px;
-                    }
-    
-                    .quantity-selector {
-                        display: flex;
-                        align-items: center;
-    
-                        input {
-                            width: 50px;
-                            text-align: center;
-                            margin: 0 5px;
-                            border: 1px solid #ccc;
-                            border-radius: 4px;
-                        }
-    
-                        button {
-                            border: none;
-                            background: #eee;
-                            cursor: pointer;
-                            padding: 5px;
-                            border-radius: 4px;
-                            font-size: 18px;
-    
-                            &:hover {
-                                background: #ddd;
-                            }
-                        }
-                    }
-                }
-            }
-    
-            &-subtotal {
-                text-align: right;
-                font-weight: bold;
-                font-size: 16px;
-            }
-        }
-    
-        .cart-summary {
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-top: 20px;
-    
-            h3 {
-                margin-bottom: 15px;
-                font-size: 20px;
-            }
-    
-            .summary-item {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 10px;
-                font-size: 16px;
-    
-                &:last-child {
-                    font-size: 18px;
-                    font-weight: bold;
-                }
-            }
-    
-            button {
-                margin-top: 20px;
-                width: 100%;
-                padding: 10px;
-                font-size: 16px;
-                border-radius: 8px;
-            }
-        }
-    }
-    
+$primary-color: #4d90fe;  
+$secondary-color: #fff;  
+$border-color: #ddd;  
+$hover-shadow: rgba(0, 0, 0, 0.1);  
+$font-color: rgb(224, 149, 9);  
+$border-radius: 8px;  
 
-    
+.cart {  
+    padding: 20px;  
+
+    h2 {  
+        text-align: center;  
+        margin-bottom: 20px;  
+    }  
+
+    .cart-items {  
+        display: grid;  
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));  
+        gap: 20px;  
+
+        @media (max-width: 768px) {  
+            grid-template-columns: 1fr; // Stacks items on smaller screens  
+        }  
+    }  
+
+    .cart-item {  
+        display: flex;  
+        flex-direction: column;  
+        border: 1px solid $border-color;  
+        border-radius: $border-radius;  
+        padding: 10px;  
+        background-color: $secondary-color;  
+        box-shadow: 0 2px 4px $hover-shadow;  
+        transition: box-shadow 0.2s;  
+
+        &:hover {  
+            box-shadow: 0 4px 8px $hover-shadow;  
+        }  
+
+        .product-img {  
+            width: 100%;  
+            height: auto;  
+            border-radius: $border-radius;  
+        }  
+
+        .item-details {  
+            display: flex;  
+            flex-direction: column;  
+            align-items: flex-start;  
+            margin-top: 10px;  
+        }  
+
+        .item-actions {  
+            margin-top: 10px;  
+            display: flex;  
+            gap: 10px;  
+
+            button {  
+                margin: 5px;  
+            }  
+        }  
+    }  
+
+    .cart-summary {  
+        margin-top: 20px;  
+        text-align: center;  
+    }  
+
+    .cart-empty {  
+        text-align: center;  
+
+        p {  
+            font-weight: bolder;  
+            color: $font-color;  
+        }  
+    }  
 }
-
-
-
-.cart {
-    padding: 20px;
-  }
-  
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .cart-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-  }
-  
-  .cart-item {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .product-img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-  
-  .item-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-top: 10px;
-  }
-  
-  .item-actions {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-  }
-  
-  .cart-summary {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  button {
-    margin: 5px;
-  }
-  
-  .cart-empty {
-    text-align: center;
-    p {
-        font-weight: bolder;
-        color: rgb(224, 149, 9);
-    }
-  }

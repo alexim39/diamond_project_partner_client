@@ -70,5 +70,13 @@ export class ProductService {
     .post<ProductInterface[]>(this.apiURL + `/products/cart`, cart, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
   }
+
+   // get all products ordered by
+   getAllOrderBy(partnerId: string): Observable<ProductObjectInterface> {
+    //console.log('record', id);
+    return this.http
+      .get<ProductObjectInterface>(this.apiURL + `/products/getAllOrderBy/${partnerId}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
    
 }
