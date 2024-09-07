@@ -29,6 +29,7 @@ import { CreateTeamContainerComponent } from "./mentorship/team/create-team/crea
 import { ManageTeamContainerComponent } from "./mentorship/team/manage-team/manage-team-container.component";
 import { CheckoutComponent } from "./monthly-purchase/checkout/checkout.component";
 import { PurchaseContainerComponent } from "./monthly-purchase/purchases/purchases-container.component";
+import { ResourceDownloadContainerComponent } from "./training-resource/resource-download/resource-download-container.component";
 
 
 
@@ -181,6 +182,10 @@ export const dashboardRoutes: Routes = [
             { path: 'purchases', 
                 component: PurchaseContainerComponent,
                 title: "Purchase - List of purchase history",
+            },     
+            { path: 'resource-download', 
+                component: ResourceDownloadContainerComponent,
+                title: "Training Resource Download - Access training resources",
             },     
         ]
     },

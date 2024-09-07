@@ -2,12 +2,12 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import { MonthlyPurchaseComponent } from './monthly-purchase.component';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
-import { ProductInterface, ProductObjectInterface, ProductService } from './monthly-purchase.service';
+import { ProductObjectInterface, ProductService } from './monthly-purchase.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 /**
- * @title Basic icons
+ * @title Monthly purchase container
  */
 @Component({
   selector: 'async-monthly-purchase-container',
