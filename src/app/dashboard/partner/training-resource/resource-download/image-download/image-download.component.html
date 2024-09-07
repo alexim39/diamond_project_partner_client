@@ -1,0 +1,33 @@
+<div class="wrapper">
+    <section class="content-header">
+      <h1>Social Media Image Templates</h1>
+      <h6>Download the image templates below to start posting your Ads</h6>
+    </section>
+    
+    <section class="filter-search">
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Select Platform</mat-label>
+          <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="onPlatformChange()">
+            <mat-option *ngFor="let platform of platforms" [value]="platform">{{ platform }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="template-list">
+      <div class="template-item" *ngFor="let template of filteredTemplates">
+        <div class="template-image" style="text-align: center;">
+          <img [src]="template.imageUrl" [alt]="template.title" style="width: 17em; height: 20em;">
+          <button mat-raised-button color="primary" (click)="downloadImage(template.imageUrl, template.title)" style="margin-top: 10px;">
+            <mat-icon>file_download</mat-icon> Download Image</button>
+        </div>
+      </div>
+    </section>
+
+  
+    <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()">
+      <mat-icon>arrow_upward</mat-icon>
+    </button>
+  </div>
+

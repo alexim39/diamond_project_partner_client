@@ -155,40 +155,41 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('training') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Video Tutorials">
+        <!-- <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Video Tutorials">
           Video Tutorials
-          <!-- A library of instructional videos covering topics such as marketing strategies, content creation, and platform navigation. -->
-        </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="eBooks & Guides">
+
+          A library of instructional videos covering topics such as marketing strategies, content creation, and platform navigation.
+        </a> -->
+        <!-- <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="eBooks & Guides">
           eBooks & Guides
-          <!-- 
+          
            A collection of articles, eBooks, and step-by-step guides on various topics related to digital marketing and network marketing.
            Best Practices: Curated tips and tricks from successful members or industry experts. 
-          -->
-        </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Resource Downloads">
+         
+        </a> -->
+        <a mat-list-item routerLink="resource-download" routerLinkActive="active" (click)="scrollToTop()" title="Resource Downloads">
           Resource Downloads
           <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
         </a>
-        <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Content Creation & Sharing">Content Creation & Sharing</a>
+        <!-- <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Content Creation & Sharing">Content Creation & Sharing</a>
         <div [@submenuToggle]="isSubSubmenuOpen('content-creatioin') ? 'open' : 'closed'" class="subsubmenu">
           <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Blog & Article Writing">
             Blog & Article Writing
-            <!-- Provides templates and SEO tips for writing blog posts or articles. -->
+            Provides templates and SEO tips for writing blog posts or articles.
           </a>
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Video Creatioin Tools">
             Video Creatioin Tools
-            <!-- Tips and resources for creating video content, including script templates and editing software recommendations. -->
+            Tips and resources for creating video content, including script templates and editing software recommendations.
           </a>
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Social Media Sharing">
             Social Media Sharing
-            <!-- Direct sharing options and suggested posts for various social media platforms. -->
+            Direct sharing options and suggested posts for various social media platforms.
           </a>
           <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="User Generated Contents">
             User Generated Content
-            <!-- A gallery where members can view and get inspiration from content created by others. -->
+            A gallery where members can view and get inspiration from content created by others.
           </a>
-        </div>
+        </div> -->
       </div>
 
     
