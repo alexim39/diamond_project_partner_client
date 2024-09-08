@@ -58,7 +58,7 @@ export class TextDownloadComponent {
   } */
 
     copyContent(template: { description: string; }): void {
-      const partnerLink = `Visit https://diamondprojectonline/${this.partner.username} to get started`;
+      const partnerLink = `Visit https://diamondprojectonline.com/${this.partner.username} to get started`;
       const fullContent = `${template.description}\n\n${partnerLink}`;
       
       navigator.clipboard.writeText(fullContent).then(() => {
