@@ -17,7 +17,7 @@
 
     <section class="template-list">
       <div class="template-item" *ngFor="let template of filteredTemplates">
-        <div class="template-image" style="text-align: center;">
+        <div class="template-image">
           <img [src]="template.imageUrl" [alt]="template.title" style="width: 17em; height: 20em;">
           <button mat-raised-button color="primary" (click)="downloadImage(template.imageUrl, template.title)" style="margin-top: 10px;">
             <mat-icon>file_download</mat-icon> Download Image</button>
