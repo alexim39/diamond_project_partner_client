@@ -99,6 +99,7 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
                     icon: 'success',
                     text: 'Your bulk SMS has been sent successfully',
                     showConfirmButton: true,
+                    confirmButtonColor: "#ffab40",
                     timer: 15000,
                   })
           

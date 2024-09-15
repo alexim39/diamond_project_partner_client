@@ -116,6 +116,7 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
             icon: 'success',
             text: `Your have successfully ordered your products`,
             showConfirmButton: true,
+            confirmButtonColor: "#ffab40",
             timer: 15000,
           })
 

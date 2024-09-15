@@ -30,6 +30,7 @@ import { ManageTeamContainerComponent } from "./mentorship/team/manage-team/mana
 import { CheckoutComponent } from "./monthly-purchase/checkout/checkout.component";
 import { PurchaseContainerComponent } from "./monthly-purchase/purchases/purchases-container.component";
 import { ResourceDownloadContainerComponent } from "./training-resource/resource-download/resource-download-container.component";
+import { EditTeamContainerComponent } from "./mentorship/team/edit-team/edit-team-container.component";
 
 
 
@@ -114,6 +115,11 @@ export const dashboardRoutes: Routes = [
                 path: 'edit-contacts/:id',
                 component: EditContactsContainerComponent,
                 title: "Edit Contacts Details",
+            },        
+            {
+                path: 'edit-team/:id',
+                component: EditTeamContainerComponent,
+                title: "Edit Team Details",
             },        
             {
                 path: 'manage-contacts',

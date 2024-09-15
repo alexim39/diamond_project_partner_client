@@ -89,6 +89,7 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
                     icon: 'success',
                     text: 'Your bulk Email has been sent successfully',
                     showConfirmButton: true,
+                    confirmButtonColor: "#ffab40",
                     timer: 15000,
                   })
           

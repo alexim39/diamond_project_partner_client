@@ -67,6 +67,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
             icon: 'success',
             text: 'Your contact has been created successfully',
             showConfirmButton: true,
+            confirmButtonColor: "#ffab40",
             timer: 15000,
           })
   
@@ -126,6 +127,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
             text: `Your have successfully imported ${res.data.numberOfImports} contact(s)`,
             showConfirmButton: true,
             confirmButtonText: "View Contacts",
+            confirmButtonColor: "#ffab40",
             timer: 15000,
           }).then((result) => {
             if (result.isConfirmed) {

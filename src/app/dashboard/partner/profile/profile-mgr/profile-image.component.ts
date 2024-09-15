@@ -89,6 +89,7 @@ export class ProfilePictureUploadComponent {
           icon: 'success',
           text: 'Your profile image has been updated successfully',
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         }).then((result) => {
           if (result.isConfirmed) {

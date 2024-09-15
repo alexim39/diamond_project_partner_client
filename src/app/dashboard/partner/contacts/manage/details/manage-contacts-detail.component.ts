@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatListModule} from '@angular/material/list';
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
 import Swal from 'sweetalert2';
@@ -116,6 +116,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           icon: 'success',
           text: `Your have successfully updated prospect status`,
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })
   
@@ -155,6 +156,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           icon: 'success',
           text: `Your have successfully updated remark on for prospect`,
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })
   
@@ -195,6 +197,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
               icon: 'success',
               text: `Your have successfully deleted  ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}`,
               showConfirmButton: true,
+              confirmButtonColor: "#ffab40",
               timer: 15000,
             }).then((result) => {
               if (result.isConfirmed) {

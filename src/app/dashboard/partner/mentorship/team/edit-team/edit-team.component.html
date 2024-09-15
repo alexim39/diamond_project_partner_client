@@ -1,0 +1,80 @@
+<section class="async-background ">
+    <h2>Modify Team <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <div class="title">
+            <div class="control">
+                <div class="back" (click)="back()" title="Back">
+                    <mat-icon>arrow_back</mat-icon>
+                </div>
+                <h3> {{team.teamName | titlecase}}'s Details</h3>
+            </div>
+            <!-- <a mat-raised-button routerLink="../../create-team" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Manage Campaign"><mat-icon>new</mat-icon>Create New</a> -->
+            
+        </div>
+
+
+        <div class="form-container">
+            <form class="flex-form" [formGroup]="createTeamForm" (ngSubmit)="onSubmit()">
+
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Team Name</mat-label>
+                        <input matInput formControlName="teamName" required>
+                        <mat-error *ngIf="createTeamForm.get('teamName')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Description/purpose of the team</mat-label>
+                        <textarea matInput formControlName="description"></textarea>
+                        <!-- <mat-error *ngIf="ticketForm.get('description')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> -->
+                    </mat-form-field>
+                </div>
+
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Team Purpose </mat-label>
+                        <mat-select formControlName="teamPurpose" required>
+                            <mat-option value="Recruitment Team">Recruitment Team</mat-option>
+                            <mat-option value="Training and Development Team">Training and Development Team</mat-option>
+                            <mat-option value="Strategic Planning Team">Strategic Planning Team</mat-option>
+                            <mat-option value="Partner Support Team">Partner Support Team</mat-option>
+                            <mat-option value="Marketing Team">Marketing Team</mat-option>
+                            <mat-option value="Sales Team">Sales Team</mat-option>
+                            <mat-option value="Product Development Team">Product Development Team</mat-option>
+                            <mat-option value="Events Management Team">Events Management Team</mat-option>
+                            <mat-option value="Tech Support Team">Tech Support Team</mat-option>
+                            <mat-option value="Content Creation Team">Content Creation Team</mat-option>
+                            <mat-option value="Compliance and Regulatory Team">Compliance and Regulatory Team</mat-option>
+                            <mat-option value="Innovation Team">Innovation Team</mat-option>
+                            <mat-option value="Recognition and Rewards Team">Recognition and Rewards Team</mat-option>
+                            <mat-option value="Networking Team">Networking Team</mat-option>
+                            <mat-option value="Feedback and Improvement Team">Feedback and Improvement Team</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="createTeamForm.get('teamPurpose')?.hasError('required') ">
+                            This field is required.  
+                        </mat-error> 
+                    </mat-form-field>
+                </div>
+
+
+                <div class="form-group"></div>
+                <div class="form-group"></div>
+                <button mat-raised-button color="primary">Update</button>
+            </form>
+        </div>
+
+
+        
+    </section>
+    
+</section>
