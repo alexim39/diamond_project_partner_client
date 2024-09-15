@@ -15,23 +15,24 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
 import Swal from 'sweetalert2';
-import { TeamService } from '../team.service';
+import { TeamInterface, TeamService } from '../team.service';
 
 /**
  * @title Mentors Program
  */
 @Component({
-  selector: 'async-create-team',
-  templateUrl: 'create-team.component.html',
-  styleUrls: ['create-team.component.scss'],
+  selector: 'async-edit-team',
+  templateUrl: 'edit-team.component.html',
+  styleUrls: ['edit-team.component.scss'],
   standalone: true,
   providers: [TeamService],
   imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
 })
-export class CreateTeamComponent implements OnInit {
+export class EditTeamComponent implements OnInit {
   readonly panelOpenState = signal(false);
   
     @Input() partner!: PartnerInterface;
+    @Input() team!: TeamInterface;
     readonly dialog = inject(MatDialog);
 
     createTeamForm!: FormGroup;
@@ -44,14 +45,15 @@ export class CreateTeamComponent implements OnInit {
 
 
     ngOnInit(): void {
-       // console.log(this.partner)
+       // console.log(this.team)
 
-        if (this.partner) {
+        if (this.partner && this.team) {
           this.createTeamForm = new FormGroup({
-            teamName: new FormControl('', Validators.required),
-            description: new FormControl('',),
-            teamPurpose: new FormControl('', Validators.required),
+            teamName: new FormControl(this.team?.teamName, Validators.required),
+            description: new FormControl(this.team?.description,),
+            teamPurpose: new FormControl(this.team?.teamPurpose, Validators.required),
             partnerId: new FormControl(this.partner._id),
+            temaId: new FormControl(this.team?._id),
           });
         }
     }
@@ -61,18 +63,18 @@ export class CreateTeamComponent implements OnInit {
 
       if (this.createTeamForm.valid) {
         this.subscriptions.push(
-          this.createTeamService.createTeam(teamObject).subscribe((res: any) => {
+          this.createTeamService.updateTeam(teamObject).subscribe((res: any) => {
     
             Swal.fire({
               position: "bottom",
               icon: 'success',
-              text: 'Your team has been created successfully.',
+              text: 'Your team detail has been created successfully.',
               showConfirmButton: true,
               confirmButtonColor: "#ffab40",
               timer: 15000,
             }).then((result) => {
               if (result.isConfirmed) {
-               this.router.navigateByUrl('dashboard/manage-team');
+                this.router.navigate(['/dashboard/manage-team']);
               }
             });
     
@@ -90,10 +92,14 @@ export class CreateTeamComponent implements OnInit {
       }
     }
 
+    back(): void {
+      this.router.navigateByUrl('dashboard/manage-team');
+    }
+
     showDescription () {
         this.dialog.open(HelpDialogComponent, {
           data: {help: `
-            Here, you can create a new team of your partners.
+            Here, you can modify an existing team details.
           `},
         });
       }
@@ -103,5 +109,9 @@ export class CreateTeamComponent implements OnInit {
       this.subscriptions.forEach(subscription => {
         subscription.unsubscribe();
       });
+    }
+
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }

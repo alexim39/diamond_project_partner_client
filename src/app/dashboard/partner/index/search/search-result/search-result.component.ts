@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';  
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';  
 import { MatInputModule } from '@angular/material/input';  
 import { MatFormFieldModule } from '@angular/material/form-field';  
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';  
@@ -24,10 +24,10 @@ import Swal from 'sweetalert2';
 })  
 export class SearchResultComponent implements OnInit, OnDestroy {
   // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  apiURL = 'http://localhost:3000';
 
-    @Input() searchPartner!: PartnerInterface;
+    @Input() searchPartners!: PartnerInterface[];
 
     partner!: PartnerInterface;
     subscriptions: Subscription[] = [];
@@ -55,18 +55,15 @@ export class SearchResultComponent implements OnInit, OnDestroy {
                 // redirect to home page
             }
             )
-        );
-
-        // Initialize with the actual follow status from the server
-        this.checkFollowStatus();
-        
+        );  
     }
 
-    checkFollowStatus() {
+
+    checkFollowStatus(searchPartnerId: string) {
         this.subscriptions.push(
-            this.searchService.checkFollowStatus(this.partner._id, this.searchPartner._id).subscribe((status: any) => {
+            this.searchService.checkFollowStatus(this.partner._id, searchPartnerId).subscribe((status: any) => {
                 this.isFollowing = status.isFollowing;
-                if (this.partner._id === this.searchPartner._id) {
+                if (this.partner._id === searchPartnerId) {
                     this.isYou = true;
                 } else {
                     this.isYou = false;
@@ -77,11 +74,11 @@ export class SearchResultComponent implements OnInit, OnDestroy {
         ) 
     }
 
-    follow() {
+    follow(searchPartnerId: string) {
         
         if (this.isFollowing) {
           this.subscriptions.push(
-            this.searchService.unfollow(this.partner._id, this.searchPartner._id).subscribe((status: any) => {
+            this.searchService.unfollow(this.partner._id, searchPartnerId).subscribe((status: any) => {
                 this.isFollowing = false;   
             }, (error: any) => {
                 console.error('Error unfollowing:', error);
@@ -90,7 +87,7 @@ export class SearchResultComponent implements OnInit, OnDestroy {
 
         } else {
           this.subscriptions.push(
-            this.searchService.follow(this.partner._id, this.searchPartner._id).subscribe((status: any) => {
+            this.searchService.follow(this.partner._id, searchPartnerId).subscribe((status: any) => {
                 this.isFollowing = true;    
             }, (error: any) => {
                 console.error('Error following:', error);

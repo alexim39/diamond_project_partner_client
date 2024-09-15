@@ -76,6 +76,7 @@ export class EditContactsComponent implements OnInit, OnDestroy {
             icon: 'success',
             text: 'Your contact has been updated successfully',
             showConfirmButton: true,
+            confirmButtonColor: "#ffab40",
             timer: 15000,
           }).then((result) => {
             if (result.isConfirmed) {

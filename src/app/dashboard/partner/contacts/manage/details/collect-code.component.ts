@@ -92,6 +92,7 @@ export class CollectCodeComponent implements OnDestroy {
           icon: 'success',
           text: `Your have successfully submitted reservation code for ${capitalizeFirstLetter(this.data.prospectSurname)} ${capitalizeFirstLetter(this.data.prospectName)}`,
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })  
       }, (error: any) => {

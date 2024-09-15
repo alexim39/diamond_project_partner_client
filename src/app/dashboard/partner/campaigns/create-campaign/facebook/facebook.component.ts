@@ -204,6 +204,7 @@ export class FacebookComponent implements OnInit, OnDestroy {
               icon: 'success',
               text: 'Thank you for creating your ad campaign. We will publish this campaign on Facebook soon',
               showConfirmButton: true,
+              confirmButtonColor: "#ffab40",
               timer: 15000,
             })
     

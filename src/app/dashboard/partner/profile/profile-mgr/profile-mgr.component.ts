@@ -133,6 +133,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           icon: 'success',
           text: 'Your profile details has been updated successfully',
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })
 
@@ -161,6 +162,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           icon: 'success',
           text: 'Your professional details has been updated successfully',
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })
 
@@ -188,6 +190,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           icon: 'success',
           text: 'Your username has been updated successfully',
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })
 
@@ -227,6 +230,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           icon: 'success',
           text: 'Your password has been changed successfully',
           showConfirmButton: true,
+          confirmButtonColor: "#ffab40",
           timer: 15000,
         })
 

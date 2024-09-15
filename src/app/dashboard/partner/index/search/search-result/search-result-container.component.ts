@@ -16,13 +16,13 @@ import { SearchService } from '../search.service';
   imports: [CommonModule, SearchResultComponent],
   providers: [SearchService],
   template: `
-  <async-search-result *ngIf="searchPartner?.data" [searchPartner]="searchPartner?.data" #srechResultComponentMethod></async-search-result>
+  <async-search-result *ngIf="searchPartners?.data" [searchPartners]="searchPartners?.data" #srechResultComponentMethod></async-search-result>
   `,
 })
 export class SearchResultContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
-  searchPartner!: any;
+  searchPartners!: any;
   subscriptions: Subscription[] = [];
   
   @ViewChild(SearchResultComponent) searchResultComponent!: SearchResultComponent;
@@ -59,27 +59,54 @@ export class SearchResultContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       // Subscribe to query parameters to be notified of changes  
       this.route.queryParams.subscribe(params => {  
-        const name = params['name'];  
-        const surname = params['surname'];  
-        this.subscriptions.push(
-              // Call the service to get the partner details by ID  
-              this.searchService.getPartnerByName(name, surname ).subscribe(  
-                  (searchPartner: PartnerInterface) => {  
-                    // Handle the fetched data as needed  
-                    this.searchPartner = searchPartner;
-                    this.callChildMethod()
-                  },  
-                  (error) => {  
-                    console.error('Error fetching partner details:', error);  
-                  }  
-              )
-        )
+        if (params['name'] && params['surname']) {
+          const name = params['name'].trim();
+          const surname = params['surname'].trim();  
+          this.subscriptions.push(
+            // Call the service to get the partner details by ID  
+            this.searchService.getPartnerByNames(name, surname ).subscribe(  
+                (searchPartners: PartnerInterface) => {  
+                  // Handle the fetched data as needed  
+                  this.searchPartners = searchPartners;
+                  this.callChildMethod(this.searchPartners);
+                },  
+                (error) => {  
+                  console.log(error)
+                  console.error('Error fetching partner details:', error);  
+                }  
+            )
+          )
+        } else {
+
+          const name = params['name'].trim();
+
+          this.subscriptions.push(
+            // Call the service to get the partner details by ID  
+            this.searchService.getPartnerByName(name).subscribe(  
+                (searchPartners: PartnerInterface) => {  
+                  // Handle the fetched data as needed  
+                  this.searchPartners = searchPartners;
+                  this.callChildMethod(this.searchPartners);
+                },  
+                (error) => {  
+                  console.log(error)
+                  console.error('Error fetching partner details:', error);  
+                }  
+            )
+          )
+
+        }
       })
     );
   }
 
-  private callChildMethod() {
-    this.searchResultComponent.checkFollowStatus();
+  private callChildMethod(searchPartners: PartnerInterface[]) {
+   // if (this.searchPartners) {
+      this.searchPartners.forEach((partner: PartnerInterface) => {  
+        this.searchResultComponent.checkFollowStatus(partner._id);  
+      });
+    //}   
+    //this.searchResultComponent.checkFollowStatus();
   }
 
   ngOnDestroy() {

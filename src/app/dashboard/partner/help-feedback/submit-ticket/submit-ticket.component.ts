@@ -71,6 +71,7 @@ export class SubmitTicketComponent implements OnInit {
               icon: 'success',
               text: 'Your ticket has been submited successfully, we will revert as soon as possible with updates.',
               showConfirmButton: true,
+              confirmButtonColor: "#ffab40",
               timer: 15000,
             })
     

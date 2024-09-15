@@ -119,6 +119,7 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
                   icon: 'success',
                   text: `Your have successfully moved prospect to contact list`,
                   showConfirmButton: true,
+                  confirmButtonColor: "#ffab40",
                   confirmButtonText: "View Contacts",
                   timer: 15000,
                 }).then((result) => {
@@ -173,6 +174,7 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
                   text: `Your have successfully deleted prospect from the system`,
                   showConfirmButton: true,
                   confirmButtonText: "Ok",
+                  confirmButtonColor: "#ffab40",
                   timer: 15000,
                 }).then((result) => {
                   if (result.isConfirmed) {
