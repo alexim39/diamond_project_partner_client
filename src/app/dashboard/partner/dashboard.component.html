@@ -167,10 +167,18 @@
            Best Practices: Curated tips and tricks from successful members or industry experts. 
          
         </a> -->
-        <a mat-list-item routerLink="resource-download" routerLinkActive="active" (click)="scrollToTop()" title="Resource Downloads">
+
+        <a mat-list-item (click)="toggleSubSubmenu('mentorship-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Resource ">
           Resource Downloads
           <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
         </a>
+        <div [@submenuToggle]="isSubSubmenuOpen('mentorship-download') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="ads-contents"  routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Download Ads Contents">Ads Contents</a>
+          <a mat-list-item  routerLink="pre-approach-material" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Pre-approach Material">
+            Pre-approach Material
+          </a>
+        </div>
+        
         <!-- <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Content Creation & Sharing">Content Creation & Sharing</a>
         <div [@submenuToggle]="isSubSubmenuOpen('content-creatioin') ? 'open' : 'closed'" class="subsubmenu">
           <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Blog & Article Writing">

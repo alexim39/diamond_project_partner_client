@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';  
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';  
 import { MatInputModule } from '@angular/material/input';  
 import { MatFormFieldModule } from '@angular/material/form-field';  
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';  
@@ -22,12 +22,13 @@ import Swal from 'sweetalert2';
     templateUrl: 'search-result.component.html',  
     styleUrls: ['search-result.component.scss'],  
 })  
-export class SearchResultComponent implements OnInit, OnDestroy {
+export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
   // Define API
   //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
   apiURL = 'http://localhost:3000';
 
     @Input() searchPartners!: PartnerInterface[];
+    searchPartnersSimulate!: PartnerInterface[];
 
     partner!: PartnerInterface;
     subscriptions: Subscription[] = [];
@@ -55,7 +56,36 @@ export class SearchResultComponent implements OnInit, OnDestroy {
                 // redirect to home page
             }
             )
-        );  
+        ); 
+        
+        // Simulating an async call to load data (replace with actual API call)
+        this.loadPartners().then(() => {
+            // Trigger checkFollowStatus for each partner once data is loaded
+            this.triggerFollowStatus();
+        });
+    }
+
+    private loadPartners(): Promise<void>  {
+        return new Promise(resolve => {
+          // Simulate an async call to load searchPartners (e.g., from an API)
+          setTimeout(() => {
+            this.searchPartnersSimulate = this.searchPartners;;
+            resolve(); 
+          }, 1000);  // Simulate delay for async call
+        })
+    }
+
+
+    private triggerFollowStatus(): void {
+        this.searchPartnersSimulate.forEach(partner => {
+        this.checkFollowStatus(partner._id);
+        });
+    }
+
+    ngOnChanges(): void {
+        this.loadPartners().then(() => {
+            this.triggerFollowStatus();
+        });
     }
 
 

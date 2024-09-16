@@ -90,14 +90,16 @@ import { MatIconModule } from '@angular/material/icon';
     }
 
     button[mat-icon-button] {
-        background-color: #6200ee;
+        background-color: #ffab40;
         color: white;
-        border-radius: 0 4px 4px 0;
-        margin-left: -4px;
+        border-radius: 0 2px 2px 0;
+       // margin-left: -6px;
+        height: 4em;
+        border: none;
     }
 
     button[mat-icon-button]:hover {
-        background-color: #3700b3;
+        color: #eee;
     }
 
     mat-form-field .mat-form-field-flex {

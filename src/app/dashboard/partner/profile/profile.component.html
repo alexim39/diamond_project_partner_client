@@ -4,10 +4,10 @@
   <div class="title">&#64;{{partner.username | lowercase}}</div>
   <!-- <div class="title">090 6365 8652</div> -->
   <div class="social">
-    <a href="#"><i class="fa fa-dribbble"></i></a> 
-    <a href="#"><i class="fa fa-twitter"></i></a>  
-    <a href="#"><i class="fa fa-linkedin"></i></a>  
-    <a href="#"><i class="fa fa-facebook"></i></a> 
+    <!-- <a href="#"><i class="fa fa-dribbble"></i></a>  -->
+    <a [href]="twitter"  target="_blank"><i class="fa fa-twitter"></i></a>  
+    <a [href]="linkedin"  target="_blank"><i class="fa fa-linkedin"></i></a>  
+    <a [href]="facebook" target="_blank"><i class="fa fa-facebook"></i></a> 
   </div>
   <button mat-button>Contact</button>
 </div>

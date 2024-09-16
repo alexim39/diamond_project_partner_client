@@ -21,6 +21,9 @@ export class ProfileComponent implements OnInit {
   @Input() partner!: PartnerInterface;
 
   profilePictureUrl = "./img/default_pp.png"
+  twitter = ''
+  linkedin = ''
+  facebook = ''
 
   constructor( ) {  }
 
@@ -28,6 +31,24 @@ export class ProfileComponent implements OnInit {
     //console.log(this.partner)
     if (this.partner.profileImage) {
       this.profilePictureUrl = this.apiURL + `/uploads/${this.partner.profileImage}`;
+    }
+
+    if (this.partner?.socialMedia?.facebook) {
+      this.facebook = this.partner?.socialMedia?.facebook;
+    } else {
+      this.facebook = 'https://www.facebook.com/profile.php?id=61561933352527';
+    }
+
+    if (this.partner?.socialMedia?.twitter) {
+      this.twitter = this.partner?.socialMedia?.twitter;
+    } else {
+      this.twitter = '';
+    }
+
+    if (this.partner?.socialMedia?.linkedin) {
+      this.linkedin = this.partner?.socialMedia?.linkedin;
+    } else {
+      this.linkedin = '';
     }
   }
 }
