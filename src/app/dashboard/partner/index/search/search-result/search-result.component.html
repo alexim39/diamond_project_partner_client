@@ -1,6 +1,6 @@
 <div class="container" *ngFor="let searchPartner of searchPartners"> 
     <div class="profile-header">  
-        <div class="profile-picture" (click)="checkFollowStatus(searchPartner._id)">  
+        <div class="profile-picture">  
           <img [src]="searchPartner.profileImage ? (apiURL + '/uploads/' + searchPartner.profileImage) : './img/default_pp.png'" alt="Profile Picture">  
           <div class="username">&#64;{{searchPartner.username}}</div>
         </div>  
@@ -12,12 +12,12 @@
             | {{ searchPartner.hobby ? (searchPartner.hobby | titlecase) : 'Hobby not set' }}  
           </p>  
           <div class="social-buttons">  
-            <button mat-button class="btn connect"><mat-icon>group_add</mat-icon>Send Team Invite</button>  
+            <button mat-button class="btn connect" *ngIf="!isYou"><mat-icon>group_add</mat-icon>Send Team Invite</button>  
       
-            <button mat-button class="btn like" (click)="follow(searchPartner._id)" *ngIf="!isFollowing">
+            <button mat-button class="btn like" (click)="follow(searchPartner._id)" *ngIf="!isFollowing && !isYou">
               <mat-icon>thumb_up</mat-icon>Follow
             </button>  
-            <button mat-button class="btn follow" (click)="follow(searchPartner._id)" *ngIf="isFollowing">
+            <button mat-button class="btn follow" (click)="follow(searchPartner._id)" *ngIf="isFollowing && !isYou">
               <mat-icon>thumb_down</mat-icon>Unfollow
             </button>  
           </div>  

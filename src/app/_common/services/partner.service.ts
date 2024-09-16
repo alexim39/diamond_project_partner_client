@@ -25,6 +25,11 @@ export interface PartnerInterface {
   educationBackground?: string;
   hobby?: string;
   skill?: string;
+  socialMedia: {
+    facebook?: string;
+    linkedin?: string;
+    twitter?: string;
+  }
 }
 
 @Injectable()

@@ -189,9 +189,9 @@ export const dashboardRoutes: Routes = [
                 component: PurchaseContainerComponent,
                 title: "Purchase - List of purchase history",
             },     
-            { path: 'resource-download', 
+            { path: 'ads-contents', 
                 component: ResourceDownloadContainerComponent,
-                title: "Training Resource Download - Access training resources",
+                title: "Ads Resource Download - Access Ads resources",
             },     
         ]
     },
