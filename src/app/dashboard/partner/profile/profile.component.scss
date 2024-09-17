@@ -28,22 +28,25 @@
       color: black;
       cursor: pointer;
       .fa-linkedin {
-        color: #0077B5;
+        //color: #0077B5;
       }
       .fa-linkedin:hover {
-        opacity: 0.5;
+       // opacity: 0.5;
+       color: #0077B5;
       }
       .fa-facebook {
-        color: #1877F2;
+        //color: #1877F2;
       }
       .fa-facebook:hover {
-        opacity: 0.5;
+        //opacity: 0.5;
+        color: #1877F2;
       }
       .fa-twitter {
-        color: #1DA1F2;
+        //color: #1DA1F2;
       }
       .fa-twitter:hover {
-        opacity: 0.5;
+        //opacity: 0.5;
+        color: #1DA1F2;
       }
     }
   }
