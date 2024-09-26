@@ -25,11 +25,15 @@ export interface PartnerInterface {
   educationBackground?: string;
   hobby?: string;
   skill?: string;
-  socialMedia: {
-    facebook?: string;
-    linkedin?: string;
-    twitter?: string;
-  }
+  whatsappGroupLink?: string;
+  whatsappChatLink?: string;
+  testimonial?: string;
+  linkedinPage?: string;
+  youtubePage?: string;
+  instagramPage?: string;
+  tiktokPage?: string;
+  facebookPage?: string;
+  twitterPage?: string;
 }
 
 @Injectable()
