@@ -2,31 +2,29 @@ import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { CampaignAnalyticsComponent } from './campaign-analytics.component';
-import { AnalyticsService, ProspectListInterface } from '../analytics.service';
 
 
 /**
- * @title contacts container
+ * @title Manage comapaing container
  */
 @Component({
-  selector: 'async-prospect-list-container',
+  selector: 'async-landing-page-setting-container',
   standalone: true,
-  imports: [CommonModule, CampaignAnalyticsComponent],
-  providers: [AnalyticsService],
+  imports: [CommonModule,],
+  providers: [],
   template: `
-  <async-campaign-analytics *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"></async-campaign-analytics>
+  <!-- <async-manage-campaign *ngIf="partner && campaigns" [partner]="partner" [campaigns]="campaigns"></async-manage-campaign> -->
   `,
 })
-export class CampaignAnalyticsContainerComponent implements OnInit, OnDestroy {
+export class LandingPageSettingContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
+  campaigns!: any;
   subscriptions: Subscription[] = [];
-  prospectList!: ProspectListInterface;
 
   constructor(
     private partnerService: PartnerService,
-    private prospectListService: AnalyticsService,
+    //private campaignService: CampaignService
   ) { }
 
   ngOnInit() {
@@ -38,11 +36,10 @@ export class CampaignAnalyticsContainerComponent implements OnInit, OnDestroy {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.prospectListService.getProspectFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
-              //this.prospectList = prospectContact;
-              console.log('prospectContact ',prospectContact)
-              ///console.log('partner ',this.partner)
-            })
+           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
+              this.campaigns = campaigns;
+              //console.log('campaign ',campaigns)
+            }) */
           }
         },
         

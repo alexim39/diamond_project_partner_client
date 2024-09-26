@@ -11,8 +11,13 @@ import { MatListModule } from '@angular/material/list';
 @Component({
   selector: 'async-prospect-response',
   styles: `
+  span {
+    color: gray;
+  }
   .bolder {
     font-weight: bolder;
+    color: black;
+    margin-top: 5px;
   }
   `,
   template: `
@@ -24,50 +29,62 @@ import { MatListModule } from '@angular/material/list';
 <mat-list>
   
   <mat-list-item>
-    <span matListItemTitle>Contact phone number</span>
+    <span matListItemTitle>Prospect phone number:</span>
     <span matListItemLine class="bolder">{{data.phoneNumber}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Email address</span>
+    <span matListItemTitle>Prospect email address:</span>
     <span matListItemLine class="bolder">{{data.email}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Are you open to coaching?</span>
-    <span matListItemLine class="bolder">{{data.areYouOpenToBeCoached}}</span>
+    <span matListItemTitle>Prospect age range:</span>
+    <span matListItemLine class="bolder">{{data.ageRange}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Can more skill help you reach your goals?</span>
-    <span matListItemLine class="bolder">{{data.doYouBelieveInTraining}}</span>
+    <span matListItemTitle>Prospect favourite social media platforms:</span>
+    <span matListItemLine class="bolder">{{data.socialMedia}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Do you feel like doing more?</span>
-    <span matListItemLine class="bolder">{{data.doYouFeelNeedForChange}}</span>
+    <span matListItemTitle>Prospect online purchase frequency:</span>
+    <span matListItemLine class="bolder">{{data.onlinePurchaseSchedule}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>What's your work situation?</span>
+    <span matListItemTitle>Prospect motivation for joining online businesses:</span>
+    <span matListItemLine class="bolder">{{data.primaryOnlineBusinessMotivation | titlecase}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+
+  <mat-list-item>
+    <span matListItemTitle>Prospect Importance of passive income:</span>
+    <span matListItemLine class="bolder">{{data.importanceOfPassiveIncome | titlecase}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+  
+  <mat-list-item>
+    <span matListItemTitle>Prospect employment status:</span>
     <span matListItemLine class="bolder">{{data.employedStatus | titlecase}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Would you be interested in an online/offline session?</span>
-    <span matListItemLine class="bolder">{{data.ifSessionIsSet}}</span>
+    <span matListItemTitle>Prospect comfort with technology:</span>
+    <span matListItemLine class="bolder">{{data.comfortWithTech}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Want to make extra money?</span>
-    <span matListItemLine class="bolder">{{data.interestedInEarningAdditionaIcome}}</span>
+    <span matListItemTitle>Prospect time willing to dedicate:</span>
+    <span matListItemLine class="bolder">{{data.onlineBusinessTimeDedication}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
   

@@ -31,6 +31,7 @@ import { CheckoutComponent } from "./monthly-purchase/checkout/checkout.componen
 import { PurchaseContainerComponent } from "./monthly-purchase/purchases/purchases-container.component";
 import { ResourceDownloadContainerComponent } from "./training-resource/resource-download/resource-download-container.component";
 import { EditTeamContainerComponent } from "./mentorship/team/edit-team/edit-team-container.component";
+import { LandingPageSettingContainerComponent } from "./settings/Landing-page/Landing-page-container.component";
 
 
 
@@ -192,6 +193,10 @@ export const dashboardRoutes: Routes = [
             { path: 'ads-contents', 
                 component: ResourceDownloadContainerComponent,
                 title: "Ads Resource Download - Access Ads resources",
+            },     
+            { path: 'landing-page-settings', 
+                component: LandingPageSettingContainerComponent,
+                title: "Landing Page Settings - Set what prospect sees on your landing page",
             },     
         ]
     },
