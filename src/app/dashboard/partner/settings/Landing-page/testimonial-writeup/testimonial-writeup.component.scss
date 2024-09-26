@@ -1,0 +1,21 @@
+section {
+    margin-top: 1em;
+    form {
+        display: flex;
+        flex-direction: column;
+        width: 50%;
+        height: auto;
+        mat-hint {
+            color: gray;
+            margin: 0.5em 0;
+        }
+        button {
+            width: 20%;
+            margin-top: 1em;
+        }
+        .custom-textarea {  
+            min-width: 300px;
+            min-height: 200px; 
+        }
+    }
+}
