@@ -1,0 +1,23 @@
+<section>
+    <mat-accordion>
+
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up WhatsApp Group Link </mat-panel-title>
+          </mat-expansion-panel-header>
+  
+
+          <form [formGroup]="testimonialForm" (ngSubmit)="onSubmit()">  
+            <mat-form-field appearance="outline">
+              <mat-label>Write your testimonial</mat-label>
+              <textarea matInput formControlName="testimonial" #message maxlength="600" class="custom-textarea"></textarea>
+              <mat-hint align="start"><strong>Write your experience to motivate prospects</strong> </mat-hint>
+              <mat-hint align="end">{{message.value.length}} / 600</mat-hint>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+    </mat-accordion>
+</section>

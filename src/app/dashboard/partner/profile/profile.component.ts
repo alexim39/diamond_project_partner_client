@@ -33,20 +33,20 @@ export class ProfileComponent implements OnInit {
       this.profilePictureUrl = this.apiURL + `/uploads/${this.partner.profileImage}`;
     }
 
-    if (this.partner?.socialMedia?.facebook) {
-      this.facebook = this.partner?.socialMedia?.facebook;
+    if (this.partner?.facebookPage) {
+      this.facebook = this.partner?.facebookPage;
     } else {
       this.facebook = 'https://www.facebook.com/profile.php?id=61561933352527';
     }
 
-    if (this.partner?.socialMedia?.twitter) {
-      this.twitter = this.partner?.socialMedia?.twitter;
+    if (this.partner?.twitterPage) {
+      this.twitter = this.partner?.twitterPage;
     } else {
       this.twitter = '';
     }
 
-    if (this.partner?.socialMedia?.linkedin) {
-      this.linkedin = this.partner?.socialMedia?.linkedin;
+    if (this.partner?.linkedinPage) {
+      this.linkedin = this.partner?.linkedinPage;
     } else {
       this.linkedin = '';
     }

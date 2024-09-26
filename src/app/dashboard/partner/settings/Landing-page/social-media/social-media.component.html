@@ -1,0 +1,181 @@
+<section>
+    <mat-accordion>
+
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up WhatsApp Group Link </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="whatsappGroupForm" (ngSubmit)="onWhatsappGroupSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your WhatsApp group link</mat-label>  
+              <input matInput formControlName="groupLink">  
+              <mat-hint>Example of link: https://chat.whatsapp.com/EO6Xl6zsDwwA9yZrcVUwP2</mat-hint>  
+              <mat-error *ngIf="whatsappGroupForm.get('groupLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="whatsappGroupForm.get('groupLink')?.hasError('pattern')">  
+                Link must be in the format: https://chat.whatsapp.com/XXXXX
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form> 
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up WhatsApp Chat Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="whatsappChatForm" (ngSubmit)="onWhatsappChatSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your WhatsApp group link</mat-label>  
+              <input matInput formControlName="groupLink">  
+              <mat-hint>Example of link: https://wa.me/message/GQ6P3GATFO4IB1</mat-hint>  
+              <mat-error *ngIf="whatsappChatForm.get('groupLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="whatsappChatForm.get('groupLink')?.hasError('pattern')">  
+                Link must be in the format: https://wa.me/message/XXXXX
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form> 
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up Facebook Page Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="facebookForm" (ngSubmit)="onFacebookSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your Facebook profile link</mat-label>  
+              <input matInput formControlName="profileLink">  
+              <mat-hint>Example of link: https://facebook.com/username</mat-hint>  
+              <mat-error *ngIf="facebookForm.get('profileLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="facebookForm.get('profileLink')?.hasError('pattern')">  
+                Link must be in the format: https://www.facebook.com/username or https://facebook.com/username
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up LinkedIn Page Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="linkedinForm" (ngSubmit)="onLinkedinSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your LinkedIn profile link</mat-label>  
+              <input matInput formControlName="profileLink">  
+              <mat-hint>Example of link: https://linkedin.com/in/username</mat-hint>  
+              <mat-error *ngIf="linkedinForm.get('profileLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="linkedinForm.get('profileLink')?.hasError('pattern')">  
+                Link must be in the format: https://linkedin.com/in/username or https://linkedin.com/pub/username
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up Youtube Page Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="youtubeForm" (ngSubmit)="onYoutubeSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your YouTube profile link</mat-label>  
+              <input matInput formControlName="profileLink">  
+              <mat-hint>Example of link: https://youtube.com/channel/UCXXXXXXXXX</mat-hint>  
+              <mat-error *ngIf="youtubeForm.get('profileLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="youtubeForm.get('profileLink')?.hasError('pattern')">  
+                Link must be in the format: https://youtube.com/channel/UCXXXXXXXXX or https://youtube.com/user/username
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up Instagram Page Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="instagramForm" (ngSubmit)="onInstagramSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your Instagram profile link</mat-label>  
+              <input matInput formControlName="profileLink">  
+              <mat-hint>Example of link: https://instagram.com/username/</mat-hint>  
+              <mat-error *ngIf="instagramForm.get('profileLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="instagramForm.get('profileLink')?.hasError('pattern')">  
+                Link must be in the format: https://instagram.com/username/ 
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up Tiktok Page Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="tiktokForm" (ngSubmit)="onTiktokSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your TikTok profile link</mat-label>  
+              <input matInput formControlName="profileLink">  
+              <mat-hint>Example of link: https://www.tiktok.com/&#64;username</mat-hint>  
+              <mat-error *ngIf="tiktokForm.get('profileLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="tiktokForm.get('profileLink')?.hasError('pattern')">  
+                Link must be in the format: https://tiktok.com/&#64;username
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Set up Twitter (X) Page Link  </mat-panel-title>
+          </mat-expansion-panel-header>
+    
+          <form [formGroup]="twitterForm" (ngSubmit)="onTwitterSubmit()">  
+            <mat-form-field appearance="outline">  
+              <mat-label>Enter your Twitter profile link</mat-label>  
+              <input matInput formControlName="profileLink">  
+              <mat-hint>Example of link: https://x.com/username</mat-hint>  
+              <mat-error *ngIf="twitterForm.get('profileLink')?.hasError('required')">  
+                Link is required.  
+              </mat-error>  
+              <mat-error *ngIf="twitterForm.get('profileLink')?.hasError('pattern')">  
+                Link must be in the format: https://x.com/username
+              </mat-error>  
+            </mat-form-field>  
+            <button mat-flat-button color="primary" type="submit">Submit</button>  
+          </form>
+    
+        </mat-expansion-panel>
+    
+    </mat-accordion>
+</section>
