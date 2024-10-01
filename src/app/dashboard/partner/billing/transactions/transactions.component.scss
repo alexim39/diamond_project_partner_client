@@ -1,0 +1,36 @@
+
+.search {
+    padding: 0.5em 0;
+    text-align: center;
+    mat-form-field {
+        width: 70%;
+
+    }
+}
+
+.table {
+    padding: 0 1em;
+}
+
+.no-campaign {
+    text-align: center;
+    color: rgb(196, 129, 4);
+    font-weight: bold;
+}
+  
+.pending {
+    background-color: rgb(254, 254, 244); /* Light yellow for pending */
+}
+
+.rejected {
+    background-color: rgb(254, 246, 244); /* Light yellow for pending */
+}
+  
+.completed {
+    background-color: rgb(231, 246, 244); /* Red-ish color for completed */
+}
+  
+.success {
+    background-color: rgb(211, 251, 248); /* Green for success */
+}
+  
