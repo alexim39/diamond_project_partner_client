@@ -102,7 +102,7 @@ export class SMSLogComponent implements OnInit, OnDestroy {
   preview(id: string) {
     //this.router.navigate(['/dashboard/prospect-detail', id]);
 
-    console.log(this.getSelectedPhoneNumbers())
+    //console.log(this.getSelectedPhoneNumbers())
   }
 
   showDescription() {

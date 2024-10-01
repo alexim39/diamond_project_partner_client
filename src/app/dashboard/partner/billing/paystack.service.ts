@@ -58,7 +58,6 @@ export class PaystackService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-
    // get transactions
    getTransactions(partnerId: string): Observable<any> {
     return this.http
@@ -66,7 +65,13 @@ export class PaystackService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-
+  // withdraw request
+  withdrawRequest(formData: any): Observable<any> {
+    //console.log('data ',formData)
+    return this.http
+      .post<any>(this.apiURL + `/billing/withdraw-request`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
 
   // Initialize Paystack payment
   payWithPaystack(email: string, amount: number, callback: (response: any) => void): void {
