@@ -80,7 +80,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
           });
 
         }, (error: any) => {
-          console.log(error)
+          //console.log(error)
           if (error.code == 400) {
             Swal.fire({
               position: "bottom",

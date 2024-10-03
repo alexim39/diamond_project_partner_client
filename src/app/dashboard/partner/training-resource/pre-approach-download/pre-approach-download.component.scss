@@ -1,0 +1,80 @@
+.pre-approach-section {
+    margin: 2em;
+    //background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 2em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 1em;
+      margin-bottom: 1em;
+  
+      h2 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333;
+      }
+  
+      .help-icon {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #757575;
+        &:hover {
+          color: #333;
+        }
+      }
+    }
+  
+    .content-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 2em;
+  
+      .description {
+        text-align: center;
+  
+        h3 {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: #444;
+          margin-bottom: 0.5em;
+        }
+  
+        p {
+          font-size: 1rem;
+          color: #666;
+          max-width: 600px;
+          margin: 0 auto;
+          line-height: 1.6;
+        }
+      }
+
+    }
+  }
+  
+
+  .tabs-container {
+    display: flex;
+    justify-content: center;
+    mat-tab-group {
+      width: 100%;
+      height: 100%;
+
+
+        .download-button-wrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          button {
+            margin: 2em 0;
+            mat-icon {
+              font-size: 1.2rem;
+            }
+          }
+        }
+    }
+  }

@@ -46,8 +46,8 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
         if (this.partner) {
           this.prospectContactForm = new FormGroup({
             prospectName: new FormControl('', Validators.required),
-            prospectSurname: new FormControl('', Validators.required),
-            prospectEmail: new FormControl('', Validators.required),
+            prospectSurname: new FormControl(''),
+            prospectEmail: new FormControl(''),
             prospectPhone: new FormControl('', Validators.required),
             prospectSource: new FormControl('', Validators.required),
             prospectRemark: new FormControl(''),

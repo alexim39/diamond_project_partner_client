@@ -255,7 +255,6 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
         this.paymentService.withdrawRequest(formData).subscribe(res => {
           //console.log('Payment successful and balance updated!',res);
 
-  
            Swal.fire({
                position: "bottom",
                icon: 'success',
@@ -273,17 +272,26 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
            this.close();
   
         }, (error) => {
-          //console.error('Error confirming payment:', error);
-  
+          console.error('Error confirming payment:', error);
+          if (error.code == 401) {
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Your balance is insufficient for this request',
+              showConfirmButton: false,
+              timer: 4000
+            });
+          } else {
+            this.loading = false;
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Server error occured, please try again',
+              showConfirmButton: false,
+              timer: 4000
+            })
+          }          
           this.loading = false;
-           Swal.fire({
-             position: "bottom",
-             icon: 'info',
-             text: 'Server error occured, please try again',
-             showConfirmButton: false,
-             timer: 4000
-           })
-  
         })
       )
     }
@@ -306,10 +314,6 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
       accountName: ''
     });
   }
-  
-  
-
-
 
 
   close(): void {

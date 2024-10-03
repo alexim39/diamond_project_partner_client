@@ -5,6 +5,8 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import { IndexSearchContainerComponent } from './search/search-container.component';
 import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * @title dashboard index
@@ -12,8 +14,11 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'async-dashboard-index',
   templateUrl: 'index.component.html',
-  styleUrls: ['index.component.scss'],
+  styleUrls: ['index.component.scss', 'index.mobile.scss'],
   standalone: true,
-  imports: [MatButtonModule, RouterModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule],
+  imports: [MatButtonModule, RouterModule, MatIconModule, MatCardModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule],
 })
-export class DashboardIndexComponent  {}
+export class DashboardIndexComponent  {
+  appName = 'Diamond Project Online Partners Platform';
+  currentYear = new Date().getFullYear();
+}

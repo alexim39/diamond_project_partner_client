@@ -32,6 +32,7 @@ import { PurchaseContainerComponent } from "./monthly-purchase/purchases/purchas
 import { ResourceDownloadContainerComponent } from "./training-resource/resource-download/resource-download-container.component";
 import { EditTeamContainerComponent } from "./mentorship/team/edit-team/edit-team-container.component";
 import { LandingPageSettingContainerComponent } from "./settings/Landing-page/Landing-page-container.component";
+import { PreapproachDownloadContainerComponent } from "./training-resource/pre-approach-download/pre-approach-download-container.component";
 
 
 
@@ -197,6 +198,10 @@ export const dashboardRoutes: Routes = [
             { path: 'landing-page-settings', 
                 component: LandingPageSettingContainerComponent,
                 title: "Landing Page Settings - Set what prospect sees on your landing page",
+            },     
+            { path: 'pre-approach-material', 
+                component: PreapproachDownloadContainerComponent,
+                title: "Pre-Approach Material Download - Download the pre-approach material",
             },     
         ]
     },

@@ -11,7 +11,7 @@ export class SmsService {
   
   constructor(private http: HttpClient) { }  
 
-  sendSms( to: string | Array<string>, body: string, from = "DiamondProj"): Observable<any> {  
+  sendSms( to: string | Array<string>, body: string, from = "C21FG"): Observable<any> {  
     //console.log('to ',to)
     //console.log('from ',from)
     //console.log('body ',body)
