@@ -1,7 +1,7 @@
 <form (ngSubmit)="onSubmit()" [formGroup]="bulckSMSForm">  
     <mat-form-field appearance="outline" class="sender-id">  
         <mat-label>Sender Id</mat-label>  
-        <input matInput placeholder="Ex. DiamondProj" maxlength="11" formControlName="senderId">  
+        <input matInput placeholder="Ex. DiamondProj" maxlength="11" formControlName="senderId" value="C21FG" readonly="true">  
         <mat-error *ngIf="bulckSMSForm.get('senderId')?.hasError('required') ">  
             This field is required.  
         </mat-error>   

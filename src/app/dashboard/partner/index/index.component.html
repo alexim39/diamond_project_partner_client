@@ -2,4 +2,49 @@
 <async-index-search-container></async-index-search-container>
 
 <!-- Add Content Here -->
-<router-outlet></router-outlet>
+<router-outlet>
+    
+    
+
+
+
+    <section class="temporary-dashboard">
+        <div class="container">
+          <h1>Welcome to {{ appName }}</h1>
+          <p>We are working on something amazing! Stay tuned as we prepare your dashboard to help you digitise your network marketing business.</p>
+      
+          <div class="highlights">
+            <div class="highlight-card">
+              <mat-icon>group</mat-icon>
+              <h2>Build Your Team</h2>
+              <p>Invite new members, track referrals, and grow your business with ease.</p>
+            </div>
+            <div class="highlight-card">
+              <mat-icon>trending_up</mat-icon>
+              <h2>Track Your Performance</h2>
+              <p>Coming soon: Real-time analytics on your network and performance.</p>
+            </div>
+            <div class="highlight-card">
+              <mat-icon>access_time</mat-icon>
+              <h2>Meetings & Training</h2>
+              <p>Daily online meetings and exclusive training resources are on their way.</p>
+            </div>
+          </div>
+      
+          <div class="cta">
+            <button mat-raised-button color="primary" routerLink="../dashboard/create-campaign">Get Started Prospecting</button>
+            <button mat-stroked-button color="accent" routerLink="../dashboard/submit-ticket">Contact Support</button>
+          </div>
+      
+          <footer>
+            <p>&copy; {{ currentYear }} {{ appName }}. All rights reserved.</p>
+          </footer>
+        </div>
+      </section>
+      
+      
+
+
+
+
+</router-outlet>

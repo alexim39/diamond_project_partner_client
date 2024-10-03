@@ -290,8 +290,6 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   private callSMSGate(transactionId: string) {
 
-   
-
    this.subscriptions.push(
 
       this.smsGatewayService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
