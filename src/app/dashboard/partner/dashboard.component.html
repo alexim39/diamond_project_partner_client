@@ -54,7 +54,7 @@
       <a mat-list-item (click)="toggleSubmenu('analytics')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>analytics</mat-icon> 
-          <span>Analytics</span>
+          <span>Prospect Analytics</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
@@ -67,6 +67,8 @@
         </a>
         <div [@submenuToggle]="isSubSubmenuOpen('analytics-convertion-tracking') ? 'open' : 'closed'" class="subsubmenu">
           <a mat-list-item routerLink="prospect-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Prospect List">Prospect List</a>
+          <a mat-list-item routerLink="prospect-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Prospect Bookings">Prospect Bookings</a>
+          <a mat-list-item routerLink="prospect-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Email List">Email List</a>
           <a mat-list-item  routerLink="link-analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Link Analytics">
             Link Analytics
             <!-- View detailed metrics for their unique link, including click-through rates, conversion rates, and geographic data. -->
