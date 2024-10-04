@@ -24,16 +24,23 @@ export class PreApproachDownloadComponent implements OnInit {
     readonly dialog = inject(MatDialog);
 
     ngOnInit(): void {
-        console.log(this.partner)
+        //console.log(this.partner)
     }
 
 
     downloadPreApproachPDF(): void {
-        const link = document.createElement('a');
-        link.href = 'docs/pre-approach_tool_for_Diamondprojectonline.pdf'; // Update the path if necessary
-        link.download = 'pre-approach-document.pdf';
-        link.click();
-      }
+      const link = document.createElement('a');
+      link.href = 'docs/pre-approach_tool_for_Diamondprojectonline.pdf'; // Update the path if necessary
+      link.download = 'pre-approach-document.pdf';
+      link.click();
+    }
+
+    downloadSampleChatResposesPDF(): void {
+      const link = document.createElement('a');
+      link.href = 'docs/Sample-prospect-chat-responses.pdf'; // Update the path if necessary
+      link.download = 'Sample-prospect-chat-responses-document.pdf';
+      link.click();
+    }
       
 
 

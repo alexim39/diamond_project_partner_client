@@ -96,6 +96,12 @@ export class TeamService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-
-   
+  // activate new partner 
+  activateNewPartner(partnerAcitvateCode: any): Observable<any> {
+   // console.log('record', partnerAcitvateCode);
+    return this.http
+      .post<any>(this.apiURL + `/reservationCode/new-partner`, partnerAcitvateCode, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+    
 }
