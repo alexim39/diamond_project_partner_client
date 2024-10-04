@@ -16,6 +16,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
 import Swal from 'sweetalert2';
 import { TeamService } from '../team.service';
+import { ActivateNewPartnerComponent } from './activate-new-team.component';
 
 /**
  * @title Mentors Program
@@ -96,7 +97,13 @@ export class CreateTeamComponent implements OnInit {
             Here, you can create a new team of your partners.
           `},
         });
-      }
+    }
+
+    ActivateNewPartner() {
+      this.dialog.open(ActivateNewPartnerComponent, {
+        data: this.partner
+      });
+    }
 
     ngOnDestroy() {
       // unsubscribe list

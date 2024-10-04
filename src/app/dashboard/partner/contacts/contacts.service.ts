@@ -18,6 +18,12 @@ export interface ContactsInterface {
     id: string;
   }> 
 }
+
+export interface codeData {
+  partnerId: string;
+  prospectId: string;
+  code: string;
+}
   
 
 @Injectable()
@@ -119,8 +125,8 @@ deleteProspect(id: string): Observable<ContactsInterface> {
     .pipe(retry(1), catchError(this.handleError));
 }
 
-// delete prospect 
-promoteProspectToPartner(prospect: {partnerId: string; prospectId: string; code: string;}): Observable<ContactsInterface> {
+// promote new prospect 
+promoteProspectToPartner(prospect: codeData): Observable<ContactsInterface> {
   //console.log('record', prospect);
   return this.http
     .post<ContactsInterface>(this.apiURL + `/reservationCode/submit`, prospect, { withCredentials: true })

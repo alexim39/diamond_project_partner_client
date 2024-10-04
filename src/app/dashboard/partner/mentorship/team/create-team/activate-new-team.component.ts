@@ -5,23 +5,23 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Mat
 import {FormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ContactsInterface, codeData, ContactsService } from '../../contacts.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
+import { TeamService } from '../team.service';
 
 
 /**
  * @title Help Dialog
  */
 @Component({
-  selector: 'async-collect-code-dialog',
+  selector: 'async-activate-new-partner-dialog',
   styles: `
   mat-form-field {
     width: 100%;
   }
   `,
-  providers: [ContactsService],
+  providers: [TeamService],
   template: `
 
 <h2 mat-dialog-title>{{this.data.prospectName | titlecase}} {{this.data.prospectSurname | titlecase}} Reservation Code</h2>
@@ -36,16 +36,16 @@ import { Subscription } from 'rxjs';
 </mat-dialog-content>
 
 <mat-dialog-actions>
-<button mat-button (click)="close()">Close</button>
-<button mat-button (click)="submitCode()">Submit</button>
+    <button mat-button (click)="close()">Close</button>
+    <button mat-raised-button (click)="submitCode()">Submit</button>
 </mat-dialog-actions>
 
   `,
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
 })
-export class CollectCodeComponent implements OnDestroy {
-  readonly dialogRef = inject(MatDialogRef<CollectCodeComponent>);
+export class ActivateNewPartnerComponent implements OnDestroy {
+  readonly dialogRef = inject(MatDialogRef<ActivateNewPartnerComponent>);
   readonly data = inject<any>(MAT_DIALOG_DATA);
   code: string; 
   subscription!: Subscription;
@@ -53,7 +53,7 @@ export class CollectCodeComponent implements OnDestroy {
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
-    private contactsService: ContactsService
+    private teamService: TeamService
   ) {
     this.code = ''; // Default value or nothing 
   }
@@ -64,10 +64,10 @@ export class CollectCodeComponent implements OnDestroy {
 
   submitCode(): void {
 
-    //console.log(this.code)
-    const codeData: codeData  = {
-      partnerId: this.data.partnerId,
-      prospectId: this.data._id,
+    //console.log(this.data)
+    const codeData: any  = {
+      partnerId: this.data._id,
+      //prospectId: this.data._id,
       code: this.code
     }
 
@@ -82,16 +82,15 @@ export class CollectCodeComponent implements OnDestroy {
       return;
     }
 
-    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
+    //const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
     
-      this.subscription = this.contactsService.promoteProspectToPartner(codeData).subscribe((prospect: ContactsInterface) => {
+      this.subscription = this.teamService.activateNewPartner(codeData).subscribe((prospect: any) => {
         // this.prospectContact = prospectContact;
         //console.log('prospectContact ',prospect)
         Swal.fire({
           position: "bottom",
           icon: 'success',
-          text: `Your have successfully submitted reservation code for ${capitalizeFirstLetter(this.data.prospectSurname)} ${capitalizeFirstLetter(this.data.prospectName)}`,
+          text: `Your have successfully submitted reservation a new partner`, //${capitalizeFirstLetter(this.data.prospectSurname)} ${capitalizeFirstLetter(this.data.prospectName)}`,
           showConfirmButton: true,
           confirmButtonColor: "#ffab40",
           timer: 15000,
