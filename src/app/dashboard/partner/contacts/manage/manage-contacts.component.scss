@@ -71,3 +71,21 @@
         flex: 1 1 100%;
     }
 }
+
+.partner {  
+    background-color: rgb(213, 248, 213); 
+    text-decoration: line-through; 
+}  
+
+.member {  
+    background-color: rgb(249, 223, 223);
+    text-decoration: line-through; 
+}
+
+.closing {  
+    background-color: rgb(250, 251, 229); 
+}
+
+.not-interested {  
+    background-color: rgb(255, 182, 182); /* You can adjust the color as needed */  
+}

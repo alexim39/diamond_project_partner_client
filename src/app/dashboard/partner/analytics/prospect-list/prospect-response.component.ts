@@ -55,6 +55,7 @@ import { MatListModule } from '@angular/material/list';
   <mat-list-item *ngIf="data.referralCode">
     <span matListItemTitle>Prospect was referred by:</span>
     <span matListItemLine class="bolder">{{data.referralCode}}</span>
+    <small style="color: gray;"><em>Note that {{data.referralCode}} may be a partner in our business</em></small>
   </mat-list-item>
   <mat-divider></mat-divider>
 
