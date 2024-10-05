@@ -100,7 +100,16 @@
                     </ng-container>
                   
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> -->
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+                        [ngClass]="{
+                        'partner': row.status === 'Partner', 
+                        'member': row.status === 'Member',
+                        'closing': row.status === 'Closing',
+                        'not-interested': row.status === 'Not Interested'
+                        }"
+                    ></tr>  
+
                 </table>
 
                 <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
