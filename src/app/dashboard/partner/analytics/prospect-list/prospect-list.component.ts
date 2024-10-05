@@ -56,7 +56,7 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
  
     ngOnInit(): void {
         if (this.prospectList.data) {  
-        //console.log(this.prospectContact.data)
+        //console.log(this.prospectList.data)
         this.dataSource.data  = this.prospectList.data.sort((a, b) => {  
           // Use the getTime() method to compare the Date values  
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();  
