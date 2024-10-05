@@ -47,6 +47,18 @@ import { MatListModule } from '@angular/material/list';
   <mat-divider></mat-divider>
 
   <mat-list-item>
+    <span matListItemTitle>Prospect knew about us through:</span>
+    <span matListItemLine class="bolder">{{data.referral}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+
+  <mat-list-item *ngIf="data.referralCode">
+    <span matListItemTitle>Prospect was referred by:</span>
+    <span matListItemLine class="bolder">{{data.referralCode}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+
+  <mat-list-item>
     <span matListItemTitle>Prospect favourite social media platforms:</span>
     <span matListItemLine class="bolder">{{data.socialMedia}}</span>
   </mat-list-item>
