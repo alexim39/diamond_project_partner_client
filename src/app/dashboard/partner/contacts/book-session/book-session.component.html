@@ -1,5 +1,5 @@
 <section class="async-background ">
-    <h2>Modify Prospect Contact <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Book Prospect Session <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
         <div class="title">
@@ -9,7 +9,7 @@
                 </div>
                 <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
             </div>
-            <h3>{{prospect?.data?.prospectSurname | titlecase}} {{prospect?.data?.prospectName | titlecase}}'s Details</h3>
+            <h3>{{prospect?.data?.prospectSurname | titlecase}} {{prospect?.data?.prospectName | titlecase}}'s Session Booking</h3>
         </div>
 
 
@@ -21,7 +21,7 @@
                         <input matInput formControlName="prospectName" required>
                         <mat-error *ngIf="prospectContactForm.get('prospectName')?.hasError('required') ">
                             This field is required.  
-                          </mat-error> 
+                        </mat-error> 
                     </mat-form-field>
                 </div>
 
@@ -85,6 +85,7 @@
                     </mat-form-field>
                 </div>
 
+
                 <div class="form-group">
                     <mat-form-field appearance="outline">
                         <mat-label>Short Remark/Comment</mat-label>
@@ -92,11 +93,82 @@
                     </mat-form-field>
                 </div>
 
+                <div style="border: 1px dotted rgb(235, 235, 235); width: 100%; margin: 1em 0 2em 0;"></div>
 
-                <div class="form-group"></div>
-                <div class="form-group"></div>
-                <div class="form-group"></div>
-                <button mat-raised-button color="primary">Update</button>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Consultation Topic/Reason  </mat-label>
+                        <mat-select formControlName="reason">
+                        <mat-option value=" Investment Strategy"> Investment Strategy</mat-option>
+                        <mat-option value="Cashflow Management">Cashflow Management</mat-option>
+                        <mat-option value="Wealth Mindset">Wealth Mindset</mat-option>
+                        <mat-option value="Business Guidance">Business Guidance</mat-option>
+                        <mat-option value="General Financial Planning">General Financial Planning</mat-option>
+                        <mat-option value="About Diamond Project Business">About Diamond Project Business</mat-option>
+                        <mat-option value="cant say">Can't say</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="prospectContactForm.get('reason')?.hasError('required') ">
+                            This answer is required
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Preferred Contact Method </mat-label>
+                        <mat-select formControlName="contactMethod">
+                        <mat-option value="Email">Email</mat-option>
+                        <mat-option value="Phone">Phone</mat-option>
+                        <mat-option value="WhatsApp">WhatsApp</mat-option>
+                        <mat-option value="Text Message">Text Message</mat-option>
+                        <mat-option value="Video Call">Video Call (Zoom, Google Meet, etc.)</mat-option>
+                        <mat-option value="Any Option">Any Option</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="prospectContactForm.get('contactMethod')?.hasError('required') ">
+                        This answer is required
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+    
+                  <div class="none-form-group">
+                    <mat-form-field appearance="outline">
+                        <mat-label> Leave a brief Description/Questions (Optional)</mat-label>
+                        <textarea matInput formControlName="description"></textarea>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-group">
+                    <!-- date -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Choose a date</mat-label>
+                        <input matInput [matDatepicker]="picker" formControlName="consultDate" [min]="minDate">
+                        <mat-hint>MM/DD/YYYY</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                        <mat-error *ngIf="prospectContactForm.get('consultDate')?.hasError('required') ">
+                            Date is required
+                          </mat-error>
+                      </mat-form-field>
+
+                    </div>
+
+                    <div class="form-group">
+                      <!-- time -->
+                    <mat-form-field appearance="outline">
+                        <mat-label>Choose a time</mat-label>
+                        <input matInput type="time" formControlName="consultTime">
+                        <mat-hint>HH/MM/am/pm</mat-hint>
+                        <mat-error *ngIf="prospectContactForm.get('consultTime')?.hasError('required') ">
+                            Time is required
+                        </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-group"></div>
+
+
+                <button mat-raised-button color="primary">Book</button>
             </form>
         </div>
 

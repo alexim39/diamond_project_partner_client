@@ -45,7 +45,12 @@
                         </div>
                         <mat-divider></mat-divider>
 
-    
+                        <div class="list" *ngIf="prospectData.preapproachDownload">
+                            <h5> Pre-approach Downloaded </h5>
+                            <span class="data"><em>Note that prospect downloaded the pre-approach document</em></span>
+                            <mat-divider style="margin-top: 1em;"></mat-divider>
+                        </div>
+                    
                         <div class="list">
                             <h5> Created Date </h5>
                             <span class="data">{{prospectData.updatedAt | date}} </span>
@@ -78,6 +83,7 @@
                                     <mat-option  value="Interested">Interested</mat-option>
                                     <mat-option  value="Nurturing">Nurturing</mat-option>
                                     <mat-option  value="Closing">Closing</mat-option>
+                                    <mat-option  value="Booked for Session">Booked for Session</mat-option>
                                     <mat-option  value="Member">Member</mat-option>
                                     <mat-option  value="Not Interested">Not Interested</mat-option>
                                     <mat-option  value="Disqualified">Disqualified</mat-option>
@@ -121,7 +127,7 @@
 
     
                     <div class="list">
-                        <h5> Promote to partner </h5>
+                        <h5> Promote to Partner </h5>
                         <span class="data">
                             <button mat-raised-button (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
                         </span>
@@ -137,7 +143,23 @@
                     <mat-divider></mat-divider>
 
                     <div class="list">
-                        <h5> Delete </h5>
+                        <h5> Book for Session </h5>
+                        <span class="data">
+                            <button mat-raised-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
+                        </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+                    <div class="list" *ngIf="prospectData.survey">
+                        <h5> Survey Response </h5>
+                        <span class="data">
+                            <button mat-raised-button (click)="ViewResponse(prospectData.survey)"><mat-icon>quiz</mat-icon>View Survey Response </button>
+                        </span>
+                        <mat-divider style="margin-top: 1em;"></mat-divider>
+                    </div>
+
+                    <div class="list">
+                        <h5> Delete Prospect's Record </h5>
                         <span class="data">
                             <button mat-raised-button style="color: rgba(255, 0, 0, 0.578)" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete</button>
                         </span>

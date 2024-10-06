@@ -96,14 +96,14 @@ import { MatListModule } from '@angular/material/list';
 <mat-divider></mat-divider>
 
   <mat-list-item>
-    <span matListItemTitle>Prospect time willing to dedicate:</span>
+    <span matListItemTitle>Business time dedication:</span>
     <span matListItemLine class="bolder">{{data.onlineBusinessTimeDedication}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
   
   <mat-list-item>
     <span matListItemTitle>Date of Visit</span>
-    <span matListItemLine class="bolder">{{data.updatedAt | date}}</span>
+    <span matListItemLine class="bolder">{{ data.updatedAt | date:'fullDate' }} by {{ data.updatedAt | date:'shortTime' }}</span>
   </mat-list-item>
 
 </mat-list>

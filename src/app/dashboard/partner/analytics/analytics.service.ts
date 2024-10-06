@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { FormGroup } from '@angular/forms';
 
 export interface ProspectListInterface {
   message: string;
@@ -47,10 +48,8 @@ export class AnalyticsService {
       return errorMessage;
     });
   }
-
-
  
-  // get contacts createdby
+  // get prospect owned
   getProspectFor(createdBy: string): Observable<ProspectListInterface> {
     //console.log('record', id);
     return this.http
@@ -74,6 +73,29 @@ export class AnalyticsService {
       .pipe(retry(1), catchError(this.handleError));
     }
   
+  // get session booking
+  getSessionBookingsFor(createdBy: string): Observable<ProspectListInterface> {
+    //console.log('record', id);
+    return this.http
+      .get<ProspectListInterface>(this.apiURL + `/booking/for/${createdBy}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
 
+  // detele single prospect
+  deleteBookings(id: string): Observable<ProspectListInterface> {
+  //console.log('record', id);
+  return this.http
+    .delete<ProspectListInterface>(this.apiURL + `/booking/delete/${id}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+  }
+
+  // update the booking status
+  updateBookingStatus(formData: FormGroup) {
+     //console.log('form record', formData);
+     return this.http
+     .put<any>(this.apiURL + `/booking/update`, formData, { withCredentials: true })
+     .pipe(retry(1), catchError(this.handleError));
+  }
+    
    
 }
