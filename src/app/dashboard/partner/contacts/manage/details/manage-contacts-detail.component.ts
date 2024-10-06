@@ -18,6 +18,8 @@ import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';  
 import { SmsService } from '../../../../../_common/services/sms.service';
+import { ProspectListInterface } from '../../../analytics/analytics.service';
+import { ProspectResponseComponent } from '../../../analytics/prospect-list/prospect-response.component';
 
 /** @title Prospect details */
 @Component({
@@ -75,6 +77,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   
   ngOnInit(): void { 
+    //console.log(this.prospect.data)
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
     }
@@ -396,6 +399,17 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
   editProspectDetail() {
     //this.router.navigateByUrl('dashboard/edit-contacts', );
     this.router.navigate(['/dashboard/edit-contacts', this.prospectData._id]);
+  }
+
+  bookProspectSession() {
+    //this.router.navigateByUrl('dashboard/edit-contacts', );
+    this.router.navigate(['/dashboard/book-prospect-session', this.prospectData._id]);
+  }
+
+  ViewResponse(prospect: ProspectListInterface) {
+    this.dialog.open(ProspectResponseComponent, {
+      data: prospect
+    });
   }
 
   ngOnDestroy() {

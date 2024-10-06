@@ -33,6 +33,8 @@ import { ResourceDownloadContainerComponent } from "./training-resource/resource
 import { EditTeamContainerComponent } from "./mentorship/team/edit-team/edit-team-container.component";
 import { LandingPageSettingContainerComponent } from "./settings/Landing-page/Landing-page-container.component";
 import { PreapproachDownloadContainerComponent } from "./training-resource/pre-approach-download/pre-approach-download-container.component";
+import { BookSessionContainerComponent } from "./contacts/book-session/book-session-container.component";
+import { ProspectBookingContainerComponent } from "./analytics/prospect-booking/prospect-booking-container.component";
 
 
 
@@ -119,6 +121,11 @@ export const dashboardRoutes: Routes = [
                 title: "Edit Contacts Details",
             },        
             {
+                path: 'book-prospect-session/:id',
+                component: BookSessionContainerComponent,
+                title: "Book a Prospect Session - Prosepct session booking",
+            },        
+            {
                 path: 'edit-team/:id',
                 component: EditTeamContainerComponent,
                 title: "Edit Team Details",
@@ -132,6 +139,11 @@ export const dashboardRoutes: Routes = [
                 path: 'prospect-list',
                 component: ProspectListContainerComponent,
                 title: "Manage Prospect List",
+            },        
+            {
+                path: 'prospect-booking',
+                component: ProspectBookingContainerComponent,
+                title: "Manage Prospect Session Booking",
             },        
             {
                 path: 'prospect-detail/:id',
