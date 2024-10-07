@@ -1,12 +1,12 @@
 <section class="async-background ">
-    <h2>Manage Prospect Booking <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Manage Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
         <div class="title">
-            <h3>Booking Session Details</h3>
-<!--             <div class="action-area">
+            <h3>Online Survey List</h3>
+            <div class="action-area">
                 <a mat-list-item routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list" mat-raised-button><mat-icon>view_list</mat-icon>Contact List</a>
-            </div> -->
+            </div>
         </div>
 
         <ng-container *ngIf="!isEmptyRecord">
@@ -19,16 +19,7 @@
     
             <div class="table">
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                    <ng-container matColumnDef="name">
-                      <th mat-header-cell *matHeaderCellDef> Name </th>
-                      <td mat-cell *matCellDef="let element"> {{element.name | titlecase }} {{element.surname | titlecase}} </td>
-                    </ng-container>
-                  
-                    <ng-container matColumnDef="phone">
-                      <th mat-header-cell *matHeaderCellDef> Phone Number </th>
-                      <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
-                    </ng-container>
-                  
+
                     <ng-container matColumnDef="email">
                       <th mat-header-cell *matHeaderCellDef> Email Address </th>
                       <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
@@ -36,32 +27,28 @@
     
                     <ng-container matColumnDef="status">
                       <th mat-header-cell *matHeaderCellDef> Status </th>
-                      <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                      <td mat-cell *matCellDef="let element"> {{element.prospectStatus}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef> Session Date </th>
-                        <td mat-cell *matCellDef="let element"> {{element.consultDate | date}} </td>
-                    </ng-container>
+                        <th mat-header-cell *matHeaderCellDef> Date </th>
+                        <td mat-cell *matCellDef="let element"> {{element.updatedAt | date}} </td>
+                    </ng-container>  
 
-                    <ng-container matColumnDef="time">
-                        <th mat-header-cell *matHeaderCellDef> Session Time </th>
-                        <td mat-cell *matCellDef="let element"> {{ element.consultTime }}  </td>
-                    </ng-container>    
-
-                    <ng-container matColumnDef="detail">
+                    <!-- <ng-container matColumnDef="detail">
                         <th mat-header-cell *matHeaderCellDef> Detail </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <mat-icon (click)="deleteBooking(element._id)" title="Delete" style="color: red;">delete</mat-icon>
+                            <mat-icon (click)="ViewResponse(element)" title="View detailed responses">preview</mat-icon>
+                            <mat-icon (click)="deleteProspect(element._id)" title="Delete" style="margin-left: 1em; color: red;">delete</mat-icon>
                         </td>
-                    </ng-container>
+                    </ng-container> -->
 
-                    <ng-container matColumnDef="action">
+                    <!-- <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef> Action </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <mat-icon (click)="ViewResponse(element)" title="Update Booking">update</mat-icon>
+                            <button (click)="moveToContact(element._id)" mat-button>Move to Contact</button>
                         </td>
-                    </ng-container>
+                    </ng-container> -->
                   
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"

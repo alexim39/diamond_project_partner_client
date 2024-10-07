@@ -35,6 +35,7 @@ import { LandingPageSettingContainerComponent } from "./settings/Landing-page/La
 import { PreapproachDownloadContainerComponent } from "./training-resource/pre-approach-download/pre-approach-download-container.component";
 import { BookSessionContainerComponent } from "./contacts/book-session/book-session-container.component";
 import { ProspectBookingContainerComponent } from "./analytics/prospect-booking/prospect-booking-container.component";
+import { EmailListContainerComponent } from "./analytics/email-list/email-list-container.component";
 
 
 
@@ -144,6 +145,11 @@ export const dashboardRoutes: Routes = [
                 path: 'prospect-booking',
                 component: ProspectBookingContainerComponent,
                 title: "Manage Prospect Session Booking",
+            },        
+            {
+                path: 'email-list',
+                component: EmailListContainerComponent,
+                title: "Manage Prospect Email Listing",
             },        
             {
                 path: 'prospect-detail/:id',
