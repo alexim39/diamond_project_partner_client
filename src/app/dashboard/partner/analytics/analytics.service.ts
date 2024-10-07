@@ -96,6 +96,14 @@ export class AnalyticsService {
      .put<any>(this.apiURL + `/booking/update`, formData, { withCredentials: true })
      .pipe(retry(1), catchError(this.handleError));
   }
+
+    // get partner email
+    getEmailList(createdBy: string): Observable<ProspectListInterface> {
+      //console.log('record', id);
+      return this.http
+        .get<ProspectListInterface>(this.apiURL + `/booking/email-list/${createdBy}`, { withCredentials: true })
+        .pipe(retry(1), catchError(this.handleError));
+    }
     
    
 }

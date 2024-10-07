@@ -123,8 +123,9 @@ import Swal from 'sweetalert2';
       <mat-label>Update Session Status</mat-label>
       <mat-select formControlName="sessionStatus" required>
         <mat-option value="Scheduled">Scheduled</mat-option>
+        <mat-option value="No Show from Prospect">No Show from Prospect</mat-option>
+        <mat-option value="No Show from Partner">No Show from Partner</mat-option>
         <mat-option value="Completed">Completed</mat-option>
-        <mat-option value="No Show">No Show</mat-option>
         <mat-option value="Rebooked">Rebooked</mat-option>
         <mat-option value="In Progress">In Progress</mat-option>
         <mat-option value="Cancelled">Cancelled</mat-option>
@@ -188,7 +189,7 @@ export class BookingStatusUpdateComponent implements OnInit {
       if (this.data) {
         this.bookingUpdateForm = new FormGroup({
           sessionStatus: new FormControl('', Validators.required),
-          sessionRemark: new FormControl(''),
+          sessionRemark: new FormControl('', Validators.required),
           id: new FormControl(this.data._id),
           //id: this.data._id
         });
