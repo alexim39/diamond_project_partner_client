@@ -7,8 +7,6 @@ import { ManageCampaignDetailContainerComponent } from "./campaigns/manage-campa
 import { MonthlyPurchaseContainerComponent } from "./monthly-purchase/monthly-purchase-container.component";
 import { InvitationContainerComponent } from "./profile/invitation/invitation-container.component";
 import { ProfileMrgContainerComponent } from "./profile/profile-mgr/profile-mgr-container.component";
-//import { TeamMembersContainerComponent } from "./profile/team-members/team-members-container.component";
-//import { AddMembersContainerComponent } from "./profile/team-members/add-members/add-members-container";
 import { BillingContainerComponent } from "./billing/billing-container.component";
 import { CreateContactsContainerComponent } from "./contacts/create/create-contacts-container.component";
 import { ManageContactsContainerComponent } from "./contacts/manage/manage-contacts-container.component";
@@ -36,6 +34,10 @@ import { PreapproachDownloadContainerComponent } from "./training-resource/pre-a
 import { BookSessionContainerComponent } from "./contacts/book-session/book-session-container.component";
 import { ProspectBookingContainerComponent } from "./analytics/prospect-booking/prospect-booking-container.component";
 import { EmailListContainerComponent } from "./analytics/email-list/email-list-container.component";
+import { MyPartnersContainerComponent } from "./mentorship/my-partners/my-partners-container.component";
+import { MyPartnerSupportContainerComponent } from "./mentorship/my-partners/support/support-container.component";
+import { MyPartnersContactsContainerComponent } from "./mentorship/my-partners/contacts/contacts-container.component";
+import { MyPartnerContactsDetailContainerComponent } from "./mentorship/my-partners/contacts/details/contacts-detail-container.component";
 
 
 
@@ -112,6 +114,11 @@ export const dashboardRoutes: Routes = [
                 title: "Manage Team - Manage list of created partners team",
             },        
             {
+                path: 'my-partners',
+                component: MyPartnersContainerComponent,
+                title: "My Partners - Manage partners listing",
+            },        
+            {
                 path: 'create-contacts',
                 component: CreateContactsContainerComponent,
                 title: "Create Contacts List",
@@ -154,7 +161,22 @@ export const dashboardRoutes: Routes = [
             {
                 path: 'prospect-detail/:id',
                 component: ManageContactsDetailContainerComponent,
-                title: "Campaign Details",
+                title: "Prospect Details - View and manage your prospect details",
+            },        
+            {
+                path: 'my-partner-contact-detail/:id',
+                component: MyPartnerContactsDetailContainerComponent,
+                title: "Partner Prospect Details - View and manage your partner prospect details",
+            },        
+            {
+                path: 'support-partner/:id',
+                component: MyPartnerSupportContainerComponent,
+                title: "Partner Support - View details & support partner",
+            },        
+            {
+                path: 'my-partners-contacts/:id',
+                component: MyPartnersContactsContainerComponent,
+                title: "Partner Support - View details & support partner",
             },        
             {
                 path: 'cell-meeting',

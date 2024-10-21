@@ -34,6 +34,7 @@ export interface PartnerInterface {
   tiktokPage?: string;
   facebookPage?: string;
   twitterPage?: string;
+  createdAt?: Date;
 }
 
 @Injectable()

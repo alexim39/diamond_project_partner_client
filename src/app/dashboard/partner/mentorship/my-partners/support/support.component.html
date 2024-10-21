@@ -1,0 +1,135 @@
+<section class="async-background">
+    <h2>Partner's Details</h2>
+
+    <section class="async-container">
+        <div class="title">
+            <div class="control">
+                <div class="back" (click)="back()" title="Back">
+                    <mat-icon>arrow_back</mat-icon>
+                </div>
+                <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
+            </div>
+            <h3>{{myPartner.surname | titlecase}} {{myPartner.name | titlecase}}'s Details</h3>
+        </div>
+
+        
+
+            <section class="flex-container">  
+
+                <article class="flex-item">  
+                    <h2>Basic Information</h2>  
+                    <!-- <p>Ads information</p> -->
+    
+                        <div class="list">
+                            <h5> Names </h5>
+                            <span class="data">{{myPartner.surname | titlecase}} {{myPartner.name | titlecase}}  </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+    
+                        <div class="list">
+                            <h5> Phone Number </h5>
+                            <span class="data">{{myPartner.phone }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+                        <div class="list">
+                            <h5> Email Address </h5>
+                            <span class="data">{{myPartner.email | lowercase }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+                        <div class="list">
+                            <h5> Reservation/Code</h5>
+                            <span class="data">{{myPartner.reservationCode | uppercase }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+                        <div class="list">
+                            <h5> Unique Link</h5>
+                            <span class="data">
+                                <a href="https://diamondprojectonline.com/{{myPartner.username | lowercase }}" target="_blank">www.diamondprojectonline.com/{{myPartner.username | lowercase }}</a>
+                            </span>
+                        </div>
+                        <mat-divider></mat-divider>
+                    
+                        <div class="list">
+                            <h5> Created Date </h5>
+                            <span class="data">{{myPartner.createdAt | date}} </span>
+                        </div>
+                      
+                </article> 
+    
+                <article class="flex-item">  
+                    <h2>Performance Tracking</h2>  
+                    <!-- <p>The main objective is to increase brand awareness.</p>   -->
+    
+                    <div class="list">
+                        <h5> Number of partners (downlines)</h5>
+                        <span class="data"> {{myPartnerPartners ? myPartnerPartners.length : 0}} </span>
+                    </div>
+                    <!-- <mat-divider></mat-divider>
+
+                    <div class="list">
+                        <h5> Activity (meetings, calls, tasks completed) </h5>
+                        <span class="data"></span>
+                    </div>
+                    <mat-divider></mat-divider> -->
+
+                   <!--  <div class="list">
+                        <h5>Sales performance and commissions</h5>
+                        <span class="data"></span>
+                    </div>
+                    <mat-divider></mat-divider> -->
+
+                </article>   
+ 
+    
+                <article class="flex-item">  
+                    <h2>Action</h2>  
+                    <!-- <p>Formats include video ads and carousel images.</p>  --> 
+
+    
+                    <div class="list">
+                        <h5> View {{myPartner.name}}'s contact list </h5>
+                        <span class="data">
+                            <button mat-raised-button (click)="viewPartnersContactList(myPartner._id)"><mat-icon>contacts</mat-icon>Contact List</button>
+                        </span>
+                    </div>
+                    <mat-divider></mat-divider>
+
+                    <!-- <div class="list">
+                        <h5> View {{myPartner.name}}'s partners </h5>
+                        <span class="data">
+                            <button mat-raised-button ><mat-icon>contact_page</mat-icon>Partners List</button>
+                        </span>
+                    </div>
+                    <mat-divider></mat-divider> -->
+
+                   <!--  <div class="list">
+                        <h5> Book for Session </h5>
+                        <span class="data">
+                            <button mat-raised-button ><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
+                        </span>
+                    </div>
+                    <mat-divider></mat-divider> -->
+
+                    <div class="list">
+                        <h5> Delete partner's record </h5>
+                        <span class="data">
+                            <button disabled="true" mat-raised-button style="color: rgba(255, 0, 0, 0.578)"><mat-icon>delete</mat-icon>Delete</button>
+                        </span> <br>
+                        <small style="color: gray">Delete action is not enabled. </small> <br>
+                        <small style="color: gray">Contact admin with reason for delete action</small>
+                    </div>
+
+                </article>  
+
+     
+    
+            </section>
+
+    </section>
+
+
+</section>

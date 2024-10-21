@@ -37,21 +37,21 @@ export class EditContactsContainerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-      this.route.paramMap.subscribe(params => {
-        this.prospectId = params.get('id');
-        if (this.prospectId) {
-          // Fetch prospect details using the ID
-          this.subscriptions.push(
-            this.contactsService.getProspectById(this.prospectId).subscribe(prospect => {
-              //console.log(prospect)
-              this.prospect = prospect;
-            }, error => {
-              this.isEmptyRecord = true;
-            })
-          )
-          
-        }
-      });
+    this.route.paramMap.subscribe(params => {
+      this.prospectId = params.get('id');
+      if (this.prospectId) {
+        // Fetch prospect details using the ID
+        this.subscriptions.push(
+          this.contactsService.getProspectById(this.prospectId).subscribe(prospect => {
+            //console.log(prospect)
+            this.prospect = prospect;
+          }, error => {
+            this.isEmptyRecord = true;
+          })
+        )
+        
+      }
+    });
   }
 
   ngOnDestroy() {

@@ -1,39 +1,40 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
-import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { HelpDialogComponent } from '../../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import Swal from 'sweetalert2';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
-import { ContactsInterface, ContactsService } from '../contacts.service';
+import { ContactsInterface, ContactsService } from './contacts.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
+import { TruncatePipe } from '../../../../../_common/pipes/truncate.pipe';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
+import { ExportContactAndEmailService } from '../../../../../_common/services/exportContactAndEmail.service';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 
 @Component({
-  selector: 'async-manage-contatcs',
-  templateUrl: 'manage-contacts.component.html',
-  styleUrls: ['manage-contacts.component.scss'],
+  selector: 'async-my-partners-contatcs',
+  templateUrl: 'contacts.component.html',
+  styleUrls: ['contacts.component.scss'],
   standalone: true,
   providers: [ContactsService],
   imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
     MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule],
 })
-export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;
+  @Input() myPartner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
-  @Input() prospectContact!: ContactsInterface;
+  @Input() partnerContacts!: ContactsInterface;
 
   subscriptions: Array<Subscription> = [];
 
@@ -53,8 +54,11 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
   ) { }
 
   ngOnInit(): void {
-    if (this.prospectContact.data) {
-      this.dataSource.data = this.prospectContact.data.sort((a, b) => {
+
+    //console.log(this.partnerContacts.data)
+
+    if (this.partnerContacts.data) {
+      this.dataSource.data = this.partnerContacts.data.sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
@@ -68,6 +72,11 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
       return data.prospectName.toLowerCase().includes(filter.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filter.toLowerCase());
     };
 
+  }
+
+  back(): void {
+    //this.router.navigateByUrl('dashboard/my-partners');
+    this.router.navigate(['/dashboard/support-partner', this.myPartner._id]);
   }
 
   applyFilter(filterValue: string) {
@@ -163,13 +172,13 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
 
 
   preview(id: string) {
-    this.router.navigate(['/dashboard/prospect-detail', id]);
+    this.router.navigate(['/dashboard/my-partner-contact-detail', id]);
   }
 
   showDescription() {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: `View and manage your imported or created contact list of your potential prospect`,
+        help: `View and manage the imported or created contact list of your partners prospect`,
       },
     });
   }
