@@ -42,7 +42,7 @@ export class ManageTeamComponent implements OnInit {
   dataSource: TeamInterface[] = [];
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['team', 'purpose', 'desc', 'date', 'action'];
+  displayedColumns: string[] = ['team', 'purpose', 'desc', 'date', 'manage', 'action'];
 
   constructor(
     private teamService: TeamService,

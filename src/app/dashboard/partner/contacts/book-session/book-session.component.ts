@@ -17,6 +17,7 @@ import { Router, RouterModule } from '@angular/router';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { Location } from '@angular/common';  
 
 /**
  * @title Contacts
@@ -41,6 +42,7 @@ export class BookSessionComponent implements OnInit, OnDestroy {
     constructor(
       private contactsService: ContactsService,
       private router: Router,
+      private location: Location,
     ) {}
 
 
@@ -67,7 +69,8 @@ export class BookSessionComponent implements OnInit, OnDestroy {
 
     back(): void {  
       if (window.history.length > 1) {  
-          window.history.back();  
+          //window.history.back();  
+          this.location.back(); // This will take you to the previous page in the history 
       } else {  
           // Redirect to a default route if there's no history  
           this.router.navigateByUrl('dashboard/manage-contacts');  

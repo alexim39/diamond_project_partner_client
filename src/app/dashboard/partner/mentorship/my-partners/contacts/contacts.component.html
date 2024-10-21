@@ -1,0 +1,125 @@
+<section class="async-background ">
+    <h2>Manage Partner Contact List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <div class="title">
+            <div class="control">
+                <div class="back" (click)="back()" title="Back">
+                    <mat-icon>arrow_back</mat-icon>
+                </div>
+                <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
+            </div>
+
+            <h3>Contact List of {{myPartner.surname | titlecase}} {{myPartner.name | titlecase}}</h3>
+          
+        </div>
+
+        <ng-container *ngIf="!isEmptyRecord">
+            <div class="search">
+                <mat-form-field appearance="outline">
+                    <mat-label>Filter by prospect name</mat-label>
+                    <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
+                </mat-form-field>
+            </div>
+
+            <div class="export-button">
+                <mat-button-toggle-group>
+                    <mat-button-toggle value="contacts" (click)="onExportControlChange('contacts')"><mat-icon>smartphone</mat-icon> Export Selected Contacts</mat-button-toggle>
+                    <mat-button-toggle value="emails" (click)="onExportControlChange('emails')"><mat-icon>mail</mat-icon> Export Selected Emails</mat-button-toggle>
+                    <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
+                </mat-button-toggle-group>
+            </div>
+    
+            <div class="table">
+    
+    
+                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox (change)="$event ? selectAll($event.checked) : null"
+                                        [checked]="isAllSelected()"
+                                        [indeterminate]="isSomeSelected()">
+                        </mat-checkbox>
+                        </th>
+                        <td mat-cell *matCellDef="let element">
+                        <mat-checkbox (change)="toggleSelection(element)" [checked]="selection.has(element)">
+                        </mat-checkbox>
+                        </td>
+                    </ng-container>
+    
+                    <!--- Note that these columns can be defined in any order.
+                          The actual rendered columns are set as a property on the row definition" -->
+                  
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef> Name </th>
+                      <td mat-cell *matCellDef="let element"> {{element.prospectName | titlecase }} {{element.prospectSurname | titlecase}} </td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="phone">
+                      <th mat-header-cell *matHeaderCellDef> Phone Number </th>
+                      <td mat-cell *matCellDef="let element"> {{element.prospectPhone}} </td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="email">
+                      <th mat-header-cell *matHeaderCellDef> Email Address </th>
+                      <td mat-cell *matCellDef="let element"> {{element.prospectEmail | lowercase}} </td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="channel">
+                      <th mat-header-cell *matHeaderCellDef> Channel </th>
+                      <td mat-cell *matCellDef="let element"> {{element.prospectSource}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef> Status </th>
+                      <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="remark">
+                        <th mat-header-cell *matHeaderCellDef> Remark/Comment </th>
+                        <td mat-cell *matCellDef="let element"> {{element.prospectRemark | truncate: 40 }} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="date">
+                        <th mat-header-cell *matHeaderCellDef> Date </th>
+                        <td mat-cell *matCellDef="let element"> {{element.updatedAt | date}} </td>
+                    </ng-container>
+    
+                    <ng-container matColumnDef="action">
+                        <th mat-header-cell *matHeaderCellDef> Action </th>
+                        <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
+                            <mat-icon title="View" (click)="preview(element._id)">read_more</mat-icon>
+                        </td>
+                    </ng-container>
+                  
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> -->
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+                        [ngClass]="{
+                        'partner': row.status === 'Partner', 
+                        'member': row.status === 'Member',
+                        'closing': row.status === 'Closing',
+                        'not-interested': row.status === 'Not Interested'
+                        }"
+                    ></tr>  
+
+                </table>
+
+                <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
+    
+    
+            </div>
+        </ng-container>
+        <ng-container *ngIf="isEmptyRecord">
+            <p class="no-campaign">No prospect contact available yet</p>
+        </ng-container>
+
+       
+
+        
+    </section>
+    
+</section>

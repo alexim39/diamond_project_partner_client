@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { Location } from '@angular/common';  
 
 /**
  * @title Contacts
@@ -37,6 +38,7 @@ export class EditContactsComponent implements OnInit, OnDestroy {
     constructor(
       private contactsService: ContactsService,
       private router: Router,
+      private location: Location,
     ) {}
 
 
@@ -80,7 +82,8 @@ export class EditContactsComponent implements OnInit, OnDestroy {
             timer: 15000,
           }).then((result) => {
             if (result.isConfirmed) {
-              this.router.navigate(['/dashboard/prospect-detail', this.prospect?.data?._id]);
+              //this.router.navigate(['/dashboard/prospect-detail', this.prospect?.data?._id]);
+              this.location.back(); // This will take you to the previous page in the history 
             }
           });
   
