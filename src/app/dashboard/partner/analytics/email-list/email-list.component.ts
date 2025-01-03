@@ -43,7 +43,7 @@ export class EmailListComponent implements OnInit, OnDestroy  {
   
     filterText: string = '';
   
-    displayedColumns: string[] = ['email', 'status', 'date', 'detail', 'action'];
+    displayedColumns: string[] = ['email', 'date', 'delete'];
     timeAgoList: string[] = [];  
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -56,7 +56,8 @@ export class EmailListComponent implements OnInit, OnDestroy  {
  
     ngOnInit(): void {
         if (this.prospectList.data) {  
-        //console.log(this.prospectList.data)
+        //console.log('prospect list', this.prospectList.data)
+        //console.log('partner detail', this.partner)
         this.dataSource.data  = this.prospectList.data.sort((a, b) => {  
           // Use the getTime() method to compare the Date values  
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();  
@@ -69,7 +70,7 @@ export class EmailListComponent implements OnInit, OnDestroy  {
       
       // Custom filter predicate to filter by name
       this.dataSource.filterPredicate = (data: any, filter: string) => {
-        return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
+        return data.email.toLowerCase().includes(filter.toLowerCase()) || data.email.toLowerCase().includes(filter.toLowerCase());
       };
 
     }

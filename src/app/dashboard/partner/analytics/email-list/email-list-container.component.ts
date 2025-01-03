@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { EmailListComponent } from './email-list.component';
@@ -7,7 +7,7 @@ import { AnalyticsService, ProspectListInterface } from '../analytics.service';
 
 
 /**
- * @title contacts container
+ * @title prospect email list container
  */
 @Component({
   selector: 'async-email-list-container',
@@ -30,21 +30,21 @@ export class EmailListContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-      
+
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe(
-       
+
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
             this.prospectListService.getEmailList(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
               this.prospectList = prospectContact;
-              //console.log('prospectContact ',prospectContact)
+              //console.log('prospectEmais ',prospectContact)
             })
           }
         },
-        
+
         error => {
           console.log(error)
           // redirect to home page

@@ -43,7 +43,7 @@ export class ProspectListComponent implements OnInit, OnDestroy  {
   
     filterText: string = '';
   
-    displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'dateAgo', 'detail', 'action'];
+    displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'dateAgo','action', 'delete'];
     timeAgoList: string[] = [];  
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;

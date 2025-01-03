@@ -42,7 +42,7 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time', 'detail', 'action'];
+  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time', 'action', 'delete'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 

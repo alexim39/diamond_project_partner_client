@@ -1,9 +1,9 @@
 <section class="async-background ">
-    <h2>Manage Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Manage Prospect Email List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
         <div class="title">
-            <h3>Online Survey List</h3>
+            <h3>Online Email List</h3>
             <div class="action-area">
                 <a mat-list-item routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list" mat-raised-button><mat-icon>view_list</mat-icon>Contact List</a>
             </div>
@@ -12,7 +12,7 @@
         <ng-container *ngIf="!isEmptyRecord">
             <div class="search">
                 <mat-form-field appearance="outline">
-                    <mat-label>Filter by prospect name</mat-label>
+                    <mat-label>Filter by prospect email</mat-label>
                     <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
                 </mat-form-field>
             </div>
@@ -22,33 +22,22 @@
 
                     <ng-container matColumnDef="email">
                       <th mat-header-cell *matHeaderCellDef> Email Address </th>
-                      <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
+                      <td mat-cell *matCellDef="let element" class="bold-text" > {{element.email | lowercase}} </td>
                     </ng-container>
     
-                    <ng-container matColumnDef="status">
-                      <th mat-header-cell *matHeaderCellDef> Status </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectStatus}} </td>
-                    </ng-container>
 
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef> Date </th>
                         <td mat-cell *matCellDef="let element"> {{element.updatedAt | date}} </td>
                     </ng-container>  
 
-                    <!-- <ng-container matColumnDef="detail">
-                        <th mat-header-cell *matHeaderCellDef> Detail </th>
+                    <ng-container matColumnDef="delete">
+                        <th mat-header-cell *matHeaderCellDef> Delete </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <mat-icon (click)="ViewResponse(element)" title="View detailed responses">preview</mat-icon>
-                            <mat-icon (click)="deleteProspect(element._id)" title="Delete" style="margin-left: 1em; color: red;">delete</mat-icon>
+                            <mat-icon (click)="deleteProspect(element._id)" title="Delete" style="color: red;">delete</mat-icon>
                         </td>
-                    </ng-container> -->
+                    </ng-container>
 
-                    <!-- <ng-container matColumnDef="action">
-                        <th mat-header-cell *matHeaderCellDef> Action </th>
-                        <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <button (click)="moveToContact(element._id)" mat-button>Move to Contact</button>
-                        </td>
-                    </ng-container> -->
                   
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"
