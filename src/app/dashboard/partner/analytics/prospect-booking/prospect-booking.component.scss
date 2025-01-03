@@ -62,6 +62,10 @@
     background-color: #eefee7; /* Light green background */
 }
 
+.bold-text {
+    font-weight: bolder;
+}
+
 @media (max-width: 600px) {
     .form-group {
         flex: 1 1 100%;

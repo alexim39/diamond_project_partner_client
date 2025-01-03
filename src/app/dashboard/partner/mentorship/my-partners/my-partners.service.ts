@@ -18,8 +18,8 @@ export interface TeamInterface {
 @Injectable()
 export class MyPartnersService {
   // Define API
-  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-    apiURL = 'http://localhost:3000';
+  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  //  apiURL = 'http://localhost:3000';
 
 
   

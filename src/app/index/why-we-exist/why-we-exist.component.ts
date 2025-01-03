@@ -42,7 +42,7 @@ import { CommonModule } from '@angular/common';
 
       <!-- <small>Use our flexible learning path, adjust your learning to suit your time  — all in one place. Open a free account in minutes and learn any time.</small> -->
 
-      <a mat-flat-button color="primary" routerLink="auth/partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
+      <a mat-flat-button color="primary" routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
     </aside>
   `,
   styles: [`

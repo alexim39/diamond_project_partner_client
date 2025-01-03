@@ -7,7 +7,7 @@ import { AnalyticsService, ProspectListInterface } from '../analytics.service';
 
 
 /**
- * @title contacts container
+ * @title prospect booking container
  */
 @Component({
   selector: 'async-prospect-booking-container',

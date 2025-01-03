@@ -21,7 +21,9 @@
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
                     <ng-container matColumnDef="name">
                       <th mat-header-cell *matHeaderCellDef> Name </th>
-                      <td mat-cell *matCellDef="let element"> {{element.name | titlecase }} {{element.surname | titlecase}} </td>
+                      <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses"> 
+                        {{element.name | titlecase }} {{element.surname | titlecase}} 
+                      </td>
                     </ng-container>
                   
                     <ng-container matColumnDef="phone">
@@ -35,8 +37,13 @@
                     </ng-container>
     
                     <ng-container matColumnDef="status">
-                      <th mat-header-cell *matHeaderCellDef> Status </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectStatus}} </td>
+                        <th mat-header-cell *matHeaderCellDef> Status </th>
+                        <td 
+                          mat-cell 
+                          *matCellDef="let element" 
+                          [ngClass]="{'bold-text': element.prospectStatus === 'Moved to Contact'}">
+                          {{element.prospectStatus}}
+                        </td>
                     </ng-container>
 
                     <ng-container matColumnDef="date">
@@ -49,18 +56,18 @@
                         <td mat-cell *matCellDef="let element"> {{ getDateAgo(element) }}  </td>
                     </ng-container>    
 
-                    <ng-container matColumnDef="detail">
-                        <th mat-header-cell *matHeaderCellDef> Detail </th>
+                    <ng-container matColumnDef="delete">
+                        <th mat-header-cell *matHeaderCellDef> Delete </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <mat-icon (click)="ViewResponse(element)" title="View detailed responses">preview</mat-icon>
-                            <mat-icon (click)="deleteProspect(element._id)" title="Delete" style="margin-left: 1em; color: red;">delete</mat-icon>
+                            <!-- <mat-icon (click)="ViewResponse(element)" title="View detailed responses">preview</mat-icon> -->
+                            <mat-icon (click)="deleteProspect(element._id)" title="Delete" style="color: red;">delete</mat-icon>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef> Action </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <button (click)="moveToContact(element._id)" mat-button>Move to Contact</button>
+                            <button (click)="moveToContact(element._id)" mat-button [disabled]="element.prospectStatus == 'Moved to Contact'">Move to Contact</button>
                         </td>
                     </ng-container>
                   
