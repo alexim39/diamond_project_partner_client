@@ -147,7 +147,7 @@ export class EmailListComponent implements OnInit, OnDestroy  {
      
     }
 
-    deleteProspect(prospectId: string) {
+    deleteSingleEmail(emailId: string) {
       Swal.fire({
         title: "Are you sure of this delete action?",
         text: "You won't be able to revert this!",
@@ -167,12 +167,12 @@ export class EmailListComponent implements OnInit, OnDestroy  {
           //const partnerId = this.partner._id;
         
             this.subscriptions.push(
-              this.analyticsService.deleteSingle(prospectId).subscribe((res: any) => {
+              this.analyticsService.deleteSingleEmailFromEmailList(emailId).subscribe((res: any) => {
         
                 Swal.fire({
                   position: "bottom",
                   icon: 'success',
-                  text: `Your have successfully deleted prospect from the system`,
+                  text: `Your have successfully deleted email from the system`,
                   showConfirmButton: true,
                   confirmButtonText: "Ok",
                   confirmButtonColor: "#ffab40",

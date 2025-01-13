@@ -89,6 +89,12 @@ import Swal from 'sweetalert2';
   </mat-list-item>
   <mat-divider></mat-divider>
 
+  <mat-list-item>
+    <span matListItemTitle>Purpose of Session:</span>
+    <span matListItemLine class="bolder">{{data.reason}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+
   <mat-list-item>  
     <span matListItemTitle>Session Scheduler:</span>  
     <span matListItemLine class="bolder">  
@@ -109,7 +115,7 @@ import Swal from 'sweetalert2';
   <mat-divider></mat-divider>
 
   <mat-list-item *ngIf="data.description" class="custom-list-item">  
-    <span matListItemTitle>Prospect Importance of Passive Income:</span>  
+    <span matListItemTitle>Current Comment/Remark:</span>  
     <span matListItemLine class="bolder long-description">{{ data.description }}</span>  
   </mat-list-item>  
   <mat-divider></mat-divider>
@@ -126,6 +132,7 @@ import Swal from 'sweetalert2';
         <mat-option value="No Show from Prospect">No Show from Prospect</mat-option>
         <mat-option value="No Show from Partner">No Show from Partner</mat-option>
         <mat-option value="Completed">Completed</mat-option>
+        <mat-option value="Incomplete">Incomplete</mat-option>
         <mat-option value="Rebooked">Rebooked</mat-option>
         <mat-option value="In Progress">In Progress</mat-option>
         <mat-option value="Cancelled">Cancelled</mat-option>

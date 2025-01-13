@@ -20,12 +20,15 @@
 
         .search {
             padding: 0.5em 0;
-            text-align: center;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
             mat-form-field {
-                width: 70%;
+                width: 45%;
 
             }
-        }    
+        }   
         
         .table {
             padding: 0 1em;
@@ -69,5 +72,19 @@
 @media (max-width: 600px) {
     .form-group {
         flex: 1 1 100%;
+    }
+}
+
+.summary-area {
+    display: flex;
+    flex-direction: row;
+    margin: -0.4em 0 0.4em 0;
+    .mat-chip {
+        font-size: 0.8em;
+    }
+    .value {
+        font-weight: bolder;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans';
+        font-size: 1.2em;
     }
 }

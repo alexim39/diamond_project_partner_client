@@ -11,11 +11,6 @@
                     <mat-button-toggle style="background: white" routerLink="../create-contacts" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign"><mat-icon>add</mat-icon>New Contact</mat-button-toggle>
                     <mat-button-toggle style="background: white" routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon>Online Prospect Contact</mat-button-toggle>
                 </mat-button-toggle-group>
-
-                <!-- <div class="action">
-                    Prepaid balance
-                    N5,000
-                </div> -->
             </div>
         </div>
 
@@ -23,20 +18,83 @@
             <div class="search">
                 <mat-form-field appearance="outline">
                     <mat-label>Filter by prospect name</mat-label>
-                    <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
+                    <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyNameFilter($event)">
                 </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Filter contact by status</mat-label>
+                    <mat-select [(value)]="filterStatus" (selectionChange)="applyStatusFilter()">
+                        <mat-option  value="">Remove filter</mat-option>
+                        <mat-option  value="New Prospect">New Prospect</mat-option>
+                        <mat-option  value="Contacted">Contacted</mat-option>
+                        <mat-option  value="Follow-Up Scheduled">Follow-Up Scheduled</mat-option>
+                        <mat-option  value="Engaged">Engaged</mat-option>
+                        <mat-option  value="Sent Information">Sent Information</mat-option>
+                        <mat-option  value="Awaiting Response">Awaiting Response</mat-option>
+                        <mat-option  value="Interested">Interested</mat-option>
+                        <mat-option  value="Nurturing">Nurturing</mat-option>
+                        <mat-option  value="Closing">Closing</mat-option>
+                        <mat-option  value="Booked for Session">Booked for Session</mat-option>
+                        <mat-option  value="Member">Member</mat-option>
+                        <mat-option  value="Not Interested">Not Interested</mat-option>
+                        <mat-option  value="Disqualified">Disqualified</mat-option>
+                        <mat-option  value="Inactive">Inactive</mat-option>
+                        <mat-option  value="Re-engagement">Re-engagement</mat-option>
+                        <mat-option  value="Archive">Archive</mat-option>
+                        <mat-option  value="Partner">Partner</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
             </div>
 
-            <div class="export-button">
-                <mat-button-toggle-group>
-                    <mat-button-toggle value="contacts" (click)="onExportControlChange('contacts')"><mat-icon>smartphone</mat-icon> Export Selected Contacts</mat-button-toggle>
-                    <mat-button-toggle value="emails" (click)="onExportControlChange('emails')"><mat-icon>mail</mat-icon> Export Selected Emails</mat-button-toggle>
-                    <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
-                </mat-button-toggle-group>
+            <div class="summary-action">
+
+                <div class="summary-area">
+                    <mat-chip-set>
+                        <mat-chip>
+                            <span class="mat-chip">
+                                Total contacts:
+                            </span>
+                            <span class="value">
+                                {{ getTotalContacts() }}
+                            </span>
+                        </mat-chip>
+
+                        <mat-chip>
+                            <span class="mat-chip">
+                                Channel summary: 
+                                Link  <span class="value">{{ getTotalOnlineContacts() }}</span>, 
+                                Others  <span class="value">{{ ( getTotalContacts() - getTotalOnlineContacts() ) }}</span>
+                            </span>
+                           
+                        </mat-chip>
+
+                        <mat-chip *ngIf="filteredContactCount !== 0 && filteredContactCount !== getTotalContacts()">
+                            <span class="mat-chip">
+                              {{filterStatus}}:
+                            </span>
+                            <span class="value">
+                              {{ filteredContactCount }}
+                            </span>
+                          </mat-chip>
+                        
+                    </mat-chip-set>
+
+
+
+                </div>
+
+                <div class="export-button">
+                    <mat-button-toggle-group>
+                        <mat-button-toggle value="contacts" (click)="onExportControlChange('contacts')"><mat-icon>smartphone</mat-icon> Export Selected Contacts</mat-button-toggle>
+                        <mat-button-toggle value="emails" (click)="onExportControlChange('emails')"><mat-icon>mail</mat-icon> Export Selected Emails</mat-button-toggle>
+                        <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
+                    </mat-button-toggle-group>
+                </div>
+
             </div>
     
             <div class="table">
-    
     
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
@@ -59,7 +117,7 @@
                   
                     <ng-container matColumnDef="name">
                       <th mat-header-cell *matHeaderCellDef> Name </th>
-                      <td mat-cell *matCellDef="let element"> {{element.prospectName | titlecase }} {{element.prospectSurname | titlecase}} </td>
+                      <td mat-cell *matCellDef="let element" style="cursor: pointer;" class="bold-text" matTooltip="{{element.prospectRemark}}" [matTooltipShowDelay]="500" [matTooltipHideDelay]="100" (click)="preview(element._id)"> {{element.prospectName | titlecase }} {{element.prospectSurname | titlecase}} </td>
                     </ng-container>
                   
                     <ng-container matColumnDef="phone">
@@ -82,22 +140,22 @@
                       <td mat-cell *matCellDef="let element"> {{element.status}} </td>
                     </ng-container>
     
-                    <ng-container matColumnDef="remark">
+                    <!-- <ng-container matColumnDef="remark">
                         <th mat-header-cell *matHeaderCellDef> Remark/Comment </th>
                         <td mat-cell *matCellDef="let element"> {{element.prospectRemark | truncate: 40 }} </td>
-                    </ng-container>
+                    </ng-container> -->
 
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef> Date </th>
                         <td mat-cell *matCellDef="let element"> {{element.updatedAt | date}} </td>
                     </ng-container>
     
-                    <ng-container matColumnDef="action">
+                   <!--  <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef> Action </th>
                         <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
                             <mat-icon title="View" (click)="preview(element._id)">read_more</mat-icon>
                         </td>
-                    </ng-container>
+                    </ng-container> -->
                   
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> -->

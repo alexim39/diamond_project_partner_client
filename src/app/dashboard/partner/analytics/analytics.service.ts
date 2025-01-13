@@ -19,8 +19,8 @@ export interface ProspectListInterface {
 @Injectable()
 export class AnalyticsService {
   // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
+  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
+  apiURL = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
   /*========================================
@@ -97,13 +97,21 @@ export class AnalyticsService {
      .pipe(retry(1), catchError(this.handleError));
   }
 
-    // get partner email
-    getEmailList(createdBy: string): Observable<ProspectListInterface> {
-      //console.log('record', id);
-      return this.http
-        .get<ProspectListInterface>(this.apiURL + `/booking/email-list/${createdBy}`, { withCredentials: true })
-        .pipe(retry(1), catchError(this.handleError));
-    }
+  // get partner email
+  getEmailList(createdBy: string): Observable<ProspectListInterface> {
+    //console.log('record', id);
+    return this.http
+      .get<ProspectListInterface>(this.apiURL + `/booking/email-list/${createdBy}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
     
+
+  // detele single prospect email
+  deleteSingleEmailFromEmailList(emailId: string): Observable<ProspectListInterface> {
+  console.log('record', emailId);
+  return this.http
+    .get<ProspectListInterface>(this.apiURL + `/emailSubscription/delete-email/${emailId}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+  }
    
 }

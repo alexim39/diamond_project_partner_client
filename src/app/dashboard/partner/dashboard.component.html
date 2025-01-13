@@ -181,6 +181,10 @@
             Pre-approach Material
           </a>
         </div>
+        <a mat-list-item (click)="toggleSubSubmenu('mentorship-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Survey Link" target="_blank" href="https://survey.diamondprojectonline.com/">
+          Survey Link
+          <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
+        </a>
         
         <!-- <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Content Creation & Sharing">Content Creation & Sharing</a>
         <div [@submenuToggle]="isSubSubmenuOpen('content-creatioin') ? 'open' : 'closed'" class="subsubmenu">
@@ -202,6 +206,7 @@
           </a>
         </div> -->
       </div>
+      
 
     
 <!--       <a mat-list-item (click)="toggleSubmenu('community')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
