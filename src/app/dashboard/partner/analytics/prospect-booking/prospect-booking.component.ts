@@ -43,7 +43,7 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time', 'action', 'delete'];
+  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time', 'action'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -108,61 +108,6 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
       data: prospect
     });
   }
-
-
-  deleteBooking(id: string) {
-    Swal.fire({
-      title: "Are you sure of this delete action?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        /*  Swal.fire({
-           title: "Deleted!",
-           text: "Your file has been deleted.",
-           icon: "success"
-         }); */
-
-        //const partnerId = this.partner._id;
-
-        this.subscriptions.push(
-          this.analyticsService.deleteBookings(id).subscribe((res: any) => {
-
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: `Your have successfully deleted booking detail`,
-              showConfirmButton: true,
-              confirmButtonText: "Ok",
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                //this.router.navigateByUrl('dashboard/manage-contacts');
-                location.reload();
-              }
-            });
-
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          })
-        )
-
-      }
-    });
-  }
-
 
   showDescription() {
     this.dialog.open(HelpDialogComponent, {

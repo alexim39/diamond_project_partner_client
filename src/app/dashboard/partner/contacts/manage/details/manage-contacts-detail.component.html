@@ -53,6 +53,12 @@
                     
                         <div class="list">
                             <h5> Created Date </h5>
+                            <span class="data">{{prospectData.createdAt | date}} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+                        
+                        <div class="list">
+                            <h5> Modified Date </h5>
                             <span class="data">{{prospectData.updatedAt | date}} </span>
                         </div>
                       
@@ -93,7 +99,11 @@
                                     <mat-option  value="Partner">Partner</mat-option>
                                 </mat-select>
                             </mat-form-field>
-                            <button mat-raised-button (click)="updateProspectStatus()">Update status</button>
+
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                <button mat-raised-button (click)="updateProspectStatus()">Update Status</button>
+                            </div>
+                            <!-- <button mat-raised-button (click)="updateProspectStatus()">Update status</button> -->
                            
                         </span>
                     </div>
@@ -115,7 +125,10 @@
                                 <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button (click)="updateProspectRemark()" style="margin-top: 2em">Update remark</button>
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 2em">
+                                <button mat-raised-button (click)="updateProspectRemark()">Update Remark</button>
+                            </div>
+                            <!-- <button mat-raised-button (click)="updateProspectRemark()" style="margin-top: 2em">Update remark</button> -->
                         </span>
                     </div>
                 </article>   
@@ -195,7 +208,10 @@
                                 <mat-hint align="start" style="color: orange"><strong>Write Email to prospect email address (Don't forget to include your link)</strong> </mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button style="margin-top: 2em" (click)="sendEmail()">Send</button>
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 2em">
+                                <button mat-raised-button (click)="sendEmail()">Send</button>
+                            </div>
+                            <!-- <button mat-raised-button style="margin-top: 2em" (click)="sendEmail()">Send</button> -->
                         </span>
                     </div>
                 </article>  
@@ -220,7 +236,10 @@
                                 <mat-hint align="end">{{SMS.value.length}} / 160</mat-hint>
                             </mat-form-field>
                             
-                            <button mat-raised-button style="margin-top: 2em" (click)="sendSMS()">Send</button>
+                            <div style="display: flex; justify-content: center; align-items: center; margin-top: 2em">
+                                <button mat-raised-button (click)="sendSMS()">Send</button>
+                            </div>
+                            <!-- <button mat-raised-button style="margin-top: 2em" (click)="sendSMS()">Send</button> -->
                         </span>
                     </div>    
                 </article>  
