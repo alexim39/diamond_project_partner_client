@@ -17,10 +17,11 @@ import { AnalyticsService, ProspectListInterface } from '../analytics.service';
 import { BookingStatusUpdateComponent } from './prospect-status-update.component';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 /**
- * @title Contacts
+ * @title Prospect booking
  */
 @Component({
   selector: 'async-prospect-booking',
@@ -28,7 +29,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
   styleUrls: ['prospect-booking.component.scss'],
   standalone: true,
   providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
+  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatTooltipModule, MatChipsModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
 })
 export class ProspectBookingComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
@@ -45,6 +46,10 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time', 'action', 'delete'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  filterStatus: string | null = null;
+  filteredContactCount: number = 0;
+
 
   constructor(
     private analyticsService: AnalyticsService,
@@ -65,15 +70,32 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Custom filter predicate to filter by name
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
+     // Combined filter predicate to filter by name and status
+     this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const filterValues = JSON.parse(filter);
+      const nameMatch = data.name.toLowerCase().includes(filterValues.name.toLowerCase()) || data.surname.toLowerCase().includes(filterValues.name.toLowerCase());
+      const statusMatch = data.status.toLowerCase().includes(filterValues.status.toLowerCase());
+      return nameMatch && statusMatch;
     };
 
   }
 
-  applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    
+  applyNameFilter(filterValue: string) {
+    const filterValues = {
+      name: filterValue,
+      status: this.filterStatus || ''
+    };
+    this.dataSource.filter = JSON.stringify(filterValues);
+  }
+
+  applyStatusFilter() {
+    const filterValues = {
+      name: this.filterText || '',
+      status: this.filterStatus || ''
+    };
+    this.dataSource.filter = JSON.stringify(filterValues);
+    this.filteredContactCount = this.dataSource.filteredData.length;
   }
 
   ngAfterViewInit() {
@@ -162,5 +184,9 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe();
     });
+  }
+
+  getTotalContacts(): number {
+    return this.dataSource.data.length;
   }
 }

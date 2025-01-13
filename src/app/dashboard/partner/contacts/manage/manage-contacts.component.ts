@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
@@ -15,20 +15,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+//import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
-import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
-import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'async-manage-contatcs',
   templateUrl: 'manage-contacts.component.html',
-  styleUrls: ['manage-contacts.component.scss'],
+  styleUrls: ['manage-contacts.component.scss', 'manage-contacts.mobile.scss'],
   standalone: true,
   providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
-    MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule],
+  imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+    MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatTooltipModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule, MatChipsModule],
 })
 export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;
@@ -37,14 +39,18 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
 
   subscriptions: Array<Subscription> = [];
 
-  dataSource = new MatTableDataSource<any>([]);  
+  dataSource = new MatTableDataSource<any>([]);
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['select', 'name', 'phone', 'email', 'channel', 'status', 'remark', 'date', 'action'];
+  displayedColumns: string[] = ['select', 'name', 'phone', 'email', 'channel', 'status', 'date',];
 
   selection = new Set<any>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  filterStatus: string | null = null;
+  filteredContactCount: number = 0;
+
 
   constructor(
     private contactsService: ContactsService,
@@ -63,15 +69,31 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
       }
     }
 
-    // Custom filter predicate to filter by name
+    // Combined filter predicate to filter by name and status
     this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.prospectName.toLowerCase().includes(filter.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filter.toLowerCase());
+      const filterValues = JSON.parse(filter);
+      const nameMatch = data.prospectName.toLowerCase().includes(filterValues.name.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filterValues.name.toLowerCase());
+      const statusMatch = data.status.toLowerCase().includes(filterValues.status.toLowerCase());
+      return nameMatch && statusMatch;
     };
-
   }
 
-  applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+
+  applyNameFilter(filterValue: string) {
+    const filterValues = {
+      name: filterValue,
+      status: this.filterStatus || ''
+    };
+    this.dataSource.filter = JSON.stringify(filterValues);
+  }
+
+  applyStatusFilter() {
+    const filterValues = {
+      name: this.filterText || '',
+      status: this.filterStatus || ''
+    };
+    this.dataSource.filter = JSON.stringify(filterValues);
+    this.filteredContactCount = this.dataSource.filteredData.length;
   }
 
   ngAfterViewInit() {
@@ -111,23 +133,23 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   // Method to handle the change in font style selection  
-  onExportControlChange(selectedValue: string): void {  
+  onExportControlChange(selectedValue: string): void {
     //console.log('Selected Font Style:', selectedValue);  
     // You can add logic here based on the selected value  
-    switch (selectedValue) {  
-      case 'contacts':  
-        this.applyContactExport();  
-        break;  
-      case 'emails':  
-        this.applyEmailExport();  
-        break; 
-      default:  
-        break;  
-    }  
-  }  
+    switch (selectedValue) {
+      case 'contacts':
+        this.applyContactExport();
+        break;
+      case 'emails':
+        this.applyEmailExport();
+        break;
+      default:
+        break;
+    }
+  }
 
 
-  private applyContactExport() {  
+  private applyContactExport() {
     // Logic for applying bold style  
     if (this.getSelectedPhoneNumbers().length === 0) {
       Swal.fire({
@@ -142,11 +164,11 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
       this.exportContactAndEmailService.setData(this.getSelectedPhoneNumbers());
       this.router.navigate(['/dashboard/send-sms']); // redirect to bulk sms page
     }
-  }  
+  }
 
-  private applyEmailExport() {  
-     // Logic for applying bold style  
-     if (this.getSelectedEmailAddresses().length === 0) {
+  private applyEmailExport() {
+    // Logic for applying bold style  
+    if (this.getSelectedEmailAddresses().length === 0) {
       Swal.fire({
         position: "bottom",
         icon: 'info',
@@ -159,7 +181,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
       this.exportContactAndEmailService.setData(this.getSelectedEmailAddresses());
       this.router.navigate(['/dashboard/send-email']); // redirect to bulk email page
     }
-  }  
+  }
 
 
   preview(id: string) {
@@ -183,4 +205,14 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
       subscription.unsubscribe();
     });
   }
+
+  getTotalContacts(): number {
+    return this.dataSource.data.length;
+  }
+
+  getTotalOnlineContacts(): number {
+    //console.log(this.dataSource.data)
+    return this.dataSource.data.filter(contact => contact.prospectSource === 'Unique Link').length;
+  }
+
 }

@@ -13,15 +13,57 @@
             <div class="search">
                 <mat-form-field appearance="outline">
                     <mat-label>Filter by prospect name</mat-label>
-                    <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
+                    <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyNameFilter($event)">
                 </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Filter booking by status</mat-label>
+                    <mat-select  [(value)]="filterStatus" (selectionChange)="applyStatusFilter()">
+                      <mat-option value="">Remove filter</mat-option>
+                      <mat-option value="Scheduled">Scheduled</mat-option>
+                      <mat-option value="No Show from Prospect">No Show from Prospect</mat-option>
+                      <mat-option value="No Show from Partner">No Show from Partner</mat-option>
+                      <mat-option value="Completed">Completed</mat-option>
+                      <mat-option value="Incomplete">Incomplete</mat-option>
+                      <mat-option value="Rebooked">Rebooked</mat-option>
+                      <mat-option value="In Progress">In Progress</mat-option>
+                      <mat-option value="Cancelled">Cancelled</mat-option>
+                    </mat-select>
+                  </mat-form-field>
             </div>
+
+
+            <div class="summary-area">
+                <mat-chip-set>
+                    <mat-chip>
+                        <span class="mat-chip">
+                            Total booked prospect:
+                        </span>
+                        <span class="value">
+                            {{ getTotalContacts() }}
+                        </span>
+                    </mat-chip>
+
+
+                    <mat-chip *ngIf="filteredContactCount !== 0 && filteredContactCount !== getTotalContacts()">
+                        <span class="mat-chip">
+                          {{filterStatus}}:
+                        </span>
+                        <span class="value">
+                          {{ filteredContactCount }}
+                        </span>
+                      </mat-chip>
+                    
+                </mat-chip-set>
+
+            </div>
+
     
             <div class="table">
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
                     <ng-container matColumnDef="name">
                       <th mat-header-cell *matHeaderCellDef> Name </th>
-                      <td mat-cell *matCellDef="let element" class="bold-text" (click)="ViewResponse(element)" title="Update Booking" style="cursor: pointer;"> 
+                      <td mat-cell *matCellDef="let element" class="bold-text" (click)="ViewResponse(element)" style="cursor: pointer;" matTooltip="{{element.description}}" [matTooltipShowDelay]="500" [matTooltipHideDelay]="100"> 
                         {{element.name | titlecase }} {{element.surname | titlecase}} 
                       </td>
                     </ng-container>
