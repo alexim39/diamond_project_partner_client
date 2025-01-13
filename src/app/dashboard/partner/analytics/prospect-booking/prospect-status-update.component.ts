@@ -10,6 +10,8 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Subscription } from 'rxjs';
 import { AnalyticsService } from '../analytics.service';
 import Swal from 'sweetalert2';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 /**
  * @title Help Dialog
@@ -110,7 +112,7 @@ import Swal from 'sweetalert2';
 
   <mat-list-item>
     <span matListItemTitle>Date of Booking</span>
-    <span matListItemLine class="bolder">{{ data.updatedAt | date:'fullDate' }} by {{ data.updatedAt | date:'shortTime' }}</span>
+    <span matListItemLine class="bolder">{{ data.createdAt | date:'fullDate' }} by {{ data.createdAt | date:'shortTime' }}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
@@ -162,12 +164,30 @@ import Swal from 'sweetalert2';
   </mat-list-item>
  <!--  <mat-divider></mat-divider> -->
 
-  <button mat-raised-button>Update</button>
+ <div style="display: flex; justify-content: center; align-items: center;">
+  <button mat-raised-button>Submit</button>
+ </div>
   </form>
 
-
-
 </mat-list>
+
+<br>
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title> More Action </mat-panel-title>
+      <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
+    </mat-expansion-panel-header>
+    <p style="color: gray;">Delete prospect from system</p>
+    <button mat-stroked-button (click)="deleteBooking(data._id)" style="color: red;">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    
+  </mat-expansion-panel>
+ </mat-accordion>
+
+ <br><br><br>
 
 </mat-dialog-content>
 
@@ -178,7 +198,7 @@ import Swal from 'sweetalert2';
   `,
   standalone: true,
   providers: [AnalyticsService],
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatListModule, MatInputModule, MatSelectModule,MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatExpansionModule, MatIconModule, MatListModule, MatInputModule, MatSelectModule,MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
 })
 export class BookingStatusUpdateComponent implements OnInit {
     readonly dialogRef = inject(MatDialogRef<BookingStatusUpdateComponent>);
@@ -249,5 +269,58 @@ export class BookingStatusUpdateComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  deleteBooking(id: string) {
+    Swal.fire({
+      title: "Are you sure of this delete action?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        /*  Swal.fire({
+           title: "Deleted!",
+           text: "Your file has been deleted.",
+           icon: "success"
+         }); */
+
+        //const partnerId = this.partner._id;
+
+        this.subscriptions.push(
+          this.analyticsService.deleteBookings(id).subscribe((res: any) => {
+
+            Swal.fire({
+              position: "bottom",
+              icon: 'success',
+              text: `Your have successfully deleted booking detail`,
+              showConfirmButton: true,
+              confirmButtonText: "Ok",
+              confirmButtonColor: "#ffab40",
+              timer: 15000,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                //this.router.navigateByUrl('dashboard/manage-contacts');
+                location.reload();
+              }
+            });
+
+          }, (error: any) => {
+            //console.log(error)
+            Swal.fire({
+              position: "bottom",
+              icon: 'info',
+              text: 'Server error occured, please try again',
+              showConfirmButton: false,
+              timer: 4000
+            })
+          })
+        )
+
+      }
+    });
   }
 }

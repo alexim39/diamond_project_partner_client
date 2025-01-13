@@ -1,15 +1,21 @@
 import { CommonModule } from '@angular/common';
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
+import {MatExpansionModule} from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import Swal from 'sweetalert2';
+import { Subscription } from 'rxjs';
+import { AnalyticsService } from '../analytics.service';
 
 /**
- * @title Help Dialog
+ * @title Prospect Detail 
  */
 @Component({
   selector: 'async-prospect-response',
+  providers: [AnalyticsService],
   styles: `
   span {
     color: gray;
@@ -103,27 +109,110 @@ import { MatListModule } from '@angular/material/list';
   
   <mat-list-item>
     <span matListItemTitle>Date of Visit</span>
-    <span matListItemLine class="bolder">{{ data.updatedAt | date:'fullDate' }} by {{ data.updatedAt | date:'shortTime' }}</span>
+    <span matListItemLine class="bolder">{{ data.createdAt | date:'fullDate' }} by {{ data.createdAt | date:'shortTime' }}</span>
   </mat-list-item>
 
 </mat-list>
 
+
+ <mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title> More Action </mat-panel-title>
+      <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
+    </mat-expansion-panel-header>
+    <p style="color: gray;">Delete prospect from system</p>
+    <button mat-stroked-button (click)="deleteProspect(data._id)" style="color: red;">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    
+  </mat-expansion-panel>
+ </mat-accordion>
+
+ <br><br><br>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-<button mat-button (click)="close()">Ok</button>
+  <button mat-button (click)="close()">Ok</button>
 </mat-dialog-actions>
 
   `,
   standalone: true,
-  imports: [CommonModule, MatListModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
 })
-export class ProspectResponseComponent {
+export class ProspectResponseComponent implements OnDestroy {
     readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);
     readonly data = inject<any>(MAT_DIALOG_DATA);
+    subscriptions: Array<Subscription> = [];
+
+    constructor(
+       private analyticsService: AnalyticsService,
+    ) {}
 
 
     close(): void {
         this.dialogRef.close();
     }
+
+  deleteProspect(prospectId: string) {
+    Swal.fire({
+      title: "Are you sure of this delete action?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        /*  Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
+        }); */
+
+        //const partnerId = this.partner._id;
+      
+          this.subscriptions.push(
+            this.analyticsService.deleteSingle(prospectId).subscribe((res: any) => {
+      
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: `Your have successfully deleted prospect from the system`,
+                showConfirmButton: true,
+                confirmButtonText: "Ok",
+                confirmButtonColor: "#ffab40",
+                timer: 15000,
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  //this.router.navigateByUrl('dashboard/manage-contacts');
+                  location.reload();
+                }
+              });
+      
+            }, (error: any) => {
+              //console.log(error)
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Server error occured, please try again',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            })
+          )
+
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => {
+      subscription.unsubscribe();
+    });
+  }
+    
 }
