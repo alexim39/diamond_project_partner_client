@@ -26,7 +26,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'async-prospect-booking',
   templateUrl: 'prospect-booking.component.html',
-  styleUrls: ['prospect-booking.component.scss'],
+  styleUrls: ['prospect-booking.component.scss', 'prospect-booking.mobile.scss'],
   standalone: true,
   providers: [AnalyticsService],
   imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatTooltipModule, MatChipsModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
@@ -43,13 +43,16 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time', 'action'];
+  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'time'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   filterStatus: string | null = null;
   filteredContactCount: number = 0;
 
+  dailyBookings: number = 0; // Bookings for today
+  weeklyBookings: number = 0; // Bookings for this week
+  monthlyBookings: number = 0; // Bookings for this month
 
   constructor(
     private analyticsService: AnalyticsService,
@@ -68,6 +71,11 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
       if (this.dataSource.data.length === 0) {
         this.isEmptyRecord = true;
       }
+
+       // Calculate daily, weekly, and monthly bookings
+       this.calculateDailyBookings();
+       this.calculateWeeklyBookings();
+       this.calculateMonthlyBookings();
     }
 
      // Combined filter predicate to filter by name and status
@@ -80,6 +88,39 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
 
   }
 
+  private calculateDailyBookings() {
+    const today = new Date();
+    this.dailyBookings = this.dataSource.data.filter(booking => {
+      const createdAt = new Date(booking.createdAt);
+      return (
+        createdAt.getDate() === today.getDate() &&
+        createdAt.getMonth() === today.getMonth() &&
+        createdAt.getFullYear() === today.getFullYear()
+      );
+    }).length;
+  }
+
+  private calculateWeeklyBookings() {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Get Sunday of the current week
+
+    this.weeklyBookings = this.dataSource.data.filter(booking => {
+      const createdAt = new Date(booking.createdAt);
+      return createdAt >= startOfWeek && createdAt <= today;
+    }).length;
+  }
+
+  private calculateMonthlyBookings() {
+    const today = new Date();
+    this.monthlyBookings = this.dataSource.data.filter(booking => {
+      const createdAt = new Date(booking.createdAt);
+      return (
+        createdAt.getMonth() === today.getMonth() &&
+        createdAt.getFullYear() === today.getFullYear()
+      );
+    }).length;
+  }
     
   applyNameFilter(filterValue: string) {
     const filterValues = {

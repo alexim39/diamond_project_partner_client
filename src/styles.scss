@@ -23,3 +23,28 @@ $angular-material-3-theme: mat.define-theme(
 html, body { height: 100%; }
 /* body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; } */
 body { margin: 0; }
+
+.breadcrumb-wrapper {
+  border-top: 1px solid rgb(247, 247, 247);
+  border-bottom: 1px solid rgb(224, 224, 224);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  .breadcrumb {
+    padding: 10px;
+    //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.7em;
+    a {
+      text-decoration: none;
+      color: #000f46;
+      padding: 0 0.5em;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    span {
+      color: #6e6e6e;
+      padding: 0 0.5em;
+    }
+  }
+}
