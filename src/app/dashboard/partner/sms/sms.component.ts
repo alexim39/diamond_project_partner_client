@@ -8,12 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatTabsModule} from '@angular/material/tabs';
 import { EnterPhoneNumbersComponent } from './enter-phone-numbers/enter-phone-numbers.component';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'async-sms',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, EnterPhoneNumbersComponent, CommonModule],
+  imports: [MatButtonModule, MatIconModule, MatTabsModule, RouterModule, EnterPhoneNumbersComponent, CommonModule],
   providers: [smsService],
   templateUrl: 'sms.component.html',
   styleUrls: ['sms.component.scss']
@@ -46,10 +46,12 @@ export class smsComponent implements OnInit, OnDestroy {
     importContactPhoneNumbers() {
       this.router.navigate(['/dashboard/manage-contacts']);
     }
+
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   
     
-    ngOnDestroy() {
-       
-    }
+  ngOnDestroy() {}
     
 }

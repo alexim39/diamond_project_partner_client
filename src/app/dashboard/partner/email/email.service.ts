@@ -47,20 +47,29 @@ export class EmailService {
 
 
 
-// get sms byId
-getEmailsCreatedBy(partnerId: string): Observable<EmailInterface> {
+  // get sms byId
+  getEmailsCreatedBy(partnerId: string): Observable<EmailInterface> {
   //console.log('record', id);
   return this.http
     .get<EmailInterface>(this.apiURL + `/emails/getById/${partnerId}`, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
-}
+  }
 
-// send bulk email
-sendBulkEmail(bulkEmailObject: FormGroup): Observable<EmailInterface> {
+  // send bulk email
+  sendBulkEmail(bulkEmailObject: FormGroup): Observable<EmailInterface> {
   //console.log('record', bulkEmailObject);
   return this.http
     .post<EmailInterface>(this.apiURL + `/emails/send-bulk-email/`, bulkEmailObject, { withCredentials: true })
     .pipe(retry(1), catchError(this.handleError));
-}
+  }
+
+  // detele single email
+  deleteSingleEmail(emailId: string): Observable<any> {
+    //console.log('record', emailId);
+    return this.http
+      .delete<any>(this.apiURL + `/emails/delete-single/${emailId}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+    
    
 }

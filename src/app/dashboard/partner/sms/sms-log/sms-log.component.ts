@@ -1,108 +1,89 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
-//import { ContactsInterface, ContactsService } from '../contacts.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
-//import { ConctactFilterPipe } from '../contacts-filter.pipe';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { SMSDetailDialogComponent } from './sms-detail/sms-detail.component';
 
 @Component({
   selector: 'async-sms-log',
   templateUrl: 'sms-log.component.html',
   styleUrls: ['sms-log.component.scss'],
   standalone: true,
-  providers: [],
-  imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
+  imports: [CommonModule, MatIconModule, TruncatePipe, MatPaginatorModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
     MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule],
 })
-export class SMSLogComponent implements OnInit, OnDestroy {
+export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
   @Input() smsObject!: any;
 
-  isSpinning = false;
   subscriptions: Array<Subscription> = [];
-
-  dataSource: Array<any> = [];
+  filteredData: Array<any> = []; // To hold filtered data
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = [ 'reference', 'message', 'recipients', 'cost', 'pages', 'status', 'date',];
+  displayedColumns: string[] = ['reference', 'message', 'recipients', 'cost', 'pages', 'status', 'date'];
+  dataSource = new MatTableDataSource<any>(); // Use MatTableDataSource for pagination and filtering
 
-  selection = new Set<any>();
-
-
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
   constructor(
-    //private contactsService: ContactsService,
     private router: Router,
-    private exportContactAndEmailService: ExportContactAndEmailService
   ) { }
 
   ngOnInit(): void {
     if (this.smsObject.data) {
-      this.dataSource = this.smsObject.data.sort((a: any, b: any) => {
+      const sortedData = this.smsObject.data.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
+      this.dataSource.data = sortedData;
 
-      if (this.dataSource.length === 0) {
+      if (sortedData.length === 0) {
         this.isEmptyRecord = true;
       }
     }
   }
 
-  pages(characters: string): number {  
-    const messageLength = characters.length || 0;  
-    return Math.ceil(messageLength / 160);  
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  toggleSelection(element: any) {
-    if (this.selection.has(element)) {
-      this.selection.delete(element);
-    } else {
-      this.selection.add(element);
-    }
+  ngAfterViewInit(): void {
+    // Link MatPaginator to MatTableDataSource
+    this.dataSource.paginator = this.paginator;
   }
 
-  isAllSelected() {
-    return this.selection.size === this.dataSource.length;
+  pages(characters: string): number {
+    const messageLength = characters.length || 0;
+    return Math.ceil(messageLength / 160);
   }
 
-  isSomeSelected() {
-    return this.selection.size > 0 && !this.isAllSelected();
+  filterSMS(): void {
+    const searchText = this.filterText.toLowerCase().trim();
+    this.dataSource.filter = searchText;
+
+    // Update the empty record flag
+    this.isEmptyRecord = this.dataSource.filteredData.length === 0;
   }
 
-  selectAll(checked: boolean) {
-    if (checked) {
-      this.selection = new Set(this.dataSource);
-    } else {
-      this.selection.clear();
-    }
-  }
-
-  private getSelectedPhoneNumbers(): string[] {
-    return Array.from(this.selection).map(item => item.reference);
-  }
-
-
-
-  preview(id: string) {
-    //this.router.navigate(['/dashboard/prospect-detail', id]);
-
-    //console.log(this.getSelectedPhoneNumbers())
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   showDescription() {
@@ -113,13 +94,10 @@ export class SMSLogComponent implements OnInit, OnDestroy {
     });
   }
 
-  scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
+  openSMSDetailDialog(smsRecord: any) {
+    //console.log(smsRecord)
+    this.dialog.open(SMSDetailDialogComponent, {
+      data: smsRecord
     });
   }
 }
