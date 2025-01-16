@@ -68,7 +68,7 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
             //console.log('=',this.partner)
             this.sms.getSMSCreatedBy(this.partner._id).subscribe((sms: smsInterface) => {
               this.smsObject = sms;
-              console.log('smsObject ',sms)
+              //console.log('smsObject ',sms)
             }, error => {
               this.isEmptyRecord = true;
             })

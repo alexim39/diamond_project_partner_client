@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 
 /**
- * @title cell meeting container
+ * @title Email log container
  */
 @Component({
   selector: 'async-email-log-container',

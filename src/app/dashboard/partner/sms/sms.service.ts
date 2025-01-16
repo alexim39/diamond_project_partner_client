@@ -71,6 +71,14 @@ getSMSCreatedBy(partnerId: string): Observable<smsInterface> {
     .pipe(retry(1), catchError(this.handleError));
 }
 
+  // detele single sms
+  deleteSingleSMS(smsId: string): Observable<any> {
+  //console.log('record', smsId);
+  return this.http
+    .delete<any>(this.apiURL + `/sms/delete-single/${smsId}`, { withCredentials: true })
+    .pipe(retry(1), catchError(this.handleError));
+  }
+
 
    
 }

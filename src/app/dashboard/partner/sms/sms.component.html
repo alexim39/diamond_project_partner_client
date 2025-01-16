@@ -1,3 +1,12 @@
+<section class="breadcrumb-wrapper">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+      <a>Tools</a> &gt;
+      <a>SMS</a> &gt;
+      <span>Send SMS</span>
+    </div>
+</section>
+  
 <section class="async-background ">
     <h2>Create Bulk SMS List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 

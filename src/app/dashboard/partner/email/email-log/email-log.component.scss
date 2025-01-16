@@ -23,21 +23,14 @@
             }
         }
 
-       /*  .search {
+        .search {
             padding: 0.5em 0;
             text-align: center;
             mat-form-field {
                 width: 70%;
 
             }
-        }   */
-        
-        /* .export-button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 10px;
-        } */
+        }  
         
         .table {
             padding: 0 1em;
@@ -70,6 +63,14 @@
     }
 }
 
+tr:hover {
+    background: whitesmoke;
+    cursor: pointer;
+}
+
+tr:active {
+    background: #efefef;
+}
 
 @media (max-width: 600px) {
     .form-group {

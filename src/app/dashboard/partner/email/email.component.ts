@@ -8,12 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import {MatTabsModule} from '@angular/material/tabs';
 import { EnterEmailComponent } from './enter-email/enter-email.component';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'async-email',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, EnterEmailComponent, CommonModule],
+  imports: [MatButtonModule, MatIconModule, RouterModule, MatTabsModule, EnterEmailComponent, CommonModule],
   providers: [EmailService],
   templateUrl: 'email.component.html',
   styleUrls: ['email.component.scss']
@@ -29,27 +29,29 @@ export class EmailComponent implements OnInit, OnDestroy {
   ) {}
 
   
-    ngOnInit(): void {
-      //console.log('=',this.partner)
+  ngOnInit(): void {
+    //console.log('=',this.partner)
 
-    }
+  }
 
 
-    showDescription () {
-      this.dialog.open(HelpDialogComponent, {
-        data: {help: `
-          Here, you can effortlessly send bulk email to your contact list and manage your email contacts.
-        `},
-      });
-    }
-  
-    importEmailsNumbers() {
-      this.router.navigate(['/dashboard/manage-contacts']);
-    }
+  showDescription () {
+    this.dialog.open(HelpDialogComponent, {
+      data: {help: `
+        Here, you can effortlessly send bulk email to your contact list and manage your email contacts.
+      `},
+    });
+  }
+
+  importEmailsNumbers() {
+    this.router.navigate(['/dashboard/manage-contacts']);
+  }
   
     
-    ngOnDestroy() {
-       
-    }
+  ngOnDestroy() {}
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
     
 }
