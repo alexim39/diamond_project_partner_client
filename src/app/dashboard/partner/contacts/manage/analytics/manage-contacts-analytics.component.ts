@@ -6,26 +6,25 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatListModule} from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
 import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
-import { CollectCodeComponent } from './collect-code.component';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
-import { MatSnackBar } from '@angular/material/snack-bar';  
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SmsService } from '../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../analytics/analytics.service';
 import { ProspectResponseComponent } from '../../../analytics/prospect-list/prospect-response.component';
 
 /** @title Prospect details */
 @Component({
-  selector: 'async-manage-contacts-detail',
-  templateUrl: 'manage-contacts-detail.component.html',
-  styleUrls: ['manage-contacts-detail.component.scss'],
+  selector: 'async-manage-contacts-analytics',
+  templateUrl: 'manage-contacts-analytics.component.html',
+  styleUrls: ['manage-contacts-analytics.component.scss'],
   standalone: true,
   imports: [
     MatCheckboxModule,
@@ -34,41 +33,41 @@ import { ProspectResponseComponent } from '../../../analytics/prospect-list/pros
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatIconModule, MatButtonModule, 
+    MatIconModule, MatButtonModule,
     MatDividerModule, MatListModule, CommonModule
   ],
   providers: [ContactsService]
 })
-export class ManageContactsDetailComponent implements OnInit, OnDestroy {
+export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
 
   @Input() prospect!: ContactsInterface;
-  prospectData!: any; 
+  prospectData!: any;
   duration!: null | number;
 
-  selectedStatus: string; 
-  remark: string; 
-  sms: string; 
-  emailBody: string; 
-  emailSubject: string; 
+  selectedStatus: string;
+  remark: string;
+  sms: string;
+  emailBody: string;
+  emailSubject: string;
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
 
-  
+
   constructor(
-    private router: Router, 
+    private router: Router,
     private route: ActivatedRoute,
     private contactsService: ContactsService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
     private smsGatewayService: SmsService
   ) {
-     // You can initialize selectedStatus if needed  
-     this.selectedStatus = ''; // Default value or nothing 
-     this.remark = ''; // Default value or nothing 
-     this.sms = ``; // Default value or nothing 
-     this.emailBody = ''; // Default value or nothing 
-     this.emailSubject = ''; // Default value or nothing 
+    // You can initialize selectedStatus if needed  
+    this.selectedStatus = ''; // Default value or nothing 
+    this.remark = ''; // Default value or nothing 
+    this.sms = ``; // Default value or nothing 
+    this.emailBody = ''; // Default value or nothing 
+    this.emailSubject = ''; // Default value or nothing 
   }
 
 
@@ -76,8 +75,8 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/manage-contacts');
   }
 
-  
-  ngOnInit(): void { 
+
+  ngOnInit(): void {
     //console.log(this.prospect.data)
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
@@ -97,10 +96,10 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
       )
     )
 
-   }
+  }
 
-   updateProspectStatus() {
-    const obj = {status: this.selectedStatus, prospectId: this.prospectData._id } 
+  updateProspectStatus() {
+    const obj = { status: this.selectedStatus, prospectId: this.prospectData._id }
     if (!obj.status) {
       Swal.fire({
         position: "bottom",
@@ -123,7 +122,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           confirmButtonColor: "#ffab40",
           timer: 15000,
         })
-  
+
       }, (error: any) => {
         //console.log(error)
         Swal.fire({
@@ -135,11 +134,11 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
         })
       })
     )
-   }
+  }
 
-   updateProspectRemark() {
+  updateProspectRemark() {
 
-    const obj = {remark: this.remark, prospectId: this.prospectData._id } 
+    const obj = { remark: this.remark, prospectId: this.prospectData._id }
     if (!obj.remark) {
       Swal.fire({
         position: "bottom",
@@ -163,7 +162,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
           confirmButtonColor: "#ffab40",
           timer: 15000,
         })
-  
+
       }, (error: any) => {
         //console.log(error)
         Swal.fire({
@@ -176,9 +175,9 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
       })
     )
 
-   }
+  }
 
-   deleteProspect() {
+  deleteProspect() {
     const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
     Swal.fire({
@@ -193,7 +192,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
 
         this.subscriptions.push(
-          this.contactsService.deleteProspect(this.prospectData._id ).subscribe((prospect: ContactsInterface) => {
+          this.contactsService.deleteProspect(this.prospectData._id).subscribe((prospect: ContactsInterface) => {
             // this.prospectContact = prospectContact;
             //console.log('prospectContact ',prospectStatus)
             Swal.fire({
@@ -208,7 +207,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
                 this.router.navigateByUrl('dashboard/manage-contacts');
               }
             });
-      
+
           }, (error: any) => {
             //console.log(error)
             Swal.fire({
@@ -237,37 +236,37 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, promote!"
-    }).then((result) => {
+    })/* .then((result) => {
       if (result.isConfirmed) {
 
         this.dialog.open(CollectCodeComponent, {
           data: this.prospectData
         });
       }
-    });
+    }); */
   }
 
-  copyLink() {  
-    const link = `www.diamondprojectonline.com/${this.partner.username}`;  
-    navigator.clipboard.writeText(link).then(() => {  
-      this.snackBar.open('Link copied to clipboard!', 'Close', {  
-        duration: 2000,  
-      });  
-    }).catch(err => {  
-      console.error('Failed to copy: ', err);  
-    });  
-  }  
+  copyLink() {
+    const link = `www.diamondprojectonline.com/${this.partner.username}`;
+    navigator.clipboard.writeText(link).then(() => {
+      this.snackBar.open('Link copied to clipboard!', 'Close', {
+        duration: 2000,
+      });
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+  }
 
   sendSMS() {
 
     this.subscriptions.push(
-      this.contactsService.signleSMSCharge(this.partner._id ).subscribe((smsCharge: any) => {
+      this.contactsService.signleSMSCharge(this.partner._id).subscribe((smsCharge: any) => {
         //console.log('sms ',smsCharge)
         const transactionId = smsCharge?.data._id;
 
         // call sms gateway
         this.callSMSGate(transactionId)
-  
+
       }, (error: any) => {
         //console.log(error)
         if (error.code == 401) {
@@ -287,23 +286,23 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             timer: 4000
           })
         }
-        
+
       })
     )
-  }  
+  }
 
   private callSMSGate(transactionId: string) {
 
-   this.subscriptions.push(
+    this.subscriptions.push(
 
-      this.smsGatewayService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
-        response => {  
+      this.smsGatewayService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(
+        response => {
           //console.log('SMS sent successfully:', response);  
 
           if (response.data.status == 'success') {
             const smsObject = {
-              partner: this.partner._id, 
-              prospect: this.prospectData.prospectPhone, 
+              partner: this.partner._id,
+              prospect: this.prospectData.prospectPhone,
               smsBody: this.sms,
               transactionId: transactionId,
               status: "success"
@@ -324,8 +323,8 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             )
           } else {
             const smsObject = {
-              partner: this.partner._id, 
-              prospect: this.prospectData.prospectPhone, 
+              partner: this.partner._id,
+              prospect: this.prospectData.prospectPhone,
               smsBody: this.sms,
               transactionId: transactionId,
               status: "failed"
@@ -345,10 +344,10 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
               })
             )
           }
-         
-          
-        },  
-        (error) => {  
+
+
+        },
+        (error) => {
           //console.error('Error sending SMS:', error);  
           Swal.fire({
             position: "bottom",
@@ -357,22 +356,22 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             showConfirmButton: false,
             timer: 4000
           })
-        }  
+        }
       )
     );
   }
 
   sendEmail() {
     const emailObject = {
-      partner: this.partner, 
-      prospect: this.prospectData, 
+      partner: this.partner,
+      prospect: this.prospectData,
       emailBody: this.emailBody,
       emailSubject: this.emailSubject
     }
     this.subscriptions.push(
 
-      this.contactsService.sendProspectEmail(emailObject).subscribe(  
-        response => {  
+      this.contactsService.sendProspectEmail(emailObject).subscribe(
+        response => {
           //console.log('SMS sent successfully:', response);  
           Swal.fire({
             position: "bottom",
@@ -381,8 +380,8 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             showConfirmButton: false,
             timer: 4000
           })
-        },  
-        error => {  
+        },
+        error => {
           //console.error('Error sending SMS:', error);  
           Swal.fire({
             position: "bottom",
@@ -391,7 +390,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             showConfirmButton: false,
             timer: 4000
           })
-        }  
+        }
       )
 
     );

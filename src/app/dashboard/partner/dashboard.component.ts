@@ -19,7 +19,7 @@ import { MarketingChannelsComponent } from './campaigns/create-campaign/marketin
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { Emitters } from '../../_common/emitters/emitters';
 import { PartnerAuthService } from '../../auth/auth.service';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training' | 'wibinarsEvents' | 'dailyActivity' | 'achievements';
 
@@ -29,7 +29,7 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
   providers: [PartnerService, PartnerAuthService],
-  imports: [ 
+  imports: [
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
     MarketingChannelsComponent, MatTooltipModule
   ],

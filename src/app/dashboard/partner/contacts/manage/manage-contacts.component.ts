@@ -51,6 +51,9 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
   filterStatus: string | null = null;
   filteredContactCount: number = 0;
 
+  dailyNewContacts: number = 0; // Add this property
+  weeklyNewContacts: number = 0; // Weekly contacts
+  monthlyNewContacts: number = 0; // Monthly contacts
 
   constructor(
     private contactsService: ContactsService,
@@ -67,6 +70,11 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
       if (this.dataSource.data.length === 0) {
         this.isEmptyRecord = true;
       }
+
+     // Calculate daily, weekly, and monthly new contacts
+     this.calculateDailyNewContacts();
+     this.calculateWeeklyNewContacts();
+     this.calculateMonthlyNewContacts();
     }
 
     // Combined filter predicate to filter by name and status
@@ -78,6 +86,35 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
     };
   }
 
+  private calculateDailyNewContacts() {
+    const today = new Date();
+    this.dailyNewContacts = this.dataSource.data.filter(contact => {
+      const createdAt = new Date(contact.createdAt);
+      return createdAt.getDate() === today.getDate() &&
+              createdAt.getMonth() === today.getMonth() &&
+              createdAt.getFullYear() === today.getFullYear();
+    }).length;
+  }
+
+  private calculateWeeklyNewContacts() {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Get the Sunday of the current week
+
+    this.weeklyNewContacts = this.dataSource.data.filter(contact => {
+      const createdAt = new Date(contact.createdAt);
+      return createdAt >= startOfWeek && createdAt <= today;
+    }).length;
+  }
+
+  private calculateMonthlyNewContacts() {
+    const today = new Date();
+    this.monthlyNewContacts = this.dataSource.data.filter(contact => {
+      const createdAt = new Date(contact.createdAt);
+      return createdAt.getMonth() === today.getMonth() &&
+             createdAt.getFullYear() === today.getFullYear();
+    }).length;
+  }
 
   applyNameFilter(filterValue: string) {
     const filterValues = {

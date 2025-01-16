@@ -26,24 +26,24 @@ import Swal from 'sweetalert2';
     height: 15em;  
     background-color: #f0f0f0; 
     .profile-picture-upload {
-        //width: 12em;  /* Set the width of the circle */  
-        //height: 12em; /* Set the height of the circle */  
-        //overflow: hidden; /* Hide any overflow part of the image */  
-        display: flex;  
-        flex-direction: column;
-        justify-content: center;  
-        align-items: center;
-        .profile-picture-preview {
-            border-radius: 50%; /* Makes the container round */  
-            width: 100%; /* Scale the image to cover the container */  
-            height: auto; /* Maintain the aspect ratio */  
-            object-fit: cover; /* Cover the container without distorting the image */ 
-            width: 8em;  /* Set the width of the circle */  
-            height: 8em; /* Set the height of the circle */   
-        }
-        button {
-            margin:1em;
-        }
+      //width: 12em;  /* Set the width of the circle */  
+      //height: 12em; /* Set the height of the circle */  
+      //overflow: hidden; /* Hide any overflow part of the image */  
+      display: flex;  
+      flex-direction: column;
+      justify-content: center;  
+      align-items: center;
+      .profile-picture-preview {
+          border-radius: 50%; /* Makes the container round */  
+          width: 100%; /* Scale the image to cover the container */  
+          height: auto; /* Maintain the aspect ratio */  
+          object-fit: cover; /* Cover the container without distorting the image */ 
+          width: 8em;  /* Set the width of the circle */  
+          height: 8em; /* Set the height of the circle */   
+      }
+      button {
+          margin:1em;
+      }
     }
   }
   

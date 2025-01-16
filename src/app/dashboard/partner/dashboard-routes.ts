@@ -38,6 +38,7 @@ import { MyPartnersContainerComponent } from "./mentorship/my-partners/my-partne
 import { MyPartnerSupportContainerComponent } from "./mentorship/my-partners/support/support-container.component";
 import { MyPartnersContactsContainerComponent } from "./mentorship/my-partners/contacts/contacts-container.component";
 import { MyPartnerContactsDetailContainerComponent } from "./mentorship/my-partners/contacts/details/contacts-detail-container.component";
+import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
 
 
 
@@ -243,6 +244,11 @@ export const dashboardRoutes: Routes = [
                 component: PreapproachDownloadContainerComponent,
                 title: "Pre-Approach Material Download - Download the pre-approach material",
             },     
+            {
+                path: 'contact-analytics',
+                component: ManageContactsAnalyticsComponent,
+                title: "Contact Summary & Analytics",
+            },  
         ]
     },
 ]
