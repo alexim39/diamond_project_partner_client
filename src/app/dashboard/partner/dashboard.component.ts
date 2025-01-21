@@ -60,7 +60,7 @@ export class DashboardComponent implements OnDestroy {
   isTablet!: boolean;
   isDesktop!: boolean;
 
-  isLoading: boolean = false;
+  //isLoading: boolean = false;
 
   submenus: Record<SubmenuKey, boolean> = {
     tools: false,
@@ -86,13 +86,13 @@ export class DashboardComponent implements OnDestroy {
     private partnerAuthService: PartnerAuthService,
     private partnerService: PartnerService,
   ) {
-    this.router.events.subscribe(event => {
+    /* this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.isLoading = true;
       } else if (event instanceof NavigationEnd) {
         this.isLoading = false;
       }
-    });
+    }); */
   }
 
   ngOnInit(): void {
@@ -103,13 +103,13 @@ export class DashboardComponent implements OnDestroy {
     this.subscriptions.push(
       this.partnerService.getPartner().subscribe(
         res => {
+          //console.log('p',res)
           this.partner = res as PartnerInterface;
-          //console.log('p',this.partner)
-          Emitters.authEmitter.emit(true);
+          //Emitters.authEmitter.emit(true);
           this.partnerService.updatePartnerService(this.partner);
         },
         error => {
-          Emitters.authEmitter.emit(false);
+          //Emitters.authEmitter.emit(false);
           this.router.navigate(['/']);
         }
       )
@@ -127,14 +127,28 @@ export class DashboardComponent implements OnDestroy {
   }
 
   signOut(): void {
+    // Clear any stored session data
+    localStorage.clear();
+    sessionStorage.clear();
+  
+    // Call backend signOut API
     this.subscriptions.push(
-      this.partnerAuthService.signOut({}).subscribe(res => {
-        this.router.navigate(['/']);
-      })
+      this.partnerAuthService.signOut({}).subscribe(
+        () => {
+          localStorage.removeItem('authToken'); // Remove token from localStorage
+          // Navigate to the login page
+          this.router.navigate(['/'], { replaceUrl: true });
+        },
+        error => {
+          console.error('Error during sign out:', error);
+          this.router.navigate(['/'], { replaceUrl: true });
+        }
+      )
     );
-
+  
     this.scrollToTop();
   }
+  
 
   ngOnDestroy() {
     this.subscriptions.forEach(subscription => {

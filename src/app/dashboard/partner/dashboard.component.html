@@ -140,11 +140,10 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('mentorship') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="cell-meeting" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Cell Meetings">Cell Meetings</a>
+        <!-- <a mat-list-item routerLink="cell-meeting" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Cell Meetings">Cell Meetings</a> -->
         <a mat-list-item routerLink="mentors-program" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Mentors Program">Mentors program</a>
         <a mat-list-item (click)="toggleSubSubmenu('mentorship-team')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Team</a>
         <div [@submenuToggle]="isSubSubmenuOpen('mentorship-team') ? 'open' : 'closed'" class="subsubmenu">
-          <!-- <a mat-list-item routerLink="create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign">Create Campaign</a> -->
           <a mat-list-item routerLink="create-team" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Create Team">Create Team</a>
           <a mat-list-item  routerLink="manage-team" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Manage Team">Manage Team</a>
         </div>

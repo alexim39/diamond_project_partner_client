@@ -30,9 +30,9 @@
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
                     <ng-container matColumnDef="name">
                         <th mat-header-cell *matHeaderCellDef>
-                            <span *ngIf="badgeValue > 0" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
+                            <span matTooltip="Not yet moved contact" *ngIf="badgeValue > 0" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
                             <span *ngIf="badgeValue === 0">Name</span>
-                          </th>
+                        </th>
                       <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses"> 
                         {{element.name | titlecase }} {{element.surname | titlecase}} 
                       </td>
@@ -59,12 +59,14 @@
                     </ng-container>
 
                     <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef> Date </th>
+                        <th mat-header-cell *matHeaderCellDef>  
+                            <span matTooltip="Today's prospect" *ngIf="badgeValue > 0" [matBadge]="todaysProsect" matBadgeOverlap="false">Date</span>
+                        </th>
                         <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
                     </ng-container>
 
                     <ng-container matColumnDef="dateAgo">
-                        <th mat-header-cell *matHeaderCellDef> Days Ago </th>
+                        <th mat-header-cell *matHeaderCellDef> Duration </th>
                         <td mat-cell *matCellDef="let element"> {{ getDateAgo(element) }}  </td>
                     </ng-container>    
 

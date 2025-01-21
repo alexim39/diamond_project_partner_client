@@ -14,6 +14,7 @@ import { MatTableModule } from '@angular/material/table';
 import { TruncatePipe } from '../../../../../_common/pipes/truncate.pipe';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @Component({
   selector: 'async-manage-team',
@@ -21,7 +22,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['manage-team.component.scss'],
   standalone: true,
   imports: [
-    MatCardModule,
+    MatCardModule, MatTooltipModule,
     CommonModule,
     MatTableModule,
     MatRadioModule,
@@ -42,7 +43,7 @@ export class ManageTeamComponent implements OnInit {
   dataSource: TeamInterface[] = [];
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['team', 'purpose', 'desc', 'date', 'manage', 'action'];
+  displayedColumns: string[] = ['team', 'purpose', 'date', 'manage', 'action'];
 
   constructor(
     private teamService: TeamService,

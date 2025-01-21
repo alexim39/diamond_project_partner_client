@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { RouterModule } from '@angular/router';
 
 /**
  * @title marketing channesl tab
@@ -19,7 +20,7 @@ import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
   templateUrl: 'marketing-channels.component.html',
   styleUrls: ['marketing-channels.component.scss'],
   standalone: true,
-  imports: [MatTabsModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule, MatIconModule],
+  imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule, MatIconModule],
 })
 export class MarketingChannelsComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
@@ -58,5 +59,9 @@ export class MarketingChannelsComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe();
     });
+  }
+
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
