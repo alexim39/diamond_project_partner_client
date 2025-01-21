@@ -19,6 +19,8 @@ import { timeAgo } from '../../../../_common/date-util';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatChipsModule } from '@angular/material/chips';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 /**
  * @title Prospect listing
@@ -29,7 +31,7 @@ import { MatBadgeModule } from '@angular/material/badge';
   styleUrls: ['prospect-list.component.scss'],
   standalone: true,
   providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatBadgeModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
+  imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsModule, MatTableModule, MatBadgeModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
 })
 export class ProspectListComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
@@ -48,6 +50,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  todaysProsect: number = 0; // Set this value dynamically as needed
   badgeValue: number = 0; // Set this value dynamically as needed
 
   constructor(
@@ -66,6 +69,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
       }
 
       this.calculateNewBookings();
+      this.calculateBadgeValue();
     }
 
     this.dataSource.filterPredicate = (data: any, filter: string) => {
@@ -75,8 +79,14 @@ export class ProspectListComponent implements OnInit, OnDestroy {
 
   calculateNewBookings(): void {
     const today = new Date().toISOString().split('T')[0];
-    this.badgeValue = this.dataSource.data.filter((item: any) => {
+    this.todaysProsect = this.dataSource.data.filter((item: any) => {
       return item.createdAt.split('T')[0] === today;
+    }).length;
+  }
+
+  calculateBadgeValue(): void {
+    this.badgeValue = this.dataSource.data.filter((item: any) => {
+      return item.prospectStatus !== "Moved to Contact";
     }).length;
   }
 

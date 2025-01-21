@@ -1,3 +1,12 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Mentorship</a> &gt;
+    <a>Team</a> &gt;
+    <span>Manage team</span>
+  </div>
+</section>
+
 <section class="async-background">
     <h2>Manage Team</h2>
   
@@ -24,7 +33,7 @@
             
             <ng-container matColumnDef="team">
               <th mat-header-cell *matHeaderCellDef> Team </th>
-              <td mat-cell *matCellDef="let element" style="cursor: pointer; font-size: 1em; font-weight: bold;" (click)="manage(element._id)"> {{element.teamName | titlecase }} </td>
+              <td mat-cell *matCellDef="let element" matTooltip="{{element.description}}" style="cursor: pointer; font-size: 1em; font-weight: bold;" (click)="manage(element._id)"> {{element.teamName | titlecase }} </td>
             </ng-container>
   
             <ng-container matColumnDef="purpose">
@@ -32,10 +41,10 @@
               <td mat-cell *matCellDef="let element"> {{element.teamPurpose}} </td>
             </ng-container>
             
-            <ng-container matColumnDef="desc">
+            <!-- <ng-container matColumnDef="desc">
               <th mat-header-cell *matHeaderCellDef> Description </th>
               <td mat-cell *matCellDef="let element"> {{element.description | truncate: 80}} </td>
-            </ng-container>
+            </ng-container> -->
   
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef> Date </th>

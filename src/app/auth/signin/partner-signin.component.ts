@@ -54,6 +54,7 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
      const formData: PartnerSignInData = this.signInForm.value;
       this.subscriptions.push(
         this.partnerSignInService.siginin(formData).subscribe((res: any) => {
+          localStorage.setItem('authToken', res); // Save token to localStorage
           this.router.navigateByUrl('dashboard');
         }, error => {
           if (error.code == 404) {// user not found

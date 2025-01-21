@@ -39,6 +39,7 @@ import { MyPartnerSupportContainerComponent } from "./mentorship/my-partners/sup
 import { MyPartnersContactsContainerComponent } from "./mentorship/my-partners/contacts/contacts-container.component";
 import { MyPartnerContactsDetailContainerComponent } from "./mentorship/my-partners/contacts/details/contacts-detail-container.component";
 import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
+import { authGuard } from "./guard.service";
 
 
 
@@ -49,6 +50,7 @@ export const dashboardRoutes: Routes = [
         pathMatch: 'full' */
         path: '',
         component: DashboardComponent,
+        canActivate: [authGuard],
         children: [
             {
                 path: '',

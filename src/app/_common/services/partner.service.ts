@@ -78,14 +78,6 @@ export class PartnerService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-
-  // user course registration
- /*  registerCourse(courseId: string): Observable<any> {
-    return this.http
-      .put<any>(this.apiURL + '/users/register-course', {courseId: courseId}, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  } */
-
   private partnerSubject = new BehaviorSubject<any>(null); // Initial value can be anything
 
   getSharedPartnerData$ = this.partnerSubject.asObservable();
