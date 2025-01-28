@@ -5,7 +5,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
@@ -31,14 +31,13 @@ import { SmsService } from '../../../../../_common/services/sms.service';
     MatSelectModule,
     MatInputModule,
     MatIconModule, MatButtonModule,
-    MatDividerModule, MatListModule, CommonModule
+    MatDividerModule, MatListModule, CommonModule, RouterModule
   ],
 })
 export class MyPartnerSupportComponent implements OnInit, OnDestroy {
 
   @Input() myPartner!: PartnerInterface;
   @Input() myPartnerPartners!: PartnerInterface[];
-  prospectData!: any;
   duration!: null | number;
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
@@ -86,7 +85,10 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/my-partners-contacts', myPartnerId]);
   }
 
-
+  // Scroll to top when clicked
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
 
   ngOnDestroy() {

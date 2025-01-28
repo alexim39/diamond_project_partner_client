@@ -38,12 +38,15 @@
 
         .search {
             padding: 0.5em 0;
-            text-align: center;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
             mat-form-field {
-                width: 70%;
+                width: 45%;
 
             }
-        }  
+        }   
         
         .export-button {
             display: flex;
@@ -106,4 +109,29 @@
 
 .not-interested {  
     background-color: rgb(255, 182, 182); /* You can adjust the color as needed */  
+}
+
+.bold-text {
+    font-weight: bolder;
+}
+
+.summary-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    .summary-area {
+        display: flex;
+        flex-direction: row;
+        .mat-chip {
+            font-size: 0.8em;
+        }
+        .value {
+            font-weight: bolder;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans';
+            font-size: 1.2em;
+        }
+     
+        
+    }
 }

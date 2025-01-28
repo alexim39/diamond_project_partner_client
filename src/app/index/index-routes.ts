@@ -3,6 +3,7 @@ import { IndexComponent } from "./index.component";
 import { PartnerSigninComponent } from "../auth/signin/partner-signin.component";
 import { PartnerSignupComponent } from "../auth/signup/partner-signup.component";
 import { IndexBodyComponent } from "./index-body.component";
+import { PartnerForgotPasswordComponent } from "../auth/forgot-password/partner-forgot-password.component";
 
 export const IndexRoutes: Routes = [
     {
@@ -24,12 +25,17 @@ export const IndexRoutes: Routes = [
                     {
                         path: 'signin',
                         component: PartnerSigninComponent,
-                        title: "Diamond Project Partner Sign in",
+                        title: "Partner Signin - Diamond Project Partner Sign in",
                     },
                     {
                         path: 'signup',
                         component: PartnerSignupComponent,
-                        title: "Diamond Project Partner Sign up"
+                        title: "Partner Signup - Diamond Project Partner Sign up"
+                    },
+                    {
+                        path: 'forgot-password',
+                        component: PartnerForgotPasswordComponent,
+                        title: "Forgot Password - Partner reset password"
                     },
                 ]
             },

@@ -9,7 +9,7 @@ import { MyPartnersService } from '../my-partners.service';
 
 
 /**
- * @title contacts container
+ * @title partners contacts container
  */
 @Component({
   selector: 'async-manage-contacts-container',

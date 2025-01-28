@@ -15,18 +15,17 @@ import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 /**
- * @title Partner signin
+ * @title Partner password reset
  */
 @Component({
   selector: 'async-partner-signin',
   standalone: true,
   providers: [PartnerAuthService],
   imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-  templateUrl: 'partner-signin.component.html' ,
-  styleUrls: ['partner-signin.component.scss']
+  templateUrl: 'partner-forgot-password.component.html' ,
+  styleUrls: ['partner-forgot-password.component.scss']
 })
-export class PartnerSigninComponent implements OnInit, OnDestroy {
-  hide = true;
+export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
 
   signInForm: FormGroup = new FormGroup({}); // Assigning a default value
   subscriptions: Array<Subscription> = [];
@@ -40,7 +39,6 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.signInForm = this.fb.group({
       email: ['', [Validators.email, Validators.required]],
-      password: ['', Validators.required],
     });
   }
 
@@ -53,15 +51,20 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
       // Send the form value to your Node.js backend
      const formData: PartnerSignInData = this.signInForm.value;
       this.subscriptions.push(
-        this.partnerSignInService.siginin(formData).subscribe((res: any) => {
-          localStorage.setItem('authToken', res); // Save token to localStorage
-          this.router.navigateByUrl('dashboard');
+        this.partnerSignInService.resetPassword(formData).subscribe((res: any) => {
+          //localStorage.setItem('authToken', res); // Save token to localStorage
+          //this.router.navigateByUrl('dashboard');
+
+
+
+
+
         }, error => {
           if (error.code == 404) {// user not found
             Swal.fire({
               position: 'bottom',
               icon: 'warning',
-              text: "Check your email or password",
+              text: "This email does not exist as a partner email",
               showConfirmButton: false,
               timer: 4000
             });
@@ -77,7 +80,6 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
           }
         })
       )
-    } else {
     }
   }
 

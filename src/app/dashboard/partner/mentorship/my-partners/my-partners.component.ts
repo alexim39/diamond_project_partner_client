@@ -18,6 +18,7 @@ import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
 import { ActivateNewPartnerComponent } from './activate-new-partner.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 @Component({
@@ -36,7 +37,7 @@ import { MatDialog } from '@angular/material/dialog';
     FormsModule,
     MatCheckboxModule,
     MatSlideToggleModule,
-    TruncatePipe
+    TruncatePipe, MatTooltipModule
   ],
   providers: [],
 })
@@ -47,7 +48,7 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<PartnerInterface>([]);  
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['name', 'phone', 'email', 'code', 'username', 'date', 'manage'];
+  displayedColumns: string[] = ['name', 'phone', 'email', 'code', 'username', 'date'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   readonly dialog = inject(MatDialog);

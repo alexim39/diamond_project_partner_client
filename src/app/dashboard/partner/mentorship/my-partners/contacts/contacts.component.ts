@@ -20,6 +20,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import { ExportContactAndEmailService } from '../../../../../_common/services/exportContactAndEmail.service';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'async-my-partners-contatcs',
@@ -27,7 +29,7 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
   styleUrls: ['contacts.component.scss'],
   standalone: true,
   providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
+  imports: [CommonModule, MatIconModule, MatChipsModule, MatTooltipModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
     MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule],
 })
 export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -41,11 +43,18 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
   dataSource = new MatTableDataSource<any>([]);  
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['select', 'name', 'phone', 'email', 'channel', 'status', 'remark', 'date', 'action'];
+  displayedColumns: string[] = ['select', 'name', 'phone', 'email', 'channel', 'status', 'date'];
 
   selection = new Set<any>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  filterStatus: string | null = null;
+  filteredContactCount: number = 0;
+
+  dailyNewContacts: number = 0; // Add this property
+  weeklyNewContacts: number = 0; // Weekly contacts
+  monthlyNewContacts: number = 0; // Monthly contacts
 
   constructor(
     private contactsService: ContactsService,
@@ -53,10 +62,8 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
     private exportContactAndEmailService: ExportContactAndEmailService
   ) { }
 
+
   ngOnInit(): void {
-
-    //console.log(this.partnerContacts.data)
-
     if (this.partnerContacts.data) {
       this.dataSource.data = this.partnerContacts.data.sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -65,13 +72,50 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
       if (this.dataSource.data.length === 0) {
         this.isEmptyRecord = true;
       }
+
+      // Calculate daily, weekly, and monthly new contacts
+      this.calculateDailyNewContacts();
+      this.calculateWeeklyNewContacts();
+      this.calculateMonthlyNewContacts();
     }
 
-    // Custom filter predicate to filter by name
+    // Combined filter predicate to filter by name and status
     this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.prospectName.toLowerCase().includes(filter.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filter.toLowerCase());
+      const filterValues = JSON.parse(filter);
+      const nameMatch = data.prospectName.toLowerCase().includes(filterValues.name.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filterValues.name.toLowerCase());
+      const statusMatch = data.status.toLowerCase().includes(filterValues.status.toLowerCase());
+      return nameMatch && statusMatch;
     };
+  }
 
+  private calculateDailyNewContacts() {
+    const today = new Date();
+    this.dailyNewContacts = this.dataSource.data.filter(contact => {
+      const createdAt = new Date(contact.createdAt);
+      return createdAt.getDate() === today.getDate() &&
+              createdAt.getMonth() === today.getMonth() &&
+              createdAt.getFullYear() === today.getFullYear();
+    }).length;
+  }
+
+  private calculateWeeklyNewContacts() {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Get the Sunday of the current week
+
+    this.weeklyNewContacts = this.dataSource.data.filter(contact => {
+      const createdAt = new Date(contact.createdAt);
+      return createdAt >= startOfWeek && createdAt <= today;
+    }).length;
+  }
+
+  private calculateMonthlyNewContacts() {
+    const today = new Date();
+    this.monthlyNewContacts = this.dataSource.data.filter(contact => {
+      const createdAt = new Date(contact.createdAt);
+      return createdAt.getMonth() === today.getMonth() &&
+             createdAt.getFullYear() === today.getFullYear();
+    }).length;
   }
 
   back(): void {
@@ -79,8 +123,25 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
     this.router.navigate(['/dashboard/support-partner', this.myPartner._id]);
   }
 
-  applyFilter(filterValue: string) {
+ /*  applyFilter(filterValue: string) {
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  } */
+
+  applyNameFilter(filterValue: string) {
+    const filterValues = {
+      name: filterValue,
+      status: this.filterStatus || ''
+    };
+    this.dataSource.filter = JSON.stringify(filterValues);
+  }
+
+  applyStatusFilter() {
+    const filterValues = {
+      name: this.filterText || '',
+      status: this.filterStatus || ''
+    };
+    this.dataSource.filter = JSON.stringify(filterValues);
+    this.filteredContactCount = this.dataSource.filteredData.length;
   }
 
   ngAfterViewInit() {
@@ -192,4 +253,14 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
       subscription.unsubscribe();
     });
   }
+
+  getTotalContacts(): number {
+    return this.dataSource.data.length;
+  }
+
+  getTotalOnlineContacts(): number {
+    //console.log(this.dataSource.data)
+    return this.dataSource.data.filter(contact => contact.prospectSource === 'Unique Link').length;
+  }
+
 }

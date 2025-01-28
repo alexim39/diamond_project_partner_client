@@ -12,7 +12,7 @@ import { TeamService } from '../team/team.service';
 
 
 /**
- * @title Help Dialog
+ * @title Activate new partner
  */
 @Component({
   selector: 'async-activate-new-partner-dialog',

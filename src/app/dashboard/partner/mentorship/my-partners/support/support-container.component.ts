@@ -50,7 +50,7 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
   isEmptyRecord = false;
   subscriptions: Subscription[] = [];
 
-  myPartnerPartners!: Array<PartnerInterface>;
+  myPartnerPartners!: any; //Array<PartnerInterface>;
 
   constructor(
     private router: Router,
@@ -65,15 +65,17 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.myPartnerId = params.get('id');
-      if (this.myPartnerId) {
+      if (this.myPartnerId !== null) {
         // Fetch partner details using the ID
         this.subscriptions.push(
           this.myPartnersService.getPartnerById(this.myPartnerId).subscribe(partner => {
+            //console.log(partner.data)
             this.myPartner = partner.data;
 
             // Get this partner's downlines/partner
-            this.myPartnersService.getPartnersOf(this.myPartner._id).subscribe(partnersPartner => {
-              this.myPartnerPartners = partnersPartner;
+            this.myPartnersService.getPartnersOf(partner.data._id).subscribe(partnerPartners => {
+              //console.log(partnerPartners.data)
+              this.myPartnerPartners = partnerPartners.data;
 
               //console.log(partnersPartner)
   
