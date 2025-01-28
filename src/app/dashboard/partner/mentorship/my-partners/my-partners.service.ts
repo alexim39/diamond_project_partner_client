@@ -19,7 +19,7 @@ export interface TeamInterface {
 export class MyPartnersService {
   // Define API
   apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //  apiURL = 'http://localhost:3000';
+  //apiURL = 'http://localhost:8080';
 
 
   
@@ -51,10 +51,10 @@ export class MyPartnersService {
   }
 
   // get all partners
-  getPartnersOf(partnerId: string): Observable<PartnerInterface[]> {
+  getPartnersOf(partnerId: string): Observable<any> {
     //console.log('record', id);
     return this.http
-      .get<PartnerInterface[]>(this.apiURL + `/partners/getPartnersOf/${partnerId}`, { withCredentials: true })
+      .get<any>(this.apiURL + `/partners/getPartnersOf/${partnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -62,7 +62,7 @@ export class MyPartnersService {
   getPartnerById(myPartnerId: string): Observable<any> {
     //console.log('record', myPartnerId);
     return this.http
-      .get<PartnerInterface>(this.apiURL + `/partners/getById/${myPartnerId}`, { withCredentials: true })
+      .get<any>(this.apiURL + `/partners/getById/${myPartnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
     

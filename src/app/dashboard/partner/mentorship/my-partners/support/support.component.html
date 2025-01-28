@@ -1,3 +1,12 @@
+<section class="breadcrumb-wrapper">
+    <div class="breadcrumb">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
+        <a>Mentorship</a> &gt;
+        <a routerLink="/dashboard/my-partners" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">My Partners</a> &gt;
+        <span>partner's details</span>
+    </div>
+</section>
+
 <section class="async-background">
     <h2>Partner's Details</h2>
 

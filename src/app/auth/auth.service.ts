@@ -8,7 +8,7 @@ import { PartnerSignInData, PartnerSignUpData } from './auth.interface';
 export class PartnerAuthService {
   // Define API
   apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
+  //apiURL = 'http://localhost:8080';
 
   
   constructor(private http: HttpClient) {}
@@ -59,6 +59,14 @@ export class PartnerAuthService {
    signOut(formObject: {}): Observable<any> {
     return this.http
       .post<any>(this.apiURL + '/partners/signout', formObject, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+   // reset password
+   resetPassword(signInData: PartnerSignInData): Observable<PartnerSignInData> {
+   //console.log('form record', signInData);
+    return this.http
+      .post<PartnerSignInData>(this.apiURL + '/partners/reset-password-request', signInData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
