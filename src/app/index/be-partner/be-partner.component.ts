@@ -20,7 +20,7 @@ import { RouterModule } from '@angular/router';
   styles: [`
   .container {
     background: #eee;
-    padding: 1em 0;
+    padding: 2em 0;
     .row {
         display: flex;
         flex-direction: column;

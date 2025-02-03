@@ -1,0 +1,121 @@
+<section class="breadcrumb-wrapper">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
+      <a>Mentorship</a> &gt;
+      <a routerLink="/dashboard/manage-team" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Manage Team</a> &gt;
+      <span>teams's details</span>
+    </div>
+  </section>
+  
+  <section class="async-background">
+    <h2>Team's Details</h2>
+  
+    <section class="async-container">
+      <div class="title">
+        <div class="control">
+
+          <div class="back" (click)="back()" title="Back">
+            <mat-icon>arrow_back</mat-icon>
+          </div>
+
+          <button mat-raised-button (click)="addMember(team, partner)"><mat-icon>add</mat-icon>Add Member</button>
+
+        </div>
+        <h3>{{team.teamName | titlecase}}'s Details</h3>
+      </div>
+  
+      <section class="flex-container">
+        <article class="flex-item team-member-info">
+            <h2>Team Member ({{team.members?.length}})</h2>
+            <div *ngIf="team.members && team.members.length > 0; else noMembers">
+              <div *ngFor="let member of team.members" class="team-member">
+                <div class="member-details">
+                    <h3>{{ member.name }} {{ member.surname }}</h3>
+                    <div><span>Reservation code:</span> {{ member.reservationCode }}</div>
+                    <div><span>Email:</span> {{ member.email }}</div>
+                    <div><span>Phone number:</span> {{ member.phone }}</div>
+                </div>
+
+                <div class="member-action-btn">
+                  <button mat-icon-button title="Member task">
+                    <mat-icon>sync_alt</mat-icon>
+                  </button>  
+                  <button mat-icon-button style="color: red;" title="Remove member" (click)="removeMember(member._id, team._id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <ng-template #noMembers>
+              <p class="no-member-yet">No team members available.</p>
+            </ng-template>
+          </article>
+  
+        <article class="flex-item">
+          <h2>Action</h2>
+          <!-- <div class="list">
+            <h5>Add Team member</h5>
+            <span class="data">
+              <button mat-raised-button (click)="addMember(team, partner)"><mat-icon>add</mat-icon>Add Member</button>
+            </span>
+          </div>
+          <mat-divider></mat-divider> -->
+
+
+
+          <mat-accordion>
+
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Team Record Action</mat-panel-title>
+              </mat-expansion-panel-header>
+              <p>Teams record update and delete action</p>
+
+             <div class="delete-edit">
+              <div class="list">
+                <h5>Modify Team's details</h5>
+                <span class="data">
+                  <button mat-raised-button (click)="edit(team._id)"><mat-icon>edit</mat-icon>Edit Team</button>
+                </span>
+              </div>
+
+              <div class="list">
+                <h5>Delete Team's record</h5>
+                <span class="data">
+                  <button mat-raised-button style="color: rgba(255, 0, 0, 0.578)" (click)="deleteTeam(team._id)"><mat-icon>delete</mat-icon>Delete</button>
+                </span>
+              </div> 
+             </div>
+
+            </mat-expansion-panel>
+
+            <!-- <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title> Self aware panel </mat-panel-title>
+                <mat-panel-description> </mat-panel-description>
+              </mat-expansion-panel-header>
+              <p>I'm visible because I am open</p>
+            </mat-expansion-panel> -->
+
+          </mat-accordion>
+
+          
+  
+          <!-- <div class="list">
+            <h5>Modify Team's details</h5>
+            <span class="data">
+              <button mat-raised-button (click)="edit(team._id)"><mat-icon>edit</mat-icon>Edit Team</button>
+            </span>
+          </div>
+          <mat-divider></mat-divider> -->
+  
+          <!-- <div class="list">
+            <h5>Delete Team's record</h5>
+            <span class="data">
+              <button mat-raised-button style="color: rgba(255, 0, 0, 0.578)" (click)="delete(team._id)"><mat-icon>delete</mat-icon>Delete</button>
+            </span>
+          </div> -->
+        </article>
+      </section>
+    </section>
+  </section>

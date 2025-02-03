@@ -14,7 +14,7 @@ import { MatTableModule } from '@angular/material/table';
 import { TruncatePipe } from '../../../../../_common/pipes/truncate.pipe';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'async-manage-team',
@@ -43,14 +43,13 @@ export class ManageTeamComponent implements OnInit {
   dataSource: TeamInterface[] = [];
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['team', 'purpose', 'date', 'manage', 'action'];
+  displayedColumns: string[] = ['team', 'purpose', 'member', 'owner', 'date'];
 
   constructor(
-    private teamService: TeamService,
     private router: Router,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     //console.log(this.teams)
     if (this.teams && this.teams.length > 0) {
       this.dataSource = this.teams.sort((a, b) => {
@@ -61,76 +60,31 @@ export class ManageTeamComponent implements OnInit {
     }
   }
 
-  delete(teamId: string) {
-   /*  this.subscriptions.push(
-      this.teamService.deleteTeam(this.partner._id).subscribe((teams: any) => {
-       // this.teams = teams.data;
-        //console.log('teams ',teams)
-      })
-    ) */
-
-      Swal.fire({
-        title: `Are you sure of your delete action?`,
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#ffab40",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-      }).then((result) => {
-        if (result.isConfirmed) {
-  
-          this.subscriptions.push(
-            this.teamService.deleteTeam(teamId).subscribe((teams: any) => {
-              //console.log('prospectContact ',prospectStatus)
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: `Your have successfully deleted that team record`,
-                showConfirmButton: true,
-                confirmButtonColor: "#ffab40",
-                timer: 15000,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                 // this.router.navigateByUrl('dashboard/manage-team');
-                 location.reload();
-                }
-              });
-        
-            }, (error: any) => {
-              //console.log(error)
-              Swal.fire({
-                position: "bottom",
-                icon: 'info',
-                text: 'Server error occured, please and try again',
-                showConfirmButton: false,
-                timer: 4000
-              })
-            })
-          )
-  
-        }
-      });
-
-  }
-
-  edit(id: string) {
-    this.router.navigate(['/dashboard/edit-team', id]);
-  }
-
   manage(id: string) {
-    this.router.navigate(['/dashboard/edit-team', id]);
+    this.router.navigate(['/dashboard/team-mgt', id]);
   }
 
-  // Scroll to top when clicked
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   ngOnDestroy() {
-    // unsubscribe list
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe();
     });
+  }
+
+  getOwnerName(team: TeamInterface, partnerId: string): string {
+    //console.log(team);
+  
+    if (team && team.members) {
+      for (let member of team.members) {
+        if (member._id === team.partnerId) {
+          return `${member.surname} ${member.name}`;
+        }
+      }
+    }
+  
+    return 'Unknown Owner';
   }
 }
