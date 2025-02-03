@@ -15,30 +15,33 @@ import { CommonModule } from '@angular/common';
       <div>
 
         <span class="mark">
-          <strong>Manage Your Business: </strong>You can manage, monitor, and expand your business using this partner's platform. All activities are now automated and easy to track
+          <strong>Manage Your Business: </strong>Easily manage your team, track performance, and ensure everyone stays on the same page. Say hello to organized success as all activities are now automated and easy to tracked.
           <!-- <div class="more">
             <a routerLink="cab-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
           </div> -->
         </span>
 
+        <span>
+          <strong>Grow Your Business: </strong>Grow your network efficiently, connect with new prospects, nurture relationships, stay connected with your partners and members. Watch your network flourish like never before. 
+          <!-- <div class="more">
+            <a routerLink="tow-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
+          </div> -->
+        </span>
+
         <span class="mark">
-          <strong>Run Your Business: </strong>Running your business is now a smartphone or computer away. This platform can handle your business operations while you focus on your other life activities.
+          <strong>Promote Your Business: </strong>Create impactful marketing campaigns, reach a wider audience, stand out in the competitive market and drive your business forward. Running your business is now a smartphone or computer away.
           <!-- <div class="more">
             <a routerLink="courier-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
           </div> -->
         </span>
 
-        <span>
-          <strong>Grow Your Business: </strong>The platform will help you grow your business as you can reach out to new partners and stay connected with member partners
-          <!-- <div class="more">
-            <a routerLink="tow-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
-          </div> -->
-        </span>
       </div>
+
+     
 
 
       <!-- <h1>We firmly believe that you can have a comfortable journey to your destination at any hour, whether it’s day or night.</h1> -->
-      <h1>Manage, Run and Grow your business with our platform, any time and day</h1>
+      <h1>Manage, Promote and Grow your business with Diamond Project Online Platform, any time and day</h1>
 
       <!-- <small>Use our flexible learning path, adjust your learning to suit your time  — all in one place. Open a free account in minutes and learn any time.</small> -->
 
@@ -60,7 +63,9 @@ import { CommonModule } from '@angular/common';
       justify-content: space-between;
       .mark {
           border-right: 1px dotted #bbb;
+          border-left: 1px dotted #bbb;
           padding-right: 1em;
+          padding-left: 1em;
         }
       span {
         margin: 0.4em;
@@ -105,9 +110,13 @@ import { CommonModule } from '@angular/common';
       flex-direction: column;
       justify-content: space-between;
       .mark {
-        border-bottom: 1px dotted #bbb;
+       /*  border-bottom: 1px dotted #bbb;
         border-right: 0px dotted #bbb;
-        padding-bottom: 1em;
+        padding-bottom: 1em; */
+       
+      }
+      span {
+        margin-bottom: 2em;
       }
     }
   }

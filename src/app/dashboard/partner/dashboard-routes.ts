@@ -40,6 +40,7 @@ import { MyPartnersContactsContainerComponent } from "./mentorship/my-partners/c
 import { MyPartnerContactsDetailContainerComponent } from "./mentorship/my-partners/contacts/details/contacts-detail-container.component";
 import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
 import { authGuard } from "./guard.service";
+import { TeamSupportContainerComponent } from "./mentorship/team/manage-team/support/support-container.component";
 
 
 
@@ -140,6 +141,11 @@ export const dashboardRoutes: Routes = [
                 path: 'edit-team/:id',
                 component: EditTeamContainerComponent,
                 title: "Edit Team Details",
+            },        
+            {
+                path: 'team-mgt/:id',
+                component: TeamSupportContainerComponent,
+                title: "Team Details - Management page",
             },        
             {
                 path: 'manage-contacts',

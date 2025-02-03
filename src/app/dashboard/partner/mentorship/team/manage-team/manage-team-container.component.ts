@@ -38,9 +38,17 @@ export class ManageTeamContainerComponent implements OnInit, OnDestroy {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.teamService.getAllTeamsBy(this.partner._id).subscribe((teams: any) => {
+            // all teams created by partner
+
+           /*  this.teamService.getAllTeamsBy(this.partner._id).subscribe((teams: any) => {
               this.teams = teams.data;
               //console.log('teams ',teams)
+            }) */
+
+            // all teams where partner is either creator or member
+            this.teamService.getAllTeamsCreatedOrMember(this.partner._id).subscribe((teams: any) => {
+              this.teams = teams.data;
+              //console.log('teams ',teams) 
             })
           }
         },

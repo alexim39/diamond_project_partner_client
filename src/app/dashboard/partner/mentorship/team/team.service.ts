@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { FormGroup } from '@angular/forms';
+import { PartnerInterface } from '../../../../_common/services/partner.service';
 
 export interface TeamInterface {  
   teamName: string;          // The name of the team  
@@ -10,7 +11,8 @@ export interface TeamInterface {
   teamPurpose: string;      // Purpose of the team  
   partnerId: string;
   createdAt?: any;
-  _id?: string;
+  _id?: any;
+  members?: PartnerInterface[];
 } 
   
 
@@ -18,9 +20,7 @@ export interface TeamInterface {
 export class TeamService {
   // Define API
   apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
-
-
+  //apiURL = 'http://localhost:8080';
   
   constructor(private http: HttpClient) {}
   /*========================================
@@ -65,10 +65,17 @@ export class TeamService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-   // get createdby
-   getAllTeamsBy(id: string): Observable<Array<TeamInterface>> {
+   // get teams createdby
+   getAllTeamsBy(partnerId: string): Observable<Array<TeamInterface>> {
     return this.http
-      .get<Array<TeamInterface>>(this.apiURL + `/team/all-createdBy/${id}`, { withCredentials: true })
+      .get<Array<TeamInterface>>(this.apiURL + `/team/all-createdBy/${partnerId}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+   // get teams either createdby partner or is a member
+   getAllTeamsCreatedOrMember(partnerId: string): Observable<Array<TeamInterface>> {
+    return this.http
+      .get<Array<TeamInterface>>(this.apiURL + `/team/all-createdByOrMember/${partnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
@@ -101,6 +108,22 @@ export class TeamService {
    // console.log('record', partnerAcitvateCode);
     return this.http
       .post<any>(this.apiURL + `/reservationCode/new-partner`, partnerAcitvateCode, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+   // add team memeber
+   addTeamMember(teamMemberObject: PartnerInterface[], teamId: string): Observable<TeamInterface> {
+    //console.log('record', teamId);
+    return this.http
+      .post<TeamInterface>(this.apiURL + `/team/add-member/`, {teamMemberObject, teamId}, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  // delete Team member
+  deleteTeamMember(memberId: string, teamId: string): Observable<Array<TeamInterface>> {
+    //console.log('record', id);
+    return this.http
+      .delete<Array<TeamInterface>>(this.apiURL + `/team/remove-member/${teamId}/${memberId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
     
