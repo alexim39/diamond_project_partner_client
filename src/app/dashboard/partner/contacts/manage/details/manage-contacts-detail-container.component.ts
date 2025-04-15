@@ -8,8 +8,8 @@ import { ContactsInterface, ContactsService } from '../../contacts.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'async-manage-contacts-detail-container',
-  template: `
+    selector: 'async-manage-contacts-detail-container',
+    template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-manage-contacts-detail *ngIf="prospect" [prospect]="prospect"></async-manage-contacts-detail>
   </ng-container>
@@ -20,10 +20,9 @@ import { Subscription } from 'rxjs';
         </div>
     </ng-container>
   `,
-  standalone: true,
-  providers: [ContactsService],
-  imports: [ManageContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
-  styles: `
+    providers: [ContactsService],
+    imports: [ManageContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
+    styles: `
   .container {
     padding: 2em;
     display: flex;

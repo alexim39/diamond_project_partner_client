@@ -10,13 +10,12 @@ import { ContactsInterface, ContactsService } from '../contacts.service';
  * @title contacts container
  */
 @Component({
-  selector: 'async-manage-contacts-container',
-  standalone: true,
-  imports: [CommonModule, ManageContactsComponent],
-  providers: [ContactsService],
-  template: `
+    selector: 'async-manage-contacts-container',
+    imports: [CommonModule, ManageContactsComponent],
+    providers: [ContactsService],
+    template: `
   <async-manage-contatcs *ngIf="partner && prospectContact" [partner]="partner" [prospectContact]="prospectContact"></async-manage-contatcs>
-  `,
+  `
 })
 export class ManageContactsContainerComponent implements OnInit, OnDestroy {
 

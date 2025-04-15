@@ -16,12 +16,11 @@ import { ExportContactAndEmailService } from '../../../../_common/services/expor
  * @title enter-email
  */
 @Component({
-  selector: 'async-enter-email',
-  templateUrl: 'enter-email.component.html',
-  styleUrl: 'enter-email.component.scss',
-  providers: [ContactsService],
-  standalone: true,
-  imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule],
+    selector: 'async-enter-email',
+    templateUrl: 'enter-email.component.html',
+    styleUrl: 'enter-email.component.scss',
+    providers: [ContactsService],
+    imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule]
 })
 export class EnterEmailComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;

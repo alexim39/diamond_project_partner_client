@@ -11,13 +11,12 @@ import { SearchService } from '../search.service';
  * @title contacts container
  */
 @Component({
-  selector: 'async-search-result-container',
-  standalone: true,
-  imports: [CommonModule, SearchResultComponent],
-  providers: [SearchService],
-  template: `
+    selector: 'async-search-result-container',
+    imports: [CommonModule, SearchResultComponent],
+    providers: [SearchService],
+    template: `
   <async-search-result *ngIf="searchPartners?.data" [searchPartners]="searchPartners?.data" #srechResultComponentMethod></async-search-result>
-  `,
+  `
 })
 export class SearchResultContainerComponent implements OnInit, OnDestroy {
 

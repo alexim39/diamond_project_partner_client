@@ -17,8 +17,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
  * @title Help Dialog
  */
 @Component({
-  selector: 'async-prospect-response',
-  styles: `
+    selector: 'async-prospect-response',
+    styles: `
   span {
     color: gray;
   }
@@ -46,7 +46,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
   }
 
   `,
-  template: `
+    template: `
 
 <h2 mat-dialog-title>{{data.surname | titlecase}} {{data.name | titlecase}}'s Booking Details & Update</h2>
 
@@ -196,9 +196,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 </mat-dialog-actions>
 
   `,
-  standalone: true,
-  providers: [AnalyticsService],
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatExpansionModule, MatIconModule, MatListModule, MatInputModule, MatSelectModule,MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    providers: [AnalyticsService],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, MatExpansionModule, MatIconModule, MatListModule, MatInputModule, MatSelectModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
 })
 export class BookingStatusUpdateComponent implements OnInit {
     readonly dialogRef = inject(MatDialogRef<BookingStatusUpdateComponent>);

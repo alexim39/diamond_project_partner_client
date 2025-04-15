@@ -10,13 +10,12 @@ import { ActivatedRoute, Router } from '@angular/router';
  * @title Container
  */
 @Component({
-  selector: 'async-team-support-container',
-  template: `
+    selector: 'async-team-support-container',
+    template: `
   <async-team-support *ngIf="partner && team" [partner]="partner" [team]="team" ></async-team-support>
   `,
-  standalone: true,
-  providers: [TeamService],
-  imports: [CommonModule, TeamSupportComponent],
+    providers: [TeamService],
+    imports: [CommonModule, TeamSupportComponent]
 })
 export class TeamSupportContainerComponent implements OnInit, OnDestroy {
 

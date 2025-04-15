@@ -16,8 +16,7 @@ import {MatTabsModule} from '@angular/material/tabs';
     selector: 'async-preapproach-download',
     styleUrls: ['pre-approach-download.component.scss'],
     templateUrl: 'pre-approach-download.component.html',
-    standalone: true,
-    imports: [FormsModule, MatFormFieldModule, MatTabsModule, MatButtonModule, MatInputModule, MatIconModule, MatInputModule],
+    imports: [FormsModule, MatFormFieldModule, MatTabsModule, MatButtonModule, MatInputModule, MatIconModule, MatInputModule]
 })
 export class PreApproachDownloadComponent implements OnInit {
     @Input() partner!: PartnerInterface;

@@ -24,12 +24,11 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
  * @title Contacts
  */
 @Component({
-  selector: 'async-email-list',
-  templateUrl: 'email-list.component.html',
-  styleUrls: ['email-list.component.scss'],
-  standalone: true,
-  providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
+    selector: 'async-email-list',
+    templateUrl: 'email-list.component.html',
+    styleUrls: ['email-list.component.scss'],
+    providers: [AnalyticsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class EmailListComponent implements OnInit, OnDestroy  {
     @Input() partner!: PartnerInterface;

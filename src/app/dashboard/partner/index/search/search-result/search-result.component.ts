@@ -14,13 +14,12 @@ import { MatButtonModule } from '@angular/material/button';
 import Swal from 'sweetalert2';
 
 
-@Component({  
-    selector: 'async-search-result',  
-    standalone: true,  
-    imports: [FormsModule, MatButtonModule, CommonModule, MatIconModule, ReactiveFormsModule, AsyncPipe, MatFormFieldModule, MatInputModule, MatAutocompleteModule],  
+@Component({
+    selector: 'async-search-result',
+    imports: [FormsModule, MatButtonModule, CommonModule, MatIconModule, ReactiveFormsModule, AsyncPipe, MatFormFieldModule, MatInputModule, MatAutocompleteModule],
     providers: [],
-    templateUrl: 'search-result.component.html',  
-    styleUrls: ['search-result.component.scss'],  
+    templateUrl: 'search-result.component.html',
+    styleUrls: ['search-result.component.scss']
 })  
 export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
   // Define API

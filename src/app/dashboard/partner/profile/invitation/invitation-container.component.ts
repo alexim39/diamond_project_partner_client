@@ -8,13 +8,12 @@ import { Subscription } from 'rxjs';
  * @title Container
  */
 @Component({
-  selector: 'async-invitation-container',
-  template: `
+    selector: 'async-invitation-container',
+    template: `
   <async-invitation *ngIf="partner" [partner]="partner" ></async-invitation>
   `,
-  standalone: true,
-  providers: [],
-  imports: [CommonModule, InvitationComponent],
+    providers: [],
+    imports: [CommonModule, InvitationComponent]
 })
 export class InvitationContainerComponent implements OnInit, OnDestroy {
 

@@ -7,8 +7,8 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Mat
  * @title Help Dialog
  */
 @Component({
-  selector: 'async-help-dialog',
-  template: `
+    selector: 'async-help-dialog',
+    template: `
 
 <!-- <h2 mat-dialog-title>Hi</h2> -->
 
@@ -23,8 +23,7 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Mat
 </mat-dialog-actions>
 
   `,
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
 })
 export class HelpDialogComponent {
     readonly dialogRef = inject(MatDialogRef<HelpDialogComponent>);

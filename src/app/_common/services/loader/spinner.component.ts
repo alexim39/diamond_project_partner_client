@@ -4,10 +4,9 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
-  selector: 'async-spinner',
-  imports: [CommonModule, MatProgressSpinnerModule],
-  standalone: true,
-  template: `
+    selector: 'async-spinner',
+    imports: [CommonModule, MatProgressSpinnerModule],
+    template: `
     <div *ngIf="loadingService.loading$ | async" class="overlay">
       <!-- <mat-spinner color="primary"></mat-spinner> -->
       <div class="spinner-container">
@@ -15,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       </div>
     </div>
   `,
-  styles: `
+    styles: `
 
 .overlay {
   position: fixed;

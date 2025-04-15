@@ -4,11 +4,10 @@ import { CellMeetingService } from './cell-meeting.service';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'async-cell-meeting',
-  standalone: true,
-  imports: [MatButtonModule],
-  providers: [CellMeetingService],
-  template: `
+    selector: 'async-cell-meeting',
+    imports: [MatButtonModule],
+    providers: [CellMeetingService],
+    template: `
     <div class="container">
         <div class="writeup item">
             <p>
@@ -20,7 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
         </div>
     </div>
   `,
-  styles: `
+    styles: `
   .container {
     display: flex;                      /* Enable Flexbox layout */  
     justify-content: flex-start;            /* Center items horizontally */  

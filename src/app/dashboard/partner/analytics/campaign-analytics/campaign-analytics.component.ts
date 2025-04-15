@@ -24,12 +24,11 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
  * @title Contacts
  */
 @Component({
-  selector: 'async-campaign-analytics',
-  templateUrl: 'campaign-analytics.component.html',
-  styleUrls: ['campaign-analytics.component.scss'],
-  standalone: true,
-  providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
+    selector: 'async-campaign-analytics',
+    templateUrl: 'campaign-analytics.component.html',
+    styleUrls: ['campaign-analytics.component.scss'],
+    providers: [AnalyticsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class CampaignAnalyticsComponent implements OnInit, OnDestroy  {
     @Input() partner!: PartnerInterface;

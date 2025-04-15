@@ -20,20 +20,18 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Stepper vertical
  */
 @Component({
-  selector: 'async-linkedin',
-  templateUrl: 'linkedin.component.html',
-  styleUrl: 'linkedin.component.scss',
-  standalone: true,
-  imports: [
-    MatButtonModule, MatSelectModule, MatCheckboxModule,
-    MatStepperModule, MatDatepickerModule, CommonModule,
-    FormsModule, RouterModule, MatProgressBarModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
-  providers: [provideNativeDateAdapter(), CreateCampaignService],
-
+    selector: 'async-linkedin',
+    templateUrl: 'linkedin.component.html',
+    styleUrl: 'linkedin.component.scss',
+    imports: [
+        MatButtonModule, MatSelectModule, MatCheckboxModule,
+        MatStepperModule, MatDatepickerModule, CommonModule,
+        FormsModule, RouterModule, MatProgressBarModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
+    providers: [provideNativeDateAdapter(), CreateCampaignService]
 })
 export class LinkedinComponent implements OnInit, OnDestroy {
   targetAudienceFormGroup!: FormGroup;

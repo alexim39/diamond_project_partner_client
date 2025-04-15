@@ -22,24 +22,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 @Component({
-  selector: 'async-my-partners',
-  templateUrl: 'my-partners.component.html',
-  styleUrls: ['my-partners.component.scss'],
-  standalone: true,
-  imports: [
-    MatCardModule, ReactiveFormsModule, FormsModule, MatFormFieldModule,
-    CommonModule, MatPaginatorModule, MatInputModule,
-    MatTableModule,
-    MatRadioModule,
-    MatIconModule,
-    RouterModule,
-    MatButtonModule,
-    FormsModule,
-    MatCheckboxModule,
-    MatSlideToggleModule,
-    TruncatePipe, MatTooltipModule
-  ],
-  providers: [],
+    selector: 'async-my-partners',
+    templateUrl: 'my-partners.component.html',
+    styleUrls: ['my-partners.component.scss'],
+    imports: [
+        MatCardModule, ReactiveFormsModule, FormsModule, MatFormFieldModule,
+        CommonModule, MatPaginatorModule, MatInputModule,
+        MatTableModule,
+        MatRadioModule,
+        MatIconModule,
+        RouterModule,
+        MatButtonModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatSlideToggleModule,
+        TruncatePipe, MatTooltipModule
+    ],
+    providers: []
 })
 export class MyPartnersComponent implements OnInit, AfterViewInit {
   @Input() partner!: PartnerInterface;

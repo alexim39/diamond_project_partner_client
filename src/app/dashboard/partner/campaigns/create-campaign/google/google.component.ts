@@ -11,18 +11,17 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
  * @title Stepper vertical
  */
 @Component({
-  selector: 'async-google',
-  templateUrl: 'google.component.html',
-  styleUrl: 'google.component.scss',
-  standalone: true,
-  imports: [
-    MatButtonModule, MatSelectModule, MatCheckboxModule,
-    MatStepperModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
+    selector: 'async-google',
+    templateUrl: 'google.component.html',
+    styleUrl: 'google.component.scss',
+    imports: [
+        MatButtonModule, MatSelectModule, MatCheckboxModule,
+        MatStepperModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+    ]
 })
 export class GoogleComponent {
   firstFormGroup = this.formBuilder.group({

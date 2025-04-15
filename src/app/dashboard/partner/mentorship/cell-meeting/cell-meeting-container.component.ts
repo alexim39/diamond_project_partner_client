@@ -9,13 +9,12 @@ import { CellMeetingComponent } from './cell-meeting.component';
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-contacts-container',
-  standalone: true,
-  imports: [CommonModule, CellMeetingComponent],
-  providers: [],
-  template: `
+    selector: 'async-contacts-container',
+    imports: [CommonModule, CellMeetingComponent],
+    providers: [],
+    template: `
   <async-cell-meeting *ngIf="partner" [partner]="partner"></async-cell-meeting>
-  `,
+  `
 })
 export class CellMettingContainerComponent implements OnInit, OnDestroy {
 

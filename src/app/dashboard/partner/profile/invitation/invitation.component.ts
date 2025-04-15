@@ -13,11 +13,10 @@ import { DomSanitizer } from '@angular/platform-browser';
  * @title Prospect invitation
  */
 @Component({
-  selector: 'async-invitation',
-  templateUrl: 'invitation.component.html',
-  styleUrl: 'invitation.component.scss',
-  standalone: true,
-  imports: [MatCardModule, MatRadioModule,MatIconModule, MatButtonModule,FormsModule, MatCheckboxModule, MatSlideToggleModule],
+    selector: 'async-invitation',
+    templateUrl: 'invitation.component.html',
+    styleUrl: 'invitation.component.scss',
+    imports: [MatCardModule, MatRadioModule, MatIconModule, MatButtonModule, FormsModule, MatCheckboxModule, MatSlideToggleModule]
 })
 export class InvitationComponent implements OnInit {
   @Input() partner!: PartnerInterface;

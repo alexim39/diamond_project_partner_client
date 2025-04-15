@@ -14,11 +14,10 @@ import { TestimonialWriteupSettingsComponent } from './testimonial-writeup/testi
  * @title landing page settings
  */
 @Component({
-  selector: 'async-landing-page-setting',
-  templateUrl: 'landing-page.component.html',
-  styleUrls: ['landing-page.component.scss'],
-  standalone: true,
-  imports: [MatTabsModule, CommonModule, MatIconModule, MatButtonModule, SocialMediaSettingsComponent, TestimonialWriteupSettingsComponent],
+    selector: 'async-landing-page-setting',
+    templateUrl: 'landing-page.component.html',
+    styleUrls: ['landing-page.component.scss'],
+    imports: [MatTabsModule, CommonModule, MatIconModule, MatButtonModule, SocialMediaSettingsComponent, TestimonialWriteupSettingsComponent]
 })
 export class LandingPageSettingComponent {
     @Input() partner!: PartnerInterface;

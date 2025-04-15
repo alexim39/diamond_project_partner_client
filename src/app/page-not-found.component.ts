@@ -7,10 +7,9 @@ import { RouterModule } from '@angular/router';
  * @title Page not found component
  */
 @Component({
-  selector: 'async-page-not-found',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, RouterModule],
-  styles: [`
+    selector: 'async-page-not-found',
+    imports: [MatButtonModule, MatIconModule, RouterModule],
+    styles: [`
 * {
   padding: 0;
   margin: 0;
@@ -77,7 +76,7 @@ import { RouterModule } from '@angular/router';
 }
 
 `],
-  template: `
+    template: `
 <section class="page_404">
     <div class="four_zero_four_bg">
         <h1 class="text-center">404</h1>
@@ -89,6 +88,6 @@ import { RouterModule } from '@angular/router';
         <button  mat-flat-button color="accent" routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Go to Home</button>
     </div>
 </section>
-`,
+`
 })
 export class PageNotFoundComponent {}

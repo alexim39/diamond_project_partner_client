@@ -20,20 +20,18 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Stepper vertical
  */
 @Component({
-  selector: 'async-youtube',
-  templateUrl: 'youtube.component.html',
-  styleUrl: 'youtube.component.scss',
-  standalone: true,
-  imports: [
-    MatButtonModule, MatSelectModule, MatCheckboxModule,
-    MatStepperModule, MatDatepickerModule, CommonModule,
-    FormsModule, RouterModule, MatProgressBarModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
-  providers: [provideNativeDateAdapter(), CreateCampaignService],
-
+    selector: 'async-youtube',
+    templateUrl: 'youtube.component.html',
+    styleUrl: 'youtube.component.scss',
+    imports: [
+        MatButtonModule, MatSelectModule, MatCheckboxModule,
+        MatStepperModule, MatDatepickerModule, CommonModule,
+        FormsModule, RouterModule, MatProgressBarModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+    ],
+    providers: [provideNativeDateAdapter(), CreateCampaignService]
 })
 export class YoutubeComponent implements OnInit, OnDestroy {
   targetAudienceFormGroup!: FormGroup;

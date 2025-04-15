@@ -16,23 +16,22 @@ import { BillingFilterPipe } from '../billing-filter.pipe';
 /**  
  * @title Billing  
  */  
-@Component({  
-  selector: 'async-transactions',  
-  styleUrls: ['transactions.component.scss'],  
-  templateUrl: 'transactions.component.html',  
-  standalone: true,  
-  providers: [],  
-  imports: [  
-    FormsModule,  
-    CommonModule,  
-    MatPaginatorModule,  
-    MatFormFieldModule,  
-    MatTableModule,  
-    MatInputModule,  
-    MatIconModule,  
-    MatButtonModule,  
-    BillingFilterPipe,  MatTabsModule
-  ],  
+@Component({
+    selector: 'async-transactions',
+    styleUrls: ['transactions.component.scss'],
+    templateUrl: 'transactions.component.html',
+    providers: [],
+    imports: [
+        FormsModule,
+        CommonModule,
+        MatPaginatorModule,
+        MatFormFieldModule,
+        MatTableModule,
+        MatInputModule,
+        MatIconModule,
+        MatButtonModule,
+        BillingFilterPipe, MatTabsModule
+    ]
 })  
 export class TransactionsComponent implements OnInit, AfterViewInit {  
   @Input() partner!: PartnerInterface;  

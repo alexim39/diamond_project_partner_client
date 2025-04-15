@@ -19,24 +19,23 @@ import { TransactionsComponent } from './transactions/transactions.component';
 /**  
  * @title Billing  
  */  
-@Component({  
-  selector: 'async-billing',  
-  styleUrls: ['billing.component.scss', 'billing.mobile.scss'],  
-  templateUrl: 'billing.component.html',  
-  standalone: true,  
-  providers: [PaystackService],  
-  imports: [
-    FormsModule,
-    CommonModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatTableModule,
-    MatInputModule,
-    MatIconModule,
-    MatButtonModule,
-    BillingFilterPipe, MatTabsModule,
-    TransactionsComponent
-],  
+@Component({
+    selector: 'async-billing',
+    styleUrls: ['billing.component.scss', 'billing.mobile.scss'],
+    templateUrl: 'billing.component.html',
+    providers: [PaystackService],
+    imports: [
+        FormsModule,
+        CommonModule,
+        MatPaginatorModule,
+        MatFormFieldModule,
+        MatTableModule,
+        MatInputModule,
+        MatIconModule,
+        MatButtonModule,
+        BillingFilterPipe, MatTabsModule,
+        TransactionsComponent
+    ]
 })  
 export class BillingComponent implements OnInit, AfterViewInit {  
   @Input() partner!: PartnerInterface;  

@@ -24,12 +24,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
  * @title Prospect booking
  */
 @Component({
-  selector: 'async-prospect-booking',
-  templateUrl: 'prospect-booking.component.html',
-  styleUrls: ['prospect-booking.component.scss', 'prospect-booking.mobile.scss'],
-  standalone: true,
-  providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatTooltipModule, MatChipsModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
+    selector: 'async-prospect-booking',
+    templateUrl: 'prospect-booking.component.html',
+    styleUrls: ['prospect-booking.component.scss', 'prospect-booking.mobile.scss'],
+    providers: [AnalyticsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatTooltipModule, MatChipsModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class ProspectBookingComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;

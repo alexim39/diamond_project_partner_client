@@ -21,12 +21,11 @@ import { Location } from '@angular/common';
  * @title Contacts
  */
 @Component({
-  selector: 'async-edit-contatcs',
-  templateUrl: 'edit-contacts.component.html',
-  styleUrls: ['edit-contacts.component.scss'],
-  standalone: true,
-  providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-edit-contatcs',
+    templateUrl: 'edit-contacts.component.html',
+    styleUrls: ['edit-contacts.component.scss'],
+    providers: [ContactsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class EditContactsComponent implements OnInit, OnDestroy {
     @Input() prospect!: ContactsInterface | any;

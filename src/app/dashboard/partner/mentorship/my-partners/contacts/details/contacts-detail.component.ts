@@ -24,21 +24,20 @@ import { Location } from '@angular/common';
 
 /** @title Prospect details */
 @Component({
-  selector: 'async-my-partner-contacts-detail',
-  templateUrl: 'contacts-detail.component.html',
-  styleUrls: ['contacts-detail.component.scss'],
-  standalone: true,
-  providers: [ContactsService],
-  imports: [
-    MatCheckboxModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatIconModule, MatButtonModule, 
-    MatDividerModule, MatListModule, CommonModule
-  ],
+    selector: 'async-my-partner-contacts-detail',
+    templateUrl: 'contacts-detail.component.html',
+    styleUrls: ['contacts-detail.component.scss'],
+    providers: [ContactsService],
+    imports: [
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatIconModule, MatButtonModule,
+        MatDividerModule, MatListModule, CommonModule
+    ]
 })
 export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
 

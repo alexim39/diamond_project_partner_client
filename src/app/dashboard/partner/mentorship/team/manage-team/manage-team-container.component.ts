@@ -9,13 +9,12 @@ import { TeamInterface, TeamService } from '../team.service';
  * @title Container
  */
 @Component({
-  selector: 'async-manage-team-container',
-  template: `
+    selector: 'async-manage-team-container',
+    template: `
   <async-manage-team *ngIf="partner && teams" [partner]="partner" [teams]="teams" ></async-manage-team>
   `,
-  standalone: true,
-  providers: [TeamService],
-  imports: [CommonModule, ManageTeamComponent],
+    providers: [TeamService],
+    imports: [CommonModule, ManageTeamComponent]
 })
 export class ManageTeamContainerComponent implements OnInit, OnDestroy {
 

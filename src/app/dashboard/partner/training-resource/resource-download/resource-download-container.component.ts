@@ -9,13 +9,12 @@ import { ResourceDownloadComponent } from './resource-download.component';
  * @title Monthly purchase container
  */
 @Component({
-  selector: 'async-resource-download-container',
-  template: `
+    selector: 'async-resource-download-container',
+    template: `
     <async-resource-download *ngIf="partner" [partner]="partner"></async-resource-download>
   `,
-  standalone: true,
-  providers: [],
-  imports: [MatIconModule, CommonModule, ResourceDownloadComponent],
+    providers: [],
+    imports: [MatIconModule, CommonModule, ResourceDownloadComponent]
 })
 export class ResourceDownloadContainerComponent implements OnInit, OnDestroy {
 

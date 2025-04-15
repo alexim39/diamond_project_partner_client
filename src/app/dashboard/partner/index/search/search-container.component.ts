@@ -10,13 +10,12 @@ import { SearchService } from './search.service';
  * @title Manage comapaing container
  */
 @Component({
-  selector: 'async-index-search-container',
-  standalone: true,
-  imports: [CommonModule, IndexSearchComponent],
-  providers: [SearchService],
-  template: `
+    selector: 'async-index-search-container',
+    imports: [CommonModule, IndexSearchComponent],
+    providers: [SearchService],
+    template: `
   <async-index-search *ngIf="partner && partners" [partner]="partner" [partners]="partners"></async-index-search>
-  `,
+  `
 })
 export class IndexSearchContainerComponent implements OnInit, OnDestroy, AfterViewInit  {
 

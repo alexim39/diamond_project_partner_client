@@ -22,13 +22,12 @@ import { MatTableDataSource } from '@angular/material/table';
 import { EmailDetailDialogComponent } from './email-detail/email-detail.component';
 
 @Component({
-  selector: 'async-email-log',
-  templateUrl: 'email-log.component.html',
-  styleUrls: ['email-log.component.scss'],
-  standalone: true,
-  providers: [],
-  imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatPaginatorModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
-    MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule],
+    selector: 'async-email-log',
+    templateUrl: 'email-log.component.html',
+    styleUrls: ['email-log.component.scss'],
+    providers: [],
+    imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatPaginatorModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+        MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule]
 })
 export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;

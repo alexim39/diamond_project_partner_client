@@ -23,12 +23,11 @@ import { Location } from '@angular/common';
  * @title Contacts
  */
 @Component({
-  selector: 'async-book-session',
-  templateUrl: 'book-session.component.html',
-  styleUrls: ['book-session.component.scss'],
-  standalone: true,
-  providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatDatepickerModule, MatNativeDateModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-book-session',
+    templateUrl: 'book-session.component.html',
+    styleUrls: ['book-session.component.scss'],
+    providers: [ContactsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatDatepickerModule, MatNativeDateModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class BookSessionComponent implements OnInit, OnDestroy {
     @Input() prospect!: ContactsInterface | any;

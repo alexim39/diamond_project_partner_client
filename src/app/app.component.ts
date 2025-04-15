@@ -5,10 +5,9 @@ import { SpinnerComponent } from './_common/services/loader/spinner.component';
 
 
 @Component({
-  selector: 'async-root',
-  standalone: true,
-  imports: [RouterOutlet, SpinnerComponent],
-  template: `
+    selector: 'async-root',
+    imports: [RouterOutlet, SpinnerComponent],
+    template: `
   <async-spinner></async-spinner>
   <div id="container">
     <div class="body">
@@ -16,7 +15,7 @@ import { SpinnerComponent } from './_common/services/loader/spinner.component';
     </div>
   </div>
   `,
-  styles: [`
+    styles: [`
 
 #container {
   animation: fadeInAnimation ease 3s;

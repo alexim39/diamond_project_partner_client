@@ -10,13 +10,12 @@ import { TeamInterface, TeamService } from '../team.service';
  * @title Container
  */
 @Component({
-  selector: 'async-edit-team-container',
-  template: `
+    selector: 'async-edit-team-container',
+    template: `
   <async-edit-team *ngIf="partner && team" [partner]="partner" [team]="team"></async-edit-team>
   `,
-  standalone: true,
-  providers: [TeamService],
-  imports: [CommonModule, EditTeamComponent],
+    providers: [TeamService],
+    imports: [CommonModule, EditTeamComponent]
 })
 export class EditTeamContainerComponent implements OnInit, OnDestroy {
 

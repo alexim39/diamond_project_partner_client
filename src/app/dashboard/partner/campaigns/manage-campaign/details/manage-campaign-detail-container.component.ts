@@ -7,8 +7,8 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 
 @Component({
-  selector: 'async-manage-campain-detail-container',
-  template: `
+    selector: 'async-manage-campain-detail-container',
+    template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-manage-campain-detail *ngIf="campaign" [campaign]="campaign"></async-manage-campain-detail>
   </ng-container>
@@ -19,10 +19,9 @@ import {MatIconModule} from '@angular/material/icon';
         </div>
     </ng-container>
   `,
-  standalone: true,
-  providers: [CampaignService],
-  imports: [ManageCampaignDetailComponent, CommonModule, MatButtonModule, MatIconModule],
-  styles: `
+    providers: [CampaignService],
+    imports: [ManageCampaignDetailComponent, CommonModule, MatButtonModule, MatIconModule],
+    styles: `
   .container {
     padding: 2em;
     display: flex;

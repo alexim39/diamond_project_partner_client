@@ -26,12 +26,11 @@ import {MatTooltipModule} from '@angular/material/tooltip';
  * @title Prospect listing
  */
 @Component({
-  selector: 'async-prospect-list',
-  templateUrl: 'prospect-list.component.html',
-  styleUrls: ['prospect-list.component.scss'],
-  standalone: true,
-  providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsModule, MatTableModule, MatBadgeModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule],
+    selector: 'async-prospect-list',
+    templateUrl: 'prospect-list.component.html',
+    styleUrls: ['prospect-list.component.scss'],
+    providers: [AnalyticsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsModule, MatTableModule, MatBadgeModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class ProspectListComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;

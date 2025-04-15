@@ -22,11 +22,10 @@ interface Template {
  * @title Basic use of the tab group
  */
 @Component({
-  selector: 'async-image-download',
-  templateUrl: 'image-download.component.html',
-  styleUrls: ['image-download.component.scss'],
-  standalone: true,
-  imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, CommonModule, FormsModule, MatInputModule, MatSelectModule],
+    selector: 'async-image-download',
+    templateUrl: 'image-download.component.html',
+    styleUrls: ['image-download.component.scss'],
+    imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, CommonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class ImageDownloadComponent implements OnDestroy, OnInit {
  filteredTemplates: Template[] = [];

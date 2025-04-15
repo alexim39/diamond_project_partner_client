@@ -10,13 +10,12 @@ import { CommonModule } from '@angular/common';
  * @title Monthly purchase container
  */
 @Component({
-  selector: 'async-monthly-purchase-container',
-  template: `
+    selector: 'async-monthly-purchase-container',
+    template: `
     <async-monthly-purchase *ngIf="productsObject" [productsObject]="productsObject"></async-monthly-purchase>
   `,
-  standalone: true,
-  providers: [ProductService],
-  imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule],
+    providers: [ProductService],
+    imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule]
 })
 export class MonthlyPurchaseContainerComponent implements OnInit, OnDestroy {
 

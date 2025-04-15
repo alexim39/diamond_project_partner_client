@@ -14,20 +14,19 @@ import {MatButtonModule} from '@angular/material/button';
 
 /** @title Disabled select */
 @Component({
-  selector: 'async-manage-campain-detail',
-  templateUrl: 'manage-campaign-detail.component.html',
-  styleUrls: ['manage-campaign-detail.component.scss'],
-  standalone: true,
-  imports: [
-    MatCheckboxModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatIconModule, MatButtonModule,
-    MatDividerModule, MatListModule, CommonModule
-  ],
+    selector: 'async-manage-campain-detail',
+    templateUrl: 'manage-campaign-detail.component.html',
+    styleUrls: ['manage-campaign-detail.component.scss'],
+    imports: [
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatIconModule, MatButtonModule,
+        MatDividerModule, MatListModule, CommonModule
+    ]
 })
 export class ManageCampaignDetailComponent implements OnInit {
 

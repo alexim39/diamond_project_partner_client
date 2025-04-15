@@ -8,13 +8,12 @@ import { ProfileMgrComponent } from './profile-mgr.component';
  * @title Container
  */
 @Component({
-  selector: 'async-profile-mgr-container',
-  template: `
+    selector: 'async-profile-mgr-container',
+    template: `
   <async-profile-mgr *ngIf="partner" [partner]="partner" ></async-profile-mgr>
   `,
-  standalone: true,
-  providers: [],
-  imports: [CommonModule, ProfileMgrComponent],
+    providers: [],
+    imports: [CommonModule, ProfileMgrComponent]
 })
 export class ProfileMrgContainerComponent implements OnInit, OnDestroy {
 

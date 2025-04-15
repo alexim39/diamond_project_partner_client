@@ -12,11 +12,10 @@ import { MatIconModule } from '@angular/material/icon';
  * @title dashboard index
  */
 @Component({
-  selector: 'async-dashboard-index',
-  templateUrl: 'index.component.html',
-  styleUrls: ['index.component.scss', 'index.mobile.scss'],
-  standalone: true,
-  imports: [MatButtonModule, RouterModule, MatIconModule, MatCardModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule],
+    selector: 'async-dashboard-index',
+    templateUrl: 'index.component.html',
+    styleUrls: ['index.component.scss', 'index.mobile.scss'],
+    imports: [MatButtonModule, RouterModule, MatIconModule, MatCardModule, MatBadgeModule, CommonModule, IndexSearchContainerComponent, MatInputModule]
 })
 export class DashboardIndexComponent  {
   appName = 'Diamond Project Online Partners Platform';

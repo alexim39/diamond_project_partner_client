@@ -12,12 +12,11 @@ import Swal from 'sweetalert2';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 
 @Component({
-  selector: 'async-checkout',
-  templateUrl: './checkout.component.html',
-  styleUrls: ['./checkout.component.scss'],
-  standalone: true,
-  providers: [ProductService],
-  imports: [MatIconModule, CommonModule, RouterModule, TruncatePipe, MatButtonModule, FormsModule, MatButtonModule]
+    selector: 'async-checkout',
+    templateUrl: './checkout.component.html',
+    styleUrls: ['./checkout.component.scss'],
+    providers: [ProductService],
+    imports: [MatIconModule, CommonModule, RouterModule, TruncatePipe, MatButtonModule, FormsModule, MatButtonModule]
 })
 export class CheckoutComponent implements OnInit, OnDestroy  {
     cart: ProductInterface[] = [];

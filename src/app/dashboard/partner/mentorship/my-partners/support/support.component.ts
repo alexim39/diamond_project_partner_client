@@ -19,20 +19,19 @@ import { SmsService } from '../../../../../_common/services/sms.service';
 
 /** @title Prospect details */
 @Component({
-  selector: 'async-my-partner-support',
-  templateUrl: 'support.component.html',
-  styleUrls: ['support.component.scss'],
-  standalone: true,
-  imports: [
-    MatCheckboxModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatIconModule, MatButtonModule,
-    MatDividerModule, MatListModule, CommonModule, RouterModule
-  ],
+    selector: 'async-my-partner-support',
+    templateUrl: 'support.component.html',
+    styleUrls: ['support.component.scss'],
+    imports: [
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatIconModule, MatButtonModule,
+        MatDividerModule, MatListModule, CommonModule, RouterModule
+    ]
 })
 export class MyPartnerSupportComponent implements OnInit, OnDestroy {
 

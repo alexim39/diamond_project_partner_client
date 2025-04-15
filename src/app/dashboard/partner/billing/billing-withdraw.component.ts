@@ -18,10 +18,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
  * @title Basic Inputs
  */
 @Component({
-  selector: 'async-biling-withdraw',
-  standalone: true,
-  providers: [PaystackService, MatSnackBar],
-  styles: `
+    selector: 'async-biling-withdraw',
+    providers: [PaystackService, MatSnackBar],
+    styles: `
 
   .header {
     display: flex;
@@ -84,7 +83,7 @@ button[disabled] {
 
 
   `,
-  template: `
+    template: `
 
 
     <div class="header">
@@ -161,7 +160,7 @@ button[disabled] {
 
 
   `,
-  imports: [FormsModule, MatFormFieldModule, MatProgressBarModule, CommonModule, ReactiveFormsModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule],
+    imports: [FormsModule, MatFormFieldModule, MatProgressBarModule, CommonModule, ReactiveFormsModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
 export class BillingWithdrawComponent implements OnInit, OnDestroy {
   readonly dialogRef = inject(MatDialogRef<BillingWithdrawComponent>);

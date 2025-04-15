@@ -9,13 +9,12 @@ import { LandingPageSettingComponent } from './Landing-page.component';
  * @title Manage comapaing container
  */
 @Component({
-  selector: 'async-landing-page-setting-container',
-  standalone: true,
-  imports: [CommonModule, LandingPageSettingComponent],
-  providers: [],
-  template: `
+    selector: 'async-landing-page-setting-container',
+    imports: [CommonModule, LandingPageSettingComponent],
+    providers: [],
+    template: `
   <async-landing-page-setting *ngIf="partner" [partner]="partner"></async-landing-page-setting>
-  `,
+  `
 })
 export class LandingPageSettingContainerComponent implements OnInit, OnDestroy {
 

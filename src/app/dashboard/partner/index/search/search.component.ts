@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 @Component({
     selector: 'async-index-search',
-    standalone: true,
     imports: [FormsModule, CommonModule, MatIconModule, ReactiveFormsModule, AsyncPipe, MatFormFieldModule, MatInputModule, MatAutocompleteModule],
     providers: [],
     template: `
