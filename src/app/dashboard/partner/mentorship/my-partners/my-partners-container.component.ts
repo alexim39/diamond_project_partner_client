@@ -15,8 +15,8 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
  * @title My Partners Container Component
  */
 @Component({
-  selector: 'async-my-partners-container',
-  template: `
+    selector: 'async-my-partners-container',
+    template: `
     <ng-container *ngIf="!isEmptyRecord">
       <async-my-partners
         *ngIf="partner && myPartners"
@@ -44,8 +44,8 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
       </div>
     </ng-container>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .container {
         padding: 2em;
         display: flex;
@@ -73,10 +73,9 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
         //color: #000;
       }
     `,
-  ],
-  standalone: true,
-  providers: [MyPartnersService],
-  imports: [CommonModule, MyPartnersComponent, MatButtonModule, MatIconModule],
+    ],
+    providers: [MyPartnersService],
+    imports: [CommonModule, MyPartnersComponent, MatButtonModule, MatIconModule]
 })
 export class MyPartnersContainerComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;

@@ -15,12 +15,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
  * @title Basic expansion panel
  */
 @Component({
-  selector: 'async-social-media-settings',
-  templateUrl: 'social-media.component.html',
-  styleUrls: ['social-media.component.scss', 'social-media.mobile.scss'],
-  standalone: true,
-  imports: [MatExpansionModule, CommonModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
-  providers: [MatSnackBar, SocialMediaSettingsService]
+    selector: 'async-social-media-settings',
+    templateUrl: 'social-media.component.html',
+    styleUrls: ['social-media.component.scss', 'social-media.mobile.scss'],
+    imports: [MatExpansionModule, CommonModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
+    providers: [MatSnackBar, SocialMediaSettingsService]
 })
 export class SocialMediaSettingsComponent {
   @Input() partner!: PartnerInterface;

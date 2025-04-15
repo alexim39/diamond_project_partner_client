@@ -6,10 +6,9 @@ import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'async-profile-picture-upload',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule],
-  template: `
+    selector: 'async-profile-picture-upload',
+    imports: [CommonModule, MatButtonModule],
+    template: `
   <section>
     <div class="profile-picture-upload">
         <img *ngIf="profilePictureUrl" [src]="profilePictureUrl" alt="Profile Picture" class="profile-picture-preview"/>
@@ -18,7 +17,7 @@ import Swal from 'sweetalert2';
     </div>
   </section>
   `,
-  styles: `
+    styles: `
   section {
     display: flex;  
     justify-content: center;  

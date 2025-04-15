@@ -10,8 +10,8 @@ import { MyPartnersService } from '../../my-partners.service';
 import { PartnerInterface } from '../../../../../../_common/services/partner.service';
 
 @Component({
-  selector: 'async-manage-contacts-detail-container',
-  template: `
+    selector: 'async-manage-contacts-detail-container',
+    template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-my-partner-contacts-detail *ngIf="prospect" [prospect]="prospect" [myPartner]="myPartner"></async-my-partner-contacts-detail>
   </ng-container>
@@ -22,10 +22,9 @@ import { PartnerInterface } from '../../../../../../_common/services/partner.ser
         </div>
     </ng-container>
   `,
-  standalone: true,
-  providers: [ContactsService, MyPartnersService],
-  imports: [MyPartnerContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
-  styles: `
+    providers: [ContactsService, MyPartnersService],
+    imports: [MyPartnerContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
+    styles: `
   .container {
     padding: 2em;
     display: flex;

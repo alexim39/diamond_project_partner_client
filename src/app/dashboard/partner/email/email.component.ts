@@ -11,12 +11,11 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'async-email',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, RouterModule, MatTabsModule, EnterEmailComponent, CommonModule],
-  providers: [EmailService],
-  templateUrl: 'email.component.html',
-  styleUrls: ['email.component.scss']
+    selector: 'async-email',
+    imports: [MatButtonModule, MatIconModule, RouterModule, MatTabsModule, EnterEmailComponent, CommonModule],
+    providers: [EmailService],
+    templateUrl: 'email.component.html',
+    styleUrls: ['email.component.scss']
 })
 export class EmailComponent implements OnInit, OnDestroy {
 

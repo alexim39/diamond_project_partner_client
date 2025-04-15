@@ -20,12 +20,11 @@ import { Subscription } from 'rxjs';
  * @title Basic icons
  */
 @Component({
-  selector: 'async-monthly-purchase',
-  templateUrl: 'monthly-purchase.component.html',
-  styleUrls: ['monthly-purchase.component.scss'],
-  standalone: true,
-  providers: [ProductService],
-  imports: [MatIconModule, CommonModule, MatTooltipModule, RouterModule, MatInputModule, MatFormFieldModule, FormsModule, MatButtonModule, ProductFilterPipe],
+    selector: 'async-monthly-purchase',
+    templateUrl: 'monthly-purchase.component.html',
+    styleUrls: ['monthly-purchase.component.scss'],
+    providers: [ProductService],
+    imports: [MatIconModule, CommonModule, MatTooltipModule, RouterModule, MatInputModule, MatFormFieldModule, FormsModule, MatButtonModule, ProductFilterPipe]
 })
 export class MonthlyPurchaseComponent implements OnDestroy {
 

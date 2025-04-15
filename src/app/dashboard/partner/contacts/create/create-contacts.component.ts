@@ -20,12 +20,11 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
  * @title Contacts
  */
 @Component({
-  selector: 'async-create-contatcs',
-  templateUrl: 'create-contacts.component.html',
-  styleUrls: ['create-contacts.component.scss'],
-  standalone: true,
-  providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-create-contatcs',
+    templateUrl: 'create-contacts.component.html',
+    styleUrls: ['create-contacts.component.scss'],
+    providers: [ContactsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class CreateContactsComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;

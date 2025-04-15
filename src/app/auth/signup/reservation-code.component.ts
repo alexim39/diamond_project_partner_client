@@ -13,12 +13,10 @@ import {
 */
 
 @Component({
-  selector: 'async-reservation-code',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  
-  template: `
+    selector: 'async-reservation-code',
+    imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
   <h3 mat-dialog-title>How to Get Diamond Project Reservation Code</h3>
   <mat-dialog-content>
     <p>
@@ -40,7 +38,7 @@ import {
     <a mat-flat-button mat-dialog-close color="primary">Join Now</a>
     <a mat-button mat-dialog-close cdkFocusInitial>Close</a>
   </mat-dialog-actions>
-  `,
+  `
 })
 export class ReservationCodeDialogComponent {
   readonly dialogRef = inject(MatDialogRef<ReservationCodeDialogComponent>);

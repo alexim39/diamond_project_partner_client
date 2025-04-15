@@ -16,7 +16,6 @@ import { EmailService } from '../../email.service';
 
 @Component({
     selector: 'async-email-detail-dialog',
-    standalone: true,
     template: `
     <section>
         <h2 mat-dialog-title>
@@ -54,7 +53,7 @@ import { EmailService } from '../../email.service';
     styles: `
   `,
     providers: [EmailService],
-    imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule],
+    imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule]
 })
 export class EmailDetailDialogComponent implements OnDestroy, OnInit {
     readonly data = inject<any>(MAT_DIALOG_DATA);

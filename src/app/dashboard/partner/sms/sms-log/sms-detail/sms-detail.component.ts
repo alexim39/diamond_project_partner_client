@@ -16,7 +16,6 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
     selector: 'async-sms-detail-dialog',
-    standalone: true,
     template: `
     <section>
         <h2 mat-dialog-title>
@@ -54,7 +53,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
     styles: `
   `,
     providers: [smsService],
-    imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule],
+    imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule]
 })
 export class SMSDetailDialogComponent implements OnDestroy, OnInit {
     readonly data = inject<any>(MAT_DIALOG_DATA);

@@ -24,32 +24,31 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training' | 'wibinarsEvents' | 'dailyActivity' | 'achievements';
 
 @Component({
-  selector: 'async-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  standalone: true,
-  providers: [PartnerService, PartnerAuthService],
-  imports: [
-    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
-    MarketingChannelsComponent, MatTooltipModule
-  ],
-  animations: [
-    trigger('submenuToggle', [
-      state('closed', style({
-        height: '0',
-        overflow: 'hidden',
-        opacity: 0,
-      })),
-      state('open', style({
-        height: '*',
-        overflow: 'hidden',
-        opacity: 1,
-      })),
-      transition('closed <=> open', [
-        animate('300ms ease-in-out')
-      ]),
-    ])
-  ],
+    selector: 'async-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.scss'],
+    providers: [PartnerService, PartnerAuthService],
+    imports: [
+        MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
+        MarketingChannelsComponent, MatTooltipModule
+    ],
+    animations: [
+        trigger('submenuToggle', [
+            state('closed', style({
+                height: '0',
+                overflow: 'hidden',
+                opacity: 0,
+            })),
+            state('open', style({
+                height: '*',
+                overflow: 'hidden',
+                opacity: 1,
+            })),
+            transition('closed <=> open', [
+                animate('300ms ease-in-out')
+            ]),
+        ])
+    ]
 })
 export class DashboardComponent implements OnDestroy {
   private breakpointObserver = inject(BreakpointObserver);

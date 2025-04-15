@@ -22,12 +22,11 @@ import { minDigitsValidator } from '../../_common/services/phone-number-checker'
  * @title Partner signup
  */
 @Component({
-  selector: 'async-partner-signup',
-  standalone: true,
-  providers: [PartnerAuthService],
-  imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, CommonModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-  templateUrl: 'partner-signup.component.html',
-  styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
+    selector: 'async-partner-signup',
+    providers: [PartnerAuthService],
+    imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, CommonModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+    templateUrl: 'partner-signup.component.html',
+    styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
 })
 export class PartnerSignupComponent implements OnInit, OnDestroy {
   hide = true;

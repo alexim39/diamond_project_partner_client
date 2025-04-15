@@ -11,13 +11,12 @@ import { PurchasesComponent } from './purchases.component';
  * @title Basic icons
  */
 @Component({
-  selector: 'async-purchases-container',
-  template: `
+    selector: 'async-purchases-container',
+    template: `
     <async-purchases *ngIf="cartObject" [cartObject]="cartObject"></async-purchases>
   `,
-  standalone: true,
-  providers: [ProductService],
-  imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule, PurchasesComponent],
+    providers: [ProductService],
+    imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule, PurchasesComponent]
 })
 export class PurchaseContainerComponent implements OnInit, OnDestroy {
 

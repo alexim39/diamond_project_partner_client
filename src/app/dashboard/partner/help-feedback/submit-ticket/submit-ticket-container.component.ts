@@ -9,13 +9,12 @@ import { SubmitTicketComponent } from './submit-ticket.component';
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-submit-ticket-container',
-  standalone: true,
-  imports: [CommonModule, SubmitTicketComponent],
-  providers: [],
-  template: `
+    selector: 'async-submit-ticket-container',
+    imports: [CommonModule, SubmitTicketComponent],
+    providers: [],
+    template: `
   <async-submit-ticket *ngIf="partner" [partner]="partner"></async-submit-ticket>
-  `,
+  `
 })
 export class SubmitTicketContainerComponent implements OnInit, OnDestroy {
 

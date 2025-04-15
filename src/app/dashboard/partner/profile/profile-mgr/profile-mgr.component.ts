@@ -26,14 +26,13 @@ import { MatSelectModule } from '@angular/material/select';
  * @title profile manager
  */
 @Component({
-  selector: 'async-profile-mgr',
-  templateUrl: 'profile-mgr.component.html',
-  styleUrl: 'profile-mgr.component.scss',
-  standalone: true,
-  providers: [provideNativeDateAdapter(), ProfileService],
-  imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule, 
-    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
-  ],
+    selector: 'async-profile-mgr',
+    templateUrl: 'profile-mgr.component.html',
+    styleUrl: 'profile-mgr.component.scss',
+    providers: [provideNativeDateAdapter(), ProfileService],
+    imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
+        ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
+    ]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);

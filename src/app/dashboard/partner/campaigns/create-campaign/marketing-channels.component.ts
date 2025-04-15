@@ -16,11 +16,10 @@ import { RouterModule } from '@angular/router';
  * @title marketing channesl tab
  */
 @Component({
-  selector: 'async-marketing-channels',
-  templateUrl: 'marketing-channels.component.html',
-  styleUrls: ['marketing-channels.component.scss'],
-  standalone: true,
-  imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule, MatIconModule],
+    selector: 'async-marketing-channels',
+    templateUrl: 'marketing-channels.component.html',
+    styleUrls: ['marketing-channels.component.scss'],
+    imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, GoogleComponent, LinkedinComponent, CommonModule, MatIconModule]
 })
 export class MarketingChannelsComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;

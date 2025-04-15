@@ -22,12 +22,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SMSDetailDialogComponent } from './sms-detail/sms-detail.component';
 
 @Component({
-  selector: 'async-sms-log',
-  templateUrl: 'sms-log.component.html',
-  styleUrls: ['sms-log.component.scss'],
-  standalone: true,
-  imports: [CommonModule, MatIconModule, TruncatePipe, MatPaginatorModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
-    MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule],
+    selector: 'async-sms-log',
+    templateUrl: 'sms-log.component.html',
+    styleUrls: ['sms-log.component.scss'],
+    imports: [CommonModule, MatIconModule, TruncatePipe, MatPaginatorModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+        MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule]
 })
 export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
   @Input() partner!: PartnerInterface;

@@ -15,11 +15,10 @@ import { CommonModule } from '@angular/common';
  * @title Basic use of the tab group
  */
 @Component({
-  selector: 'async-resource-download',
-  templateUrl: 'resource-download.component.html',
-  styleUrls: ['resource-download.component.scss'],
-  standalone: true,
-  imports: [MatTabsModule, MatIconModule, CommonModule, TextDownloadComponent,  ImageDownloadComponent, VideoDownloadComponent],
+    selector: 'async-resource-download',
+    templateUrl: 'resource-download.component.html',
+    styleUrls: ['resource-download.component.scss'],
+    imports: [MatTabsModule, MatIconModule, CommonModule, TextDownloadComponent, ImageDownloadComponent, VideoDownloadComponent]
 })
 export class ResourceDownloadComponent {
   @Input() partner!: PartnerInterface;

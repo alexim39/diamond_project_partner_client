@@ -17,24 +17,23 @@ import Swal from 'sweetalert2';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'async-manage-team',
-  templateUrl: 'manage-team.component.html',
-  styleUrls: ['manage-team.component.scss'],
-  standalone: true,
-  imports: [
-    MatCardModule, MatTooltipModule,
-    CommonModule,
-    MatTableModule,
-    MatRadioModule,
-    MatIconModule,
-    RouterModule,
-    MatButtonModule,
-    FormsModule,
-    MatCheckboxModule,
-    MatSlideToggleModule,
-    TruncatePipe
-  ],
-  providers: [TeamService],
+    selector: 'async-manage-team',
+    templateUrl: 'manage-team.component.html',
+    styleUrls: ['manage-team.component.scss'],
+    imports: [
+        MatCardModule, MatTooltipModule,
+        CommonModule,
+        MatTableModule,
+        MatRadioModule,
+        MatIconModule,
+        RouterModule,
+        MatButtonModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatSlideToggleModule,
+        TruncatePipe
+    ],
+    providers: [TeamService]
 })
 export class ManageTeamComponent implements OnInit {
   @Input() partner!: PartnerInterface;

@@ -10,13 +10,12 @@ import { PaystackService, TransactionInterface } from './paystack.service';
  * @title Manage comapaing container
  */
 @Component({
-  selector: 'async-billing-container',
-  standalone: true,
-  imports: [CommonModule, BillingComponent],
-  providers: [],
-  template: `
+    selector: 'async-billing-container',
+    imports: [CommonModule, BillingComponent],
+    providers: [],
+    template: `
   <async-billing *ngIf="partner && transactions" [partner]="partner"  [transactions]="transactions"></async-billing>
-  `,
+  `
 })
 export class BillingContainerComponent implements OnInit, OnDestroy {
 

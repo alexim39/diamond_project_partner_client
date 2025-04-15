@@ -19,12 +19,11 @@ import Swal from 'sweetalert2';
  * @title Mentors Program
  */
 @Component({
-  selector: 'async-mentors-program',
-  templateUrl: 'mentors-program.component.html',
-  styleUrls: ['mentors-program.component.scss'],
-  standalone: true,
-  providers: [MentorsProgramService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatFormFieldModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-mentors-program',
+    templateUrl: 'mentors-program.component.html',
+    styleUrls: ['mentors-program.component.scss'],
+    providers: [MentorsProgramService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class MentorsProgramComponent implements OnInit {
     @Input() partner!: PartnerInterface;

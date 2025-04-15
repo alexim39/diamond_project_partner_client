@@ -16,11 +16,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
  * @title Text template download
  */
 @Component({
-  selector: 'async-text-download',
-  templateUrl: 'text-download.component.html',
-  styleUrls: ['text-download.component.scss'],
-  standalone: true,
-  imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, CommonModule, FormsModule, MatInputModule, MatSelectModule],
+    selector: 'async-text-download',
+    templateUrl: 'text-download.component.html',
+    styleUrls: ['text-download.component.scss'],
+    imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, CommonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class TextDownloadComponent {
   templates = templatesData;

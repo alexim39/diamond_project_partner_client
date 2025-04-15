@@ -9,13 +9,12 @@ import { smsComponent } from './sms.component';
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-sms-container',
-  standalone: true,
-  imports: [CommonModule, smsComponent],
-  providers: [],
-  template: `
+    selector: 'async-sms-container',
+    imports: [CommonModule, smsComponent],
+    providers: [],
+    template: `
   <async-sms *ngIf="partner" [partner]="partner"></async-sms>
-  `,
+  `
 })
 export class smsContainerComponent implements OnInit, OnDestroy {
 

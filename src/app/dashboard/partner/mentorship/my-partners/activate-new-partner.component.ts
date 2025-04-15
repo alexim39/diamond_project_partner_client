@@ -15,14 +15,14 @@ import { TeamService } from '../team/team.service';
  * @title Activate new partner
  */
 @Component({
-  selector: 'async-activate-new-partner-dialog',
-  styles: `
+    selector: 'async-activate-new-partner-dialog',
+    styles: `
   mat-form-field {
     width: 100%;
   }
   `,
-  providers: [TeamService],
-  template: `
+    providers: [TeamService],
+    template: `
 
 <h2 mat-dialog-title>{{this.data.prospectName | titlecase}} {{this.data.prospectSurname | titlecase}} Reservation Code</h2>
 
@@ -41,8 +41,7 @@ import { TeamService } from '../team/team.service';
 </mat-dialog-actions>
 
   `,
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
 })
 export class ActivateNewPartnerComponent implements OnDestroy {
   readonly dialogRef = inject(MatDialogRef<ActivateNewPartnerComponent>);

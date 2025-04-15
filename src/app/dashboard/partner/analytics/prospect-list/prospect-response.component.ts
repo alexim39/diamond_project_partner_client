@@ -14,9 +14,9 @@ import { AnalyticsService } from '../analytics.service';
  * @title Prospect Detail 
  */
 @Component({
-  selector: 'async-prospect-response',
-  providers: [AnalyticsService],
-  styles: `
+    selector: 'async-prospect-response',
+    providers: [AnalyticsService],
+    styles: `
   span {
     color: gray;
   }
@@ -26,7 +26,7 @@ import { AnalyticsService } from '../analytics.service';
     margin-top: 5px;
   }
   `,
-  template: `
+    template: `
 
 <h2 mat-dialog-title>{{data.surname | titlecase}} {{data.name | titlecase}}'s Response</h2>
 
@@ -138,8 +138,7 @@ import { AnalyticsService } from '../analytics.service';
 </mat-dialog-actions>
 
   `,
-  standalone: true,
-  imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
 })
 export class ProspectResponseComponent implements OnDestroy {
     readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);

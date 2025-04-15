@@ -4,8 +4,8 @@ import { RouterModule } from '@angular/router';
 
 
 @Component({
-  selector: 'async-be-partner',
-  template: `
+    selector: 'async-be-partner',
+    template: `
   <div class="container">
     <div class="row">
         <div class="writeup">
@@ -17,7 +17,7 @@ import { RouterModule } from '@angular/router';
     </div>
   </div>
   `,
-  styles: [`
+    styles: [`
   .container {
     background: #eee;
     padding: 2em 0;
@@ -36,8 +36,7 @@ import { RouterModule } from '@angular/router';
     }
   }
   `],
-  standalone: true,
-  imports: [MatButtonModule,RouterModule ],
+    imports: [MatButtonModule, RouterModule]
 })
 export class BePartnerComponent {
    // scroll to top when clicked

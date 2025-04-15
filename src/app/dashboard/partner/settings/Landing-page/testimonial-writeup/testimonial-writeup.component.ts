@@ -15,12 +15,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
  * @title Basic expansion panel
  */
 @Component({
-  selector: 'async-testimonial-writeup-settings',
-  templateUrl: 'testimonial-writeup.component.html',
-  styleUrls: ['testimonial-writeup.component.scss', 'testimonial-writeup.mobile.scss'],
-  standalone: true,
-  imports: [MatExpansionModule, CommonModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
-  providers: [MatSnackBar, LandingPageService]
+    selector: 'async-testimonial-writeup-settings',
+    templateUrl: 'testimonial-writeup.component.html',
+    styleUrls: ['testimonial-writeup.component.scss', 'testimonial-writeup.mobile.scss'],
+    imports: [MatExpansionModule, CommonModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
+    providers: [MatSnackBar, LandingPageService]
 })
 export class TestimonialWriteupSettingsComponent {
   @Input() partner!: PartnerInterface;

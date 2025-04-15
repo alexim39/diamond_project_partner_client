@@ -13,11 +13,10 @@ import { MatButtonModule } from '@angular/material/button';
  * @title Email log container
  */
 @Component({
-  selector: 'async-email-log-container',
-  standalone: true,
-  imports: [CommonModule, EmailLogComponent, MatIconModule, MatButtonModule],
-  providers: [EmailService],
-  template: `
+    selector: 'async-email-log-container',
+    imports: [CommonModule, EmailLogComponent, MatIconModule, MatButtonModule],
+    providers: [EmailService],
+    template: `
   <ng-container *ngIf="!isEmptyRecord">
   <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"></async-email-log>
   </ng-container>
@@ -28,7 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
         </div>
   </ng-container>
   `,
-   styles: `
+    styles: `
    .container {
      padding: 2em;
      display: flex;

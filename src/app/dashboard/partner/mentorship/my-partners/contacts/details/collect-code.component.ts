@@ -15,14 +15,14 @@ import { Subscription } from 'rxjs';
  * @title Help Dialog
  */
 @Component({
-  selector: 'async-collect-code-dialog',
-  styles: `
+    selector: 'async-collect-code-dialog',
+    styles: `
   mat-form-field {
     width: 100%;
   }
   `,
-  providers: [ContactsService],
-  template: `
+    providers: [ContactsService],
+    template: `
 
 <h2 mat-dialog-title>{{this.data.prospectName | titlecase}} {{this.data.prospectSurname | titlecase}} Reservation Code</h2>
 
@@ -41,8 +41,7 @@ import { Subscription } from 'rxjs';
 </mat-dialog-actions>
 
   `,
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
 })
 export class CollectCodeComponent implements OnDestroy {
   readonly dialogRef = inject(MatDialogRef<CollectCodeComponent>);

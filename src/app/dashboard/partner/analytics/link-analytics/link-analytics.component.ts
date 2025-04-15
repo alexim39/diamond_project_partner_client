@@ -24,12 +24,11 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
  * @title Contacts
  */
 @Component({
-  selector: 'async-link-analytics',
-  templateUrl: 'link-analytics.component.html',
-  styleUrls: ['link-analytics.component.scss'],
-  standalone: true,
-  providers: [AnalyticsService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule,MatInputModule,MatSelectModule],
+    selector: 'async-link-analytics',
+    templateUrl: 'link-analytics.component.html',
+    styleUrls: ['link-analytics.component.scss'],
+    providers: [AnalyticsService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class LinkAnalyticsComponent implements OnInit, OnDestroy  {
     @Input() partner!: PartnerInterface;

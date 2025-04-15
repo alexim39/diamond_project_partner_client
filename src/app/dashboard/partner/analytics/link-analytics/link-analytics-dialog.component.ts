@@ -9,13 +9,13 @@ import { MatListModule } from '@angular/material/list';
  * @title Help Dialog
  */
 @Component({
-  selector: 'async-link-analytics-dialog',
-  styles: `
+    selector: 'async-link-analytics-dialog',
+    styles: `
   .bolder {
     font-weight: bolder;
   }
   `,
-  template: `
+    template: `
 
 <h2 mat-dialog-title>{{data.surname | titlecase}} {{data.name | titlecase}}'s Response</h2>
 
@@ -85,8 +85,7 @@ import { MatListModule } from '@angular/material/list';
 </mat-dialog-actions>
 
   `,
-  standalone: true,
-  imports: [CommonModule, MatListModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+    imports: [CommonModule, MatListModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
 })
 export class LinkAnalyticsDialogComponent {
     readonly dialogRef = inject(MatDialogRef<LinkAnalyticsDialogComponent>);

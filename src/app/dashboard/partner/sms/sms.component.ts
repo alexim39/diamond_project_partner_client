@@ -11,12 +11,11 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'async-sms',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, RouterModule, EnterPhoneNumbersComponent, CommonModule],
-  providers: [smsService],
-  templateUrl: 'sms.component.html',
-  styleUrls: ['sms.component.scss']
+    selector: 'async-sms',
+    imports: [MatButtonModule, MatIconModule, MatTabsModule, RouterModule, EnterPhoneNumbersComponent, CommonModule],
+    providers: [smsService],
+    templateUrl: 'sms.component.html',
+    styleUrls: ['sms.component.scss']
 })
 export class smsComponent implements OnInit, OnDestroy {
 

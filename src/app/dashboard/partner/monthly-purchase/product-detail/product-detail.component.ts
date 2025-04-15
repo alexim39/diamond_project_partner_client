@@ -19,20 +19,18 @@ import { CommonModule } from '@angular/common';
     selector: 'async-product-detail',
     templateUrl: 'product-detail.component.html',
     styleUrls: ['product-detail.component.scss'],
-    standalone: true,
     imports: [
-      MatFormFieldModule,
-      MatInputModule,
-      FormsModule,
-      MatButtonModule,
-      MatDialogTitle,
-      MatDialogContent,
-      MatDialogActions,
-      MatDialogClose,
-      CommonModule
-    ],
-    
-  })
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        MatButtonModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatDialogActions,
+        MatDialogClose,
+        CommonModule
+    ]
+})
   export class ProductDetailComponent implements OnInit {
     readonly dialogRef = inject(MatDialogRef<ProductDetailComponent>);
     readonly product = inject<ProductInterface>(MAT_DIALOG_DATA);

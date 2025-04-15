@@ -7,11 +7,10 @@ import { CommonModule } from '@angular/common';
  * @title Profile
  */
 @Component({
-  selector: 'async-profile',
-  templateUrl: 'profile.component.html',
-  styleUrls: ['profile.component.scss'],
-  standalone: true,
-  imports: [MatButtonModule, CommonModule],
+    selector: 'async-profile',
+    templateUrl: 'profile.component.html',
+    styleUrls: ['profile.component.scss'],
+    imports: [MatButtonModule, CommonModule]
 })
 export class ProfileComponent implements OnInit {
     // Define API

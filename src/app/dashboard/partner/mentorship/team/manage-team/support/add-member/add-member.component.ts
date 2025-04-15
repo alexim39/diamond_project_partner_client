@@ -27,9 +27,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'dialog-overview-example',
-  standalone: true,
-  template: `
+    selector: 'dialog-overview-example',
+    template: `
     <h2 mat-dialog-title>Add New Team Member</h2>
     <mat-dialog-content>
       <p>Search by partner name to add as a team member</p>
@@ -67,28 +66,28 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
       <button mat-button (click)="addMember(data.team._id)">Add</button>
     </mat-dialog-actions>
   `,
-  providers: [SearchService, TeamService],
-  imports: [
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatAutocompleteModule,
-    MatChipsModule,
-    MatIconModule,
-    CommonModule,
-    MatSnackBarModule
-  ],
-  styles: `
+    providers: [SearchService, TeamService],
+    imports: [
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatDialogActions,
+        MatAutocompleteModule,
+        MatChipsModule,
+        MatIconModule,
+        CommonModule,
+        MatSnackBarModule
+    ],
+    styles: `
     .example-chip-list {
       width: 100%;
     }
-  `,
+  `
 })
 export class AddMemberComponent implements OnInit, OnDestroy {
   readonly dialogRef = inject(MatDialogRef<AddMemberComponent>);

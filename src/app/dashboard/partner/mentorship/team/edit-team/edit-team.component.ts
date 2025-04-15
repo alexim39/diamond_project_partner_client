@@ -21,12 +21,11 @@ import { TeamInterface, TeamService } from '../team.service';
  * @title Mentors Program
  */
 @Component({
-  selector: 'async-edit-team',
-  templateUrl: 'edit-team.component.html',
-  styleUrls: ['edit-team.component.scss'],
-  standalone: true,
-  providers: [TeamService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-edit-team',
+    templateUrl: 'edit-team.component.html',
+    styleUrls: ['edit-team.component.scss'],
+    providers: [TeamService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class EditTeamComponent implements OnInit {
   readonly panelOpenState = signal(false);

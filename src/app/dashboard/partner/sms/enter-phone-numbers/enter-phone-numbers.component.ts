@@ -17,12 +17,11 @@ import { ExportContactAndEmailService } from '../../../../_common/services/expor
  * @title enter-phone-numbers
  */
 @Component({
-  selector: 'async-enter-phone-numbers',
-  templateUrl: 'enter-phone-numbers.component.html',
-  styleUrl: 'enter-phone-numbers.component.scss',
-  providers: [ContactsService],
-  standalone: true,
-  imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule],
+    selector: 'async-enter-phone-numbers',
+    templateUrl: 'enter-phone-numbers.component.html',
+    styleUrl: 'enter-phone-numbers.component.scss',
+    providers: [ContactsService],
+    imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule]
 })
 export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;

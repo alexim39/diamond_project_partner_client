@@ -11,13 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
  * @title contacts container
  */
 @Component({
-  selector: 'async-edit-container',
-  standalone: true,
-  imports: [CommonModule, EditContactsComponent],
-  providers: [ContactsService],
-  template: `
+    selector: 'async-edit-container',
+    imports: [CommonModule, EditContactsComponent],
+    providers: [ContactsService],
+    template: `
   <async-edit-contatcs *ngIf="prospect" [prospect]="prospect"></async-edit-contatcs>
-  `,
+  `
 })
 export class EditContactsContainerComponent implements OnInit, OnDestroy {
 

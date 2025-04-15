@@ -3,10 +3,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'async-logo',
-  standalone: true,
-  imports: [MatIconModule, RouterModule],
-  template: `
+    selector: 'async-logo',
+    imports: [MatIconModule, RouterModule],
+    template: `
     <a [routerLink]="['/']" [style.color]="color">
       <span>
         <img src="./img/logo.PNG">
@@ -14,7 +13,7 @@ import { RouterModule } from '@angular/router';
       </span>
     </a>
   `,
-  styles: [`
+    styles: [`
     a {
       text-decoration: none;
       span {

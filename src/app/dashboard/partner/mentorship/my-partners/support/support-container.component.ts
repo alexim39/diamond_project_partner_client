@@ -9,8 +9,8 @@ import { PartnerInterface } from '../../../../../_common/services/partner.servic
 import { MyPartnersService } from '../my-partners.service';
 
 @Component({
-  selector: 'async-my-partner-support-container',
-  template: `
+    selector: 'async-my-partner-support-container',
+    template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-my-partner-support 
       *ngIf="myPartner" 
@@ -25,10 +25,9 @@ import { MyPartnersService } from '../my-partners.service';
         </div>
     </ng-container>
   `,
-  standalone: true,
-  providers: [MyPartnersService],
-  imports: [MyPartnerSupportComponent, CommonModule, MatButtonModule, MatIconModule],
-  styles: `
+    providers: [MyPartnersService],
+    imports: [MyPartnerSupportComponent, CommonModule, MatButtonModule, MatIconModule],
+    styles: `
   .container {
     padding: 2em;
     display: flex;

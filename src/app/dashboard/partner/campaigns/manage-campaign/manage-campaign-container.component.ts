@@ -10,13 +10,12 @@ import { CampaignInterface, CampaignService } from './manage-campaign.service';
  * @title Manage comapaing container
  */
 @Component({
-  selector: 'async-manage-campaign-container',
-  standalone: true,
-  imports: [CommonModule, ManageCampaignComponent],
-  providers: [CampaignService],
-  template: `
+    selector: 'async-manage-campaign-container',
+    imports: [CommonModule, ManageCampaignComponent],
+    providers: [CampaignService],
+    template: `
   <async-manage-campaign *ngIf="partner && campaigns" [partner]="partner" [campaigns]="campaigns"></async-manage-campaign>
-  `,
+  `
 })
 export class ManageCampaignContainerComponent implements OnInit, OnDestroy {
 

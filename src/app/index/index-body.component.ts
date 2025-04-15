@@ -7,14 +7,13 @@ import { BePartnerComponent } from './be-partner/be-partner.component';
 
 
 @Component({
-  selector: 'async-index-body',
-  standalone: true,
-  imports: [BannerComponent, WhyWeExistComponent, RouterModule, BePartnerComponent,],
-  template: `
+    selector: 'async-index-body',
+    imports: [BannerComponent, WhyWeExistComponent, RouterModule, BePartnerComponent,],
+    template: `
     <async-banner></async-banner>
     <async-be-partner></async-be-partner>
     <async-index-why-we-exist></async-index-why-we-exist>
   `,
-  styles: [` `]
+    styles: [` `]
 })
 export class IndexBodyComponent {}

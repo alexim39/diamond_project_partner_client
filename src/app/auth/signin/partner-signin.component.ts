@@ -18,12 +18,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Partner signin
  */
 @Component({
-  selector: 'async-partner-signin',
-  standalone: true,
-  providers: [PartnerAuthService],
-  imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-  templateUrl: 'partner-signin.component.html' ,
-  styleUrls: ['partner-signin.component.scss']
+    selector: 'async-partner-signin',
+    providers: [PartnerAuthService],
+    imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+    templateUrl: 'partner-signin.component.html',
+    styleUrls: ['partner-signin.component.scss']
 })
 export class PartnerSigninComponent implements OnInit, OnDestroy {
   hide = true;

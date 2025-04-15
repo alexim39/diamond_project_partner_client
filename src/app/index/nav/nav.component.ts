@@ -8,11 +8,10 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { Router, RouterModule, } from '@angular/router';
 
 @Component({
-  selector: 'async-nav',
-  standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, LogoComponent, CommonModule, RouterModule],
-  templateUrl: './nav.component.html',
-  styleUrl: './nav.component.scss'
+    selector: 'async-nav',
+    imports: [MatToolbarModule, MatIconModule, MatButtonModule, LogoComponent, CommonModule, RouterModule],
+    templateUrl: './nav.component.html',
+    styleUrl: './nav.component.scss'
 })
 export class NavComponent implements OnInit {
   isMobile!: boolean;

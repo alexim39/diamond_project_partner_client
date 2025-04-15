@@ -21,20 +21,19 @@ import {MatExpansionModule} from '@angular/material/expansion';
 
 /** @title Teams details */
 @Component({
-  selector: 'async-team-support',
-  templateUrl: 'support.component.html',
-  styleUrls: ['support.component.scss'],
-  standalone: true,
-  imports: [
-    MatCheckboxModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule, MatExpansionModule,
-    MatIconModule, MatButtonModule,
-    MatDividerModule, MatListModule, CommonModule, RouterModule
-  ],
+    selector: 'async-team-support',
+    templateUrl: 'support.component.html',
+    styleUrls: ['support.component.scss'],
+    imports: [
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule, MatExpansionModule,
+        MatIconModule, MatButtonModule,
+        MatDividerModule, MatListModule, CommonModule, RouterModule
+    ]
 })
 export class TeamSupportComponent implements OnInit, OnDestroy {
 

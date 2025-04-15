@@ -9,13 +9,12 @@ import { MentorsProgramComponent } from './mentors-program.component';
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-mentors-program-container',
-  standalone: true,
-  imports: [CommonModule, MentorsProgramComponent],
-  providers: [],
-  template: `
+    selector: 'async-mentors-program-container',
+    imports: [CommonModule, MentorsProgramComponent],
+    providers: [],
+    template: `
   <async-mentors-program *ngIf="partner" [partner]="partner"></async-mentors-program>
-  `,
+  `
 })
 export class MentorsProgramContainerComponent implements OnInit, OnDestroy {
 

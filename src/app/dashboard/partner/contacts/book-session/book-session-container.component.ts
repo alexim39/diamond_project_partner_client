@@ -11,13 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
  * @title contacts container
  */
 @Component({
-  selector: 'async-book-session-container',
-  standalone: true,
-  imports: [CommonModule, BookSessionComponent],
-  providers: [ContactsService],
-  template: `
+    selector: 'async-book-session-container',
+    imports: [CommonModule, BookSessionComponent],
+    providers: [ContactsService],
+    template: `
   <async-book-session *ngIf="prospect && partner" [prospect]="prospect"  [partner]="partner"></async-book-session>
-  `,
+  `
 })
 export class BookSessionContainerComponent implements OnInit, OnDestroy {
 

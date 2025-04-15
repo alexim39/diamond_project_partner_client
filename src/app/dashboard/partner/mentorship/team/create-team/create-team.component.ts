@@ -21,12 +21,11 @@ import { TeamService } from '../team.service';
  * @title Mentors Program
  */
 @Component({
-  selector: 'async-create-team',
-  templateUrl: 'create-team.component.html',
-  styleUrls: ['create-team.component.scss'],
-  standalone: true,
-  providers: [TeamService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-create-team',
+    templateUrl: 'create-team.component.html',
+    styleUrls: ['create-team.component.scss'],
+    providers: [TeamService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class CreateTeamComponent implements OnInit {
   readonly panelOpenState = signal(false);

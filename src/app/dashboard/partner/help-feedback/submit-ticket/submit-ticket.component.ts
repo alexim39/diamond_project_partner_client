@@ -21,12 +21,11 @@ import Swal from 'sweetalert2';
  * @title Mentors Program
  */
 @Component({
-  selector: 'async-submit-ticket',
-  templateUrl: 'submit-ticket.component.html',
-  styleUrls: ['submit-ticket.component.scss'],
-  standalone: true,
-  providers: [TicketService],
-  imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule,MatInputModule, ReactiveFormsModule,MatSelectModule],
+    selector: 'async-submit-ticket',
+    templateUrl: 'submit-ticket.component.html',
+    styleUrls: ['submit-ticket.component.scss'],
+    providers: [TicketService],
+    imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class SubmitTicketComponent implements OnInit {
   readonly panelOpenState = signal(false);

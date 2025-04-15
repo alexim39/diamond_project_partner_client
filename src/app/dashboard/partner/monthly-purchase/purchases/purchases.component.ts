@@ -13,23 +13,22 @@ import { MatTableModule } from '@angular/material/table';
 import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 
 @Component({
-  selector: 'async-purchases',
-  templateUrl: 'purchases.component.html',
-  styleUrls: ['purchases.component.scss'],
-  standalone: true,
-  imports: [
-    MatCardModule,
-    CommonModule,
-    MatTableModule,
-    MatRadioModule,
-    MatIconModule,
-    RouterModule,
-    MatButtonModule,
-    FormsModule,
-    MatCheckboxModule,
-    MatSlideToggleModule,
-    TruncatePipe
-  ],
+    selector: 'async-purchases',
+    templateUrl: 'purchases.component.html',
+    styleUrls: ['purchases.component.scss'],
+    imports: [
+        MatCardModule,
+        CommonModule,
+        MatTableModule,
+        MatRadioModule,
+        MatIconModule,
+        RouterModule,
+        MatButtonModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatSlideToggleModule,
+        TruncatePipe
+    ]
 })
 export class PurchasesComponent implements OnInit {
   @Input() partner!: PartnerInterface;

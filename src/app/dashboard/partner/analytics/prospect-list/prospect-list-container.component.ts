@@ -10,13 +10,12 @@ import { AnalyticsService, ProspectListInterface } from '../analytics.service';
  * @title contacts container
  */
 @Component({
-  selector: 'async-prospect-list-container',
-  standalone: true,
-  imports: [CommonModule, ProspectListComponent],
-  providers: [AnalyticsService],
-  template: `
+    selector: 'async-prospect-list-container',
+    imports: [CommonModule, ProspectListComponent],
+    providers: [AnalyticsService],
+    template: `
   <async-prospect-list *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"></async-prospect-list>
-  `,
+  `
 })
 export class ProspectListContainerComponent implements OnInit, OnDestroy {
 

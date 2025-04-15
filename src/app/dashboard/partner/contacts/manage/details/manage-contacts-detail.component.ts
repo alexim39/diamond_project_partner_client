@@ -23,21 +23,20 @@ import { ProspectResponseComponent } from '../../../analytics/prospect-list/pros
 
 /** @title Prospect details */
 @Component({
-  selector: 'async-manage-contacts-detail',
-  templateUrl: 'manage-contacts-detail.component.html',
-  styleUrls: ['manage-contacts-detail.component.scss'],
-  standalone: true,
-  imports: [
-    MatCheckboxModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatInputModule,
-    MatIconModule, MatButtonModule, 
-    MatDividerModule, MatListModule, CommonModule
-  ],
-  providers: [ContactsService]
+    selector: 'async-manage-contacts-detail',
+    templateUrl: 'manage-contacts-detail.component.html',
+    styleUrls: ['manage-contacts-detail.component.scss'],
+    imports: [
+        MatCheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatIconModule, MatButtonModule,
+        MatDividerModule, MatListModule, CommonModule
+    ],
+    providers: [ContactsService]
 })
 export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 

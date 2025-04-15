@@ -16,10 +16,9 @@ import Swal from 'sweetalert2';
  * @title Basic Inputs
  */
 @Component({
-  selector: 'async-biling-amount',
-  standalone: true,
-  providers: [PaystackService],
-  template: `
+    selector: 'async-biling-amount',
+    providers: [PaystackService],
+    template: `
     <h2 mat-dialog-title>Hi {{partner.surname | titlecase}} {{partner.name | titlecase}}</h2>
     <mat-dialog-content>
     <p>Use the below field to fund your account</p>
@@ -37,7 +36,7 @@ import Swal from 'sweetalert2';
     </mat-dialog-actions>
 
   `,
-  imports: [FormsModule, MatFormFieldModule, CommonModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule],
+    imports: [FormsModule, MatFormFieldModule, CommonModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
 export class BillingDepositComponent implements OnInit, OnDestroy {
   readonly dialogRef = inject(MatDialogRef<BillingDepositComponent>);

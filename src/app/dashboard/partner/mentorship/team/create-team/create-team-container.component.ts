@@ -8,13 +8,12 @@ import { CreateTeamComponent } from './create-team.component';
  * @title Container
  */
 @Component({
-  selector: 'async-create-team-container',
-  template: `
+    selector: 'async-create-team-container',
+    template: `
   <async-create-team *ngIf="partner" [partner]="partner" ></async-create-team>
   `,
-  standalone: true,
-  providers: [],
-  imports: [CommonModule, CreateTeamComponent],
+    providers: [],
+    imports: [CommonModule, CreateTeamComponent]
 })
 export class CreateTeamContainerComponent implements OnInit, OnDestroy {
 

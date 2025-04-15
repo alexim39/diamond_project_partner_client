@@ -16,11 +16,10 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
  * @title Manage Campaign
  */
 @Component({
-  selector: 'async-manage-campaign',
-  templateUrl: 'manage-campaign.component.html',
-  styleUrl: 'manage-campaign.component.scss',
-  standalone: true,
-  imports: [MatSliderModule, CommonModule, MatPaginatorModule, MatInputModule, MatFormFieldModule, RouterModule, FormsModule, MatButtonModule, MatIconModule, MatTableModule],
+    selector: 'async-manage-campaign',
+    templateUrl: 'manage-campaign.component.html',
+    styleUrl: 'manage-campaign.component.scss',
+    imports: [MatSliderModule, CommonModule, MatPaginatorModule, MatInputModule, MatFormFieldModule, RouterModule, FormsModule, MatButtonModule, MatIconModule, MatTableModule]
 })
 export class ManageCampaignComponent implements OnInit {
 

@@ -13,11 +13,10 @@ import { MatButtonModule } from '@angular/material/button';
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-sms-log-container',
-  standalone: true,
-  imports: [CommonModule, SMSLogComponent, MatIconModule,MatButtonModule],
-  providers: [smsService],
-  template: `
+    selector: 'async-sms-log-container',
+    imports: [CommonModule, SMSLogComponent, MatIconModule, MatButtonModule],
+    providers: [smsService],
+    template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"></async-sms-log>
   </ng-container>
@@ -28,7 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
         </div>
     </ng-container>
   `,
-  styles: `
+    styles: `
   .container {
     padding: 2em;
     display: flex;

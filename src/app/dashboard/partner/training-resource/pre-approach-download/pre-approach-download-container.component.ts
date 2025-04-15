@@ -9,13 +9,12 @@ import { PreApproachDownloadComponent } from './pre-approach-download.component'
  * @title Manage comapaing container
  */
 @Component({
-  selector: 'async-manage-campaign-container',
-  standalone: true,
-  imports: [CommonModule, PreApproachDownloadComponent],
-  providers: [],
-  template: `
+    selector: 'async-manage-campaign-container',
+    imports: [CommonModule, PreApproachDownloadComponent],
+    providers: [],
+    template: `
   <async-preapproach-download *ngIf="partner" [partner]="partner"></async-preapproach-download>
-  `,
+  `
 })
 export class PreapproachDownloadContainerComponent implements OnInit, OnDestroy {
 

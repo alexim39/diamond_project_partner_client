@@ -10,13 +10,12 @@ import { AnalyticsService, ProspectListInterface } from '../analytics.service';
  * @title prospect email list container
  */
 @Component({
-  selector: 'async-email-list-container',
-  standalone: true,
-  imports: [CommonModule, EmailListComponent],
-  providers: [AnalyticsService],
-  template: `
+    selector: 'async-email-list-container',
+    imports: [CommonModule, EmailListComponent],
+    providers: [AnalyticsService],
+    template: `
   <async-email-list *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"></async-email-list>
-  `,
+  `
 })
 export class EmailListContainerComponent implements OnInit, OnDestroy {
 

@@ -18,12 +18,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Partner password reset
  */
 @Component({
-  selector: 'async-partner-signin',
-  standalone: true,
-  providers: [PartnerAuthService],
-  imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-  templateUrl: 'partner-forgot-password.component.html' ,
-  styleUrls: ['partner-forgot-password.component.scss']
+    selector: 'async-partner-signin',
+    providers: [PartnerAuthService],
+    imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+    templateUrl: 'partner-forgot-password.component.html',
+    styleUrls: ['partner-forgot-password.component.scss']
 })
 export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
 

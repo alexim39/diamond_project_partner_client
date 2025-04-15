@@ -9,13 +9,12 @@ import { EmailComponent } from './email.component';
  * @title cell meeting container
  */
 @Component({
-  selector: 'async-email-container',
-  standalone: true,
-  imports: [CommonModule, EmailComponent],
-  providers: [],
-  template: `
+    selector: 'async-email-container',
+    imports: [CommonModule, EmailComponent],
+    providers: [],
+    template: `
   <async-email *ngIf="partner" [partner]="partner"></async-email>
-  `,
+  `
 })
 export class EmailContainerComponent implements OnInit, OnDestroy {
 

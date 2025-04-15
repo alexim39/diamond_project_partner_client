@@ -24,13 +24,12 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'async-my-partners-contatcs',
-  templateUrl: 'contacts.component.html',
-  styleUrls: ['contacts.component.scss'],
-  standalone: true,
-  providers: [ContactsService],
-  imports: [CommonModule, MatIconModule, MatChipsModule, MatTooltipModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, 
-    MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule],
+    selector: 'async-my-partners-contatcs',
+    templateUrl: 'contacts.component.html',
+    styleUrls: ['contacts.component.scss'],
+    providers: [ContactsService],
+    imports: [CommonModule, MatIconModule, MatChipsModule, MatTooltipModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+        MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule]
 })
 export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;
