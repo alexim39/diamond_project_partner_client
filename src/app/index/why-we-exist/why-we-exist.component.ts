@@ -11,27 +11,27 @@ import { CommonModule } from '@angular/common';
     imports: [RouterModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, CommonModule],
     template: `
     <aside class="why-we-exist">
-      <div>
+      <div class="features">
 
         <span class="mark">
-          <strong>Manage Your Business: </strong>Easily manage your team, track performance, and ensure everyone stays on the same page. Say hello to organized success as all activities are now automated and easy to tracked.
-          <!-- <div class="more">
-            <a routerLink="cab-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
-          </div> -->
+          <strong>Manage Your Business: </strong>
+          <p>
+            Simplify team management and performance tracking for aligned, organized success. Automation makes tracking easy.
+          </p>
         </span>
 
         <span>
-          <strong>Grow Your Business: </strong>Grow your network efficiently, connect with new prospects, nurture relationships, stay connected with your partners and members. Watch your network flourish like never before. 
-          <!-- <div class="more">
-            <a routerLink="tow-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
-          </div> -->
+          <strong>Grow Your Business: </strong>
+          <p>
+            Efficiently grow your network, connect with prospects, nurture relationships, and stay connected with partners/members. Watch your network flourish.
+          </p>
         </span>
 
         <span class="mark">
-          <strong>Promote Your Business: </strong>Create impactful marketing campaigns, reach a wider audience, stand out in the competitive market and drive your business forward. Running your business is now a smartphone or computer away.
-          <!-- <div class="more">
-            <a routerLink="courier-services" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Know more <i class="fa fa-angle-double-right"></i></a>
-          </div> -->
+          <strong>Promote Your Business: </strong>
+          <p>
+          Drive business growth with impactful marketing, wider reach, and market differentiation – conveniently managed from your phone or computer.
+          </p>
         </span>
 
       </div>
@@ -39,10 +39,8 @@ import { CommonModule } from '@angular/common';
      
 
 
-      <!-- <h1>We firmly believe that you can have a comfortable journey to your destination at any hour, whether it’s day or night.</h1> -->
       <h1>Manage, Promote and Grow your business with Diamond Project Online Platform, any time and day</h1>
 
-      <!-- <small>Use our flexible learning path, adjust your learning to suit your time  — all in one place. Open a free account in minutes and learn any time.</small> -->
 
       <a mat-flat-button color="primary" routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
     </aside>
@@ -55,11 +53,20 @@ import { CommonModule } from '@angular/common';
     align-items: center;
     justify-content: center;
     background-color: #050111;
-    div {
+    .features {
       margin: 1em;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      strong {
+        color:rgb(193, 112, 5);
+      }
+      p {
+        line-height: 2em;
+        width: 60%;
+        text-align: justify;
+        padding-left: 2em;
+      }
       .mark {
           border-right: 1px dotted #bbb;
           border-left: 1px dotted #bbb;
@@ -74,67 +81,45 @@ import { CommonModule } from '@angular/common';
           display: block;
           margin-bottom: 0.5em;
         }
-        .more {
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-          a {
-            font-size: 0.8em;
-            color: #00838f;
-            font-weight: bolder;
-            text-decoration: none;
-          }
-        }
       }
     }
     h1 {
       font-weight: bolder;
-      margin: 1em;
-      color: #ad1457;
+      margin: 3em;
+      color:rgb(193, 112, 5);
     }
-    small {
-      text-align: justify;
-      margin: 0 1em;
-    }
+
   }
 
 
 /* Media Query for Mobile Responsiveness */
 @media screen and (max-width: 600px) {
   aside {
-    //padding: 1em;
-    div {
+    .features {
       margin: 1em;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      .mark {
-       /*  border-bottom: 1px dotted #bbb;
-        border-right: 0px dotted #bbb;
-        padding-bottom: 1em; */
-       
+      p {
+        width: auto;
       }
+     
       span {
         margin-bottom: 2em;
       }
+    }
+    h1 {
+      width: 100%;
     }
   }
 }
   `]
 })
-export class WhyWeExistComponent implements OnInit{
-
-  constructor() { }
-
-  ngOnInit(): void {  }
+export class WhyWeExistComponent{
 
    // scroll to top when clicked
    scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-
-
-  ngOnDestroy() {}
 
 }

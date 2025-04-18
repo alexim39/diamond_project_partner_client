@@ -20,22 +20,16 @@ import {
   <h3 mat-dialog-title>How to Get Diamond Project Reservation Code</h3>
   <mat-dialog-content>
     <p>
-      If you want to get your hands on the coveted Diamond Project Reservation Code, you'll first need to join the Diamond Project business. 
-      This exclusive code is your ticket to success in our world of entrepreneurship, providing you with valuable resources and tools to help you thrive in your business.
+      If you want to get your hands on the Diamond Project Reservation Code, you'll first need to join the Diamond Project as a member. 
+      This exclusive code is your ticket to success in our world of entrepreneurship, providing you with business management and resources tracking capabilites to help you thrive in your business.
     </p>
 
     <p>
-    To join the Diamond Project business, simply sign up as a member and start exploring the various opportunities and benefits that await you. 
-    Once you have become a member, you will be assigned the reservation code that will unlock a world of possibilities for your business.
+    Once you are a member, you will be assigned the reservation code.
     </p>
 
-    <p>
-    With the Diamond Project Reservation Code in hand, you can take your business to new heights and reach your full potential in our compensative market. 
-    Don't miss out on this incredible opportunity - join the Diamond Project today and start your journey towards financial success and self development.
-    </p>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <a mat-flat-button mat-dialog-close color="primary">Join Now</a>
     <a mat-button mat-dialog-close cdkFocusInitial>Close</a>
   </mat-dialog-actions>
   `

@@ -6,7 +6,7 @@
     
     <!-- User profile -->
     <mat-toolbar>
-      <async-profile *ngIf="partner" [partner]="partner"></async-profile>
+      <async-profile *ngIf="partner" [partner]="partner"/>
     </mat-toolbar>
     <!-- User profile -->
 
@@ -77,28 +77,6 @@
       </div>
 
 
-      <!-- <a mat-list-item (click)="toggleSubmenu('dailyActivity')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <div>
-          <mat-icon>engineering</mat-icon> 
-          <span>Challenges</span>
-        </div>
-      </a>
-      <div [@submenuToggle]="isSubmenuOpen('dailyActivity') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Current Challenge">
-          Current Challenge 
-          Challenge of the Day: A new challenge is posted daily (e.g., "Share your link on Twitter with a personal story").
-        </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Challenge Tracking">
-          Challenge Tracking
-          Users can see which challenges they’ve completed and the rewards they’ve earned.
-        </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Submit Proof">
-          Submit Proof
-           Members can submit proof (e.g., screenshots) of challenge completion to earn points or badges.
-        </a>
-      </div> -->
-
-
       <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>trending_up</mat-icon> 
@@ -109,28 +87,6 @@
         <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Order Products">Order Products</a>
         <a mat-list-item routerLink="purchases" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Purchases">Purchases</a>
       </div>
-
-
-     <!--  <a mat-list-item (click)="toggleSubmenu('achievements')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <div>
-          <mat-icon>hotel_class</mat-icon> 
-          <span>Achievements</span>
-        </div>
-      </a>
-      <div [@submenuToggle]="isSubmenuOpen('achievements') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Badges & Levels">
-          Badges & Levels
-          Lists all achievable badges, their requirements, and the user’s progress toward earning them.
-        </a>
-        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Leaderboards">
-          Leaderboards
-          Displays rankings of top-performing members based on various criteria (e.g., most clicks, highest earnings).
-        </a>
-        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"  title="Milestone Tracker">
-          Milestone Tracker
-          Visual representation of progress toward major milestones (e.g., first 100 leads, first $1,000 earned).
-        </a>
-      </div> -->
 
 
       <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -157,19 +113,6 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('training') ? 'open' : 'closed'" class="submenu">
-        <!-- <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Video Tutorials">
-          Video Tutorials
-
-          A library of instructional videos covering topics such as marketing strategies, content creation, and platform navigation.
-        </a> -->
-        <!-- <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="eBooks & Guides">
-          eBooks & Guides
-          
-           A collection of articles, eBooks, and step-by-step guides on various topics related to digital marketing and network marketing.
-           Best Practices: Curated tips and tricks from successful members or industry experts. 
-         
-        </a> -->
-
         <a mat-list-item (click)="toggleSubSubmenu('mentorship-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Resource ">
           Resource Downloads
           <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
@@ -182,81 +125,8 @@
         </div>
         <a mat-list-item (click)="toggleSubSubmenu('mentorship-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Survey Link" target="_blank" href="https://survey.diamondprojectonline.com/">
           Survey Link
-          <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
         </a>
-        
-        <!-- <a mat-list-item (click)="toggleSubSubmenu('content-creatioin')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Content Creation & Sharing">Content Creation & Sharing</a>
-        <div [@submenuToggle]="isSubSubmenuOpen('content-creatioin') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Blog & Article Writing">
-            Blog & Article Writing
-            Provides templates and SEO tips for writing blog posts or articles.
-          </a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Video Creatioin Tools">
-            Video Creatioin Tools
-            Tips and resources for creating video content, including script templates and editing software recommendations.
-          </a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Social Media Sharing">
-            Social Media Sharing
-            Direct sharing options and suggested posts for various social media platforms.
-          </a>
-          <a mat-list-item  routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="User Generated Contents">
-            User Generated Content
-            A gallery where members can view and get inspiration from content created by others.
-          </a>
-        </div> -->
       </div>
-      
-
-    
-<!--       <a mat-list-item (click)="toggleSubmenu('community')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <div>
-          <mat-icon>groups</mat-icon> 
-          <span>Community</span>
-        </div>
-      </a>
-      <div [@submenuToggle]="isSubmenuOpen('community') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="/community1" routerLinkActive="active" (click)="scrollToTop()" title="Forums">
-          Forums
-           Access to discussion boards where members can ask questions, share experiences, and support one another.
-        </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Success Stories">
-          Success Stories
-          : Features interviews or case studies of top performers, highlighting their journey and tips for success.
-        </a>
-        <a mat-list-item routerLink="/community2" routerLinkActive="active" (click)="scrollToTop()" title="Group Chats">
-          Group Chats
-          : Real-time chat rooms for different topics, allowing members to connect instantly.
-        </a>
-      </div> -->
-    
-<!--       <a mat-list-item (click)="toggleSubmenu('wibinarsEvents')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <div>
-          <mat-icon>event_note</mat-icon> 
-          <span>Webinar & Event</span>
-        </div>
-      </a>
-      <div [@submenuToggle]="isSubmenuOpen('wibinarsEvents') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Webinars & Live Sessions">
-          Live Sessions
-          Calendar and registration for upcoming live webinars, plus access to recordings of past sessions.
-        </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Upcoming Events">
-          Upcoming Event
-          
-          A calendar view of all upcoming webinars, training sessions, and live events.  
-          Option to set reminders or sync events with personal calendars.
-          
-        </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Register for Events">
-          Register for Event
-          Allows members to register for events directly through the platform. 
-        </a>
-        <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Event Archives">
-          Event Archives
-          Access to recordings and materials from past events, categorized by topic. 
-        </a>
-      </div> -->
-
       <a mat-list-item (click)="toggleSubmenu('settings')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>settings</mat-icon> 
@@ -279,32 +149,9 @@
         
         <a mat-list-item routerLink="submit-ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="Submit a Ticket">
           Submit a Ticket
-          <!-- Allows members to report issues or ask for help from support staff. -->
         </a>
-        <!-- <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Support Center">
-          Support Center
-          //A searchable database of FAQs and troubleshooting guides.
-        </a> -->
-        <!-- <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Live Chat Support">
-          Live Chat Support
-          //Real-time chat with customer support agents for immediate assistance.
-        </a> -->
-        <!-- <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Feedback Portal">
-          Feedback Portal
-           //A place for members to submit suggestions for platform improvements or new features.
-        </a> -->
-        <!-- <a mat-list-item routerLink="#" routerLinkActive="active" (click)="scrollToTop()" title="Community Votes">
-          Community Votes
-          //Members can vote on which new features or changes they’d like to see implemented.
-        </a> -->
       </div>
     
-      <!-- <a class="sign-out" mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="signOut()">
-        <div>
-          <mat-icon>logout</mat-icon> 
-          <span> Sign Out</span>
-        </div>
-      </a> -->
     </mat-nav-list>
 
   </mat-sidenav>
@@ -320,7 +167,9 @@
       </button>
     }
 
-    <span class="logo"><async-logo></async-logo></span>
+    <span class="logo">
+      <async-logo/>
+    </span>
     <span class="nav-spacer"></span>
     
     <ng-content *ngIf="isDesktop">
@@ -352,15 +201,12 @@
     <a mat-button (click)="signOut()" title="Sign off application">
       <mat-icon>power_off</mat-icon> Sign Off
     </a>
-    <!-- <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
-    <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>output</mat-icon> Sign In</a>
-    <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>input</mat-icon> Sign Up</a> -->
   </mat-toolbar-row>
      
 
     
     <!-- Add Content Here -->
-    <router-outlet></router-outlet>
+    <router-outlet/>
     
   </mat-sidenav-content>
 </mat-sidenav-container>

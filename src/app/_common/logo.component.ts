@@ -7,47 +7,30 @@ import { RouterModule } from '@angular/router';
     imports: [MatIconModule, RouterModule],
     template: `
     <a [routerLink]="['/']" [style.color]="color">
-      <span>
-        <img src="./img/logo.PNG">
-        Diamond Project (Online) <span class="partners"> Partners</span>
-      </span>
+      <img src="./img/plogo.png">
     </a>
   `,
     styles: [`
     a {
       text-decoration: none;
-      span {
-        display: flex;
-        justify-content: center;
-        font-family: "Audiowide", sans-serif;
-        font-size: 0.9em;
-        font-weight: bold;
-        img {
-          width: 1.3em;
-          height: 1.3em;
-          border-radius: 10%;
-          margin-right: 1px;
-        }
-        .partners {
-          color: gray;
-          font-size: 0.6em;
-          //font-family: Verdana;
-          color: #ffab40;
-          font-weight: bold;
-        }
+      display: flex;
+      margin-left: 3em;
+      img {
+        width: 10em;
+        height: 2.5em;
+        border-radius: 10%;
       }
     }
 
 /* Media Query for Mobile Responsiveness */
 @media screen and (max-width: 600px) {
   a {
-    span {
-      font-size: 16px;
-      img {
-        width: 1.3em;
-        height: 1.3em;
+    margin-left: 0;
+    img {
+        width: 8em;
+        height: 2em;
+        border-radius: 10%;
       }
-    }
   }
 }
   `]

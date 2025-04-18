@@ -12,7 +12,7 @@ import { RouterModule } from '@angular/router';
             <p>Visit our home page to understand more about our business</p>
         </div>
         <div class="call">
-            <a mat-flat-button href="http://diamondprojectonline.com" target="_blank">Know More, Join Us Now</a>
+            <a mat-flat-button href="http://diamondprojectonline.com/get-started" target="_blank">Join Us Now</a>
         </div>
     </div>
   </div>
@@ -20,7 +20,7 @@ import { RouterModule } from '@angular/router';
     styles: [`
   .container {
     background: #eee;
-    padding: 2em 0;
+    padding: 3em 0;
     .row {
         display: flex;
         flex-direction: column;
