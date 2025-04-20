@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 
 @Component({
     selector: 'async-purchases',
@@ -27,7 +26,6 @@ import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
         FormsModule,
         MatCheckboxModule,
         MatSlideToggleModule,
-        TruncatePipe
     ]
 })
 export class PurchasesComponent implements OnInit {

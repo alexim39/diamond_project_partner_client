@@ -106,6 +106,18 @@ import { AnalyticsService } from '../analytics.service';
     <span matListItemLine class="bolder">{{data.onlineBusinessTimeDedication}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
+
+  <mat-list-item>
+    <span matListItemTitle>Prospect Country:</span>
+    <span matListItemLine class="bolder">{{data.country}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+
+  <mat-list-item >
+    <span matListItemTitle>Prospect State of Origin:</span>
+    <span matListItemLine class="bolder">{{data.state ? data.state : 'State not found'}}</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
   
   <mat-list-item>
     <span matListItemTitle>Date of Visit</span>
@@ -121,7 +133,7 @@ import { AnalyticsService } from '../analytics.service';
       <mat-panel-title> More Action </mat-panel-title>
       <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
     </mat-expansion-panel-header>
-    <p style="color: gray;">Delete prospect from system</p>
+    <p style="color: gray;">Remove prospect from survey list</p>
     <button mat-stroked-button (click)="deleteProspect(data._id)" style="color: red;">
       <mat-icon>delete</mat-icon>
       Delete
@@ -148,7 +160,6 @@ export class ProspectResponseComponent implements OnDestroy {
     constructor(
        private analyticsService: AnalyticsService,
     ) {}
-
 
     close(): void {
         this.dialogRef.close();

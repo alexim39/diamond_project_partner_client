@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {Component, inject, OnDestroy} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -41,7 +41,7 @@ import { TeamService } from '../team/team.service';
 </mat-dialog-actions>
 
   `,
-    imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
+    imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class ActivateNewPartnerComponent implements OnDestroy {
   readonly dialogRef = inject(MatDialogRef<ActivateNewPartnerComponent>);

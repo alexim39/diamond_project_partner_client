@@ -9,9 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 import { Subscription } from 'rxjs';
-import Swal from 'sweetalert2';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
@@ -36,7 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         FormsModule,
         MatCheckboxModule,
         MatSlideToggleModule,
-        TruncatePipe, MatTooltipModule
+        MatTooltipModule
     ],
     providers: []
 })
