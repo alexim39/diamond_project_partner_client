@@ -11,9 +11,7 @@ import { Router, RouterModule } from '@angular/router';
 import { TeamInterface, TeamService } from '../team.service';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { TruncatePipe } from '../../../../../_common/pipes/truncate.pipe';
 import { Subscription } from 'rxjs';
-import Swal from 'sweetalert2';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -31,7 +29,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         FormsModule,
         MatCheckboxModule,
         MatSlideToggleModule,
-        TruncatePipe
     ],
     providers: [TeamService]
 })

@@ -15,7 +15,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { TruncatePipe } from '../../../../../_common/pipes/truncate.pipe';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { ExportContactAndEmailService } from '../../../../../_common/services/exportContactAndEmail.service';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
@@ -28,7 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     templateUrl: 'contacts.component.html',
     styleUrls: ['contacts.component.scss'],
     providers: [ContactsService],
-    imports: [CommonModule, MatIconModule, MatChipsModule, MatTooltipModule, TruncatePipe, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+    imports: [CommonModule, MatIconModule, MatChipsModule, MatTooltipModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule]
 })
 export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterViewInit {

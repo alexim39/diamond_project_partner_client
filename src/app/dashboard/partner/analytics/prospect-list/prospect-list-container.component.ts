@@ -32,23 +32,21 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next:  (partnerObject) => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.prospectListService.getProspectFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
+            this.prospectListService.getAllProspect().subscribe((prospectContact: ProspectListInterface) => {
               this.prospectList = prospectContact;
               //console.log('prospectContact ',prospectContact)
             })
+           /*  this.prospectListService.getProspectFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
+              this.prospectList = prospectContact;
+              //console.log('prospectContact ',prospectContact)
+            }) */
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+      })
     )
   }
 
