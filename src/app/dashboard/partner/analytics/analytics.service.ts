@@ -23,96 +23,48 @@ export class AnalyticsService {
  
   // get prospect owned
   getAllProspect(): Observable<ProspectListInterface> {
-    //console.log('record', id);
-    /* return this.http
-      .get<ProspectListInterface>(this.apiURL + `/prospect/for/${createdBy}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
       return this.apiService.get<ProspectListInterface>(`prospect/all`, undefined, undefined, true);
   }
 
   // get prospect owned
-  getProspectFor(createdBy: string): Observable<ProspectListInterface> {
-    //console.log('record', id);
-    /* return this.http
-      .get<ProspectListInterface>(this.apiURL + `/prospect/for/${createdBy}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
+  getProspectFor(createdBy: string): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/for/${createdBy}`, undefined, undefined, true);
   }
 
   // get contacts createdby
-  importSingle(importId: any): Observable<ProspectListInterface> {
-  //console.log('record', importId);
-  /* return this.http
-    .get<ProspectListInterface>(this.apiURL + `/prospect/import-single/${importId.partnerId}/${importId.prospectId}`, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError)); */
-
+  importSingle(importId: any): Observable<any> {
     return this.apiService.get<ProspectListInterface>(`prospect/import-single/${importId.partnerId}/${importId.prospectId}`, undefined, undefined, true);
   }
 
    // detele single prospect
-   deleteSingle(prospectId: string): Observable<ProspectListInterface> {
-    //console.log('record', prospectId);
-    /* return this.http
-      .get<ProspectListInterface>(this.apiURL + `/prospect/delete-single/${prospectId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
+   deleteSingle(prospectId: string): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/delete-single/${prospectId}`, undefined, undefined, true);
     }
   
   // get session booking
-  getSessionBookingsFor(createdBy: string): Observable<ProspectListInterface> {
-    //console.log('record', id);
-    /* return this.http
-      .get<ProspectListInterface>(this.apiURL + `/booking/for/${createdBy}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.get<ProspectListInterface>(`booking/for/${createdBy}`, undefined, undefined, true);
+  getSessionBookingsFor(createdBy: string): Observable<any> {
+    return this.apiService.get<ProspectListInterface>(`booking/for/${createdBy}`, undefined, undefined, true);
   }
 
   // detele single prospect
-  deleteBookings(id: string): Observable<ProspectListInterface> {
-  //console.log('record', id);
-  /* return this.http
-    .delete<ProspectListInterface>(this.apiURL + `/booking/delete/${id}`, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError)); */
-
+  deleteBookings(id: string): Observable<any> {
     return this.apiService.delete<ProspectListInterface>(`booking/delete/${id}`, undefined, undefined, true);
   }
 
   // update the booking status
-  updateBookingStatus(formData: FormGroup) {
-     //console.log('form record', formData);
-     /* return this.http
-     .put<any>(this.apiURL + `/booking/update`, formData, { withCredentials: true })
-     .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.put<any>(`booking/update`, formData, undefined, true);
-
+  updateBookingStatus(formData: FormGroup): Observable<any> {
+    return this.apiService.put<any>(`booking/update`, formData, undefined, true);
   }
 
   // get partner email
-  getEmailList(createdBy: string): Observable<ProspectListInterface> {
-    //console.log('record', id);
-    /* return this.http
-      .get<ProspectListInterface>(this.apiURL + `/booking/email-list/${createdBy}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.get<ProspectListInterface>(`booking/email-list/${createdBy}`, undefined, undefined, true);
+  getEmailList(createdBy: string): Observable<any> {
+    return this.apiService.get<ProspectListInterface>(`booking/email-list/${createdBy}`, undefined, undefined, true);
   }
     
 
   // detele single prospect email
-  deleteSingleEmailFromEmailList(emailId: string): Observable<ProspectListInterface> {
-  //console.log('record', emailId);
-
-  /* return this.http
-    .get<ProspectListInterface>(this.apiURL + `/emailSubscription/delete-email/${emailId}`, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError)); */
-
+  deleteSingleEmailFromEmailList(emailId: string): Observable<any> {
     return this.apiService.get<ProspectListInterface>(`emailSubscription/delete-email/${emailId}`, undefined, undefined, true);
-
   }
    
 }

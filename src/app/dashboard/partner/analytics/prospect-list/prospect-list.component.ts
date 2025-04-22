@@ -22,6 +22,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MaskedProspectResponseComponent } from './masked-prospect-response.component';
 
 /**
  * @title Prospect listing
@@ -65,10 +66,10 @@ template: `
                             <span matTooltip="Not yet moved contact" *ngIf="badgeValue > 0" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
                             <span *ngIf="badgeValue === 0">Name</span>
                         </th>
-                      <!-- <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses">  -->
-                      <td mat-cell *matCellDef="let element" class="bold-text"> 
+                      <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses"> 
+                     <!--  <td mat-cell *matCellDef="let element" class="bold-text"> -->
                         {{element.name | titlecase }} {{element.surname | titlecase}} 
-                      </td>
+                      </td> 
                     </ng-container>
                   
                     <ng-container matColumnDef="phone">
@@ -283,11 +284,11 @@ export class ProspectListComponent implements OnInit, OnDestroy {
     return timeAgo(new Date(element.createdAt));
   }
 
- /*  ViewResponse(prospect: ProspectListInterface) {
-    this.dialog.open(ProspectResponseComponent, {
-      data: prospect
+ ViewResponse(prospect: ProspectListInterface) {
+    this.dialog.open(MaskedProspectResponseComponent, {
+      data: {prospect, partner: this.partner}
     });
-  } */
+  }
 
   moveToContact(prospectId: string): void {
     Swal.fire({
@@ -312,11 +313,12 @@ export class ProspectListComponent implements OnInit, OnDestroy {
                 text: response.message,//`Your have successfully moved prospect to contact list`,
                 showConfirmButton: true,
                 confirmButtonColor: "#ffab40",
-                confirmButtonText: "View Contacts",
+                confirmButtonText: "OK",
                 timer: 15000,
               }).then((result) => {
                 if (result.isConfirmed) {
-                  this.router.navigateByUrl('dashboard/manage-contacts');
+                  //this.router.navigateByUrl('dashboard/prospect-list');
+                  window.location.reload();
                 }
               });
             },

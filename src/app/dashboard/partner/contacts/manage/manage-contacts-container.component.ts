@@ -14,7 +14,7 @@ import { ContactsInterface, ContactsService } from '../contacts.service';
     imports: [CommonModule, ManageContactsComponent],
     providers: [ContactsService],
     template: `
-  <async-manage-contatcs *ngIf="partner && prospectContact" [partner]="partner" [prospectContact]="prospectContact"></async-manage-contatcs>
+  <async-manage-contatcs *ngIf="partner && prospectContact" [partner]="partner" [prospectContact]="prospectContact"/>
   `
 })
 export class ManageContactsContainerComponent implements OnInit, OnDestroy {
@@ -32,9 +32,8 @@ export class ManageContactsContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partnerObject) => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
             this.contactsService.getContctsCreatedBy(this.partner._id).subscribe((prospectContact: ContactsInterface) => {
@@ -42,13 +41,8 @@ export class ManageContactsContainerComponent implements OnInit, OnDestroy {
               //console.log('prospectContact ',prospectContact)
             })
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+      })
     )
   }
 

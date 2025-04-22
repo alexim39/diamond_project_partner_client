@@ -172,6 +172,14 @@
                     </div>
 
                     <div class="list">
+                        <h5> Move Prospect's Record Back to Prospect List </h5>
+                        <span class="data">
+                            <button mat-raised-button (click)="moveProspectBackToProspectList(prospectData._id)"><mat-icon>replay</mat-icon>Move Back to Survey List</button>
+                        </span>
+                        <mat-divider style="margin-top: 1em;"></mat-divider>
+                    </div>
+
+                    <div class="list">
                         <h5> Delete Prospect's Record </h5>
                         <span class="data">
                             <button mat-raised-button style="color: rgba(255, 0, 0, 0.578)" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete</button>

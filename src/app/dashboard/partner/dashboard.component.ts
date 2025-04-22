@@ -11,13 +11,11 @@ import { map, shareReplay } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { LogoComponent } from '../../_common/logo.component';
 import { DeviceDetectorService } from 'ngx-device-detector';
-import { NavigationEnd, NavigationStart, Router, RouterModule, } from '@angular/router';
+import { Router, RouterModule, } from '@angular/router';
 import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { MarketingChannelsComponent } from './campaigns/create-campaign/marketing-channels.component';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
-import { Emitters } from '../../_common/emitters/emitters';
 import { PartnerAuthService } from '../../auth/auth.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -30,7 +28,7 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
     providers: [PartnerService, PartnerAuthService],
     imports: [
         MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
-        MarketingChannelsComponent, MatTooltipModule
+        MatTooltipModule
     ],
     animations: [
         trigger('submenuToggle', [
