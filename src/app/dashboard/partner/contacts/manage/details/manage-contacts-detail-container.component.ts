@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
     selector: 'async-manage-contacts-detail-container',
     template: `
   <ng-container *ngIf="!isEmptyRecord">
-    <async-manage-contacts-detail *ngIf="prospect" [prospect]="prospect"></async-manage-contacts-detail>
+    <async-manage-contacts-detail *ngIf="prospect" [prospect]="prospect"/>
   </ng-container>
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
@@ -60,10 +60,13 @@ export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy
         if (this.prospectId) {
           // Fetch prospect details using the ID
           this.subscriptions.push(
-            this.contactsService.getProspectById(this.prospectId).subscribe(prospect => {
-              this.prospect = prospect;
-            }, error => {
-              this.isEmptyRecord = true;
+            this.contactsService.getProspectById(this.prospectId).subscribe({
+              next: (prospect) => {
+                this.prospect = prospect;
+              },
+              error: () => {
+                this.isEmptyRecord = true;
+              }
             })
           )
           
@@ -73,9 +76,7 @@ export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
  /*  browserBackHistory () {

@@ -20,6 +20,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SmsService } from '../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../analytics/analytics.service';
 import { ProspectResponseComponent } from '../../../analytics/prospect-list/prospect-response.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /** @title Prospect details */
 @Component({
@@ -77,23 +78,19 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   
   ngOnInit(): void { 
-    //console.log(this.prospect.data)
+    console.log(this.prospect.data)
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
     }
 
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-        partnerObject => {
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partnerObject) => {
           this.partner = partnerObject as PartnerInterface
           //console.log(this.partner)
-        },
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+      })
     )
 
    }
@@ -111,27 +108,26 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
       return;
     }
     this.subscriptions.push(
-      this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
-        // this.prospectContact = prospectContact;
-        //console.log('prospectContact ',prospectStatus)
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: `Your have successfully updated prospect status`,
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-  
-      }, (error: any) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please and try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
+      this.contactsService.updateProspectStatus(obj).subscribe({
+        next: (prospectStatus: ContactsInterface) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: `Your have successfully updated prospect status`,
+            showConfirmButton: true,
+            confirmButtonColor: "#ffab40",
+            timer: 15000,
+          })
+        },
+        error: () => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'Server error occured, please and try again',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        }
       })
     )
    }
@@ -177,7 +173,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
    }
 
-   deleteProspect() {
+  deleteProspect() {
     const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
     Swal.fire({
@@ -192,37 +188,38 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
 
         this.subscriptions.push(
-          this.contactsService.deleteProspect(this.prospectData._id ).subscribe((prospect: ContactsInterface) => {
-            // this.prospectContact = prospectContact;
-            //console.log('prospectContact ',prospectStatus)
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: `Your have successfully deleted  ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}`,
-              showConfirmButton: true,
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.router.navigateByUrl('dashboard/manage-contacts');
-              }
-            });
-      
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please and try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
+          this.contactsService.deleteProspect(this.prospectData._id ).subscribe({
+            next: (prospect: ContactsInterface) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: `Your have successfully deleted  ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}`,
+                showConfirmButton: true,
+                confirmButtonColor: "#ffab40",
+                timer: 15000,
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  this.router.navigateByUrl('dashboard/manage-contacts');
+                }
+              });
+            },
+            error: (error: HttpErrorResponse) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Server error occured, please and try again',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            }
           })
         )
 
       }
     });
   }
+
+
 
   promoteProspectToPartner() {
     const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -412,11 +409,57 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Move prospect back to survey list
+  moveProspectBackToProspectList(prospectId: string) {
+
+    Swal.fire({
+      title: `Are you sure of moving prospect back to survey list?`,
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, move it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        this.subscriptions.push(
+          this.contactsService.moveProspectBackToSurveyList(prospectId).subscribe({
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message, //`Your have successfully updated prospect status`,
+                showConfirmButton: true,
+                confirmButtonColor: "#ffab40",
+                timer: 10000,
+              }).then((result) => {
+                this.router.navigateByUrl('dashboard/manage-contacts', );
+              })
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
+              }
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              }); 
+            }
+          })
+        )
+
+      }
+    });
+  }
+
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
 

@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { AnalyticsService } from '../analytics.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Prospect Detail 
@@ -63,7 +64,7 @@ import { AnalyticsService } from '../analytics.service';
     <span matListItemLine class="bolder">{{data.referralCode}}</span>
     <small style="color: gray;"><em>Note that {{data.referralCode}} may be a partner in our business</em></small>
   </mat-list-item>
-  <mat-divider></mat-divider>
+  <mat-divider *ngIf="data.referralCode"></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect favourite social media platforms:</span>
@@ -150,7 +151,7 @@ import { AnalyticsService } from '../analytics.service';
 </mat-dialog-actions>
 
   `,
-    imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
+    imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class ProspectResponseComponent implements OnDestroy {
     readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);
@@ -176,41 +177,38 @@ export class ProspectResponseComponent implements OnDestroy {
       confirmButtonText: "Yes, delete it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        /*  Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success"
-        }); */
-
-        //const partnerId = this.partner._id;
       
           this.subscriptions.push(
-            this.analyticsService.deleteSingle(prospectId).subscribe((res: any) => {
-      
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: `Your have successfully deleted prospect from the system`,
-                showConfirmButton: true,
-                confirmButtonText: "Ok",
-                confirmButtonColor: "#ffab40",
-                timer: 15000,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  //this.router.navigateByUrl('dashboard/manage-contacts');
-                  location.reload();
+            this.analyticsService.deleteSingle(prospectId).subscribe({
+              next: (response) => {
+                Swal.fire({
+                  position: "bottom",
+                  icon: 'success',
+                  text: response.message, //`Your have successfully deleted prospect from the system`,
+                  showConfirmButton: true,
+                  confirmButtonText: "Ok",
+                  confirmButtonColor: "#ffab40",
+                  timer: 15000,
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    //this.router.navigateByUrl('dashboard/manage-contacts');
+                    location.reload();
+                  }
+                });
+              },
+              error: (error: HttpErrorResponse) => {
+                let errorMessage = 'Server error occurred, please try again.'; // default error message.
+                if (error.error && error.error.message) {
+                  errorMessage = error.error.message; // Use backend's error message if available.
                 }
-              });
-      
-            }, (error: any) => {
-              //console.log(error)
-              Swal.fire({
-                position: "bottom",
-                icon: 'info',
-                text: 'Server error occured, please try again',
-                showConfirmButton: false,
-                timer: 4000
-              })
+                Swal.fire({
+                  position: "bottom",
+                  icon: 'error',
+                  text: errorMessage,
+                  showConfirmButton: false,
+                  timer: 4000
+                }); 
+              }
             })
           )
 

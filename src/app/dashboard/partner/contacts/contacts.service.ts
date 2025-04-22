@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { PartnerInterface } from '../../../_common/services/partner.service';
-import { FormGroup } from '@angular/forms';
+import { ApiService } from '../../../_common/services/api.service';
 
 export interface ContactsInterface {
   message: string;
@@ -29,140 +27,147 @@ export interface codeData {
 
 @Injectable()
 export class ContactsService {
-  // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
-
-  
-  constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
-  }
+  constructor(private apiService: ApiService) {}
 
 
   // contact creatioin
-  create(dataObject: ContactsInterface): Observable<ContactsInterface> {
+  create(formData: ContactsInterface): Observable<any> {
     //console.log('form record', dataObject);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/prospect/create`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+   /*  return this.http
+      .post<ContactsInterface>(this.apiURL + `/prospect/create`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<any>(`prospect/create`, formData, undefined, true);
   }
 
   // contact creatioin
-  update(dataObject: ContactsInterface): Observable<ContactsInterface> {
+  update(formData: ContactsInterface): Observable<any> {
     //console.log('form record', dataObject);
-    return this.http
-      .put<ContactsInterface>(this.apiURL + `/prospect/update`, dataObject, { withCredentials: true })
+   /*  return this.http
+      .put<ContactsInterface>(this.apiURL + `/prospect/update`, formData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
+ */
+      return this.apiService.put<any>(`prospect/update`, formData, undefined, true);
   }
 
   // get contacts createdby
-  getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
+  getContctsCreatedBy(createdBy: string): Observable<any> {
     //console.log('record', id);
-    return this.http
+    /* return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.get<ContactsInterface>(`prospect/all-createdBy/${createdBy}`, undefined, undefined, true);
   }
 
   // get contacts createdby
-  import(partnerId: string): Observable<ContactsInterface> {
+  import(partnerId: string): Observable<any> {
     //console.log('record', partnerId);
-    return this.http
+    /* return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/import/${partnerId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.get<ContactsInterface>(`prospect/import/${partnerId}`, undefined, undefined, true);
   }
 
   // get prospect byId
-  getProspectById(prospectId: string): Observable<ContactsInterface> {
+  getProspectById(prospectId: string): Observable<any> {
     //console.log('record', id);
-    return this.http
+    /* return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/getById/${prospectId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.get<ContactsInterface>(`prospect/getById/${prospectId}`, undefined, undefined, true);
   }
 
   // update prospect status
-  updateProspectStatus(obj: {status: string; prospectId: string}): Observable<ContactsInterface> {
+  updateProspectStatus(formData: {status: string; prospectId: string}): Observable<any> {
     //console.log('record', obj);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/prospect/updateStatus`, obj, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+    /* return this.http
+      .post<ContactsInterface>(this.apiURL + `/prospect/updateStatus`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<ContactsInterface>(`prospect/updateStatus`, formData, undefined, true);
   }
 
   // update prospect remark
-  updateProspectRemark(obj: {remark: string; prospectId: string}): Observable<ContactsInterface> {
+  updateProspectRemark(formData: {remark: string; prospectId: string}): Observable<ContactsInterface> {
     //console.log('record', obj);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/prospect/updateRemark`, obj, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+    /* return this.http
+      .post<ContactsInterface>(this.apiURL + `/prospect/updateRemark`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<ContactsInterface>(`prospect/updateRemark`, formData, undefined, true);
   }
 
   // delete prospect 
-  deleteProspect(id: string): Observable<ContactsInterface> {
+  deleteProspect(id: string): Observable<any> {
     //console.log('record', obj);
-    return this.http
+   /*  return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/delete/${id}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.get<ContactsInterface>(`prospect/delete/${id}`, undefined, undefined, true);
   }
 
   // promote new prospect 
-  promoteProspectToPartner(prospect: codeData): Observable<ContactsInterface> {
+  promoteProspectToPartner(formData: codeData): Observable<any> {
     //console.log('record', prospect);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/reservationCode/submit`, prospect, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+    /* return this.http
+      .post<ContactsInterface>(this.apiURL + `/reservationCode/submit`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<ContactsInterface>(`reservationCode/submit`, formData, undefined, true);
   }
 
   // single sms charge
-  signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
+  signleSMSCharge(partnerId: string): Observable<any> {
     //console.log('record', obj);
-    return this.http
+    /* return this.http
       .get<ContactsInterface>(this.apiURL + `/billing/single-sms-charge/${partnerId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.get<ContactsInterface>(`billing/single-sms-charge/${partnerId}`, undefined, undefined, true);
   }
 
   // send single email
-  sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<ContactsInterface> {
+  sendProspectEmail(formData: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<any> {
     //console.log('record', emailObject);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/emails/send-emails/`, emailObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+    /* return this.http
+      .post<ContactsInterface>(this.apiURL + `/emails/send-emails/`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<ContactsInterface>(`emails/send-emails`, formData, undefined, true);
   }
 
   // save sms 
-  saveSMSRecord(SMSbject: {partner: string, prospect: string | Array<string>, smsBody: string}): Observable<ContactsInterface> {
+  saveSMSRecord(formData: {partner: string, prospect: string | Array<string>, smsBody: string}): Observable<ContactsInterface> {
     //console.log('record', SMSbject);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/sms/save-sms/`, SMSbject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+    /* return this.http
+      .post<ContactsInterface>(this.apiURL + `/sms/save-sms/`, formData, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<ContactsInterface>(`sms/save-sms`, formData, undefined, true);
   }
    
   // submit booking
   bookSurvey(formData: any): Observable<any> {
     //console.log('form record', formData);
-    return this.http
+    /* return this.http
       .post<any>(this.apiURL + '/booking/submit', formData)
-      .pipe(retry(1), catchError(this.handleError));
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.post<any>(`booking/submit`, formData, undefined, true);
   }
+
+  // move prospect back to survey
+  moveProspectBackToSurveyList(prospectId: string): Observable<any> {
+    //console.log('record', id);
+    /* return this.http
+      .get<string>(this.apiURL + `/prospect/move-back-to-survey/${prospectId}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError)); */
+
+      return this.apiService.get<string>(`prospect/move-back-to-survey/${prospectId}`, undefined, undefined, true);
+  }
+
 }

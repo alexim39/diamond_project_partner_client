@@ -40,10 +40,6 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
               this.prospectList = prospectContact;
               //console.log('prospectContact ',prospectContact)
             })
-           /*  this.prospectListService.getProspectFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
-              this.prospectList = prospectContact;
-              //console.log('prospectContact ',prospectContact)
-            }) */
           }
         }
       })
