@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { ProspectListComponent } from './prospect-list.component';
+import { MyProspectListComponent } from './my-prospect-list.component';
 import { AnalyticsService, ProspectListInterface } from '../analytics.service';
 
 
@@ -10,14 +10,14 @@ import { AnalyticsService, ProspectListInterface } from '../analytics.service';
  * @title contacts container
  */
 @Component({
-    selector: 'async-prospect-list-container',
-    imports: [CommonModule, ProspectListComponent],
+    selector: 'async-my-prospect-list-container',
+    imports: [CommonModule, MyProspectListComponent],
     providers: [AnalyticsService],
     template: `
-  <async-prospect-list *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"/>
+  <async-my-prospect-list *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"/>
   `
 })
-export class ProspectListContainerComponent implements OnInit, OnDestroy {
+export class MyProspectListContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
@@ -36,7 +36,7 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
         next:  (partnerObject) => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.prospectListService.getAllProspect().subscribe((prospectContact: ProspectListInterface) => {
+            this.prospectListService.getAllMyProspect(this.partner.username).subscribe((prospectContact: ProspectListInterface) => {
               this.prospectList = prospectContact;
               //console.log('prospectContact ',prospectContact)
             })
@@ -48,8 +48,6 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

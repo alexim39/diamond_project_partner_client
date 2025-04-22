@@ -29,7 +29,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   `,
     template: `
 
-<h2 mat-dialog-title>{{data.prospectSurname | titlecase}} {{data.prospectName | titlecase}}'s Response</h2>
+<h2 mat-dialog-title>{{data.prospect.surname | titlecase}} {{data.prospect.name | titlecase}}'s Response</h2>
 
 <mat-dialog-content>
   
@@ -37,92 +37,92 @@ import { HttpErrorResponse } from '@angular/common/http';
   
   <mat-list-item>
     <span matListItemTitle>Prospect phone number:</span>
-    <span matListItemLine class="bolder">{{data.prospectPhone}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.phoneNumber}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect email address:</span>
-    <span matListItemLine class="bolder">{{data.prospectName}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.email}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect age range:</span>
-    <span matListItemLine class="bolder">{{data.survey.ageRange}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.ageRange}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect knew about us through:</span>
-    <span matListItemLine class="bolder">{{data.survey.referral}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.referral}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
-  <mat-list-item *ngIf="data.survey.referralCode">
+  <mat-list-item *ngIf="data.prospect.referralCode">
     <span matListItemTitle>Prospect was referred by:</span>
-    <span matListItemLine class="bolder">{{data.survey.referralCode}}</span>
-    <small style="color: gray;"><em>Note that {{data.survey.referralCode}} may be a partner in our business</em></small>
+    <span matListItemLine class="bolder">{{data.prospect.referralCode}}</span>
+    <small style="color: gray;"><em>Note that {{data.prospect.referralCode}} may be a partner in our business</em></small>
   </mat-list-item>
-  <mat-divider *ngIf="data.survey.referralCode"></mat-divider>
+  <mat-divider *ngIf="data.prospect.referralCode"></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect favourite social media platforms:</span>
-    <span matListItemLine class="bolder">{{data.survey.socialMedia}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.socialMedia}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect online purchase frequency:</span>
-    <span matListItemLine class="bolder">{{data.survey.onlinePurchaseSchedule}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.onlinePurchaseSchedule}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect motivation for joining online businesses:</span>
-    <span matListItemLine class="bolder">{{data.survey.primaryOnlineBusinessMotivation | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.primaryOnlineBusinessMotivation | titlecase}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect Importance of passive income:</span>
-    <span matListItemLine class="bolder">{{data.survey.importanceOfPassiveIncome | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.importanceOfPassiveIncome | titlecase}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
   
   <mat-list-item>
     <span matListItemTitle>Prospect employment status:</span>
-    <span matListItemLine class="bolder">{{data.survey.employedStatus | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.employedStatus | titlecase}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect comfort with technology:</span>
-    <span matListItemLine class="bolder">{{data.survey.comfortWithTech}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.comfortWithTech}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Business time dedication:</span>
-    <span matListItemLine class="bolder">{{data.survey.onlineBusinessTimeDedication}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.onlineBusinessTimeDedication}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect Country:</span>
-    <span matListItemLine class="bolder">{{data.survey.country}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.country}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item >
     <span matListItemTitle>Prospect State of Origin:</span>
-    <span matListItemLine class="bolder">{{data.survey.state ? data.survey.state : 'State not found'}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.state ? data.prospect.state : 'State not found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
   
   <mat-list-item>
     <span matListItemTitle>Date of Visit</span>
-    <span matListItemLine class="bolder">{{ data.createdAt | date:'fullDate' }} by {{ data.createdAt | date:'shortTime' }}</span>
+    <span matListItemLine class="bolder">{{ data.prospect.createdAt | date:'fullDate' }} by {{ data.prospect.createdAt | date:'shortTime' }}</span>
   </mat-list-item>
 
 </mat-list>
@@ -217,9 +217,7 @@ export class ProspectResponseComponent implements OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
     
 }

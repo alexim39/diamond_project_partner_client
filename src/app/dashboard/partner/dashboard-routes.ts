@@ -41,6 +41,7 @@ import { MyPartnerContactsDetailContainerComponent } from "./mentorship/my-partn
 import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
 import { authGuard } from "./guard.service";
 import { TeamSupportContainerComponent } from "./mentorship/team/manage-team/support/support-container.component";
+import { MyProspectListContainerComponent } from "./analytics/my-prospect-list/my-prospect-list-container.component";
 
 
 
@@ -156,6 +157,11 @@ export const dashboardRoutes: Routes = [
                 path: 'prospect-list',
                 component: ProspectListContainerComponent,
                 title: "Manage Prospect List",
+            },        
+            {
+                path: 'my-prospect-list',
+                component: MyProspectListContainerComponent,
+                title: "Manage My Prospect List",
             },        
             {
                 path: 'prospect-booking',

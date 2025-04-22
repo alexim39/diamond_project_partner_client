@@ -22,7 +22,7 @@ import { Subscription } from 'rxjs';
   `,
     providers: [ContactsService],
     imports: [ManageContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
-    styles: `
+styles: `
   .container {
     padding: 2em;
     display: flex;
@@ -35,7 +35,7 @@ import { Subscription } from 'rxjs';
     font-weight: bold;
   }
    
-  `
+`
 })
 export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy {
 

@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { AnalyticsService, ProspectListInterface } from '../analytics.service';
+import { ProspectResponseComponent } from './prospect-response.component';
 import { timeAgo } from '../../../../_common/date-util';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -21,14 +22,13 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MaskedProspectResponseComponent } from './masked-prospect-response.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 /**
  * @title Prospect listing
  */
 @Component({
-selector: 'async-prospect-list',
+selector: 'async-my-prospect-list',
 template: `
 
 <section class="breadcrumb-wrapper">
@@ -41,18 +41,19 @@ template: `
 </section>
 
 <section class="async-background ">
-    <h2>Manage General Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Manage My Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
         <div class="title">
-            <h3>General Online Survey List</h3>
+            <h3>My Online Survey List</h3>
             <div class="action-area">
                 <mat-button-toggle-group>
-                    <mat-button-toggle routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
-                    <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
-                    <mat-button-toggle routerLink="../my-prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Personal Prospect List"><mat-icon>groups</mat-icon> Personal Prospect List</mat-button-toggle>
-                </mat-button-toggle-group>
+                  <mat-button-toggle routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
+                  <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
+                  <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="General Prospect List"><mat-icon>groups</mat-icon> General Prospect List</mat-button-toggle>
+              </mat-button-toggle-group>
             </div>
+            
         </div>
 
         <ng-container *ngIf="!isEmptyRecord">
@@ -71,21 +72,18 @@ template: `
                             <span *ngIf="badgeValue === 0">Name</span>
                         </th>
                       <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses"> 
-                     <!--  <td mat-cell *matCellDef="let element" class="bold-text"> -->
                         {{element.name | titlecase }} {{element.surname | titlecase}} 
                       </td> 
                     </ng-container>
                   
                     <ng-container matColumnDef="phone">
                       <th mat-header-cell *matHeaderCellDef> Phone </th>
-                      <td mat-cell *matCellDef="let element"> {{ maskPhoneNumber(element.phoneNumber) }} </td>
-                      <!-- <td mat-cell *matCellDef="let element"> {{element.phoneNumber}} </td> -->
+                      <td mat-cell *matCellDef="let element"> {{element.phoneNumber}} </td>
                     </ng-container>
                   
                     <ng-container matColumnDef="email">
                       <th mat-header-cell *matHeaderCellDef> Email </th>
-                      <td mat-cell *matCellDef="let element"> {{ maskEmail(element.email.toLowerCase()) }}  </td>
-                      <!-- <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td> -->
+                      <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
                     </ng-container>
     
                     <ng-container matColumnDef="status">
@@ -221,7 +219,7 @@ imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsM
   MatButtonToggleModule
 ]
 })
-export class ProspectListComponent implements OnInit, OnDestroy {
+export class MyProspectListComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
   @Input() prospectList!: ProspectListInterface;
@@ -291,7 +289,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
   }
 
  ViewResponse(prospect: ProspectListInterface) {
-    this.dialog.open(MaskedProspectResponseComponent, {
+    this.dialog.open(ProspectResponseComponent, {
       data: {prospect, partner: this.partner}
     });
   }
@@ -350,7 +348,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
   showDescription() {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: `View and manage the general online list of your potential prospect`
+        help: `View and manage your personal online list of your potential prospect`
       },
     });
   }
@@ -364,21 +362,5 @@ export class ProspectListComponent implements OnInit, OnDestroy {
       subscription.unsubscribe();
     });
   }
-
-  maskPhoneNumber(phone: string): string {
-    if (!phone || phone.length <= 3) return phone;
-    const visible = phone.slice(-3);
-    const masked = '*'.repeat(phone.length - 3);
-    return masked + visible;
-  }
-  
-  maskEmail(email: string): string {
-    if (!email || !email.includes('@')) return email;
-    const [localPart, domain] = email.split('@');
-    const visible = localPart.slice(-3);
-    const masked = '*'.repeat(localPart.length - 3);
-    return masked + visible + '@' + domain;
-  }
-
   
 }
