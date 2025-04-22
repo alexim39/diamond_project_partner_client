@@ -78,7 +78,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   
   ngOnInit(): void { 
-    console.log(this.prospect.data)
+    
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
     }

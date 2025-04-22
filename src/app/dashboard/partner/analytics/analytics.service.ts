@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 import { ApiService } from '../../../_common/services/api.service';
 
@@ -21,9 +19,15 @@ export interface ProspectListInterface {
 export class AnalyticsService {
   constructor(private apiService: ApiService) {}
  
-  // get prospect owned
+  // get prospect owned by the system
   getAllProspect(): Observable<ProspectListInterface> {
       return this.apiService.get<ProspectListInterface>(`prospect/all`, undefined, undefined, true);
+  }
+
+  // get prospect owned by the partner
+  getAllMyProspect(username: string): Observable<ProspectListInterface> {
+    console.log(username)
+      return this.apiService.get<ProspectListInterface>(`prospect/my/${username}`, undefined, undefined, true);
   }
 
   // get prospect owned
@@ -37,9 +41,9 @@ export class AnalyticsService {
   }
 
    // detele single prospect
-   deleteSingle(prospectId: string): Observable<any> {
+  /*  deleteSingle(prospectId: string): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/delete-single/${prospectId}`, undefined, undefined, true);
-    }
+    } */
   
   // get session booking
   getSessionBookingsFor(createdBy: string): Observable<any> {
