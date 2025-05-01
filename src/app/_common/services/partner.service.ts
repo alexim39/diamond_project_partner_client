@@ -47,7 +47,7 @@ export class PartnerService {
    * @returns An Observable that emits the API response or an error.
    */
    getPartner(): Observable<any> {
-    return this.apiService.get<PartnerInterface>(`partners/partner`, undefined, undefined, true);
+    return this.apiService.get<PartnerInterface>(`auth`, undefined, undefined, true);
   }
 
   private partnerSubject = new BehaviorSubject<any>(null); // Initial value can be anything

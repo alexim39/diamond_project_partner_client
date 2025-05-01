@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {Component, inject, OnInit} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 
@@ -85,7 +85,7 @@ import { MatListModule } from '@angular/material/list';
 </mat-dialog-actions>
 
   `,
-    imports: [CommonModule, MatListModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose]
+    imports: [CommonModule, MatListModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class LinkAnalyticsDialogComponent {
     readonly dialogRef = inject(MatDialogRef<LinkAnalyticsDialogComponent>);

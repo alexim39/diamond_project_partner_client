@@ -50,7 +50,7 @@ type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities
 })
 export class DashboardComponent implements OnDestroy {
   private breakpointObserver = inject(BreakpointObserver);
-
+  isHandset: boolean = false;
   subscriptions: Subscription[] = [];
 
   isMobile!: boolean;
@@ -83,6 +83,13 @@ export class DashboardComponent implements OnDestroy {
     private partnerAuthService: PartnerAuthService,
     private partnerService: PartnerService,
   ) {
+
+    this.subscriptions.push(
+      this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
+        this.isHandset = result.matches;
+      })
+    )
+
     /* this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.isLoading = true;
@@ -148,9 +155,7 @@ export class DashboardComponent implements OnDestroy {
   
 
   ngOnDestroy() {
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   toggleSubmenu(menu: SubmenuKey) {

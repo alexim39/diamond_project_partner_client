@@ -16,6 +16,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
 import Swal from 'sweetalert2';
 import { TeamService } from '../team.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Mentors Program
@@ -60,30 +61,30 @@ export class CreateTeamComponent implements OnInit {
 
       if (this.createTeamForm.valid) {
         this.subscriptions.push(
-          this.createTeamService.createTeam(teamObject).subscribe((res: any) => {
-    
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: 'Your team has been created successfully.',
-              showConfirmButton: true,
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            }).then((result) => {
-              if (result.isConfirmed) {
-               this.router.navigateByUrl('dashboard/manage-team');
+          this.createTeamService.createTeam(teamObject).subscribe({
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message, //'Your ticket has been submited successfully, we will revert as soon as possible with updates.',
+                showConfirmButton: true,
+                confirmButtonColor: "#ffab40",
+                timer: 10000,
+              })
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
               }
-            });
-    
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
           })
         )
       }
@@ -104,8 +105,6 @@ export class CreateTeamComponent implements OnInit {
 
     ngOnDestroy() {
       // unsubscribe list
-      this.subscriptions.forEach(subscription => {
-        subscription.unsubscribe();
-      });
+      this.subscriptions.forEach(subscription => subscription.unsubscribe());
     }
 }

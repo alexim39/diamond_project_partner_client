@@ -10,7 +10,7 @@ import { CreateTeamComponent } from './create-team.component';
 @Component({
     selector: 'async-create-team-container',
     template: `
-  <async-create-team *ngIf="partner" [partner]="partner" ></async-create-team>
+  <async-create-team *ngIf="partner" [partner]="partner"/>
   `,
     providers: [],
     imports: [CommonModule, CreateTeamComponent]
@@ -29,27 +29,16 @@ export class CreateTeamContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-            //console.log(this.partner)
-          }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
+      this.partnerService.getSharedPartnerData$.subscribe({
+       next: (partner: PartnerInterface) => {
+          this.partner = partner;
         }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

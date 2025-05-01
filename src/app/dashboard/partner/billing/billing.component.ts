@@ -10,7 +10,6 @@ import { PaystackService, TransactionInterface } from './paystack.service';
 import { PartnerInterface } from '../../../_common/services/partner.service';  
 import { BillingDepositComponent } from './billing-deposit.component';  
 import { MatDialog } from '@angular/material/dialog';  
-import { BillingFilterPipe } from './billing-filter.pipe';  
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';  
 import { BillingWithdrawComponent } from './billing-withdraw.component';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -33,7 +32,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
         MatInputModule,
         MatIconModule,
         MatButtonModule,
-        BillingFilterPipe, MatTabsModule,
+        MatTabsModule,
         TransactionsComponent
     ]
 })  

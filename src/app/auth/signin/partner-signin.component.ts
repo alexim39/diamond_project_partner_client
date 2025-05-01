@@ -8,9 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { PartnerAuthService } from '../auth.service';
+import { PartnerAuthService, PartnerSignInInterface } from '../auth.service';
 import Swal from 'sweetalert2';
-import { PartnerSignInData } from '../auth.interface';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
@@ -18,11 +17,96 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Partner signin
  */
 @Component({
-    selector: 'async-partner-signin',
-    providers: [PartnerAuthService],
-    imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-    templateUrl: 'partner-signin.component.html',
-    styleUrls: ['partner-signin.component.scss']
+selector: 'async-partner-signin',
+providers: [PartnerAuthService],
+imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+template: `
+
+<div class="page">
+    <div class="login-panel">
+      <h1>Partner Sign in</h1>
+      <h2>Log in into your account</h2>
+      <form [formGroup]="signInForm" (submit)="onSubmit()">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email address</mat-label>
+          <input matInput type="email" formControlName="email">
+          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
+            Email is invalid
+          </mat-error>
+          <mat-error *ngIf="signInForm.get('email')?.hasError('required') ">
+            Email is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Enter your password</mat-label>
+          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
+            Email is invalid
+          </mat-error>
+          <a mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </a>
+        </mat-form-field>
+
+
+        <button mat-flat-button color="primary">Sign in</button>
+
+      </form>
+
+      <p>
+        <a routerLink="../../partner/forgot-password" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Forgot password?</a>
+      </p>
+
+      <div class="line"></div>
+
+      <p>
+        Not a Diamond Project partner yet? <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign up</a>
+      </p>
+    </div>
+</div>
+
+`,
+styles: [`
+
+.page {
+    background: #eee;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding-top: 2em;
+    height: 80%;
+    .login-panel {
+      display: flex;
+      flex-direction: column;
+      h2 {
+        font-size: 1em;
+        color: #ffab40;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        .progress-bar {
+          margin-bottom: 1em;
+        }
+        
+      }
+      p {
+        margin: 2em 0;
+        a {
+          text-decoration: none;
+          color: #ffab40;
+        }
+      }
+      .line {
+        border: 1px solid #ccc;
+        margin: 1em 0;
+      }
+    }
+}
+
+`]
 })
 export class PartnerSigninComponent implements OnInit, OnDestroy {
   hide = true;
@@ -50,7 +134,7 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
 
     if (this.signInForm.valid) {
       // Send the form value to your Node.js backend
-     const formData: PartnerSignInData = this.signInForm.value;
+     const formData: PartnerSignInInterface = this.signInForm.value;
       this.subscriptions.push(
         this.partnerSignInService.siginin(formData).subscribe((res: any) => {
           localStorage.setItem('authToken', res); // Save token to localStorage

@@ -11,7 +11,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';  
 import {MatTabsModule} from '@angular/material/tabs';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
-import { BillingFilterPipe } from '../billing-filter.pipe';
 
 /**  
  * @title Billing  
@@ -30,7 +29,7 @@ import { BillingFilterPipe } from '../billing-filter.pipe';
         MatInputModule,
         MatIconModule,
         MatButtonModule,
-        BillingFilterPipe, MatTabsModule
+        MatTabsModule
     ]
 })  
 export class TransactionsComponent implements OnInit, AfterViewInit {  

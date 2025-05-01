@@ -43,7 +43,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
   <mat-list-item>
     <span matListItemTitle>Prospect email address:</span>
-    <span matListItemLine class="bolder">{{data.prospectName}}</span>
+    <span matListItemLine class="bolder">{{data.prospectEmail}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 

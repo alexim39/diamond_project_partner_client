@@ -1,7 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PartnerSignInData, PartnerSignUpData } from './auth.interface';
 import { ApiService } from '../_common/services/api.service';
+
+
+export interface PartnerSignUpInterface {
+  name: string;
+  surname: string;
+  email: string;
+  reservationCode: string;
+  phone: string;
+  password: string;
+  username: string;
+}
+
+export interface PartnerSignInInterface {
+  email: string;
+  password: string;
+}
 
 @Injectable()
 export class PartnerAuthService {
@@ -9,42 +24,23 @@ export class PartnerAuthService {
 
 
   // user sign up 
-  signup(formObject: PartnerSignUpData): Observable<PartnerSignUpData> {
-    //console.log('form record', signUpData);
-    /* return this.http
-      .post<PartnerSignUpData>(this.apiURL + '/partners/signup', formObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.post<PartnerSignUpData>(`partners/signup`, formObject, undefined, true);
+  signup(formObject: PartnerSignUpInterface): Observable<any> {
+    return this.apiService.post<PartnerSignUpInterface>(`auth/signup`, formObject, undefined, true);
   }
 
-   // user sign in 
-   siginin(formObject: PartnerSignInData): Observable<PartnerSignInData> {
-    //console.log('form record', signInData);
-    /* return this.http
-      .post<PartnerSignInData>(this.apiURL + '/partners/signin', signInData, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.post<PartnerSignInData>(`partners/signin`, formObject, undefined, true);
+  // user sign in 
+  siginin(formObject: PartnerSignInInterface): Observable<any> {
+    return this.apiService.post<PartnerSignInInterface>(`auth/signin`, formObject, undefined, true);
   }
 
-   // user sign out
-   signOut(formObject: {}): Observable<any> {
-   /*  return this.http
-      .post<any>(this.apiURL + '/partners/signout', formObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.post<any>('partners/signout', formObject, undefined, true);
+  // user sign out
+  signOut(formObject: {}): Observable<any> {
+    return this.apiService.post<any>('auth/signout', formObject, undefined, true);
   }
 
-   // reset password
-   resetPassword(formObject: PartnerSignInData): Observable<PartnerSignInData> {
-   //console.log('form record', signInData);
-    /* return this.http
-      .post<PartnerSignInData>(this.apiURL + '/partners/reset-password-request', signInData, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError)); */
-
-      return this.apiService.post<PartnerSignInData>(`partners/reset-password-request`, formObject, undefined, true);
+  // reset password
+  resetPassword(formObject: PartnerSignInInterface): Observable<any> {
+    return this.apiService.post<PartnerSignInInterface>(`auth/reset-password-request`, formObject, undefined, true);
   }
 
   
