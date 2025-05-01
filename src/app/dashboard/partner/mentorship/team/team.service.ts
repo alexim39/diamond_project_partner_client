@@ -4,6 +4,8 @@ import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { FormGroup } from '@angular/forms';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { ApiService } from '../../../../_common/services/api.service';
+import { httpResponse } from '../../../../_common/server-response';
 
 export interface TeamInterface {  
   teamName: string;          // The name of the team  
@@ -18,113 +20,58 @@ export interface TeamInterface {
 
 @Injectable()
 export class TeamService {
-  // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:8080';
-  
-  constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
-  }
+  constructor(private apiService: ApiService) {}
 
   // create team
-  createTeam(teamObject: FormGroup): Observable<TeamInterface> {
-    //console.log('record', teamObject);
-    return this.http
-      .post<TeamInterface>(this.apiURL + `/team/create/`, teamObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  createTeam(formObject: TeamInterface): Observable<httpResponse> {
+    return this.apiService.post<httpResponse>(`team/create`, formObject, undefined, true);
   }
 
   // update team
-  updateTeam(teamObject: FormGroup): Observable<TeamInterface> {
+  updateTeam(formObject: FormGroup): Observable<httpResponse> {
     //console.log('record', teamObject);
-    return this.http
-      .put<TeamInterface>(this.apiURL + `/team/`, teamObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.put<httpResponse>(`team/`, formObject, undefined, true);
   }
 
    // get teams createdby
    getAllTeamsBy(partnerId: string): Observable<Array<TeamInterface>> {
-    return this.http
-      .get<Array<TeamInterface>>(this.apiURL + `/team/all-createdBy/${partnerId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.get<Array<TeamInterface>>(`team/all-createdBy/${partnerId}`, undefined, undefined, true);
   }
 
    // get teams either createdby partner or is a member
    getAllTeamsCreatedOrMember(partnerId: string): Observable<Array<TeamInterface>> {
-    return this.http
-      .get<Array<TeamInterface>>(this.apiURL + `/team/all-createdByOrMember/${partnerId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.get<Array<TeamInterface>>(`team/all-createdByOrMember/${partnerId}`, undefined, undefined, true);
   }
 
    // get a createdby
    getTeamById(id: string): Observable<any> {
-    //console.log('record', id);
-    return this.http
-      .get<TeamInterface>(this.apiURL + `/team/${id}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.get<TeamInterface>(`team/${id}`, undefined, undefined, true);
+
   }
 
    // editTeam
    editTeam(id: string): Observable<Array<TeamInterface>> {
-    //console.log('record', id);
-    return this.http
-      .get<Array<TeamInterface>>(this.apiURL + `/team/edit/${id}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.get<Array<TeamInterface>>(`team/edit/${id}`, undefined, undefined, true);
   }
 
    // deleteTeam
    deleteTeam(id: string): Observable<Array<TeamInterface>> {
-    //console.log('record', id);
-    return this.http
-      .delete<Array<TeamInterface>>(this.apiURL + `/team/${id}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.delete<Array<TeamInterface>>(`team/${id}`, undefined, undefined, true);
   }
 
   // activate new partner 
-  activateNewPartner(partnerAcitvateCode: any): Observable<any> {
-   // console.log('record', partnerAcitvateCode);
-    return this.http
-      .post<any>(this.apiURL + `/reservationCode/new-partner`, partnerAcitvateCode, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  activateNewPartner(formObject: any): Observable<any> {
+      return this.apiService.post<httpResponse>(`reservationCode/new-partner`, formObject, undefined, true);
   }
 
    // add team memeber
    addTeamMember(teamMemberObject: PartnerInterface[], teamId: string): Observable<TeamInterface> {
-    //console.log('record', teamId);
-    return this.http
-      .post<TeamInterface>(this.apiURL + `/team/add-member/`, {teamMemberObject, teamId}, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.post<TeamInterface>(`team/add-member`, {teamMemberObject, teamId}, undefined, true);
   }
 
   // delete Team member
   deleteTeamMember(memberId: string, teamId: string): Observable<Array<TeamInterface>> {
-    //console.log('record', id);
-    return this.http
-      .delete<Array<TeamInterface>>(this.apiURL + `/team/remove-member/${teamId}/${memberId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.delete<Array<TeamInterface>>(`team/remove-member/${teamId}/${memberId}`, undefined, undefined, true);
   }
     
 }

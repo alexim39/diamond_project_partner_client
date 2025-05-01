@@ -15,16 +15,10 @@
         <div class="title">
             <h3>New Contact Form</h3>
             <div class="action-area">
-                <!-- <a mat-list-item (click)="importContacts()" title="Import Contacts from campain prospect list" mat-raised-button><mat-icon>cloud_download</mat-icon>Import Prospect from Online</a> -->
                 <mat-button-toggle-group>
                     <mat-button-toggle routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon> Contact List</mat-button-toggle>
                     <mat-button-toggle (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon> Import Prospect from Online</mat-button-toggle>
                 </mat-button-toggle-group>
-
-                <!-- <div class="action">
-                    Prepaid balance
-                    N5,000
-                </div> -->
             </div>
         </div>
 
@@ -111,7 +105,7 @@
                 <div class="form-group"></div>
                 <div class="form-group"></div>
                 <div class="form-group"></div>
-                <button mat-raised-button color="primary">Submit</button>
+                <button mat-flat-button color="primary">Submit</button>
             </form>
         </div>
 

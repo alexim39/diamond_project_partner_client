@@ -16,6 +16,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
 import Swal from 'sweetalert2';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Mentors Program
@@ -63,45 +64,47 @@ export class SubmitTicketComponent implements OnInit {
 
       if (this.ticketForm.valid) {
         this.subscriptions.push(
-          this.ticketService.submitTicket(ticketObject).subscribe((res: any) => {
-    
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: 'Your ticket has been submited successfully, we will revert as soon as possible with updates.',
-              showConfirmButton: true,
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            })
-    
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
+          this.ticketService.submitTicket(ticketObject).subscribe({
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message, //'Your ticket has been submited successfully, we will revert as soon as possible with updates.',
+                showConfirmButton: true,
+                confirmButtonColor: "#ffab40",
+                timer: 10000,
+              })
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
+              }
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
           })
         )
       }
     }
 
     showDescription () {
-        this.dialog.open(HelpDialogComponent, {
-          data: {help: `
-            Contact the application administrator for assistance, feedback, and suggestions for improvement.
+      this.dialog.open(HelpDialogComponent, {
+        data: {help: `
+          Contact the application administrator for assistance, feedback, and suggestions for improvement.
 
-            <p>Feel free to share any challenges you encounter while using the app, along with any suggestions for improvements or features you would like to see added.</p>
-          `},
-        });
-      }
+          <p>Feel free to share any challenges you encounter while using the app, along with any suggestions for improvements or features you would like to see added.</p>
+        `},
+      });
+    }
 
     ngOnDestroy() {
       // unsubscribe list
-      this.subscriptions.forEach(subscription => {
-        subscription.unsubscribe();
-      });
+      this.subscriptions.forEach(subscription =>  subscription.unsubscribe());
     }
 }

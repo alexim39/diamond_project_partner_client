@@ -20,11 +20,75 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
  * @title Contacts
  */
 @Component({
-    selector: 'async-create-contatcs',
-    templateUrl: 'create-contacts.component.html',
-    styleUrls: ['create-contacts.component.scss'],
-    providers: [ContactsService],
-    imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
+selector: 'async-create-contatcs',
+templateUrl: 'create-contacts.component.html',
+providers: [ContactsService],
+imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule],
+styles: [`
+
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 10px;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .action-area {
+                .action {
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }       
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+    }
+}
+
+.form-container {
+    margin-top: 1em;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    .flex-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        .form-group {
+            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
+            display: flex;
+            flex-direction: column;
+        }    
+    }
+}
+
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+`],
 })
 export class CreateContactsComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;
@@ -40,19 +104,19 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
 
 
     ngOnInit(): void {
-       // console.log(this.partner)
+      console.log(this.partner)
 
-        if (this.partner) {
-          this.prospectContactForm = new FormGroup({
-            prospectName: new FormControl('', Validators.required),
-            prospectSurname: new FormControl(''),
-            prospectEmail: new FormControl(''),
-            prospectPhone: new FormControl('', Validators.required),
-            prospectSource: new FormControl('', Validators.required),
-            prospectRemark: new FormControl(''),
-            partnerId: new FormControl(this.partner._id),
-          });
-        }
+      if (this.partner) {
+        this.prospectContactForm = new FormGroup({
+          prospectName: new FormControl('', Validators.required),
+          prospectSurname: new FormControl(''),
+          prospectEmail: new FormControl(''),
+          prospectPhone: new FormControl('', Validators.required),
+          prospectSource: new FormControl('', Validators.required),
+          prospectRemark: new FormControl(''),
+          partnerId: new FormControl(this.partner._id),
+        });
+      }
     }
 
     onSubmit() {

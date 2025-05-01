@@ -13,7 +13,7 @@ import { CreateContactsComponent } from './create-contacts.component';
     imports: [CommonModule, CreateContactsComponent],
     providers: [],
     template: `
-  <async-create-contatcs *ngIf="partner" [partner]="partner"></async-create-contatcs>
+  <async-create-contatcs *ngIf="partner" [partner]="partner"/>
   `
 })
 export class CreateContactsContainerComponent implements OnInit, OnDestroy {

@@ -8,15 +8,15 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { PartnerSignUpData } from '../auth.interface';
 import Swal from 'sweetalert2';
-import { PartnerAuthService } from '../auth.service';
+import { PartnerAuthService, PartnerSignUpInterface } from '../auth.service';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { minDigitsValidator } from '../../_common/services/phone-number-checker';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Partner signup
@@ -49,7 +49,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
       email: ['', [Validators.email, Validators.required]],
       name: ['', Validators.required],
       surname: ['', Validators.required],
-      password: ['', [Validators.required, minDigitsValidator(6)]],
+      password: ['', [Validators.required, minDigitsValidator(8)]],
     });
   }
 
@@ -60,11 +60,41 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
 
     if (this.signUpForm.valid) {
       // Send the form value to your Node.js backend
-      const formData: PartnerSignUpData = this.signUpForm.value;
+      const formData: PartnerSignUpInterface = this.signUpForm.value;
       this.subscriptions.push(
-        this.partnerSignUpService.signup(formData).subscribe((res: any) => {
+        this.partnerSignUpService.signup(formData).subscribe({
+          next: (response) => {
+            Swal.fire({
+              position: "bottom",
+              icon: 'success',
+              text: response.message,
+              showConfirmButton: true,
+              timer: 10000,
+              confirmButtonColor: "#ffab40",
+              confirmButtonText: "Sign in Now",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.router.navigateByUrl('partner/signin');
+              }
+            });
+          },
+          error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Server error occurred, please try again.'; // default error message.
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message; // Use backend's error message if available.
+            }
+            Swal.fire({
+              position: "bottom",
+              icon: 'error',
+              text: errorMessage,
+              showConfirmButton: false,
+              timer: 4000
+            });  
 
-          Swal.fire({
+          }
+        })
+
+          /* Swal.fire({
             position: "bottom",
             icon: 'success',
             text: 'Thank you for partnering with us. We will support you grow your business online',
@@ -114,8 +144,8 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               showConfirmButton: false,
               timer: 4000
             })
-          };
-        })
+          }; */
+      
       )
     }
 
@@ -130,9 +160,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription =>  subscription.unsubscribe());
   }
 
   // Method to scroll to the top of the page

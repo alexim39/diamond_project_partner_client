@@ -13,7 +13,7 @@ import { SubmitTicketComponent } from './submit-ticket.component';
     imports: [CommonModule, SubmitTicketComponent],
     providers: [],
     template: `
-  <async-submit-ticket *ngIf="partner" [partner]="partner"></async-submit-ticket>
+  <async-submit-ticket *ngIf="partner" [partner]="partner"/>
   `
 })
 export class SubmitTicketContainerComponent implements OnInit, OnDestroy {
@@ -29,31 +29,16 @@ export class SubmitTicketContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-            //console.log('=',this.partner)
-           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
-              this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
-            }) */
-          }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partnerObject) => {
+            this.partner = partnerObject as PartnerInterface
         }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
