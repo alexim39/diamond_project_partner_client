@@ -7,9 +7,9 @@ import { RouterModule } from '@angular/router';
  * @title Page not found component
  */
 @Component({
-    selector: 'async-page-not-found',
-    imports: [MatButtonModule, MatIconModule, RouterModule],
-    styles: [`
+selector: 'async-page-not-found',
+imports: [MatButtonModule, MatIconModule, RouterModule],
+styles: [`
 * {
   padding: 0;
   margin: 0;
@@ -83,9 +83,9 @@ import { RouterModule } from '@angular/router';
     </div>
 
     <div class="contant_box_404">
-        <h3 class="h2">It looks like you have clicked on the wrong link</h3>
+        <h3 class="h2">It looks like you have clicked on a wrong link</h3>
         <p>The page you are looking for is not available!</p>
-        <button  mat-flat-button color="accent" routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Go to Home</button>
+        <button  mat-flat-button color="accent" routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">Return to Dashboard</button>
     </div>
 </section>
 `

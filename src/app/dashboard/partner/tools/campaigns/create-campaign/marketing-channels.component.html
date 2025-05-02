@@ -1,0 +1,38 @@
+<section class="breadcrumb-wrapper">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+      <a>Tools</a> &gt;
+      <a>Campaigns</a> &gt;
+      <span>Create campaign</span>
+    </div>
+</section>
+
+<section class="async-background ">
+    <h2>Choose a Channel to Promote Your Business <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <mat-tab-group>
+
+            <mat-tab label="Facebook"> 
+                <async-facebook *ngIf="partner" [partner]="partner"/>
+            </mat-tab>
+
+            <mat-tab label="Youtube">
+                <async-youtube *ngIf="partner" [partner]="partner"/>
+            </mat-tab>
+
+            <mat-tab label="LinkedIn">
+                 <async-linkedin *ngIf="partner" [partner]="partner"/>
+             </mat-tab>
+
+            <!-- <mat-tab label="Google (Search Engine)">
+                <async-google *ngIf="partner" [partner]="partner"></async-google>
+            </mat-tab> -->
+            
+            <!-- <mat-tab label="Email"> Content 3 </mat-tab> -->
+        </mat-tab-group>
+        
+    </section>
+    
+</section>

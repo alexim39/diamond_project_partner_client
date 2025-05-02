@@ -43,15 +43,21 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.signUpForm = this.fb.group({
-      reservationCode: ['', Validators.required],
-      phone: ['', [Validators.required, ]],
-      email: ['', [Validators.email, Validators.required]],
-      name: ['', Validators.required],
-      surname: ['', Validators.required],
-      password: ['', [Validators.required, minDigitsValidator(8)]],
-    });
-  }
+  this.signUpForm = this.fb.group({
+    reservationCode: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/^(247[A-Za-z0-9\/]+|NR\d{6}|NI\d{6}|NV\d{6}|[A-Za-z]{2}[A-Za-z0-9]+)$/i)
+      ]
+    ],
+    phone: ['', [Validators.required]],
+    email: ['', [Validators.email, Validators.required]],
+    name: ['', Validators.required],
+    surname: ['', Validators.required],
+    password: ['', [Validators.required, minDigitsValidator(8)]],
+  });
+}
 
   onSubmit(): void {
 
@@ -92,60 +98,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
             });  
 
           }
-        })
-
-          /* Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: 'Thank you for partnering with us. We will support you grow your business online',
-            showConfirmButton: true,
-            timer: 15000,
-            confirmButtonColor: "#ffab40",
-            confirmButtonText: "Sign in Now",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.router.navigateByUrl('partner/signin');
-            }
-          });
-
-        }, (error: any) => {
-          //console.log(error)
-          if (error.code == 400) {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'This reservation code does not exist',
-              showConfirmButton: false,
-              timer: 4000
-            });
-          } else if (error.code == 401) {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'This reservation code has been used',
-              showConfirmButton: false,
-              timer: 4000
-            });
-          }  else if (error.code == 402) {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'This reservation code is pending approval from an administrator',
-              showConfirmButton: false,
-              timer: 4000
-            });
-          } 
-           else {
-
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          }; */
-      
+        })      
       )
     }
 

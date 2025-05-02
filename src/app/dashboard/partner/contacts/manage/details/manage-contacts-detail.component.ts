@@ -18,8 +18,8 @@ import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';  
 import { SmsService } from '../../../../../_common/services/sms.service';
-import { ProspectListInterface } from '../../../analytics/analytics.service';
-import { ProspectResponseComponent } from '../../../analytics/prospect-list/prospect-response.component';
+import { ProspectListInterface } from '../../../prospects/prospects.service';
+import { ProspectResponseComponent } from '../../../prospects/general-prospect-list/prospect-response.component';
 import { HttpErrorResponse } from '@angular/common/http';
 
 /** @title Prospect details */

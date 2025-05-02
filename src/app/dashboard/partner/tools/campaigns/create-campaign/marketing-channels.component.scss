@@ -1,0 +1,16 @@
+.async-background {
+    margin: 2em;
+    .async-container {
+        //background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        mat-tab-group {
+            background-color: white;
+            border-radius: 10px;
+        }
+    }
+    mat-icon {
+        cursor: pointer;
+    }
+}
