@@ -19,34 +19,106 @@ import { PartnerInterface, PartnerService } from '../../_common/services/partner
 import { PartnerAuthService } from '../../auth/auth.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-type SubmenuKey = 'tools' | 'community' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training' | 'wibinarsEvents' | 'dailyActivity' | 'achievements';
+type SubmenuKey = 'tools' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training';
 
 @Component({
-    selector: 'async-dashboard',
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.scss'],
-    providers: [PartnerService, PartnerAuthService],
-    imports: [
+selector: 'async-dashboard',
+templateUrl: './dashboard.component.html',
+styles: [`
+
+.sidenav-container {
+  background: #eee;
+  height: 100%;
+  .sidenav {
+    width: 200px;
+    
+  }
+  
+  .sidenav .mat-toolbar {
+    background: inherit;
+  }
+  .mat-toolbar.mat-primary {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }  
+}
+
+
+mat-sidenav {
+  display: flex;
+  flex-direction: column;
+  mat-nav-list {
+    margin-top: 12em;
+    a {
+      
+      div {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        mat-icon {
+          font-size: 1.2em;
+        }
+        div {
+          font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+      }
+    }
+    .sign-out {
+      bottom: 0;
+      left: 0;
+      position: absolute;
+      margin-bottom: 1em;
+    }
+  }
+}
+mat-sidenav-content {
+  .nav-spacer {
+    flex: 1 1 auto;
+  }
+  a {
+    color: black;
+  }
+}
+
+.active {
+  color: #ffab40 !important;
+  text-decoration:overline;
+  font-size: 1.2em;
+}
+
+.submenu {
+  padding: 0 0 5px 20px;
+  border-bottom: 1px solid #e2e2e2;
+  .subsubmenu {
+    padding: 0 0 5px 20px;
+  }
+}
+
+
+`],
+providers: [PartnerService, PartnerAuthService],
+imports: [
         MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
         MatTooltipModule
     ],
     animations: [
-        trigger('submenuToggle', [
-            state('closed', style({
-                height: '0',
-                overflow: 'hidden',
-                opacity: 0,
-            })),
-            state('open', style({
-                height: '*',
-                overflow: 'hidden',
-                opacity: 1,
-            })),
-            transition('closed <=> open', [
-                animate('300ms ease-in-out')
-            ]),
-        ])
-    ]
+      trigger('submenuToggle', [
+        state('closed', style({
+            height: '0',
+            overflow: 'hidden',
+            opacity: 0,
+        })),
+        state('open', style({
+            height: '*',
+            overflow: 'hidden',
+            opacity: 1,
+        })),
+        transition('closed <=> open', [
+            animate('300ms ease-in-out')
+        ]),
+    ])
+  ]
 })
 export class DashboardComponent implements OnDestroy {
   private breakpointObserver = inject(BreakpointObserver);
@@ -61,16 +133,12 @@ export class DashboardComponent implements OnDestroy {
 
   submenus: Record<SubmenuKey, boolean> = {
     tools: false,
-    community: false,
     analytics: false,
     settings: false,
     activities: false,
     mentorship: false,
     training: false,
     help: false,
-    wibinarsEvents: false,
-    dailyActivity: false,
-    achievements: false,
   };
 
   subSubmenus: Record<string, boolean> = {};

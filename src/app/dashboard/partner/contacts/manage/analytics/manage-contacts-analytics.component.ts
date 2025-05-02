@@ -1,5 +1,5 @@
 import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,8 +17,8 @@ import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SmsService } from '../../../../../_common/services/sms.service';
-import { ProspectListInterface } from '../../../analytics/analytics.service';
-import { ProspectResponseComponent } from '../../../analytics/prospect-list/prospect-response.component';
+import { ProspectListInterface } from '../../../prospects/prospects.service';
+import { ProspectResponseComponent } from '../../../prospects/general-prospect-list/prospect-response.component';
 
 /** @title Prospect details */
 @Component({

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -10,10 +10,10 @@ import { MyPartnersService } from '../../my-partners.service';
 import { PartnerInterface } from '../../../../../../_common/services/partner.service';
 
 @Component({
-    selector: 'async-manage-contacts-detail-container',
-    template: `
+selector: 'async-manage-contacts-detail-container',
+template: `
   <ng-container *ngIf="!isEmptyRecord">
-    <async-my-partner-contacts-detail *ngIf="prospect" [prospect]="prospect" [myPartner]="myPartner"></async-my-partner-contacts-detail>
+    <async-my-partner-contacts-detail *ngIf="prospect" [prospect]="prospect" [myPartner]="myPartner"/>
   </ng-container>
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
@@ -22,9 +22,9 @@ import { PartnerInterface } from '../../../../../../_common/services/partner.ser
         </div>
     </ng-container>
   `,
-    providers: [ContactsService, MyPartnersService],
-    imports: [MyPartnerContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
-    styles: `
+providers: [ContactsService, MyPartnersService],
+imports: [MyPartnerContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
+styles: `
   .container {
     padding: 2em;
     display: flex;
@@ -48,7 +48,6 @@ export class MyPartnerContactsDetailContainerComponent implements OnInit, OnDest
   myPartner!: PartnerInterface;
 
   constructor(
-    private router: Router, 
     private route: ActivatedRoute,
     private contactsService: ContactsService,
     private myPartnersService: MyPartnersService,
@@ -56,8 +55,7 @@ export class MyPartnerContactsDetailContainerComponent implements OnInit, OnDest
   ) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-contacts');
-    //this.router.navigate(['/dashboard/my-partners-contacts', this.myPartner._id]);
+    window.history.back(); // Go back to the previous page
   }
 
   ngOnInit(): void {
@@ -66,11 +64,13 @@ export class MyPartnerContactsDetailContainerComponent implements OnInit, OnDest
         if (this.myPartnerId) {
           // Fetch prospect details using the ID
           this.subscriptions.push(
-            this.contactsService.getProspectById(this.myPartnerId).subscribe(prospect => {
-              this.prospect = prospect;
-             // console.log(this.prospect)
-            }, error => {
-              this.isEmptyRecord = true;
+            this.contactsService.getProspectById(this.myPartnerId).subscribe({
+              next: (prospect) => {
+                this.prospect = prospect;
+              },
+              error: () => {
+                this.isEmptyRecord = true;
+              }
             })
           )
 
@@ -88,12 +88,6 @@ export class MyPartnerContactsDetailContainerComponent implements OnInit, OnDest
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
-
- /*  browserBackHistory () {
-    window.history.back();  
-  } */
 }

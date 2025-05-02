@@ -5,17 +5,17 @@ import { SpinnerComponent } from './_common/services/loader/spinner.component';
 
 
 @Component({
-    selector: 'async-root',
-    imports: [RouterOutlet, SpinnerComponent],
-    template: `
-  <async-spinner></async-spinner>
+selector: 'async-root',
+imports: [RouterOutlet, SpinnerComponent],
+template: `
+  <async-spinner/>
   <div id="container">
     <div class="body">
-      <router-outlet></router-outlet>
+      <router-outlet/>
     </div>
   </div>
   `,
-    styles: [`
+styles: [`
 
 #container {
   animation: fadeInAnimation ease 3s;
@@ -41,6 +41,7 @@ import { SpinnerComponent } from './_common/services/loader/spinner.component';
     flex-direction: column;
   }
 }
-  `]
+  
+`]
 })
 export class AppComponent {}

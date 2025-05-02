@@ -11,7 +11,7 @@
     <!-- User profile -->
 
     <mat-nav-list>
-      <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Dashboard">
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Dashboard">
         <div>
           <mat-icon>home</mat-icon> 
           <span>Dashboard</span>
@@ -27,65 +27,65 @@
       <div [@submenuToggle]="isSubmenuOpen('tools') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item (click)="toggleSubSubmenu('tools-create-campaign')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Campaigns</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-create-campaign') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="create-campaign" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Create Campaign">Create Campaign</a>
-          <a mat-list-item  routerLink="manage-campaign" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Manage Campaign">Manage Campaign</a>
+          <a mat-list-item routerLink="tools/campaigns/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Create New Campaign"> - New</a>
+          <a mat-list-item  routerLink="tools/campaigns/manage" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage Campaigns"> - Manage</a>
+          <a mat-list-item  routerLink="tools/campaigns/analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Campaign Analytics"> - Analytics</a>
+          <a mat-list-item  routerLink="tools/campaigns/link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Unique Link Analytics"> - Unique Link</a>
         </div>
         
-        <a mat-list-item (click)="toggleSubSubmenu('tools-sms')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">SMS</a>
+        <a mat-list-item (click)="toggleSubSubmenu('tools-sms')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">SMS Services</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-sms') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="send-sms" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Send SMS">Send SMS</a>
-          <a mat-list-item  routerLink="sms-log" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"   (click)="scrollToTop(); isHandset && drawer.close()" title="SMS Log">SMS Log</a>
+          <a mat-list-item routerLink="tools/sms/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Send New SMS"> - New</a>
+          <a mat-list-item  routerLink="tools/sms/messages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"   (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Message Logs"> - Messages</a>
         </div>
 
-        <a mat-list-item (click)="toggleSubSubmenu('tools-email')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Email</a>
+        <a mat-list-item (click)="toggleSubSubmenu('tools-email')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Email Services</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-email') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="send-email" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Send SMS">Send Email</a>
-          <a mat-list-item  routerLink="email-log" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Email Log">Email Log</a>
+          <a mat-list-item routerLink="tools/email/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Send New SMS"> - New</a>
+          <a mat-list-item  routerLink="tools/email/logs" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Email Logs"> - Mails</a>
         </div>
 
         <a mat-list-item (click)="toggleSubSubmenu('tools-contacts')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Contacts</a>
         <div [@submenuToggle]="isSubSubmenuOpen('tools-contacts') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="create-contacts" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Create Contacts">Create Contacts</a>
-          <a mat-list-item  routerLink="manage-contacts" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Manage Contacts">Manage Contacts</a>
+          <a mat-list-item routerLink="tools/contacts/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Create New Contact"> - New</a>
+          <a mat-list-item  routerLink="tools/contacts/list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage Contact List">- List</a>
         </div>
       </div>
 
 
       <a mat-list-item (click)="toggleSubmenu('analytics')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
-          <mat-icon>analytics</mat-icon> 
-          <span>Prospect Analytics</span>
+          <mat-icon>supervisor_account</mat-icon> 
+          <span>Prospects</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('analytics') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="campaign-analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Campaign Analytics">
-          Campaign Analytics
-          <!-- Analyze the performance of different marketing campaigns (e.g., email, social media) based on various metrics. -->
-        </a>
-        <a mat-list-item (click)="toggleSubSubmenu('analytics-convertion-tracking')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Conversion Analytics">
-          Conversion Analytics
+        <a mat-list-item (click)="toggleSubSubmenu('analytics-convertion-tracking')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Prospect Conversion">
+          Conversions
         </a>
         <div [@submenuToggle]="isSubSubmenuOpen('analytics-convertion-tracking') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="prospect-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Prospect List">Prospect List</a>
-          <a mat-list-item routerLink="prospect-booking" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Prospect Session Bookings">Prospect Bookings</a>
-          <a mat-list-item routerLink="email-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Email List">Email List</a>
-          <a mat-list-item  routerLink="link-analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Link Analytics">
-            Link Analytics
-            <!-- View detailed metrics for their unique link, including click-through rates, conversion rates, and geographic data. -->
-          </a>
+          <a mat-list-item routerLink="prospects/general-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage General Prospect List"> - General List</a>
+          <a mat-list-item routerLink="prospects/personal-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Personal General Prospect List"> - Personal List</a>
+          <a mat-list-item routerLink="prospects/bookings" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Prospect Session Bookings"> - Bookings</a>
+          <a mat-list-item routerLink="prospects/email-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Email Subscription List"> - Email List</a>
         </div>
       </div>
 
 
       <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
-          <mat-icon>trending_up</mat-icon> 
-          <span>Activities</span>
+          <mat-icon>shopping_bag</mat-icon> 
+          <span>Products</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('activities') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="monthly-purchase" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Order Products">Order Products</a>
-        <a mat-list-item routerLink="purchases" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Purchases">Purchases</a>
+        <a mat-list-item (click)="toggleSubSubmenu('product-shopping')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Product Shopping">
+          eShop
+        </a>
+        <div [@submenuToggle]="isSubSubmenuOpen('product-shopping') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="products/eshop" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Order New Product"> - New Order</a>
+          <a mat-list-item routerLink="products/order-history" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage Ordered Products"> - Order History</a>
+        </div>
       </div>
 
 
@@ -96,34 +96,35 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('mentorship') ? 'open' : 'closed'" class="submenu">
-        <!-- <a mat-list-item routerLink="cell-meeting" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop()" title="Cell Meetings">Cell Meetings</a> -->
-        <a mat-list-item routerLink="mentors-program" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Mentors Program">Mentors program</a>
-        <a mat-list-item (click)="toggleSubSubmenu('mentorship-team')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Team</a>
+        <a mat-list-item routerLink="mentorship/new-request" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Book a Mentorship Session">Request Mentorship</a>
+        <a mat-list-item (click)="toggleSubSubmenu('mentorship-team')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Manage Team</a>
         <div [@submenuToggle]="isSubSubmenuOpen('mentorship-team') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="create-team" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Create Team">Create Team</a>
-          <a mat-list-item  routerLink="manage-team" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Manage Team">Manage Team</a>
+          <a mat-list-item routerLink="mentorship/team/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Create New Team"> - New</a>
+          <a mat-list-item  routerLink="mentorship/team/members" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage Team Members"> - View Members</a>
         </div>
-        <a mat-list-item routerLink="my-partners" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="My Partners">My Partners</a>
+        <a mat-list-item (click)="toggleSubSubmenu('my-partners')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Manage Partners</a>
+        <div [@submenuToggle]="isSubSubmenuOpen('my-partners') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item  routerLink="mentorship/partners/my-partners" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage Your Partners"> - View Partners</a>
+        </div>
       </div>
 
       <a mat-list-item (click)="toggleSubmenu('training')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>library_books</mat-icon> 
-          <span>Training Resource</span>
+          <span>Resources</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('training') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item (click)="toggleSubSubmenu('mentorship-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Resource ">
+        <a mat-list-item (click)="toggleSubSubmenu('resource-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Resource ">
           Resource Downloads
-          <!--  Pre-written email templates, social media kits, and other promotional materials that members can download and use. -->
         </a>
-        <div [@submenuToggle]="isSubSubmenuOpen('mentorship-download') ? 'open' : 'closed'" class="subsubmenu">
-          <a mat-list-item routerLink="ads-contents"  routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Download Ads Contents">Ads Contents</a>
-          <a mat-list-item  routerLink="pre-approach-material" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Pre-approach Material">
-            Pre-approach Material
+        <div [@submenuToggle]="isSubSubmenuOpen('resource-download') ? 'open' : 'closed'" class="subsubmenu">
+          <a mat-list-item routerLink="resources/ads-contents"  routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Download Ads Contents">Ads Contents</a>
+          <a mat-list-item  routerLink="resources/prospecting-contents" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Prospecting Content Downloads">
+            Prospecting Content
           </a>
         </div>
-        <a mat-list-item (click)="toggleSubSubmenu('mentorship-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" title="Survey Link" target="_blank" href="https://survey.diamondprojectonline.com/">
+        <a mat-list-item (click)="toggleSubSubmenu('resource-download')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Partners Survey Link" target="_blank" href="https://survey.diamondprojectonline.com/">
           Survey Link
         </a>
       </div>
@@ -134,9 +135,9 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('settings') ? 'open' : 'closed'" class="submenu">
-        <a mat-list-item routerLink="profile-mgr" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Account settings">Account Settings</a>
-        <a mat-list-item routerLink="landing-page-settings" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Landing Page settings">Landing Page Settings</a>
-        <a mat-list-item routerLink="billing" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Billing">Billing</a>
+        <a mat-list-item routerLink="settings/profiles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Account settings">Account Settings</a>
+        <a mat-list-item routerLink="settings/landing-page" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Landing Page Settings">Landing Page Settings</a>
+        <a mat-list-item routerLink="settings/billing" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Manage Billings">Billing</a>
       </div>
       
       <a mat-list-item (click)="toggleSubmenu('help')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -147,7 +148,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('help') ? 'open' : 'closed'" class="submenu">
         
-        <a mat-list-item routerLink="submit-ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Submit a Ticket">
+        <a mat-list-item routerLink="submit-ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" matTooltip="Submit a Ticket">
           Submit a Ticket
         </a>
       </div>
@@ -182,7 +183,7 @@
       <a mat-button [matMenuTriggerFor]="notifications">
         <mat-icon>notifications</mat-icon> Notification
       </a>
-      <a mat-button (click)="signOut()" title="Sign off application">
+      <a mat-button (click)="signOut()" matTooltip="Sign off application">
         <mat-icon>power_off</mat-icon> Sign Off
       </a>
     </ng-content>
@@ -198,7 +199,7 @@
     <a mat-button [matMenuTriggerFor]="notifications">
       <mat-icon>notifications</mat-icon> Notification
     </a>
-    <a mat-button (click)="signOut()" title="Sign off application">
+    <a mat-button (click)="signOut()" matTooltip="Sign off application">
       <mat-icon>power_off</mat-icon> Sign Off
     </a>
   </mat-toolbar-row>
@@ -217,7 +218,7 @@
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> See New Product Orders</a>
 </mat-menu>
 <mat-menu #manage_accounts="matMenu">
-  <a mat-menu-item routerLink="profile-mgr" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
+  <a mat-menu-item routerLink="settings/profiles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
   <a mat-menu-item routerLink="prospect-invite" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> Prospect invitation</a>
 </mat-menu>
 <mat-menu #notifications="matMenu">

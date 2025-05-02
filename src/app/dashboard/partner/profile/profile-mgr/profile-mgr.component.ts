@@ -26,13 +26,78 @@ import { MatSelectModule } from '@angular/material/select';
  * @title profile manager
  */
 @Component({
-    selector: 'async-profile-mgr',
-    templateUrl: 'profile-mgr.component.html',
-    styleUrl: 'profile-mgr.component.scss',
-    providers: [provideNativeDateAdapter(), ProfileService],
-    imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
-        ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
-    ]
+selector: 'async-profile-mgr',
+templateUrl: 'profile-mgr.component.html',
+styles: [`
+
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .fund-area {
+                .fund {
+                    //display: flex;
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            //display: flex;
+            //flex-direction: center;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }
+
+       
+    }
+}
+
+
+.form-container {
+    //width: 100%;
+    // max-width: 600px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    .flex-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        .form-group {
+            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
+            display: flex;
+            flex-direction: column;
+        }    
+    }
+}
+
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+`],
+providers: [provideNativeDateAdapter(), ProfileService],
+imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
+    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
+]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);
