@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { MarketingChannelsComponent } from '../campaigns/create-campaign/marketing-channels.component';
-import { ManageCampaignContainerComponent } from '../campaigns/manage-campaign/manage-campaign-container.component';
 import { CampaignAnalyticsContainerComponent } from '../prospects/campaign-analytics/campaign-analytics-container.component';
 import { LinkAnalyticsContainerComponent } from '../prospects/link-analytics/link-analytics-container.component';
 import { smsContainerComponent } from '../sms/sms-container.component';
@@ -9,6 +7,9 @@ import { EmailContainerComponent } from '../email/email-container.component';
 import { EmailLogContainerComponent } from '../email/email-log/email-log-container.component';
 import { CreateContactsContainerComponent } from '../contacts/create/create-contacts-container.component';
 import { ManageContactsContainerComponent } from '../contacts/manage/manage-contacts-container.component';
+import { MarketingChannelsComponent } from './campaigns/create-campaign/marketing-channels.component';
+import { ManageCampaignContainerComponent } from './campaigns/manage-campaign/manage-campaign-container.component';
+import { ManageCampaignDetailContainerComponent } from './campaigns/manage-campaign/details/manage-campaign-detail-container.component';
 
 
 export const ToolsRoutes: Routes = [
@@ -43,6 +44,11 @@ export const ToolsRoutes: Routes = [
                     component: LinkAnalyticsContainerComponent,
                     title: "Unique Link Analytics - Manage, understanding and Analyse your unique link",
                 }, 
+                {
+                    path: 'detail/:id',
+                    component: ManageCampaignDetailContainerComponent,
+                    title: "Campaign Details",
+                },  
             ]
             
         },    

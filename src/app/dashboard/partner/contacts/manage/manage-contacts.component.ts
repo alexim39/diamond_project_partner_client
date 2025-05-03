@@ -198,7 +198,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
     } else {
       // export contacts
       this.exportContactAndEmailService.setData(this.getSelectedPhoneNumbers());
-      this.router.navigate(['/dashboard/send-sms']); // redirect to bulk sms page
+      this.router.navigate(['/dashboard/tools/sms/new']); // redirect to bulk sms page
     }
   }
 
@@ -215,13 +215,13 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
     } else {
       // export contacts
       this.exportContactAndEmailService.setData(this.getSelectedEmailAddresses());
-      this.router.navigate(['/dashboard/send-email']); // redirect to bulk email page
+      this.router.navigate(['/dashboard/tools/email/new']); // redirect to bulk email page
     }
   }
 
 
   preview(id: string) {
-    this.router.navigate(['/dashboard/prospect-detail', id]);
+    this.router.navigate(['/dashboard/prospects/detail', id]);
   }
 
   showDescription() {

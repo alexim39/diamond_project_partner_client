@@ -96,7 +96,6 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               showConfirmButton: false,
               timer: 4000
             });  
-
           }
         })      
       )

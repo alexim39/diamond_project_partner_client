@@ -73,7 +73,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-contacts');
+    this.router.navigateByUrl('dashboard/tools/contacts/list');
   }
 
   
@@ -147,29 +147,31 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     }
 
     this.subscriptions.push(
-      this.contactsService.updateProspectRemark(obj).subscribe((prospectRemark: ContactsInterface) => {
-        // this.prospectContact = prospectContact;
-        //console.log('prospectContact ',prospectStatus)
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: `Your have successfully updated remark on for prospect`,
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-  
-      }, (error: any) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please and try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
-      })
-    )
+      this.contactsService.updateProspectRemark(obj).subscribe({
+        next: (response) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
+          Swal.fire({
+            position: "bottom",
+            icon: 'error',
+            text: errorMessage,
+            showConfirmButton: false,
+            timer: 4000
+          });  
+        }
+   }))
 
    }
 
@@ -199,7 +201,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
                 timer: 15000,
               }).then((result) => {
                 if (result.isConfirmed) {
-                  this.router.navigateByUrl('dashboard/manage-contacts');
+                  this.router.navigateByUrl('dashboard/tools/contacts/list');
                 }
               });
             },

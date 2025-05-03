@@ -9,7 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
-import { PartnerInterface } from '../../../../../_common/services/partner.service';
+import { PartnerInterface } from '../../../../../../_common/services/partner.service';
 import { RouterModule } from '@angular/router';
 import { CreateCampaignService } from '../create-campaign.service';
 import { Subscription } from 'rxjs';
