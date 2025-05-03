@@ -10,7 +10,7 @@ import {MatIconModule} from '@angular/material/icon';
     selector: 'async-manage-campain-detail-container',
     template: `
   <ng-container *ngIf="!isEmptyRecord">
-    <async-manage-campain-detail *ngIf="campaign" [campaign]="campaign"></async-manage-campain-detail>
+    <async-manage-campain-detail *ngIf="campaign" [campaign]="campaign"/>
   </ng-container>
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
@@ -49,7 +49,8 @@ export class ManageCampaignDetailContainerComponent implements OnInit {
   ) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-campaign');
+    //this.router.navigateByUrl('dashboard/manage-campaign');
+    window.history.back();
   }
 
   ngOnInit(): void {
@@ -57,16 +58,17 @@ export class ManageCampaignDetailContainerComponent implements OnInit {
         this.campaignId = params.get('id');
         if (this.campaignId) {
           // Fetch campaign details using the ID
-          this.campaignService.getCampaignById(this.campaignId).subscribe(campaign => {
-            this.campaign = campaign;
-          }, error => {
-            this.isEmptyRecord = true;
+          this.campaignService.getCampaignById(this.campaignId).subscribe({
+            next: (campaign) => {
+              this.campaign = campaign;
+            },
+            error: () => {
+              this.isEmptyRecord = true; // Set to true if there's an error fetching the campaign
+            },
+
           });
         }
       });
   }
 
- /*  browserBackHistory () {
-    window.history.back();  
-  } */
 }

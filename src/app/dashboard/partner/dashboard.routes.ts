@@ -1,21 +1,10 @@
 import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardIndexComponent } from "./index/index.component";
-import { MarketingChannelsComponent } from "./campaigns/create-campaign/marketing-channels.component";
-import { ManageCampaignContainerComponent } from "./campaigns/manage-campaign/manage-campaign-container.component";
-import { ManageCampaignDetailContainerComponent } from "./campaigns/manage-campaign/details/manage-campaign-detail-container.component";
 import { InvitationContainerComponent } from "./profile/invitation/invitation-container.component";
-import { CreateContactsContainerComponent } from "./contacts/create/create-contacts-container.component";
-import { ManageContactsContainerComponent } from "./contacts/manage/manage-contacts-container.component";
 import { ManageContactsDetailContainerComponent } from "./contacts/manage/details/manage-contacts-detail-container.component";
 import { EditContactsContainerComponent } from "./contacts/edit/edit-contacts-container.component";
 import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-meeting-container.component";
-import { smsContainerComponent } from "./sms/sms-container.component";
-import { smsLogContainerComponent } from "./sms/sms-log/sms-log-container.component";
-import { EmailContainerComponent } from "./email/email-container.component";
-import { EmailLogContainerComponent } from "./email/email-log/email-log-container.component";
-import { LinkAnalyticsContainerComponent } from "./prospects/link-analytics/link-analytics-container.component";
-import { CampaignAnalyticsContainerComponent } from "./prospects/campaign-analytics/campaign-analytics-container.component";
 import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
 import { SubmitTicketContainerComponent } from "./help-feedback/submit-ticket/submit-ticket-container.component";
 import { CheckoutComponent } from "./products/checkout/checkout.component";
@@ -60,11 +49,7 @@ export const dashboardRoutes: Routes = [
 
                    
                  
-            {
-                path: 'campaign-detail/:id',
-                component: ManageCampaignDetailContainerComponent,
-                title: "Campaign Details",
-            },         
+                  
                   
                   
                   
@@ -102,11 +87,7 @@ export const dashboardRoutes: Routes = [
                
                   
                    
-            {
-                path: 'prospect-detail/:id',
-                component: ManageContactsDetailContainerComponent,
-                title: "Prospect Details - View and manage your prospect details",
-            },        
+                  
             {
                 path: 'my-partner-contact-detail/:id',
                 component: MyPartnerContactsDetailContainerComponent,

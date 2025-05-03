@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
+import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ManageCampaignComponent } from './manage-campaign.component';
 import { CampaignInterface, CampaignService } from './manage-campaign.service';
@@ -14,7 +14,7 @@ import { CampaignInterface, CampaignService } from './manage-campaign.service';
     imports: [CommonModule, ManageCampaignComponent],
     providers: [CampaignService],
     template: `
-  <async-manage-campaign *ngIf="partner && campaigns" [partner]="partner" [campaigns]="campaigns"></async-manage-campaign>
+  <async-manage-campaign *ngIf="partner && campaigns" [partner]="partner" [campaigns]="campaigns"/>
   `
 })
 export class ManageCampaignContainerComponent implements OnInit, OnDestroy {

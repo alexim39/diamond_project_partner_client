@@ -18,14 +18,14 @@ import {MatButtonModule} from '@angular/material/button';
     templateUrl: 'manage-campaign-detail.component.html',
     styleUrls: ['manage-campaign-detail.component.scss'],
     imports: [
-        MatCheckboxModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatInputModule,
-        MatIconModule, MatButtonModule,
-        MatDividerModule, MatListModule, CommonModule
+      MatCheckboxModule,
+      FormsModule,
+      ReactiveFormsModule,
+      MatFormFieldModule,
+      MatSelectModule,
+      MatInputModule,
+      MatIconModule, MatButtonModule,
+      MatDividerModule, MatListModule, CommonModule
     ]
 })
 export class ManageCampaignDetailComponent implements OnInit {
@@ -38,7 +38,8 @@ export class ManageCampaignDetailComponent implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-campaign');
+    //this.router.navigateByUrl('dashboard/manage-campaign');
+    window.history.back();
   }
 
   
@@ -101,7 +102,5 @@ export class ManageCampaignDetailComponent implements OnInit {
 
     return result.trim();
   }
-
-
 
 }

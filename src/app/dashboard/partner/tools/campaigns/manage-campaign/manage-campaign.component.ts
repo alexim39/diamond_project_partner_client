@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router, RouterModule, } from '@angular/router';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { CampaignInterface } from './manage-campaign.service';
 import { CommonModule } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';

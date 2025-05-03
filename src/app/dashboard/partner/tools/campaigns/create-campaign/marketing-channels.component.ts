@@ -3,22 +3,40 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { FacebookComponent } from './facebook/facebook.component';
 import { YoutubeComponent } from './youtube/youtube.component';
 import { LinkedinComponent } from './linkedin/linkedin.component';
-import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
+import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { HelpDialogComponent } from '../../../../../_common/help-dialog.component';
 import { RouterModule } from '@angular/router';
 
 /**
  * @title marketing channesl tab
  */
 @Component({
-    selector: 'async-marketing-channels',
-    templateUrl: 'marketing-channels.component.html',
-    styleUrls: ['marketing-channels.component.scss'],
-    imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, LinkedinComponent, CommonModule, MatIconModule]
+selector: 'async-marketing-channels',
+templateUrl: 'marketing-channels.component.html',
+styles: [`
+
+.async-background {
+    margin: 2em;
+    .async-container {
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        mat-tab-group {
+            background-color: white;
+            border-radius: 10px;
+        }
+    }
+    mat-icon {
+        cursor: pointer;
+    }
+}
+
+`],
+imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, LinkedinComponent, CommonModule, MatIconModule]
 })
 export class MarketingChannelsComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
@@ -33,16 +51,11 @@ export class MarketingChannelsComponent implements OnInit, OnDestroy {
 
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          //console.log(this.partner)
-        },
-        error => {
-          console.log(error)
-          // redirect to home page
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         }
-      )
+      })
     )
   }
 
@@ -54,9 +67,7 @@ export class MarketingChannelsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   scrollToTop() {
