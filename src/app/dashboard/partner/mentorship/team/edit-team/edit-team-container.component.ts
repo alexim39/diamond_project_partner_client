@@ -12,7 +12,7 @@ import { TeamInterface, TeamService } from '../team.service';
 @Component({
     selector: 'async-edit-team-container',
     template: `
-  <async-edit-team *ngIf="partner && team" [partner]="partner" [team]="team"></async-edit-team>
+  <async-edit-team *ngIf="partner && team" [partner]="partner" [team]="team"/>
   `,
     providers: [TeamService],
     imports: [CommonModule, EditTeamComponent]
@@ -36,20 +36,15 @@ export class EditTeamContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
             //console.log(this.partner)
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+      })
     )
 
     this.route.paramMap.subscribe(params => {
@@ -71,8 +66,6 @@ export class EditTeamContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription =>  subscription.unsubscribe());
   }
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { ApiService } from '../../../_common/services/api.service';
 
 export interface ProductInterface {
     img: string;
@@ -21,62 +22,24 @@ export interface ProductObjectInterface {
   
 
 @Injectable()
-export class ProductService {
-
-  // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
-
-
-  constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
-  }
+export class ProductService {constructor(private apiService: ApiService) {}
 
 
 
   // get all products
   getAllProducts(): Observable<ProductObjectInterface> {
-    return this.http
-      .get<ProductObjectInterface>(this.apiURL + `/products/getAll`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.get<ProductObjectInterface>(`products/getAll`, undefined, undefined, true);
   }
 
-  checkout(cart: any): Observable<ProductInterface[]> {
-  //console.log('record', cart);
-  return this.http
-    .post<ProductInterface[]>(this.apiURL + `/products/cart`, cart, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
+  checkout(formObject: any): Observable<ProductInterface[]> {
+
+    return this.apiService.post<ProductInterface[]>(`products/cart`, formObject, undefined, true);
   }
 
    // get all products ordered by
    getAllOrderBy(partnerId: string): Observable<ProductObjectInterface> {
-    //console.log('record', id);
-    return this.http
-      .get<ProductObjectInterface>(this.apiURL + `/products/getAllOrderBy/${partnerId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+
+      return this.apiService.get<ProductObjectInterface>(`products/getAllOrderBy/${partnerId}`, undefined, undefined, true);
   }
    
 }

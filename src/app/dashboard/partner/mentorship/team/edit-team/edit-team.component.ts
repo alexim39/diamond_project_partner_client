@@ -16,16 +16,87 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
 import Swal from 'sweetalert2';
 import { TeamInterface, TeamService } from '../team.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Mentors Program
  */
 @Component({
-    selector: 'async-edit-team',
-    templateUrl: 'edit-team.component.html',
-    styleUrls: ['edit-team.component.scss'],
-    providers: [TeamService],
-    imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
+selector: 'async-edit-team',
+templateUrl: 'edit-team.component.html',
+styles: [`
+
+
+.async-background {
+    margin: 2em;
+    h2 {
+        mat-icon {
+            cursor: pointer;
+        }
+    }
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 10px;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .back {
+                cursor: pointer;
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }       
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+    }
+}
+
+
+.form-container {
+    margin-top: 1em;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    .flex-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        .form-group {
+            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
+            display: flex;
+            flex-direction: column;
+        }    
+    }
+}
+
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+
+
+`],
+providers: [TeamService],
+imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class EditTeamComponent implements OnInit {
   readonly panelOpenState = signal(false);
@@ -62,37 +133,42 @@ export class EditTeamComponent implements OnInit {
 
       if (this.createTeamForm.valid) {
         this.subscriptions.push(
-          this.createTeamService.updateTeam(teamObject).subscribe((res: any) => {
-    
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: 'Your team detail has been created successfully.',
-              showConfirmButton: true,
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.router.navigate(['/dashboard/manage-team']);
+          this.createTeamService.updateTeam(teamObject).subscribe({
+
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message,
+                showConfirmButton: true,
+                timer: 10000,
+                confirmButtonColor: "#ffab40",
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  this.router.navigate(['/dashboard/mentorship/team/members']);
+                }
+              });
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
               }
-            });
-    
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          })
-        )
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
+        })
+    )
       }
     }
 
     back(): void {
-      this.router.navigateByUrl('dashboard/manage-team');
+      this.router.navigateByUrl('dashboard/mentorship/team/members');
     }
 
     showDescription () {

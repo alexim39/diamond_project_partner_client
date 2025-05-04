@@ -2,7 +2,6 @@ import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardIndexComponent } from "./index/index.component";
 import { InvitationContainerComponent } from "./profile/invitation/invitation-container.component";
-import { ManageContactsDetailContainerComponent } from "./contacts/manage/details/manage-contacts-detail-container.component";
 import { EditContactsContainerComponent } from "./contacts/edit/edit-contacts-container.component";
 import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-meeting-container.component";
 import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
@@ -15,7 +14,6 @@ import { MyPartnersContactsContainerComponent } from "./mentorship/my-partners/c
 import { MyPartnerContactsDetailContainerComponent } from "./mentorship/my-partners/contacts/details/contacts-detail-container.component";
 import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
 import { authGuard } from "./guard.service";
-import { TeamSupportContainerComponent } from "./mentorship/team/manage-team/support/support-container.component";
 
 
 
@@ -72,16 +70,8 @@ export const dashboardRoutes: Routes = [
                 component: BookSessionContainerComponent,
                 title: "Book a Prospect Session - Prosepct session booking",
             },        
-            {
-                path: 'edit-team/:id',
-                component: EditTeamContainerComponent,
-                title: "Edit Team Details",
-            },        
-            {
-                path: 'team-mgt/:id',
-                component: TeamSupportContainerComponent,
-                title: "Team Details - Management page",
-            },        
+                
+                 
                  
                 
                

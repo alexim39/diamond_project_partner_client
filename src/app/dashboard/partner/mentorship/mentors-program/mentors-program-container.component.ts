@@ -13,7 +13,7 @@ import { MentorsProgramComponent } from './mentors-program.component';
     imports: [CommonModule, MentorsProgramComponent],
     providers: [],
     template: `
-  <async-mentors-program *ngIf="partner" [partner]="partner"></async-mentors-program>
+  <async-mentors-program *ngIf="partner" [partner]="partner"/>
   `
 })
 export class MentorsProgramContainerComponent implements OnInit, OnDestroy {
@@ -29,31 +29,17 @@ export class MentorsProgramContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-            //console.log('=',this.partner)
-           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
-              this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
-            }) */
-          }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         }
-      )
+    })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

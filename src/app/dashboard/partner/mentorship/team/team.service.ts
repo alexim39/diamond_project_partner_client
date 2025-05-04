@@ -55,7 +55,7 @@ export class TeamService {
   }
 
    // deleteTeam
-   deleteTeam(id: string): Observable<Array<TeamInterface>> {
+   deleteTeam(id: string): Observable<any> {
       return this.apiService.delete<Array<TeamInterface>>(`team/${id}`, undefined, undefined, true);
   }
 
@@ -70,7 +70,7 @@ export class TeamService {
   }
 
   // delete Team member
-  deleteTeamMember(memberId: string, teamId: string): Observable<Array<TeamInterface>> {
+  deleteTeamMember(memberId: string, teamId: string): Observable<any> {
       return this.apiService.delete<Array<TeamInterface>>(`team/remove-member/${teamId}/${memberId}`, undefined, undefined, true);
   }
     

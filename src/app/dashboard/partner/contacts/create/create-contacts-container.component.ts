@@ -29,30 +29,18 @@ export class CreateContactsContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
-              this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
-            }) */
-          }
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         },
         
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
+    })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

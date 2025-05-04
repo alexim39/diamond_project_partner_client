@@ -11,7 +11,7 @@ import { TeamInterface, TeamService } from '../team.service';
 @Component({
     selector: 'async-manage-team-container',
     template: `
-  <async-manage-team *ngIf="partner && teams" [partner]="partner" [teams]="teams" ></async-manage-team>
+  <async-manage-team *ngIf="partner && teams" [partner]="partner" [teams]="teams"/>
   `,
     providers: [TeamService],
     imports: [CommonModule, ManageTeamComponent]
@@ -32,38 +32,24 @@ export class ManageTeamContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
-            // all teams created by partner
-
-           /*  this.teamService.getAllTeamsBy(this.partner._id).subscribe((teams: any) => {
-              this.teams = teams.data;
-              //console.log('teams ',teams)
-            }) */
-
             // all teams where partner is either creator or member
             this.teamService.getAllTeamsCreatedOrMember(this.partner._id).subscribe((teams: any) => {
               this.teams = teams.data;
               //console.log('teams ',teams) 
             })
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+  })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

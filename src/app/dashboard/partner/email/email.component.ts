@@ -11,13 +11,72 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
-    selector: 'async-email',
-    imports: [MatButtonModule, MatIconModule, RouterModule, MatTabsModule, EnterEmailComponent, CommonModule],
-    providers: [EmailService],
-    templateUrl: 'email.component.html',
-    styleUrls: ['email.component.scss']
+selector: 'async-email',
+imports: [MatButtonModule, MatIconModule, RouterModule, MatTabsModule, EnterEmailComponent, CommonModule],
+providers: [EmailService],
+templateUrl: 'email.component.html',
+styles: [`
+
+.async-background {
+    margin: 2em;
+    h2 {
+        mat-icon {
+            cursor: pointer;
+        }
+    }
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 10px;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .action-area {
+                .action {
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }       
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+    }
+}
+
+.container {
+    margin-top: 1em;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+`]
 })
-export class EmailComponent implements OnInit, OnDestroy {
+export class EmailComponent{
 
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
@@ -26,12 +85,6 @@ export class EmailComponent implements OnInit, OnDestroy {
     private emailService: EmailService,
     private router: Router,
   ) {}
-
-  
-  ngOnInit(): void {
-    //console.log('=',this.partner)
-
-  }
 
 
   showDescription () {
@@ -43,11 +96,8 @@ export class EmailComponent implements OnInit, OnDestroy {
   }
 
   importEmailsNumbers() {
-    this.router.navigate(['/dashboard/manage-contacts']);
+    this.router.navigate(['/dashboard/tools/contacts/new']);
   }
-  
-    
-  ngOnDestroy() {}
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });

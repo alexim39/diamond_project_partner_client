@@ -3,6 +3,8 @@ import { MentorsProgramContainerComponent } from './mentors-program/mentors-prog
 import { CreateTeamContainerComponent } from './team/create-team/create-team-container.component';
 import { ManageTeamContainerComponent } from './team/manage-team/manage-team-container.component';
 import { MyPartnersContainerComponent } from './my-partners/my-partners-container.component';
+import { TeamSupportContainerComponent } from './team/manage-team/support/support-container.component';
+import { EditTeamContainerComponent } from './team/edit-team/edit-team-container.component';
 
 export const MentorshipRoutes: Routes = [
   {
@@ -31,6 +33,18 @@ export const MentorshipRoutes: Routes = [
                     component: ManageTeamContainerComponent,
                     title: "Manage Team - Manage team members from partners",
                 }, 
+
+                {
+                    path: 'member/:id',
+                    component: TeamSupportContainerComponent,
+                    title: "Team Support - Manage team members from partners",
+                },  
+
+                {
+                    path: 'detail/:id',
+                    component: EditTeamContainerComponent,
+                    title: "Edit Team Details",
+                },   
             ]
             
         },  
