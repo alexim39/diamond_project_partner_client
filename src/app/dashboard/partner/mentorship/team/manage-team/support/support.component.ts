@@ -14,10 +14,10 @@ import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { TeamInterface, TeamService } from '../../team.service';
 import { AddMemberComponent } from './add-member/add-member.component';
 import {MatExpansionModule} from '@angular/material/expansion';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /** @title Teams details */
 @Component({
@@ -35,7 +35,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
         MatDividerModule, MatListModule, CommonModule, RouterModule
     ]
 })
-export class TeamSupportComponent implements OnInit, OnDestroy {
+export class TeamSupportComponent implements OnDestroy {
 
   @Input() partner!: PartnerInterface;
   @Input() team!: TeamInterface;
@@ -48,39 +48,13 @@ export class TeamSupportComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private partnerService: PartnerService,
-    private snackBar: MatSnackBar,
     private teamService: TeamService,
 
   ) {}
 
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-team');
-  }
-
-
-  ngOnInit(): void {
-    //console.log(this.partner)
-    //console.log(this.team)
-
-    
-    /* if (this.myPartner) {
-      this.myPartner = this.myPartner;
-    } */
-
-   /*  // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          //console.log(this.partner)
-        },
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
-    ) */
+    this.router.navigateByUrl('dashboard/mentorship/team/members');
   }
 
   deleteTeam(teamId: string) { 
@@ -96,40 +70,44 @@ export class TeamSupportComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
 
         this.subscriptions.push(
-          this.teamService.deleteTeam(teamId).subscribe((teams: any) => {
-            //console.log('prospectContact ',prospectStatus)
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: `Your have successfully deleted that team record`,
-              showConfirmButton: true,
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            }).then((result) => {
-              if (result.isConfirmed) {
-              this.router.navigateByUrl('dashboard/manage-team');
-              //location.reload();
+          this.teamService.deleteTeam(teamId).subscribe({
+
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message,
+                showConfirmButton: true,
+                timer: 10000,
+                confirmButtonColor: "#ffab40",
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  this.router.navigateByUrl('dashboard/mentorship/team/members');
+                }
+              });
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
               }
-            });
-      
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please and try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          })
-        )
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
+      })
+      )
 
       }
     });
   }
 
   edit(id: string) {
-    this.router.navigate(['/dashboard/edit-team', id]);
+    this.router.navigate(['/dashboard/mentorship/team/detail', id]);
   }
 
   addMember(team: TeamInterface, partner: PartnerInterface) {
@@ -153,9 +131,7 @@ export class TeamSupportComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   removeMember(memberId: string, teamId: string) {
@@ -171,31 +147,35 @@ export class TeamSupportComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
 
         this.subscriptions.push(
-          this.teamService.deleteTeamMember(memberId, teamId).subscribe((teams: any) => {
-            //console.log('prospectContact ',prospectStatus)
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: `Your have successfully deleted that member record`,
-              showConfirmButton: true,
-              confirmButtonColor: "#ffab40",
-              timer: 15000,
-            }).then((result) => {
-              if (result.isConfirmed) {
-              //this.router.navigateByUrl('dashboard/manage-team');
-              location.reload();
+          this.teamService.deleteTeamMember(memberId, teamId).subscribe({
+
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message,
+                showConfirmButton: true,
+                timer: 10000,
+                confirmButtonColor: "#ffab40",
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  location.reload();
+                }
+              });
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
               }
-            });
-      
-          }, (error: any) => {
-            //console.log(error)
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please and try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
           })
         )
 

@@ -15,22 +15,78 @@ import { Subscription } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-    selector: 'async-manage-team',
-    templateUrl: 'manage-team.component.html',
-    styleUrls: ['manage-team.component.scss'],
-    imports: [
-        MatCardModule, MatTooltipModule,
-        CommonModule,
-        MatTableModule,
-        MatRadioModule,
-        MatIconModule,
-        RouterModule,
-        MatButtonModule,
-        FormsModule,
-        MatCheckboxModule,
-        MatSlideToggleModule,
-    ],
-    providers: [TeamService]
+selector: 'async-manage-team',
+templateUrl: 'manage-team.component.html',
+styles: [`
+
+.async-background {
+    margin: 2em;
+    h2 {
+        mat-icon {
+            cursor: pointer;
+        }
+    }
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .fund-area {
+                .fund {
+                    //display: flex;
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            //display: flex;
+            //flex-direction: center;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }
+
+        .table {
+            padding: 0 1em;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+
+       
+    }
+}
+
+
+`],
+imports: [
+    MatCardModule, MatTooltipModule,
+    CommonModule,
+    MatTableModule,
+    MatRadioModule,
+    MatIconModule,
+    RouterModule,
+    MatButtonModule,
+    FormsModule,
+    MatCheckboxModule,
+    MatSlideToggleModule,
+],
+providers: [TeamService]
 })
 export class ManageTeamComponent implements OnInit {
   @Input() partner!: PartnerInterface;
@@ -57,7 +113,7 @@ export class ManageTeamComponent implements OnInit {
   }
 
   manage(id: string) {
-    this.router.navigate(['/dashboard/team-mgt', id]);
+    this.router.navigate(['/dashboard/mentorship/team/member', id]);
   }
 
   scrollToTop() {

@@ -69,7 +69,7 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
     }
 
     back(): void {
-        this.router.navigateByUrl('dashboard/monthly-purchase');
+        this.router.navigateByUrl('dashboard/products/eshop');
     }
 
     // Increase the quantity of a product in the cart

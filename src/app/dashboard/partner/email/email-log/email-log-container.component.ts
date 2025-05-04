@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
     providers: [EmailService],
     template: `
   <ng-container *ngIf="!isEmptyRecord">
-  <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"></async-email-log>
+  <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"/>
   </ng-container>
   <ng-container *ngIf="isEmptyRecord">
         <div class="container">
@@ -72,11 +72,6 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
               this.isEmptyRecord = true;
             })
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
         }
       )
     )
@@ -84,13 +79,11 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
 
   back(): void {
     //window.history
-   this.router.navigateByUrl('dashboard/send-email');
+   this.router.navigateByUrl('dashboard/tools/email/new');
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

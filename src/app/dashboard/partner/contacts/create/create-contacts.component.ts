@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Contacts
@@ -172,7 +173,7 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
     const partnerId = this.partner._id;
 
     Swal.fire({
-      title: `Ready to import contacts from online prospect list?`,
+      title: `Ready to import contacts from online survey list?`,
       text: "This action may take a while!",
       icon: "warning",
       showCancelButton: true,
@@ -180,46 +181,41 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, import!"
     }).then((result) => {
-
+      if (result.isConfirmed) {
       this.subscriptions.push(
-        this.contactsService.import(partnerId).subscribe((res: any) => {
-  
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: `Your have successfully imported ${res.data.numberOfImports} contact(s)`,
-            showConfirmButton: true,
-            confirmButtonText: "View Contacts",
-            confirmButtonColor: "#ffab40",
-            timer: 15000,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.router.navigateByUrl('dashboard/manage-contacts');
+        this.contactsService.import(partnerId).subscribe({
+
+        next: (response) => {
+            Swal.fire({
+              position: "bottom",
+              icon: 'success',
+              text: response.message,
+              showConfirmButton: true,
+              timer: 10000,
+              confirmButtonColor: "#ffab40",
+              confirmButtonText: "View Contacts",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.router.navigateByUrl('dashboard/tools/contacts/list');
+              }
+            });
+        },
+          error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Server error occurred, please try again.'; // default error message.
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message; // Use backend's error message if available.
             }
-          });
-  
-        }, (error: any) => {
-         // console.log(error)
-          if (error.code == 401) {
             Swal.fire({
               position: "bottom",
-              icon: 'info',
-              text: 'No prospect found',
+              icon: 'error',
+              text: errorMessage,
               showConfirmButton: false,
               timer: 4000
-            })
-          } else {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          }
-          
+            });  
+        }          
         })
       )
+    }
     });
   }
 

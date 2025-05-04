@@ -13,7 +13,7 @@ import { smsComponent } from './sms.component';
     imports: [CommonModule, smsComponent],
     providers: [],
     template: `
-  <async-sms *ngIf="partner" [partner]="partner"></async-sms>
+  <async-sms *ngIf="partner" [partner]="partner"/>
   `
 })
 export class smsContainerComponent implements OnInit, OnDestroy {
@@ -29,31 +29,16 @@ export class smsContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-            //console.log('=',this.partner)
-           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
-              this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
-            }) */
-          }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
+      this.partnerService.getSharedPartnerData$.subscribe({
+       next: (partner: PartnerInterface) => {
+          this.partner = partner;
         }
-      )
+    })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

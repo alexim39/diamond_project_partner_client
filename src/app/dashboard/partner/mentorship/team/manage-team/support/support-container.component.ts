@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
     selector: 'async-team-support-container',
     template: `
-  <async-team-support *ngIf="partner && team" [partner]="partner" [team]="team" ></async-team-support>
+  <async-team-support *ngIf="partner && team" [partner]="partner" [team]="team" />
   `,
     providers: [TeamService],
     imports: [CommonModule, TeamSupportComponent]
@@ -36,23 +36,13 @@ export class TeamSupportContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-         /*  if (this.partner) {
-            this.teamService.getAllTeamsBy(this.partner._id).subscribe((teams: any) => {
-              this.teams = teams.data;
-              //console.log('teams ',teams)
-            })
-          } */
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
+      
+  })
     )
 
     this.route.paramMap.subscribe(params => {
@@ -60,11 +50,13 @@ export class TeamSupportContainerComponent implements OnInit, OnDestroy {
       if (teamId) {
         // Fetch prospect details using the ID
         this.subscriptions.push(
-          this.teamService.getTeamById(teamId).subscribe(team => {
-            //console.log(team)
-            this.team = team.data;
-          }, error => {
-            this.isEmptyRecord = true;
+          this.teamService.getTeamById(teamId).subscribe({
+            next: (team) => {
+              this.team = team.data;
+            },
+            error: () => {
+              this.isEmptyRecord = true;
+            }
           })
         )
         
@@ -74,8 +66,6 @@ export class TeamSupportContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

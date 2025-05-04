@@ -47,7 +47,7 @@ export class ContactsService {
 
   // get contacts createdby
   import(partnerId: string): Observable<any> {
-      return this.apiService.get<ContactsInterface>(`prospect/import/${partnerId}`, undefined, undefined, true);
+    return this.apiService.get<ContactsInterface>(`prospect/import/${partnerId}`, undefined, undefined, true);
   }
 
   // get prospect byId

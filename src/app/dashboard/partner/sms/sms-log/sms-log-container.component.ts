@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
     providers: [smsService],
     template: `
   <ng-container *ngIf="!isEmptyRecord">
-    <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"></async-sms-log>
+    <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
   </ng-container>
   <ng-container *ngIf="isEmptyRecord">
         <div class="container">
@@ -59,32 +59,28 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
             //console.log('=',this.partner)
             this.sms.getSMSCreatedBy(this.partner._id).subscribe((sms: smsInterface) => {
               this.smsObject = sms;
-              //console.log('smsObject ',sms)
-            }, error => {
-              this.isEmptyRecord = true;
             })
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
+        }, 
+        error: () => {
+          this.isEmptyRecord = true;
         }
-      )
+
+     })
     )
   }
   
   back(): void {
     //window.history
-   this.router.navigateByUrl('dashboard/send-sms');
+   this.router.navigateByUrl('dashboard/tools/sms/new');
   }
 
   ngOnDestroy() {

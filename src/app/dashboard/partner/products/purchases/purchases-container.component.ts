@@ -12,7 +12,7 @@ import { PurchasesComponent } from './purchases.component';
 @Component({
     selector: 'async-purchases-container',
     template: `
-    <async-purchases *ngIf="cartObject" [cartObject]="cartObject"></async-purchases>
+    <async-purchases *ngIf="cartObject" [cartObject]="cartObject"/>
   `,
     providers: [ProductService],
     imports: [MatIconModule, CommonModule, PurchasesComponent]
@@ -32,31 +32,24 @@ export class PurchaseContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
             this.productService.getAllOrderBy(this.partner._id).subscribe((cartObject: ProductObjectInterface) => {
-              this.cartObject = cartObject;
+              this.cartObject = cartObject.data;
               //console.log('product ',cartObject)
             })
           }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
 }
