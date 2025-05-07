@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { EmailService } from '../../email.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Email Details Dialog
@@ -24,10 +25,11 @@ import { EmailService } from '../../email.service';
         <mat-dialog-content class="mat-typography">
             <small style="color: gray;">Message:</small>
             <p [innerHTML]="safeHtmlEmailBody" style="line-height: 1.7em;"></p>
-            <br>
 
             <small style="color: gray;">Recipient: {{data.prospects.length}}</small>
-            <p style="line-height: 1.7em; color: gray"> {{data.prospects}} </p>
+            <p style="line-height: 1.7em; color: gray"> 
+                {{ data.prospects.join(', ') }}
+            </p>
         </mat-dialog-content>
 
         <mat-accordion>
@@ -46,7 +48,6 @@ import { EmailService } from '../../email.service';
 
         <mat-dialog-actions align="end">
             <button mat-button mat-dialog-close>Ok</button>
-            <!-- <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Install</button> -->
         </mat-dialog-actions>
     </section>
   `,
@@ -87,44 +88,41 @@ export class EmailDetailDialogComponent implements OnDestroy, OnInit {
             confirmButtonText: "Yes, delete it!"
         }).then((result) => {
             if (result.isConfirmed) {
-                /*  Swal.fire({
-                  title: "Deleted!",
-                  text: "Your file has been deleted.",
-                  icon: "success"
-                }); */
-
-                //const partnerId = this.partner._id;
-
                 this.subscriptions.push(
-                    this.email.deleteSingleEmail(id).subscribe((res: any) => {
-                        //console.log(res)
-                        Swal.fire({
-                            position: "bottom",
-                            icon: 'success',
-                            text: `${res.message}`,
-                            showConfirmButton: true,
-                            confirmButtonText: "Ok",
-                            confirmButtonColor: "#ffab40",
-                            timer: 15000,
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                //this.router.navigateByUrl('dashboard/manage-contacts');
-                                location.reload();
-                            }
-                        });
+                    this.email.deleteSingleEmail(id).subscribe({
 
-                    }, (error: any) => {
-                        //console.log(error)
-                        Swal.fire({
-                            position: "bottom",
-                            icon: 'info',
-                            text: 'Server error occured, please try again',
-                            showConfirmButton: false,
-                            timer: 4000
-                        })
+                        next: (response) => {
+                            Swal.fire({
+                              position: "bottom",
+                              icon: 'success',
+                              text: response.message,
+                              showConfirmButton: true,
+                              timer: 10000,
+                              confirmButtonText: "Ok",
+                              confirmButtonColor: "#ffab40",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    //this.router.navigateByUrl('dashboard/manage-contacts');
+                                    location.reload();
+                                }
+                            });
+                          },
+                          error: (error: HttpErrorResponse) => {
+                            let errorMessage = 'Server error occurred, please try again.'; // default error message.
+                            if (error.error && error.error.message) {
+                              errorMessage = error.error.message; // Use backend's error message if available.
+                            }
+                            Swal.fire({
+                              position: "bottom",
+                              icon: 'error',
+                              text: errorMessage,
+                              showConfirmButton: false,
+                              timer: 4000
+                            });  
+                          }
+                          
                     })
                 )
-
             }
         });
     }

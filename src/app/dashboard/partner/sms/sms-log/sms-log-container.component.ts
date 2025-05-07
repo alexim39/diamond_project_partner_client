@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { smsInterface, smsService } from '../sms.service';
+import { smsInterface, SMSService } from '../sms.service';
 import { SMSLogComponent } from './sms-log.component';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
     selector: 'async-sms-log-container',
     imports: [CommonModule, SMSLogComponent, MatIconModule, MatButtonModule],
-    providers: [smsService],
+    providers: [SMSService],
     template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
@@ -51,7 +51,7 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
 
   constructor(
     private partnerService: PartnerService,
-    private sms: smsService,
+    private sms: SMSService,
     private router: Router,
   ) { }
 

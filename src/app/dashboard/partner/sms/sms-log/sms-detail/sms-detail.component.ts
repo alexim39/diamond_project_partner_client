@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
-import { smsService } from '../../sms.service';
+import { SMSService } from '../../sms.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 /**
@@ -52,7 +52,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   `,
     styles: `
   `,
-    providers: [smsService],
+    providers: [SMSService],
     imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule]
 })
 export class SMSDetailDialogComponent implements OnDestroy, OnInit {
@@ -63,7 +63,7 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
     safeHtmlSmsBody!: SafeHtml;
 
     constructor(
-        private sms: smsService,
+        private sms: SMSService,
         private sanitizer: DomSanitizer
     ) { }
 

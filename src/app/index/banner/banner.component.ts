@@ -9,7 +9,7 @@ template: `
     <div class="column">
             <div class="writeup">
                 <h2>Manage, Grow, and Promote Your Business Online</h2>
-                <p>Harness the power of our digital platform to effectively manage your team, grow your network, and promote your business.</p>
+                <p>Harness the power of a digital platform to effectively <span>manage</span> your team,  <span>grow</span> your network, and <span>promote</span> your business.</p>
             </div>
     </div>
 </div>
@@ -40,6 +40,9 @@ styles: `
                 font-size: 1.5em;
                 color: rgb(193, 112, 5);
                 font-weight: bolder;
+                span {
+                    border-bottom: 3px solid rgb(59, 62, 2);
+                }
             }
         } 
     }

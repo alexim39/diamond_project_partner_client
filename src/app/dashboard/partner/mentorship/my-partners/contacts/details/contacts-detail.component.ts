@@ -17,7 +17,7 @@ import { CollectCodeComponent } from './collect-code.component';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';  
-import { SmsService } from '../../../../../../_common/services/sms.service';
+import { SMSGatewaysService } from '../../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../../prospects/prospects.service';
 import { ProspectResponseComponent } from '../../../../prospects/general-prospect-list/prospect-response.component';
 import { Location } from '@angular/common';  
@@ -64,7 +64,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     private contactsService: ContactsService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsGatewayService: SmsService,
+    private smsGatewayService: SMSGatewaysService,
   ) {
      // You can initialize selectedStatus if needed  
      this.selectedStatus = ''; // Default value or nothing 
@@ -302,7 +302,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
 
    this.subscriptions.push(
 
-      this.smsGatewayService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(  
+      this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(  
         response => {  
           //console.log('SMS sent successfully:', response);  
 

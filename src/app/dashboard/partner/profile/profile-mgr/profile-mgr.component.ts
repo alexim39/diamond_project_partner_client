@@ -21,6 +21,8 @@ import { ProfilePictureUploadComponent } from './profile-image.component';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
+import { Countries, States } from '../../../../_common/services/countries';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title profile manager
@@ -66,30 +68,77 @@ styles: [`
     }
 }
 
+.address-section {
+  margin: 0 auto;
+  border: 1px solid gray;
+  padding: 1em;
+  border-radius: 5px;
+  .address-container {
+    display: flex;
+    flex-wrap: wrap; // Allow wrapping of items
+    gap: 20px; // Add consistent spacing between items
+    margin-top: 20px;
+    flex-direction: row; // Default to row layout
+    justify-content: space-between; // Align items to the left and right
+
+    mat-form-field {
+      flex: 1 1 calc(50% - 20px); // Two columns layout with gap adjustment
+      min-width: 200px; // Ensure a minimum width for smaller fields
+      max-width: 100%; // Prevent fields from exceeding container width
+    }
+  }
+
+  // Mobile responsiveness
+  @media (max-width: 600px) {
+    .address-section {
+      .address-container {
+        display: flex;
+        flex-direction: column; // Stack items vertically
+        gap: 15px; // Adjust gap for smaller screens
+
+        mat-form-field {
+          flex: 1 1 100%; // Full width for mobile devices
+          min-width: unset; // Remove minimum width constraint
+        }
+      }
+    }
+  }
+}
+
+
 
 .form-container {
-    //width: 100%;
-    // max-width: 600px;
     padding: 20px;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
+
     .flex-form {
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
+
         .form-group {
-            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
+            flex: 1 1 calc(50% - 20px); /* Two-column layout with gap adjustment */
             display: flex;
             flex-direction: column;
-        }    
+        }
+
+        .form-ungroup {
+            flex: 1 1 100%; /* Take up the full width */
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 
-
+// Mobile responsiveness
 @media (max-width: 600px) {
-    .form-group {
-        flex: 1 1 100%;
+    .flex-form {
+        .form-group,
+        .form-ungroup {
+            flex: 1 1 100%; /* Full width for mobile devices */
+        }
     }
 }
 
@@ -115,6 +164,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
   minDate!: Date;
 
+  countries: string[] = Countries;
+  states: string[] = States;
+  isNigeria = true; // Tracks whether the selected country is Nigeria
+
   constructor(
     private profileService: ProfileService
   ) { }
@@ -138,7 +191,13 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.profileMgrForm = new FormGroup({
         name: new FormControl(this.partner.name, Validators.required),
         surname: new FormControl(this.partner.surname, Validators.required),
-        address: new FormControl(this.partner.address),
+        //address: new FormControl(this.partner.address),
+        address: new FormGroup({
+          street: new FormControl(this.partner?.address?.street, Validators.required),
+          city: new FormControl(this.partner?.address?.city, Validators.required),
+          state: new FormControl(this.partner?.address?.state, Validators.required),
+          country: new FormControl(this.partner?.address?.country, Validators.required),
+        }),
         email: new FormControl(this.partner.email, Validators.required),
         phone: new FormControl(this.partner.phone, Validators.required),
         reservationCode: new FormControl(this.partner.reservationCode, Validators.required),
@@ -190,26 +249,31 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
 
     this.subscriptions.push(
-      this.profileService.profileUpdate(profileObject).subscribe((res: any) => {
+      this.profileService.profileUpdate(profileObject).subscribe( {
 
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: 'Your profile details has been updated successfully',
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-
-      }, (error: any) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
+        next: (response) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
+          Swal.fire({
+            position: "bottom",
+            icon: 'error',
+            text: errorMessage,
+            showConfirmButton: false,
+            timer: 4000
+          });
+        }
       })
     )
   }
@@ -219,26 +283,31 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
 
     this.subscriptions.push(
-      this.profileService.professionUpdate(professionalForm).subscribe((res: any) => {
+      this.profileService.professionUpdate(professionalForm).subscribe( {
 
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: 'Your professional details has been updated successfully',
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-
-      }, (error: any) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
+        next: (response) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
+          Swal.fire({
+            position: "bottom",
+            icon: 'error',
+            text: errorMessage,
+            showConfirmButton: false,
+            timer: 4000
+          });
+        }
       })
     )
   }
@@ -247,37 +316,31 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     const usernameObject = this.usernameForm.value;
 
     this.subscriptions.push(
-      this.profileService.usernameUpdate(usernameObject).subscribe((res: any) => {
+      this.profileService.usernameUpdate(usernameObject).subscribe( {
 
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: 'Your username has been updated successfully',
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-
-      }, (error: any) => {
-        if (error.code === 400) {
+        next: (response) => {
           Swal.fire({
             position: "bottom",
-            icon: 'info',
-            text: 'This username is already in use, please try another name',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }
-        else {
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
           Swal.fire({
             position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please try again',
+            icon: 'error',
+            text: errorMessage,
             showConfirmButton: false,
             timer: 4000
-          })
+          });
         }
-
       })
     )
   }
@@ -285,46 +348,32 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   onPasswordSubmit() {
     const passwordObject = this.passwordForm.value;
 
-
     this.subscriptions.push(
-      this.profileService.changePassword(passwordObject).subscribe((res: any) => {
+      this.profileService.changePassword(passwordObject).subscribe( {
 
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: 'Your password has been changed successfully',
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-
-      }, (error: any) => {
-        if (error.code === 402) {
+        next: (response) => {
           Swal.fire({
             position: "bottom",
-            icon: 'info',
-            text: 'Current and new password should not be the same, please try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        } else if (error.code === 401) {
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
           Swal.fire({
             position: "bottom",
-            icon: 'info',
-            text: 'Password must be 6 characters minimum, please try again',
+            icon: 'error',
+            text: errorMessage,
             showConfirmButton: false,
             timer: 4000
-          })
-        } else {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Something went wrong, please try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
+          });
         }
-
       })
     )
   }
@@ -353,9 +402,22 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  onCountryChange(selectedCountry: string): void {
+    this.isNigeria = selectedCountry === 'Nigeria';
+
+    // Reset the state field when the country changes
+    this.profileMgrForm.get('state')?.reset();
+
+    // Update validation for the state field
+    if (this.isNigeria) {
+      this.profileMgrForm.get('state')?.setValidators([Validators.required]);
+    } else {
+      this.profileMgrForm.get('state')?.setValidators([Validators.required, Validators.minLength(2)]);
+    }
+    this.profileMgrForm.get('state')?.updateValueAndValidity();
   }
 
 }

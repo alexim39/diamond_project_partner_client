@@ -16,9 +16,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SmsService } from '../../../../../_common/services/sms.service';
+import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../prospects/prospects.service';
 import { ProspectResponseComponent } from '../../../prospects/general-prospect-list/prospect-response.component';
+import { SMSService } from '../../../sms/sms.service';
 
 /** @title Prospect details */
 @Component({
@@ -35,7 +36,7 @@ import { ProspectResponseComponent } from '../../../prospects/general-prospect-l
         MatIconModule, MatButtonModule,
         MatDividerModule, MatListModule, CommonModule
     ],
-    providers: [ContactsService]
+    providers: [ContactsService, SMSService]
 })
 export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
 
@@ -57,9 +58,10 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private contactsService: ContactsService,
+    private smsService: SMSService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsGatewayService: SmsService
+    private smsGatewayService: SMSGatewaysService
   ) {
     // You can initialize selectedStatus if needed  
     this.selectedStatus = ''; // Default value or nothing 
@@ -294,7 +296,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
 
-      this.smsGatewayService.sendSms(this.prospectData.prospectPhone, this.sms).subscribe(
+      this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(
         response => {
           //console.log('SMS sent successfully:', response);  
 
@@ -308,7 +310,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
             }
             // record sms to database
             this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
+              this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
                 //console.log('smsSave ',smsSave)
 
                 Swal.fire({
@@ -330,7 +332,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
             }
             // record sms to database
             this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
+              this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
                 //console.log('smsSave ',smsSave)
 
                 Swal.fire({

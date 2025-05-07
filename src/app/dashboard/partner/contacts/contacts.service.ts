@@ -84,11 +84,6 @@ export class ContactsService {
   sendProspectEmail(formData: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<any> {
       return this.apiService.post<ContactsInterface>(`emails/send-emails`, formData, undefined, true);
   }
-
-  // save sms 
-  saveSMSRecord(formData: {partner: string, prospect: string | Array<string>, smsBody: string}): Observable<ContactsInterface> {
-      return this.apiService.post<ContactsInterface>(`sms/save-sms`, formData, undefined, true);
-  }
    
   // submit booking
   bookSurvey(formData: any): Observable<any> {

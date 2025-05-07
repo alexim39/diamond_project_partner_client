@@ -22,7 +22,8 @@ export interface ProductObjectInterface {
   
 
 @Injectable()
-export class ProductService {constructor(private apiService: ApiService) {}
+export class ProductService {
+  constructor(private apiService: ApiService) {}
 
 
 

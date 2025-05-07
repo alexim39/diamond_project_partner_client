@@ -3,25 +3,98 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
-import { smsService } from '../sms.service';
+import { SMSService } from '../sms.service';
 import { Router } from '@angular/router';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
-import { SmsService } from '../../../../_common/services/sms.service';
-import { ContactsService } from '../../contacts/contacts.service';
+import { SMSGatewaysService } from '../../../../_common/services/sms.service';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title enter-phone-numbers
  */
 @Component({
-    selector: 'async-enter-phone-numbers',
-    templateUrl: 'enter-phone-numbers.component.html',
-    styleUrl: 'enter-phone-numbers.component.scss',
-    providers: [ContactsService],
-    imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule]
+selector: 'async-enter-phone-numbers',
+template: `
+
+<form (ngSubmit)="onSubmit()" [formGroup]="bulckSMSForm">  
+    <mat-form-field appearance="outline" class="sender-id">  
+        <mat-label>Sender Id</mat-label>  
+        <input matInput placeholder="Ex. DiamondProj" maxlength="11" formControlName="senderId" value="C21FG" readonly="true">  
+        <mat-error *ngIf="bulckSMSForm.get('senderId')?.hasError('required') ">  
+            This field is required.  
+        </mat-error>   
+    </mat-form-field>  
+
+    <mat-form-field appearance="outline" class="message-phone">  
+      <mat-label>Enter Phone Numbers</mat-label>  
+      <textarea matInput placeholder="Ex. 08080386208, 09062537816, ..." formControlName="phoneNumbers"></textarea>  
+      <mat-hint align="start"><strong>Separate each phone with a comer</strong> </mat-hint>
+      <mat-error *ngIf="bulckSMSForm.get('phoneNumbers')?.hasError('required') ">  
+        At least a phone number should be entered  
+      </mat-error>  
+    </mat-form-field>  
+
+    <mat-form-field appearance="outline" class="message-phone">  
+        <mat-label>Enter Text Messages</mat-label>  
+        <textarea matInput placeholder="Type text messages here ..." formControlName="textMessage" #message maxlength="960"></textarea>  
+        <mat-hint align="end"><strong>Pages {{pages}}</strong>, {{message.value.length}} / 160</mat-hint>  
+        <mat-error *ngIf="bulckSMSForm.get('textMessage')?.hasError('required') ">  
+            Enter the text message to be sent   
+        </mat-error>  
+    </mat-form-field>  
+
+    <button mat-flat-button>Send SMS</button>  
+</form>
+
+`,
+styles: `
+
+form {
+    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Ensure the items take full width */  
+
+    .sender-id {
+        width: 20%;
+    }
+    .message-phone {
+        width: 80%;
+        height: 10em;
+        margin-top: 20px; 
+    }
+
+    button {
+        width: 20em;
+        margin-top: 20px; 
+        align-self: center; 
+    }
+}
+
+
+ /* Media Query for Mobile Responsiveness */
+ @media screen and (max-width: 600px) {
+    form {
+        .sender-id {
+            width: 100%;
+        }
+        .message-phone {
+            width: 100%;
+            height: 10em;
+        }
+        button {
+            width: 100%;
+        }
+    }
+}
+
+`,
+providers: [SMSService, SMSGatewaysService],
+imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule]
 })
 export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
@@ -29,10 +102,9 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
   subscriptions: Array<Subscription> = [];
 
   constructor(
-    private smsService: smsService,
+    private smsService: SMSService,
     private router: Router,
-    private smsGatewayService: SmsService,
-    private contactsService: ContactsService,
+    private smsGatewayService: SMSGatewaysService,
     private exportContactAndEmailService: ExportContactAndEmailService
   ) { }
 
@@ -90,39 +162,6 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
       // call sms charge method
       this.chargeForSMS(formatedphoneNumbers);
 
-      /*  this.subscriptions.push(
-           this.smsService.send(bulkSMSObject).subscribe((res: any) => {
-     
-             Swal.fire({
-               position: "bottom",
-               icon: 'success',
-               text: 'Your bulk SMS has been sent successfully',
-               showConfirmButton: true,
-               confirmButtonColor: "#ffab40",
-               timer: 15000,
-             })
-     
-           }, (error: any) => {
-             //console.log(error)
-             if (error.code == 400) {
-               Swal.fire({
-                 position: "bottom",
-                 icon: 'info',
-                 text: 'Prospect already exists with this phone number or email',
-                 showConfirmButton: false,
-                 timer: 4000
-               })
-             } else {
-               Swal.fire({
-                 position: "bottom",
-                 icon: 'info',
-                 text: 'Server error occured, please try again',
-                 showConfirmButton: false,
-                 timer: 4000
-               })
-             }
-           })
-       ) */
     }
   }
 
@@ -135,33 +174,28 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
     }
 
     this.subscriptions.push(
-      this.smsService.bulkSMSCharge(chargeObject).subscribe((smsCharge: any) => {
-        //console.log('sms ',smsCharge)
-        const transactionId = smsCharge?.data._id;
+      this.smsService.bulkSMSCharge(chargeObject).subscribe({
 
-        // call sms gateway
-        this.callSMSGate(transactionId)
-
-      }, (error: any) => {
-        //console.log(error)
-        if (error.code == 401) {
+        next: (response) => {
+          console.log('sms charge ', response)
+          if (response.success) {
+            const transactionId = response?.data._id;
+            this.callSMSGate(transactionId)
+          }
+        },
+        error (error: HttpErrorResponse) {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
           Swal.fire({
             position: "bottom",
-            icon: 'info',
-            text: 'Insufficient balance for transaction, please fund your account.',
+            icon: 'error',
+            text: errorMessage,
             showConfirmButton: false,
             timer: 4000
-          })
-        } else {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
+          });  
         }
-
       })
     )
   }
@@ -174,15 +208,69 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
     const senderId = this.bulckSMSForm.get('senderId')?.value;
     const message = this.bulckSMSForm.get('textMessage')?.value;
 
-    // Here you can send the formattedNumbers and form values to your backend  
-    //console.log('Sender ID:', this.bulckSMSForm.get('senderId')?.value);  
-    //console.log('Formatted Phone Numbers:', formattedNumbers);  
-    //console.log('Text Message:', this.bulckSMSForm.get('textMessage')?.value);
+    //Here you can send the formattedNumbers and form values to your backend  
+    console.log('Sender ID:', this.bulckSMSForm.get('senderId')?.value);  
+    console.log('Formatted Phone Numbers:', formatedphoneNumbers);  
+    console.log('Text Message:', this.bulckSMSForm.get('textMessage')?.value);
 
     this.subscriptions.push(
 
-      this.smsGatewayService.sendSms(formatedphoneNumbers, message, senderId).subscribe(
-        response => {
+      this.smsGatewayService.send(formatedphoneNumbers, message, senderId).subscribe({
+
+        next: (response) => {
+          let status: "success" | "failed" = response.data.status;
+          if (response.data.status == 'success') {
+            status = "success"
+          } else {
+            status = "failed"
+          }
+
+          const smsObject = {
+            partner: this.partner._id,
+            prospect: formatedphoneNumbers,
+            smsBody: message,
+            transactionId: transactionId,
+            status,
+          }
+
+          this.subscriptions.push(
+            this.smsService.saveSMSRecord(smsObject).subscribe({
+
+              next: (response) => {
+                  Swal.fire({
+                    position: "bottom",
+                    icon: 'success',
+                    text: response.message,
+                    showConfirmButton: false,
+                    timer: 10000,
+                  })
+                },
+                error: (error: HttpErrorResponse) => {
+                  let errorMessage = 'Server error occurred, please try again.'; // default error message.
+                  if (error.error && error.error.message) {
+                    errorMessage = error.error.message; // Use backend's error message if available.
+                  }
+                  Swal.fire({
+                    position: "bottom",
+                    icon: 'error',
+                    text: errorMessage,
+                    showConfirmButton: false,
+                    timer: 4000
+                  });  
+                }
+            })
+          )
+        },
+        error: (error: HttpErrorResponse) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'SMS not sent, there was an error sending SMS',
+            showConfirmButton: false,
+            timer: 4000
+          })
+        }
+        /* response => {
           //console.log('SMS sent successfully:', response);  
 
           if (response.data.status == 'success') {
@@ -235,15 +323,9 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
         },
         (error) => {
           //console.error('Error sending SMS:', error);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'SMS not sent, there was an error sending SMS',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }
-      )
+         
+        } */
+      })
     );
   }
 
@@ -291,8 +373,6 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

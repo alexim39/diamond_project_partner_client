@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
-import { PartnerInterface } from '../../../_common/services/partner.service';
+import { Observable } from 'rxjs';
 import { FormGroup } from '@angular/forms';
+import { ApiService } from '../../../_common/services/api.service';
 
 export interface EmailInterface {
   message: string;
@@ -13,62 +11,21 @@ export interface EmailInterface {
 
 @Injectable()
 export class EmailService {
-  // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
-
-  
-  constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
-  }
-
-
+  constructor(private apiService: ApiService) {}
 
   // get sms byId
-  getEmailsCreatedBy(partnerId: string): Observable<EmailInterface> {
-  //console.log('record', id);
-  return this.http
-    .get<EmailInterface>(this.apiURL + `/emails/getById/${partnerId}`, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
+  getEmailsCreatedBy(partnerId: string): Observable<any> {
+    return this.apiService.get<EmailInterface>(`emails/getById/${partnerId}`, undefined, undefined, true);
   }
 
   // send bulk email
-  sendBulkEmail(bulkEmailObject: FormGroup): Observable<EmailInterface> {
-  //console.log('record', bulkEmailObject);
-  return this.http
-    .post<EmailInterface>(this.apiURL + `/emails/send-bulk-email/`, bulkEmailObject, { withCredentials: true })
-    .pipe(retry(1), catchError(this.handleError));
+  sendEmail(formObject: FormGroup): Observable<EmailInterface> {
+    return this.apiService.post<EmailInterface>(`emails/send-email`, formObject, undefined, true);
   }
 
   // detele single email
   deleteSingleEmail(emailId: string): Observable<any> {
-    //console.log('record', emailId);
-    return this.http
-      .delete<any>(this.apiURL + `/emails/delete-single/${emailId}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+      return this.apiService.delete<any>(`emails/delete-single/${emailId}`, undefined, undefined, true);
   }
     
    

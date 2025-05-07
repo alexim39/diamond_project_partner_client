@@ -124,35 +124,30 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
       const prospectObject = this.prospectContactForm.value;
   
       this.subscriptions.push(
-        this.contactsService.create(prospectObject).subscribe((res: any) => {
-  
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: 'Your contact has been created successfully',
-            showConfirmButton: true,
-            confirmButtonColor: "#ffab40",
-            timer: 15000,
-          })
-  
-        }, (error: any) => {
-          //console.log(error)
-          if (error.code == 400) {
+        this.contactsService.create(prospectObject).subscribe( {
+
+          next: (response) => {
             Swal.fire({
               position: "bottom",
-              icon: 'info',
-              text: 'Prospect already exists with this phone number or email',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          } else {
+              icon: 'success',
+              text: response.message,
+              showConfirmButton: true,
+              timer: 10000,
+              confirmButtonColor: "#ffab40",
+            });
+          },
+          error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Server error occurred, please try again.'; // default error message.
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message; // Use backend's error message if available.
+            }
             Swal.fire({
               position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
+              icon: 'error',
+              text: errorMessage,
               showConfirmButton: false,
               timer: 4000
-            })
+            });  
           }
         })
       )
