@@ -7,13 +7,29 @@ import { IndexSearchContainerComponent } from './search/search-container.compone
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { NotificationBannerComponent } from './notification-banner/notification-banner.component';
+import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
+import { Subscription } from 'rxjs';
 
 /**
  * @title dashboard index
  */
 @Component({
   selector: 'async-dashboard-index',
+  imports: [
+    MatButtonModule,
+    RouterModule,
+    MatIconModule,
+    MatCardModule,
+    MatBadgeModule,
+    CommonModule,
+    IndexSearchContainerComponent,
+    MatInputModule,
+    NotificationBannerComponent
+  ],
   template: `
+    <async-notification-banner *ngIf="partner" [partner]="partner"/>
+    
     <async-index-search-container />
 
     <router-outlet />
@@ -231,18 +247,34 @@ import { MatIconModule } from '@angular/material/icon';
       }
     `,
   ],
-  imports: [
-    MatButtonModule,
-    RouterModule,
-    MatIconModule,
-    MatCardModule,
-    MatBadgeModule,
-    CommonModule,
-    IndexSearchContainerComponent,
-    MatInputModule,
-  ],
 })
 export class DashboardIndexComponent {
   appName = 'Diamond Project Online Partners Platform';
   currentYear = new Date().getFullYear();
+
+    partner!: PartnerInterface;
+    subscriptions: Subscription[] = [];
+  
+    constructor(
+      private partnerService: PartnerService,
+    ) { }
+  
+    ngOnInit() {
+        
+      // get current signed in user
+      this.subscriptions.push(
+        this.partnerService.getSharedPartnerData$.subscribe({
+         
+          next: (partner: PartnerInterface) => {
+            this.partner = partner;
+          },
+          
+      })
+      )
+    }
+  
+    ngOnDestroy() {
+      // unsubscribe list
+      this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    }
 }

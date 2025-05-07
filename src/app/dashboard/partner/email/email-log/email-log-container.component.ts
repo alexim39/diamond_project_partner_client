@@ -59,24 +59,31 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+      this.partnerService.getSharedPartnerData$.subscribe(       
+        (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
             //console.log('=',this.partner)
-            this.email.getEmailsCreatedBy(this.partner._id).subscribe((emails: EmailInterface) => {
-              this.emails = emails;
-              //console.log('emails ',this.emails)
-            }, error => {
-              this.isEmptyRecord = true;
+            this.email.getEmailsCreatedBy(this.partner._id).subscribe({
+              next: (response) => {
+                if (response.success) {
+                  this.emails = response.data;
+                  if (this.emails.length === 0) {
+                    this.isEmptyRecord = true;
+                  }
+                }          
+              },
+              error: () => {
+                this.isEmptyRecord = true;
+              }
             })
           }
         }
       )
     )
-  }
+  }  
 
+    
   back(): void {
     //window.history
    this.router.navigateByUrl('dashboard/tools/email/new');

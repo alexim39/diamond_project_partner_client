@@ -9,111 +9,135 @@
             </div>
         </div>
 
-        <!-- <div class="search">
-            <mat-form-field appearance="outline">
-                <mat-label>Filter by transanction amount</mat-label>
-                <input matInput placeholder="0.00" type="search">
-            </mat-form-field>
-        </div> -->
-
-
         <mat-accordion>
             <mat-expansion-panel [expanded]="true">
-              <mat-expansion-panel-header>
-                <mat-panel-title> Personal Information </mat-panel-title>
-              </mat-expansion-panel-header>
-
+                <mat-expansion-panel-header>
+                  <mat-panel-title> Personal Information </mat-panel-title>
+                </mat-expansion-panel-header>
+              
                 <div class="form-container">
-                    <form class="flex-form" [formGroup]="profileMgrForm">
-                        <div class="form-group">
+                  <form class="flex-form" [formGroup]="profileMgrForm">
+                    <div class="form-group">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Name</mat-label>
+                        <input matInput formControlName="name" required>
+                        <mat-error *ngIf="profileMgrForm.get('name')?.hasError('required') ">
+                          This is required
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+              
+                    <div class="form-group">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Surname</mat-label>
+                        <input matInput type="email" formControlName="surname" required>
+                        <mat-error *ngIf="profileMgrForm.get('surname')?.hasError('required') ">
+                          This is required
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+              
+                    <div class="form-group">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Email Address</mat-label>
+                        <input matInput formControlName="email" required>
+                        <mat-error *ngIf="profileMgrForm.get('email')?.hasError('required') ">
+                          This is required
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+              
+                    <div class="form-group">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Phone Number</mat-label>
+                        <input matInput formControlName="phone" required>
+                        <mat-error *ngIf="profileMgrForm.get('phone')?.hasError('required') ">
+                          This is required
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+              
+                    <div class="form-group">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Reservation Code</mat-label>
+                        <input matInput formControlName="reservationCode" readonly="true" required>
+                        <mat-error *ngIf="profileMgrForm.get('reservationCode')?.hasError('required') ">
+                          This is required
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="form-group">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Date of Birth</mat-label>
+                          <input matInput [matDatepicker]="dobDatePicker" formControlName="dobDatePicker" [max]="minDate">
+                          <mat-hint>MM/DD/YYYY</mat-hint>
+                          <mat-datepicker-toggle matIconSuffix [for]="dobDatePicker"></mat-datepicker-toggle>
+                          <mat-datepicker #dobDatePicker></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+            
+
+                    <section class="address-section">
+
+                        <div formGroupName="address" class="address-container">
                             <mat-form-field appearance="outline">
-                                <mat-label>Name</mat-label>
-                                <input matInput formControlName="name" required>
-                                <mat-error *ngIf="profileMgrForm.get('name')?.hasError('required') ">
-                                    This is required
-                                  </mat-error>
+                              <mat-label>Street</mat-label>
+                              <input matInput formControlName="street" placeholder="Enter street" />
+                              <mat-error *ngIf="profileMgrForm.get('address.street')?.invalid && profileMgrForm.get('address.street')?.touched">
+                                Street is required.
+                              </mat-error>
+                            </mat-form-field>
+                        
+                            <mat-form-field appearance="outline">
+                              <mat-label>City</mat-label>
+                              <input matInput formControlName="city" placeholder="Enter city" />
+                              <mat-error *ngIf="profileMgrForm.get('address.city')?.invalid && profileMgrForm.get('address.city')?.touched">
+                                City is required.
+                              </mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline">
+                                <mat-label>Country</mat-label>
+                                <mat-select formControlName="country" (selectionChange)="onCountryChange($event.value)">
+                                  <mat-option *ngFor="let country of countries" [value]="country">{{ country }}</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+
+                             <!-- State Field -->
+                            <mat-form-field appearance="outline">
+                                <mat-label *ngIf="isNigeria">State</mat-label>
+                                <mat-select *ngIf="isNigeria" formControlName="state">
+                                <mat-option *ngFor="let state of states" [value]="state">{{ state }}</mat-option>
+                                </mat-select>
+                                <mat-label *ngIf="!isNigeria">Enter State</mat-label>
+                                <input *ngIf="!isNigeria" matInput formControlName="state" placeholder="Enter your state of origin" />
                             </mat-form-field>
                         </div>
 
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Surname</mat-label>
-                                <input matInput type="email" formControlName="surname" required>
-                                <mat-error *ngIf="profileMgrForm.get('surname')?.hasError('required') ">
-                                    This is required
-                                  </mat-error>
-                            </mat-form-field>
-                        </div>
+                    </section>
 
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Email Address</mat-label>
-                                <input matInput formControlName="email" required>
-                                <mat-error *ngIf="profileMgrForm.get('email')?.hasError('required') ">
-                                    This is required
-                                  </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Phone Number</mat-label>
-                                <input matInput formControlName="phone" required>
-                                <mat-error *ngIf="profileMgrForm.get('phone')?.hasError('required') ">
-                                    This is required
-                                  </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Reservation Code</mat-label>
-                                <input matInput formControlName="reservationCode" readonly="true" required>
-                                <mat-error *ngIf="profileMgrForm.get('reservationCode')?.hasError('required') ">
-                                    This is required
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Residential Address</mat-label>
-                                <textarea matInput formControlName="address"></textarea>
-                                <mat-hint>Address will used for shipping</mat-hint>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Short Bio</mat-label>
-                                <textarea matInput formControlName="bio"></textarea>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-group">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Date of Birth</mat-label>
-                                <input matInput [matDatepicker]="dobDatePicker" formControlName="dobDatePicker" [max]="minDate">
-                                <mat-hint>MM/DD/YYYY</mat-hint>
-                                <mat-datepicker-toggle matIconSuffix [for]="dobDatePicker"></mat-datepicker-toggle>
-                                <mat-datepicker #dobDatePicker></mat-datepicker>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="form-group">
-                            <mat-slide-toggle [checked]="status"[disabled]="disabled" (change)="onToggleChange($event)">Active State</mat-slide-toggle>
-                            <small style="color: gray;">Account Status</small>
-                        </div>
-
-                        <div class="form-group">
-                            <async-profile-picture-upload *ngIf="partner" [partner]="partner"></async-profile-picture-upload>
-                        </div>
-
-                        <div class="form-group"></div>
-                        <button mat-raised-button color="primary" (click)="onProfileSubmit()">Submit</button>
-                    </form>
+                    <div class="form-ungroup">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Short Bio</mat-label>
+                        <textarea matInput formControlName="bio"></textarea>
+                      </mat-form-field>
+                    </div>              
+                    
+                    <div class="form-group">
+                      <mat-slide-toggle [checked]="status"[disabled]="disabled" (change)="onToggleChange($event)">Active State</mat-slide-toggle>
+                      <small style="color: gray;">Account Status</small>
+                    </div>
+              
+                    <div class="form-ungroup">
+                      <async-profile-picture-upload *ngIf="partner" [partner]="partner"></async-profile-picture-upload>
+                    </div>
+              
+                    <div class="form-group"></div>
+                    <button mat-flat-button color="primary" (click)="onProfileSubmit()">Submit</button>
+                  </form>
                 </div>
-            </mat-expansion-panel>
+              </mat-expansion-panel>
 
             <mat-expansion-panel>
               <mat-expansion-panel-header>
@@ -178,7 +202,7 @@
                         </div>
 
                         <div class="form-group"></div>
-                        <button mat-raised-button color="primary" (click)="onProfessionalSubmit()">Submit</button>
+                        <button mat-flat-button color="primary" (click)="onProfessionalSubmit()">Submit</button>
                     </form>
                 </div>
     
@@ -204,7 +228,7 @@
                         Landing page URL: <a href="http://diamondprojectonline.com/{{partner.username | lowercase}}" target="_blank">www.diamondprojectonline.com/{{partner.username | lowercase}}</a>
                         Page View: {{partner.visits}}
                     </div>
-                    <button mat-raised-button color="primary">Submit</button>
+                    <button mat-flat-button color="primary">Submit</button>
                 </form>
               </div>
           
@@ -262,7 +286,7 @@
                         </mat-form-field>
                     </div>
                     <div class="form-group"></div>
-                    <button mat-raised-button color="primary">Submit</button>
+                    <button mat-flat-button color="primary">Submit</button>
                 </form>
               </div>
           

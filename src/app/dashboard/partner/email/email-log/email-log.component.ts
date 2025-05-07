@@ -5,8 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import {  FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
@@ -23,7 +22,84 @@ import { EmailDetailDialogComponent } from './email-detail/email-detail.componen
 
 @Component({
 selector: 'async-email-log',
-templateUrl: 'email-log.component.html',
+template: `
+
+<section class="breadcrumb-wrapper">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+      <a>Tools</a> &gt;
+      <a>Email</a> &gt;
+      <span>Email log</span>
+    </div>
+</section>
+
+<section class="async-background ">
+    <h2>Manage Bulk Email List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+    <section class="async-container">
+
+        <div class="title">
+            <h3>Email History</h3>
+            <div class="action-area">
+                <a mat-list-item routerLink="../../email/new" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button><mat-icon>add</mat-icon>New Emails</a>
+            </div>
+        </div>
+
+
+        <ng-container *ngIf="!isEmptyRecord">
+
+            <div class="search">
+                <mat-form-field appearance="outline">
+                  <mat-label>Filter by email message</mat-label>
+                  <input matInput type="search" name="smsFilter" [(ngModel)]="filterText" (input)="filterEmail()" />
+                </mat-form-field>
+              </div>
+
+            <div class="table">    
+    
+                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    
+                    <!--- Note that these columns can be defined in any order.
+                          The actual rendered columns are set as a property on the row definition" -->
+                  
+                    <ng-container matColumnDef="subject">
+                      <th mat-header-cell *matHeaderCellDef> Email Subject </th>
+                      <td mat-cell *matCellDef="let element"> {{element.emailSubject | titlecase }} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="message">
+                      <th mat-header-cell *matHeaderCellDef> Email Body </th>
+                      <td mat-cell *matCellDef="let element"> {{element.emailBody | truncate:50 }} </td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="recipients">
+                      <th mat-header-cell *matHeaderCellDef> Recipients </th>
+                      <td mat-cell *matCellDef="let element"> {{element.prospects | truncate:35 }} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="date">
+                        <th mat-header-cell *matHeaderCellDef> Date </th>
+                        <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openEmailDetailDialog(row)"></tr>
+                </table>
+                <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
+
+    
+            </div>
+        </ng-container>
+        <ng-container *ngIf="isEmptyRecord">
+            <p class="no-campaign">No record available yet</p>
+        </ng-container>
+
+        
+    </section>
+    
+</section>
+
+`,
 styles: [`
 
 .async-background {
@@ -131,12 +207,11 @@ export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    if (this.emails.data) {
-      const sortedData = this.emails.data.sort((a: any, b: any) => {
+    if (this.emails) {
+      const sortedData = this.emails.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
       this.dataSource.data = sortedData;
-
       if (sortedData.length === 0) {
         this.isEmptyRecord = true;
       }

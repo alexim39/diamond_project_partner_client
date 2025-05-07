@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 @Component({
     selector: 'async-monthly-purchase-container',
     template: `
-    <async-monthly-purchase *ngIf="productsObject" [productsObject]="productsObject"></async-monthly-purchase>
+    <async-monthly-purchase *ngIf="productsObject" [productsObject]="productsObject"/>
   `,
     providers: [ProductService],
     imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule]
@@ -32,10 +32,10 @@ export class MonthlyPurchaseContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
             this.productService.getAllProducts().subscribe((productsObject: ProductObjectInterface) => {
               this.productsObject = productsObject;
@@ -43,20 +43,13 @@ export class MonthlyPurchaseContainerComponent implements OnInit, OnDestroy {
             })
           }
         },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
 }

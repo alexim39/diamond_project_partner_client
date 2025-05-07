@@ -12,6 +12,7 @@ import { PartnerAuthService, PartnerSignInInterface } from '../auth.service';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Partner signin
@@ -42,8 +43,11 @@ template: `
         <mat-form-field appearance="outline">
           <mat-label>Enter your password</mat-label>
           <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
-          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
-            Email is invalid
+          <mat-error *ngIf="signInForm.get('password')?.hasError('password') ">
+            Password is invalid
+          </mat-error>
+          <mat-error *ngIf="signInForm.get('password')?.hasError('required') ">
+            Password is required
           </mat-error>
           <a mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
             <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -136,8 +140,28 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
       // Send the form value to your Node.js backend
      const formData: PartnerSignInInterface = this.signInForm.value;
       this.subscriptions.push(
-        this.partnerSignInService.siginin(formData).subscribe((res: any) => {
-          localStorage.setItem('authToken', res); // Save token to localStorage
+        this.partnerSignInService.siginin(formData).subscribe( {
+
+          next: (response) => {
+            localStorage.setItem('authToken', response); // Save token to localStorage
+            this.router.navigateByUrl('dashboard');
+          },
+          error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Server error occurred, please try again.'; // default error message.
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message; // Use backend's error message if available.
+            }
+            Swal.fire({
+              position: "bottom",
+              icon: 'error',
+              text: errorMessage,
+              showConfirmButton: false,
+              timer: 4000
+            });
+          }
+
+          
+        /*   localStorage.setItem('authToken', res); // Save token to localStorage
           this.router.navigateByUrl('dashboard');
         }, error => {
           if (error.code == 404) {// user not found
@@ -157,10 +181,9 @@ export class PartnerSigninComponent implements OnInit, OnDestroy {
               showConfirmButton: false,
               timer: 4000
             });
-          }
+          } */
         })
       )
-    } else {
     }
   }
 

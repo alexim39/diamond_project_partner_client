@@ -2,24 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';  
 import { Observable } from 'rxjs';  
 
-@Injectable({  
-  providedIn: 'root'  
-})  
-export class SmsService {  
+@Injectable()  
+export class SMSGatewaysService {  
 
   private apiUrl = 'https://www.bulksmsnigeria.com/api/v2/sms';  
   
   constructor(private http: HttpClient) { }  
 
-  sendSms( to: string | Array<string>, body: string, from = "C21FG"): Observable<any> {  
-    //console.log('to ',to)
-    //console.log('from ',from)
-    //console.log('body ',body)
+  send( to: string | Array<string>, body: string, from = "C21FG"): Observable<any> {  
+    // console.log('to ',to)
+    // console.log('from ',from)
+    // console.log('body ',body)
     const smsData = {  
-      body: body,  
-      from: from,  
-      to: to,  
-      api_token: "A96OEGodidxFWRn6UgOoqtk5CzFv47eJWX8Ix5NS0YxDxE1enFqSUz5kV2MW",  
+      body,
+      from,
+      to, 
+      api_token: "wAW4HgFfHcbtgRRzWuYUBKQhiHdMuBBSSn6O8Nwv35JPNSrACwFlY6b0rLbS",  
       gateway: "direct-refund",  
       customer_reference: "HXYSJWKKSLOX",  
       callback_url: "https://www.airtimenigeria.com/api/reports/sms"  

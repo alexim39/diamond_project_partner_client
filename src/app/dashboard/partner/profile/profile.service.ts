@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { ApiService } from '../../../_common/services/api.service';
 
 export interface ProfileInterface {
   id: string;
@@ -10,69 +9,27 @@ export interface ProfileInterface {
 
 @Injectable()
 export class ProfileService {
-  // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
-
-
-  constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
-  }
+  constructor(private apiService: ApiService) {}
 
 
   // profile update
-  profileUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    //console.log('form record', dataObject);
-    return this.http
-      .put<ProfileInterface>(this.apiURL + `/partners/update-profile`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  profileUpdate(formData: ProfileInterface): Observable<any> {
+      return this.apiService.put<ProfileInterface>(`partners/update-profile`, formData, undefined, true);
   }
 
   // profession update
-  professionUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    console.log('form record', dataObject);
-    return this.http
-      .put<ProfileInterface>(this.apiURL + `/partners/update-profession`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  professionUpdate(formData: ProfileInterface): Observable<any> {
+      return this.apiService.put<ProfileInterface>(`partners/update-profession`, formData, undefined, true);
   }
 
   // username Update 
-  usernameUpdate(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    //console.log('form record', dataObject);
-    return this.http
-      .put<ProfileInterface>(this.apiURL + `/partners/update-username/`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  usernameUpdate(formData: ProfileInterface): Observable<any> {;
+      return this.apiService.put<ProfileInterface>(`partners/update-username`, formData, undefined, true);
   }
 
    // change Password 
-   changePassword(dataObject: ProfileInterface): Observable<ProfileInterface> {
-    //console.log('form record', dataObject);
-    return this.http
-      .put<ProfileInterface>(this.apiURL + `/partners/change-password/`, dataObject, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+   changePassword(formData: ProfileInterface): Observable<any> {
+      return this.apiService.put<ProfileInterface>(`partners/change-password`, formData, undefined, true);
   }
 
    

@@ -16,7 +16,7 @@ export interface PartnerInterface {
   password: string;
   username: string;
   bio?: string;
-  address: string;
+  address: Address;
   visits?: number;
   dobDatePicker?: Date;
   balance?: number;
@@ -36,6 +36,13 @@ export interface PartnerInterface {
   facebookPage?: string;
   twitterPage?: string;
   createdAt?: Date;
+}
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
 }
 
 @Injectable()
