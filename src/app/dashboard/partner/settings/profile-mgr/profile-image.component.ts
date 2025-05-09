@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'async-profile-picture-upload',
-    imports: [CommonModule, MatButtonModule],
-    template: `
+selector: 'async-profile-picture-upload',
+imports: [CommonModule, MatButtonModule],
+template: `
   <section>
     <div class="profile-picture-upload">
         <img *ngIf="profilePictureUrl" [src]="profilePictureUrl" alt="Profile Picture" class="profile-picture-preview"/>
@@ -17,7 +17,7 @@ import Swal from 'sweetalert2';
     </div>
   </section>
   `,
-    styles: `
+styles: `
   section {
     display: flex;  
     justify-content: center;  
@@ -50,8 +50,8 @@ import Swal from 'sweetalert2';
 })
 export class ProfilePictureUploadComponent {
     // Define API
-    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-    //apiURL = 'http://localhost:3000';
+    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run';
+    //apiURL = 'http://localhost:8080';
 
   selectedFile: File | null = null;
   profilePictureUrl: string | ArrayBuffer | null = null;
@@ -79,11 +79,39 @@ export class ProfilePictureUploadComponent {
       formData.append('profilePicture', this.selectedFile, this.selectedFile.name);
       formData.append('userId', this.partner._id); 
 
-      this.http.post(this.apiURL + `/upload-profile-picture/image/${this.partner._id}`, formData).subscribe(response => {
-        //console.log('Upload successful!', response);
-        // Handle successful upload, e.g., update user profile data
+      this.http.post(this.apiURL + `/image/profile/${this.partner._id}`, formData).subscribe({
+        
+        
+        next: (response: any) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              location.reload();
+            }
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
+          Swal.fire({
+            position: "bottom",
+            icon: 'error',
+            text: errorMessage,
+            showConfirmButton: false,
+            timer: 4000
+          });  
+        }
 
-        Swal.fire({
+
+        /* Swal.fire({
           position: "bottom",
           icon: 'success',
           text: 'Your profile image has been updated successfully',
@@ -105,7 +133,7 @@ export class ProfilePictureUploadComponent {
           text: 'Server error occured, please try again',
           showConfirmButton: false,
           timer: 4000
-        })
+        }) */
       });
     }
   }

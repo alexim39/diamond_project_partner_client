@@ -16,7 +16,7 @@ import { MyPartnersService } from '../my-partners.service';
       *ngIf="myPartner" 
         [myPartner]="myPartner"
        [myPartnerPartners]="myPartnerPartners"
-    ></async-my-partner-support>
+    />
   </ng-container>
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
@@ -58,7 +58,7 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/my-partners');
+    this.router.navigateByUrl('dashboard/mentorship/partners/my-partners');
   }
 
   ngOnInit(): void {
@@ -67,24 +67,22 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
       if (this.myPartnerId !== null) {
         // Fetch partner details using the ID
         this.subscriptions.push(
-          this.myPartnersService.getPartnerById(this.myPartnerId).subscribe(partner => {
+          this.myPartnersService.getPartnerById(this.myPartnerId).subscribe({
+            next: (partner) => {
             //console.log(partner.data)
             this.myPartner = partner.data;
 
             // Get this partner's downlines/partner
-            this.myPartnersService.getPartnersOf(partner.data._id).subscribe(partnerPartners => {
-              //console.log(partnerPartners.data)
-              this.myPartnerPartners = partnerPartners.data;
-
-              //console.log(partnersPartner)
-  
-              // Get this partner's downlines/partner
-              //console.log(this.myPartner)
+            this.myPartnersService.getPartnersOf(partner.data._id).subscribe({
+              next: (partnerPartners) => {
+                this.myPartnerPartners = partnerPartners.data;
+              }
             })
-
-          }, error => {
+          }, 
+          error: () => {
             this.isEmptyRecord = true;
-          })
+          }
+        })
         )
       }
     });
@@ -92,9 +90,7 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   /*  browserBackHistory () {

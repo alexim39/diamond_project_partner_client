@@ -118,12 +118,9 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
 
   back(): void {
     //this.router.navigateByUrl('dashboard/my-partners');
-    this.router.navigate(['/dashboard/support-partner', this.myPartner._id]);
+    this.router.navigate(['/dashboard/mentorship/partners/my-partners', this.myPartner._id]);
   }
 
- /*  applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  } */
 
   applyNameFilter(filterValue: string) {
     const filterValues = {
@@ -208,7 +205,7 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
     } else {
       // export contacts
       this.exportContactAndEmailService.setData(this.getSelectedPhoneNumbers());
-      this.router.navigate(['/dashboard/send-sms']); // redirect to bulk sms page
+      this.router.navigate(['/dashboard/tools/sms/new']); // redirect to bulk sms page
     }
   }  
 
@@ -225,13 +222,13 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
     } else {
       // export contacts
       this.exportContactAndEmailService.setData(this.getSelectedEmailAddresses());
-      this.router.navigate(['/dashboard/send-email']); // redirect to bulk email page
+      this.router.navigate(['/dashboard/tools/email/new']); // redirect to bulk email page
     }
   }  
 
 
   preview(id: string) {
-    this.router.navigate(['/dashboard/my-partner-contact-detail', id]);
+    this.router.navigate(['/dashboard/mentorship/partners/my-partners/contact-detail', id]);
   }
 
   showDescription() {
@@ -247,9 +244,7 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   getTotalContacts(): number {

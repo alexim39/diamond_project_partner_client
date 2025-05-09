@@ -5,7 +5,7 @@ import { Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MyPartnersComponent } from './my-partners.component';
 import { MyPartnersService } from './my-partners.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,6 +17,11 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
 @Component({
     selector: 'async-my-partners-container',
     template: `
+
+
+    <router-outlet></router-outlet>
+
+
     <ng-container *ngIf="!isEmptyRecord">
       <async-my-partners
         *ngIf="partner && myPartners"
@@ -75,7 +80,7 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
     `,
     ],
     providers: [MyPartnersService],
-    imports: [CommonModule, MyPartnersComponent, MatButtonModule, MatIconModule]
+    imports: [CommonModule, MyPartnersComponent, MatButtonModule, MatIconModule, RouterModule]
 })
 export class MyPartnersContainerComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
@@ -105,20 +110,19 @@ export class MyPartnersContainerComponent implements OnInit, OnDestroy {
    */
   private loadPartnerData(): void {
     this.partnerService.getSharedPartnerData$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (partnerObject) => {
-          this.partner = partnerObject as PartnerInterface;
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;;
           if (this.partner) {
             this.fetchMyPartners(this.partner._id);
           } else {
             this.isEmptyRecord = true;
           }
         },
-        () => {
+        error: () => {
           this.isEmptyRecord = true;
         }
-      );
+      });
   }
 
   /**
@@ -126,16 +130,15 @@ export class MyPartnersContainerComponent implements OnInit, OnDestroy {
    */
   private fetchMyPartners(partnerId: string): void {
     this.myPartnersService.getPartnersOf(partnerId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (myPartners) => {
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: (myPartners) => {
           this.myPartners = myPartners;
           this.isEmptyRecord = myPartners.length === 0;
         },
-        () => {
+        error: () => {
           this.isEmptyRecord = true;
         }
-      );
+    });
   }
 
   /**

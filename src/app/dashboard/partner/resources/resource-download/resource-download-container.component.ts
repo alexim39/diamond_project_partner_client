@@ -11,7 +11,7 @@ import { ResourceDownloadComponent } from './resource-download.component';
 @Component({
     selector: 'async-resource-download-container',
     template: `
-    <async-resource-download *ngIf="partner" [partner]="partner"></async-resource-download>
+    <async-resource-download *ngIf="partner" [partner]="partner"/>
   `,
     providers: [],
     imports: [MatIconModule, CommonModule, ResourceDownloadComponent]
@@ -29,31 +29,17 @@ export class ResourceDownloadContainerComponent implements OnInit, OnDestroy {
 
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-            /*  this.productService.getAllProducts().subscribe((productsObject: ProductObjectInterface) => {
-               this.productsObject = productsObject;
-               //console.log('product ',productsObject)
-             }) */
-          }
-        },
-
-        error => {
-          console.log(error)
-          // redirect to home page
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
 }

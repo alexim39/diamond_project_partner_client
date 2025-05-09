@@ -31,6 +31,7 @@
           <a mat-list-item  routerLink="tools/campaigns/manage" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Manage Campaigns"> - Manage</a>
           <a mat-list-item  routerLink="tools/campaigns/analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Campaign Analytics"> - Analytics</a>
           <a mat-list-item  routerLink="tools/campaigns/link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Unique Link Analytics"> - Unique Link</a>
+          <a mat-list-item  routerLink="tools/campaigns/share" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Share Unique Link on Social Media"> - Share Link</a>
         </div>
         
         <a mat-list-item (click)="toggleSubSubmenu('tools-sms')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">SMS Services</a>
@@ -143,12 +144,12 @@
       <a mat-list-item (click)="toggleSubmenu('help')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>help</mat-icon> 
-          <span> Help & Feedback</span>
+          <span> Support</span>
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('help') ? 'open' : 'closed'" class="submenu">
         
-        <a mat-list-item routerLink="submit-ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Submit a Ticket">
+        <a mat-list-item routerLink="support/ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Submit a Ticket">
           Submit a Ticket
         </a>
       </div>
@@ -177,9 +178,9 @@
       <a mat-button [matMenuTriggerFor]="admin" *ngIf="partner?.role=='admin'">
         <mat-icon>admin_panel_settings</mat-icon>  Administrator
       </a>
-      <a mat-button [matMenuTriggerFor]="manage_accounts">
+     <!--  <a mat-button [matMenuTriggerFor]="manage_accounts">
         <mat-icon>manage_accounts</mat-icon>  User profile
-      </a>
+      </a> -->
       <a mat-button [matMenuTriggerFor]="notifications">
         <mat-icon>notifications</mat-icon> Notification
       </a>
@@ -193,9 +194,9 @@
     <a mat-button [matMenuTriggerFor]="admin" *ngIf="partner?.role=='admin'">
       <mat-icon>admin_panel_settings</mat-icon>  Administrator
     </a>
-    <a mat-button [matMenuTriggerFor]="manage_accounts">
+   <!--  <a mat-button [matMenuTriggerFor]="manage_accounts">
       <mat-icon>manage_accounts</mat-icon>  User profile
-    </a>
+    </a> -->
     <a mat-button [matMenuTriggerFor]="notifications">
       <mat-icon>notifications</mat-icon> Notification
     </a>
@@ -217,10 +218,10 @@
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>paid</mat-icon> Approve Withdrawal Request</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> See New Product Orders</a>
 </mat-menu>
-<mat-menu #manage_accounts="matMenu">
+<!-- <mat-menu #manage_accounts="matMenu">
   <a mat-menu-item routerLink="settings/profiles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
   <a mat-menu-item routerLink="prospect-invite" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> Prospect invitation</a>
-</mat-menu>
+</mat-menu> -->
 <mat-menu #notifications="matMenu">
   <!-- <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>
   <button mat-menu-item><mat-icon>groups</mat-icon> Team members</button>

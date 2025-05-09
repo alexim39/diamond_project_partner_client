@@ -15,30 +15,65 @@ import { CommonModule } from '@angular/common';
  * @title Basic use of the tab group
  */
 @Component({
-    selector: 'async-resource-download',
-    templateUrl: 'resource-download.component.html',
-    styleUrls: ['resource-download.component.scss'],
-    imports: [MatTabsModule, MatIconModule, CommonModule, TextDownloadComponent, ImageDownloadComponent, VideoDownloadComponent]
+selector: 'async-resource-download',
+template: `
+
+<section class="async-background ">
+  <h2>Resource Templates Downloads <mat-icon (click)="showDescription()">help</mat-icon></h2>
+
+  <section class="async-container">
+    
+    <mat-tab-group>
+      <mat-tab label="Download Text Contents"> 
+        <async-text-download *ngIf="partner" [partner]="partner"/>
+      </mat-tab>
+      <mat-tab label="Download Image Contents (Banners/Flyers)">
+        <async-image-download *ngIf="partner" [partner]="partner"/>
+      </mat-tab>
+      <mat-tab label="Download Video Contents">
+        <async-video-download/>
+      </mat-tab>
+    </mat-tab-group>
+
+  </section>
+</section>
+
+`,
+styles: [`
+
+.async-background {
+  margin: 2em;
+  .async-container {
+      //background-color: #dcdbdb;
+      border-radius: 1%;
+      height: 100%;
+      padding: 1em;
+      mat-tab-group {
+          background-color: white;
+          border-radius: 10px;
+      }
+  }
+  mat-icon {
+    cursor: pointer;
+  }
+}
+
+`],
+imports: [MatTabsModule, MatIconModule, CommonModule, TextDownloadComponent, ImageDownloadComponent, VideoDownloadComponent]
 })
 export class ResourceDownloadComponent {
   @Input() partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
   readonly dialog = inject(MatDialog);
 
-  constructor() { }
+  showDescription () {
+    this.dialog.open(HelpDialogComponent, {
+      data: {help: 'In this section, you can download text, image and video templates for promoting your link on any digital platform'},
+    });
+  }
 
-  ngOnInit() {}
-
-    showDescription () {
-      this.dialog.open(HelpDialogComponent, {
-        data: {help: 'In this section, you can download text, image and video templates for promoting your link on any digital platform'},
-      });
-    }
-  
-    ngOnDestroy() {
-      // unsubscribe list
-      this.subscriptions.forEach(subscription => {
-        subscription.unsubscribe();
-      });
-    }
+  ngOnDestroy() {
+    // unsubscribe list
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
 }

@@ -50,7 +50,7 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
 
 
   back(): void {
-    this.router.navigateByUrl('dashboard/my-partners');
+    this.router.navigateByUrl('dashboard/mentorship/partners/my-partners');
   }
 
 
@@ -62,16 +62,12 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
 
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           //console.log(this.partner)
-        },
-        error => {
-          console.log(error)
-          // redirect to home page
         }
-      )
+  })
     )
   }
 
@@ -79,7 +75,7 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
     //console.log(myPartnerId)
 
     //this.router.navigateByUrl('dashboard/edit-contacts', );
-    this.router.navigate(['/dashboard/my-partners-contacts', myPartnerId]);
+    this.router.navigate(['/dashboard/mentorship/partners/my-partners/contacts', myPartnerId]);
   }
 
   // Scroll to top when clicked

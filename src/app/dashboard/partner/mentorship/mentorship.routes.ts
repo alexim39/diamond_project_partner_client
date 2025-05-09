@@ -5,6 +5,9 @@ import { ManageTeamContainerComponent } from './team/manage-team/manage-team-con
 import { MyPartnersContainerComponent } from './my-partners/my-partners-container.component';
 import { TeamSupportContainerComponent } from './team/manage-team/support/support-container.component';
 import { EditTeamContainerComponent } from './team/edit-team/edit-team-container.component';
+import { MyPartnerSupportContainerComponent } from './my-partners/support/support-container.component';
+import { MyPartnersContactsContainerComponent } from './my-partners/contacts/contacts-container.component';
+import { MyPartnerContactsDetailContainerComponent } from './my-partners/contacts/details/contacts-detail-container.component';
 
 export const MentorshipRoutes: Routes = [
   {
@@ -53,8 +56,30 @@ export const MentorshipRoutes: Routes = [
             children: [
                 {
                     path: 'my-partners',
-                    component: MyPartnersContainerComponent,
-                    title: "My Partners - Manage partners listing",
+                    //redirectTo: 'new-request',
+                    //pathMatch: 'full',
+                    children: [
+                        {
+                            path: '',
+                            component: MyPartnersContainerComponent,
+                            title: "My Partners - Manage partners listing",
+                        },
+                        {
+                            path: 'contacts/:id',
+                            component: MyPartnersContactsContainerComponent,
+                            title: "Partner Support - View details & support partner",
+                        }, 
+                        {
+                            path: 'contact-detail/:id',
+                            component: MyPartnerContactsDetailContainerComponent,
+                            title: "Partner Prospect Details - View and manage your partner prospect details",
+                        },
+                        {
+                            path: 'detail/:id',
+                            component: MyPartnerSupportContainerComponent,
+                            title: "My Partners Support - Manage partners listing",
+                        },
+                    ]
                 },    
             ]
             
