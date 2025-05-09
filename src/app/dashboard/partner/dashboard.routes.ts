@@ -7,7 +7,6 @@ import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-me
 import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
 import { SubmitTicketContainerComponent } from "./help-feedback/submit-ticket/submit-ticket-container.component";
 import { CheckoutComponent } from "./products/checkout/checkout.component";
-import { EditTeamContainerComponent } from "./mentorship/team/edit-team/edit-team-container.component";
 import { BookSessionContainerComponent } from "./contacts/book-session/book-session-container.component";
 import { MyPartnerSupportContainerComponent } from "./mentorship/my-partners/support/support-container.component";
 import { MyPartnersContactsContainerComponent } from "./mentorship/my-partners/contacts/contacts-container.component";

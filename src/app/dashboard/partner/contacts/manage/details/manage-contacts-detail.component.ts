@@ -38,7 +38,7 @@ import { SMSService } from '../../../sms/sms.service';
         MatIconModule, MatButtonModule,
         MatDividerModule, MatListModule, CommonModule
     ],
-    providers: [ContactsService , SMSService]
+    providers: [ContactsService , SMSService, SMSGatewaysService]
 })
 export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
@@ -79,8 +79,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
   }
 
   
-  ngOnInit(): void { 
-    
+  ngOnInit(): void {     
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
     }
@@ -111,24 +110,28 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push(
       this.contactsService.updateProspectStatus(obj).subscribe({
-        next: (prospectStatus: ContactsInterface) => {
+        next: (response) => {
           Swal.fire({
             position: "bottom",
             icon: 'success',
-            text: `Your have successfully updated prospect status`,
+            text: response.message,
             showConfirmButton: true,
+            timer: 10000,
             confirmButtonColor: "#ffab40",
-            timer: 15000,
           })
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
           Swal.fire({
             position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
+            icon: 'error',
+            text: errorMessage,
             showConfirmButton: false,
             timer: 4000
-          })
+          });  
         }
       })
     )
@@ -193,7 +196,32 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
         this.subscriptions.push(
           this.contactsService.deleteProspect(this.prospectData._id ).subscribe({
-            next: (prospect: ContactsInterface) => {
+
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message,
+                showConfirmButton: true,
+                timer: 10000,
+                confirmButtonColor: "#ffab40",
+              });
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
+              }
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
+
+           /*  next: (prospect: ContactsInterface) => {
               Swal.fire({
                 position: "bottom",
                 icon: 'success',
@@ -215,7 +243,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
                 showConfirmButton: false,
                 timer: 4000
               })
-            }
+            } */
           })
         )
 
@@ -371,8 +399,33 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push(
 
-      this.contactsService.sendProspectEmail(emailObject).subscribe(  
-        response => {  
+      this.contactsService.sendProspectEmail(emailObject).subscribe( {
+
+        next: (response) => {
+          Swal.fire({
+            position: "bottom",
+            icon: 'success',
+            text: response.message,
+            showConfirmButton: true,
+            timer: 10000,
+            confirmButtonColor: "#ffab40",
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message; // Use backend's error message if available.
+          }
+          Swal.fire({
+            position: "bottom",
+            icon: 'error',
+            text: errorMessage,
+            showConfirmButton: false,
+            timer: 4000
+          });  
+        }
+        
+        /* response => {  
           //console.log('SMS sent successfully:', response);  
           Swal.fire({
             position: "bottom",
@@ -391,8 +444,8 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
             showConfirmButton: false,
             timer: 4000
           })
-        }  
-      )
+        } */  
+    } )
 
     );
   }

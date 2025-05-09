@@ -34,25 +34,25 @@ styles: `
   
   <mat-list-item>
     <span matListItemTitle>Prospect phone number:</span>
-    <span matListItemLine class="bolder">{{data.prospectPhone}}</span>
+    <span matListItemLine class="bolder">{{data.prospectPhone ? data.prospectPhone : 'No phone number found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect email address:</span>
-    <span matListItemLine class="bolder">{{data.prospectEmail}}</span>
+    <span matListItemLine class="bolder">{{data.prospectEmail ? data.prospectEmail : 'No email address found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect age range:</span>
-    <span matListItemLine class="bolder">{{data.survey.ageRange}}</span>
+    <span matListItemLine class="bolder">{{data.survey.ageRange ? data.survey.ageRange : 'No age range record'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect knew about us through:</span>
-    <span matListItemLine class="bolder">{{data.survey.referral}}</span>
+    <span matListItemLine class="bolder">{{data.survey.referral ? data.survey.referral : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
@@ -65,43 +65,43 @@ styles: `
 
   <mat-list-item>
     <span matListItemTitle>Prospect favourite social media platforms:</span>
-    <span matListItemLine class="bolder">{{data.survey.socialMedia}}</span>
+    <span matListItemLine class="bolder">{{data.survey.socialMedia ? data.survey.socialMedia : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect online purchase frequency:</span>
-    <span matListItemLine class="bolder">{{data.survey.onlinePurchaseSchedule}}</span>
+    <span matListItemLine class="bolder">{{data.survey.onlinePurchaseSchedule ? data.survey.onlinePurchaseSchedule : 'No record found'}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect motivation for joining online businesses:</span>
-    <span matListItemLine class="bolder">{{data.survey.primaryOnlineBusinessMotivation | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.survey.primaryOnlineBusinessMotivation ? (data.survey.primaryOnlineBusinessMotivation | titlecase) : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect Importance of passive income:</span>
-    <span matListItemLine class="bolder">{{data.survey.importanceOfPassiveIncome | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.survey.importanceOfPassiveIncome ? (data.survey.importanceOfPassiveIncome | titlecase) : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
   
   <mat-list-item>
     <span matListItemTitle>Prospect employment status:</span>
-    <span matListItemLine class="bolder">{{data.survey.employedStatus | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.survey.employedStatus ? (data.survey.employedStatus | titlecase) : 'No employment status found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect comfort with technology:</span>
-    <span matListItemLine class="bolder">{{data.survey.comfortWithTech}}</span>
+    <span matListItemLine class="bolder">{{data.survey.comfortWithTech ? data.survey.comfortWithTech : 'No record found'}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Business time dedication:</span>
-    <span matListItemLine class="bolder">{{data.survey.onlineBusinessTimeDedication}}</span>
+    <span matListItemLine class="bolder">{{data.survey.onlineBusinessTimeDedication ? data.survey.onlineBusinessTimeDedication : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
