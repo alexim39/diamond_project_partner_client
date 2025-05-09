@@ -27,7 +27,7 @@ import { Location } from '@angular/common';
     selector: 'async-my-partner-contacts-detail',
     templateUrl: 'contacts-detail.component.html',
     styleUrls: ['contacts-detail.component.scss'],
-    providers: [ContactsService],
+    providers: [ContactsService, SMSGatewaysService],
     imports: [
         MatCheckboxModule,
         FormsModule,

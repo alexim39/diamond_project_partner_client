@@ -38,13 +38,13 @@ styles: `
 
   <mat-list-item>
     <span matListItemTitle>Prospect age range:</span>
-    <span matListItemLine class="bolder">{{data.prospect.ageRange}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.ageRange ? data.prospect.ageRange : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect knew about us through:</span>
-    <span matListItemLine class="bolder">{{data.prospect.referral}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.referral ? data.prospect.referral : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
@@ -57,43 +57,43 @@ styles: `
 
   <mat-list-item>
     <span matListItemTitle>Prospect favourite social media platforms:</span>
-    <span matListItemLine class="bolder">{{data.prospect.socialMedia}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.socialMedia ? data.prospect.socialMedia : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect online purchase frequency:</span>
-    <span matListItemLine class="bolder">{{data.prospect.onlinePurchaseSchedule}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.onlinePurchaseSchedule ? data.prospect.onlinePurchaseSchedule : 'No record found'}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect motivation for joining online businesses:</span>
-    <span matListItemLine class="bolder">{{data.prospect.primaryOnlineBusinessMotivation | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.primaryOnlineBusinessMotivation ? (data.prospect.primaryOnlineBusinessMotivation | titlecase) : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect Importance of passive income:</span>
-    <span matListItemLine class="bolder">{{data.prospect.importanceOfPassiveIncome | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.importanceOfPassiveIncome ? (data.prospect.importanceOfPassiveIncome | titlecase) : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
   
   <mat-list-item>
     <span matListItemTitle>Prospect employment status:</span>
-    <span matListItemLine class="bolder">{{data.prospect.employedStatus | titlecase}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.employedStatus ? (data.prospect.employedStatus | titlecase) : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Prospect comfort with technology:</span>
-    <span matListItemLine class="bolder">{{data.prospect.comfortWithTech}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.comfortWithTech ? data.prospect.comfortWithTech : 'No record found'}}</span>
   </mat-list-item>
 <mat-divider></mat-divider>
 
   <mat-list-item>
     <span matListItemTitle>Business time dedication:</span>
-    <span matListItemLine class="bolder">{{data.prospect.onlineBusinessTimeDedication}}</span>
+    <span matListItemLine class="bolder">{{data.prospect.onlineBusinessTimeDedication ? data.prospect.onlineBusinessTimeDedication : 'No record found'}}</span>
   </mat-list-item>
   <mat-divider></mat-divider>
 

@@ -11,7 +11,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { PartnerInterface, } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { ProfileService } from '../profile.service';
+import { ProfileService } from '../../profile/profile.service';
 import Swal from 'sweetalert2';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';

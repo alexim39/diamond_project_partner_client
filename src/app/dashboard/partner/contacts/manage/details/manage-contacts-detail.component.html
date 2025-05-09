@@ -45,21 +45,46 @@
                         </div>
                         <mat-divider></mat-divider>
 
-                        <div class="list" *ngIf="prospectData.preapproachDownload">
+                        <div class="list">
+                            <h5> Age Range</h5>
+                            <span class="data">{{prospectData.survey.ageRange ? prospectData.survey.ageRange : 'No age range' }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+                        <div class="list">
+                            <h5> Prospect Source</h5>
+                            <span class="data">{{prospectData.survey.referral ? (prospectData.survey.referral | titlecase) : 'No source' }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+                        <div class="list">
+                            <h5> Employment Status</h5>
+                            <span class="data">{{prospectData.survey.employedStatus ? (prospectData.survey.employedStatus | titlecase) : 'Unavailable' }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+                        <div class="list">
+                            <h5> Prospect Origin</h5>
+                            <span class="data">{{prospectData.survey.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{prospectData.survey.country | titlecase }} </span>
+                        </div>
+                        <mat-divider></mat-divider>
+
+
+                       <!--  <div class="list" *ngIf="prospectData.preapproachDownload">
                             <h5> Pre-approach Downloaded </h5>
                             <span class="data"><em>Note that prospect downloaded the pre-approach document</em></span>
                             <mat-divider style="margin-top: 1em;"></mat-divider>
-                        </div>
+                        </div> -->
                     
                         <div class="list">
                             <h5> Created Date </h5>
-                            <span class="data">{{prospectData.createdAt | date}} </span>
+                            <span class="data">{{prospectData.createdAt | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
                         </div>
                         <mat-divider></mat-divider>
                         
                         <div class="list">
                             <h5> Modified Date </h5>
-                            <span class="data">{{prospectData.updatedAt | date}} </span>
+                            <span class="data">{{prospectData.updatedAt | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
                         </div>
                       
                 </article> 

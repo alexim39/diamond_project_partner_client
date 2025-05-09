@@ -17,7 +17,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { PartnerAuthService } from '../../auth/auth.service';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 type SubmenuKey = 'tools' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training';
 
@@ -100,7 +99,7 @@ mat-sidenav-content {
 providers: [PartnerService, PartnerAuthService],
 imports: [
         MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
-        MatTooltipModule
+        
     ],
     animations: [
       trigger('submenuToggle', [

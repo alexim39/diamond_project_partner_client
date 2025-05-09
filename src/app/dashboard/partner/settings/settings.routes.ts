@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ProfileMrgContainerComponent } from '../profile/profile-mgr/profile-mgr-container.component';
+import { ProfileMrgContainerComponent } from './profile-mgr/profile-mgr-container.component';
 import { LandingPageSettingContainerComponent } from './Landing-page/Landing-page-container.component';
 import { BillingContainerComponent } from '../billing/billing-container.component';
 
