@@ -1,3 +1,30 @@
+import { Component, inject, Input, OnInit, signal} from '@angular/core';
+import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { MatDialog } from '@angular/material/dialog';
+import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
+import { TicketService } from './submit-ticket.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import {MatSelectModule} from '@angular/material/select';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
+import Swal from 'sweetalert2';
+import { HttpErrorResponse } from '@angular/common/http';
+
+/**
+ * @title Mentors Program
+ */
+@Component({
+selector: 'async-submit-ticket',
+template: `
+
 <section class="async-background ">
     <h2>Help & Feedback <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
@@ -14,7 +41,6 @@
 
             </div>
         </div>
-
 
         <div class="form-container">
             <form class="flex-form" [formGroup]="ticketForm" (ngSubmit)="onSubmit()">
@@ -104,8 +130,158 @@
             </form>
         </div>
 
-
-        
     </section>
     
 </section>
+
+`,
+styles: [`
+
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 10px;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .action-area {
+                .action {
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }       
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+    }
+}
+
+
+.form-container {
+    margin-top: 1em;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    .flex-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        .form-group {
+            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
+            display: flex;
+            flex-direction: column;
+        }    
+    }
+}
+
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+
+`],
+providers: [TicketService],
+imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
+})
+export class SubmitTicketComponent implements OnInit {
+  readonly panelOpenState = signal(false);
+  
+    @Input() partner!: PartnerInterface;
+    readonly dialog = inject(MatDialog);
+
+    ticketForm!: FormGroup;
+    subscriptions: Array<Subscription> = [];
+
+    constructor(
+     private ticketService: TicketService,
+      private router: Router,
+    ) {}
+
+
+    ngOnInit(): void {
+       // console.log(this.partner)
+
+        if (this.partner) {
+          this.ticketForm = new FormGroup({
+            subject: new FormControl('', Validators.required),
+            description: new FormControl('', Validators.required),
+            date: new FormControl('', Validators.required),
+            category: new FormControl('', Validators.required),
+            priority: new FormControl('', Validators.required),
+            comment: new FormControl(''),
+            partnerId: new FormControl(this.partner._id),
+          });
+        }
+    }
+
+    onSubmit() {
+      const ticketObject = this.ticketForm.value;
+
+      if (this.ticketForm.valid) {
+        this.subscriptions.push(
+          this.ticketService.submitTicket(ticketObject).subscribe({
+            next: (response) => {
+              Swal.fire({
+                position: "bottom",
+                icon: 'success',
+                text: response.message, //'Your ticket has been submited successfully, we will revert as soon as possible with updates.',
+                showConfirmButton: true,
+                confirmButtonColor: "#ffab40",
+                timer: 10000,
+              })
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message; // Use backend's error message if available.
+              }
+              Swal.fire({
+                position: "bottom",
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000
+              });  
+            }
+          })
+        )
+      }
+    }
+
+    showDescription () {
+      this.dialog.open(HelpDialogComponent, {
+        data: {help: `
+          Contact the application administrator for assistance, feedback, and suggestions for improvement.
+
+          <p>Feel free to share any challenges you encounter while using the app, along with any suggestions for improvements or features you would like to see added.</p>
+        `},
+      });
+    }
+
+    ngOnDestroy() {
+      // unsubscribe list
+      this.subscriptions.forEach(subscription =>  subscription.unsubscribe());
+    }
+}

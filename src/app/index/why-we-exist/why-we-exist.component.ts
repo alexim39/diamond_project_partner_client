@@ -23,7 +23,7 @@ import { CommonModule } from '@angular/common';
         <span>
           <strong>Grow Your Business: </strong>
           <p>
-            Efficiently grow your network, connect with prospects, nurture relationships, and stay connected with partners/members. Watch your network flourish.
+            Efficiently grow your network, connect with prospects, nurture relationships, and stay connected with partners/members. Watch your network grow.
           </p>
         </span>
 
@@ -36,11 +36,7 @@ import { CommonModule } from '@angular/common';
 
       </div>
 
-     
-
-
       <h1>Manage, Promote and Grow your business with Diamond Project Online Platform, any time and day</h1>
-
 
       <a mat-flat-button color="primary" routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
     </aside>

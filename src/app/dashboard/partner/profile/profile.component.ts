@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
-import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
+import { PartnerInterface } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
 
 /**
@@ -86,8 +86,8 @@ imports: [MatButtonModule, CommonModule]
 })
 export class ProfileComponent implements OnInit {
     // Define API
-    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-    //apiURL = 'http://localhost:3000';
+    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run';
+    //apiURL = 'http://localhost:8080';
 
   @Input() partner!: PartnerInterface;
 
@@ -95,8 +95,6 @@ export class ProfileComponent implements OnInit {
   twitter = ''
   linkedin = ''
   facebook = ''
-
-  constructor( ) {  }
 
   ngOnInit() {
     //console.log(this.partner)

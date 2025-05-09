@@ -72,16 +72,7 @@ export class MyPartnerContactsDetailContainerComponent implements OnInit, OnDest
                 this.isEmptyRecord = true;
               }
             })
-          )
-
-           // Fetch partner details using the ID
-          /* this.subscriptions.push(
-            this.myPartnersService.getPartnerById(this.myPartnerId).subscribe(partner => {
-              this.myPartner = partner.data;
-              console.log('the partner', this.myPartner)
-            })
-          ) */
-          
+          )          
         }
       });
   }

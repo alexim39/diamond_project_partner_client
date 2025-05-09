@@ -16,7 +16,7 @@ import { MyPartnersService } from '../my-partners.service';
     imports: [CommonModule, MyPartnersContactsComponent],
     providers: [ContactsService, MyPartnersService],
     template: `
-  <async-my-partners-contatcs *ngIf="partner && partnerContacts && myPartner" [partner]="partner" [partnerContacts]="partnerContacts" [myPartner]="myPartner"></async-my-partners-contatcs>
+  <async-my-partners-contatcs *ngIf="partner && partnerContacts && myPartner" [partner]="partner" [partnerContacts]="partnerContacts" [myPartner]="myPartner"/>
   `
 })
 export class MyPartnersContactsContainerComponent implements OnInit, OnDestroy {
@@ -44,54 +44,45 @@ export class MyPartnersContactsContainerComponent implements OnInit, OnDestroy {
       if (this.myPartnerId) {
         // Fetch prospect details using the ID
         this.subscriptions.push(
-          this.contactsService.getContctsCreatedBy(this.myPartnerId).subscribe((partnerContacts: any) => {
-            this.partnerContacts = partnerContacts;
-            //console.log('prospectContact ',partnerContacts)
-          }, (error) => {
-            this.isEmptyRecord = true;
+          this.contactsService.getContctsCreatedBy(this.myPartnerId).subscribe({
+            
+            next: (partnerContacts: any) => {
+              this.partnerContacts = partnerContacts;
+            }, 
+              error: (error) => {
+                this.isEmptyRecord = true;
+              }
           })
         );
 
 
         // Fetch partner details using the ID
         this.subscriptions.push(
-          this.myPartnersService.getPartnerById(this.myPartnerId).subscribe(partner => {
-            this.myPartner = partner.data;
-            //console.log('the partner', this.myPartner)
+          this.myPartnersService.getPartnerById(this.myPartnerId).subscribe({
+            
+            next: (partner) => {
+              this.myPartner = partner.data;
+            }
           })
         )
-
-              
       }
     });
 
      // get current signed in user
      this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+      this.partnerService.getSharedPartnerData$.subscribe({
        
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-         /*  if (this.partner) {
-            this.contactsService.getContctsCreatedBy(this.partner._id).subscribe((prospectContact: ContactsInterface) => {
-              this.prospectContact = prospectContact;
-              //console.log('prospectContact ',prospectContact)
-            })
-          } */
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
+    
+      })
     )
     
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
