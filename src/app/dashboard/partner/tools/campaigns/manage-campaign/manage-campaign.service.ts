@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { ApiService } from '../../../../../_common/services/api.service';
 
 export interface CampaignInterface {
     message: string;
@@ -21,52 +20,17 @@ export interface CampaignInterface {
 
 @Injectable()
 export class CampaignService {
-  // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
-
-
-  constructor(private http: HttpClient) {}
-  /*========================================
-    CRUD Methods for consuming RESTful API
-  =========================================*/
-  // Http Options
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  // Error handling
-  private handleError(error: any) {
-    let errorMessage: {code: string, message: string};
-    if (error.error instanceof ErrorEvent) {
-      // Get client-side error
-      errorMessage = error.error.message;
-    } else {
-      // Get server-side error
-      errorMessage = {'code': error.status, 'message': error.message};
-    }
-    //window.alert(errorMessage);
-    return throwError(() => {
-      return errorMessage;
-    });
-  }
+  constructor(private apiService: ApiService) {}
 
 
   // get campaigns createdby
-  getCampaignCreatedBy(id: string): Observable<CampaignInterface> {
-    return this.http
-      .get<CampaignInterface>(this.apiURL + `/campaign/all-createdBy/${id}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  getCampaignCreatedBy(id: string): Observable<any> {
+      return this.apiService.get<CampaignInterface>(`campaign/all-createdBy/${id}`, undefined, undefined, true);
   }
 
   // get campaign by id
-  getCampaignById(id: string): Observable<CampaignInterface> {
-    //console.log('id',id)
-    return this.http
-      .get<CampaignInterface>(this.apiURL + `/campaign/${id}`, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
+  getCampaignById(id: string): Observable<any> {
+       return this.apiService.get<CampaignInterface>(`campaign/${id}`, undefined, undefined, true);
   }
    
 }
