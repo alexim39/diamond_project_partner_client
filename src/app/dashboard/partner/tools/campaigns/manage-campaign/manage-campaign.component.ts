@@ -16,10 +16,59 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
  * @title Manage Campaign
  */
 @Component({
-    selector: 'async-manage-campaign',
-    templateUrl: 'manage-campaign.component.html',
-    styleUrl: 'manage-campaign.component.scss',
-    imports: [MatSliderModule, CommonModule, MatPaginatorModule, MatInputModule, MatFormFieldModule, RouterModule, FormsModule, MatButtonModule, MatIconModule, MatTableModule]
+selector: 'async-manage-campaign',
+templateUrl: 'manage-campaign.component.html',
+styles: `
+
+
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .action-area {
+                .action {
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            //display: flex;
+            //flex-direction: center;
+            text-align: center;
+            mat-form-field {
+                width: 70%;
+
+            }
+        }
+
+        .table {
+            padding: 0 1em;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+    }
+}
+
+
+`,
+imports: [MatSliderModule, CommonModule, MatPaginatorModule, MatInputModule, MatFormFieldModule, RouterModule, FormsModule, MatButtonModule, MatIconModule, MatTableModule]
 })
 export class ManageCampaignComponent implements OnInit {
 
@@ -80,6 +129,6 @@ export class ManageCampaignComponent implements OnInit {
   }
 
   preview(id: string) {
-    this.router.navigate(['/dashboard/campaign-detail', id]);
+    this.router.navigate(['/dashboard/tools/campaigns/detail', id]);
   }
 }
