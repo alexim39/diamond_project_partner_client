@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
   selector: 'async-manage-contacts-analytics-container',
   template: `
   <ng-container *ngIf="!isEmptyRecord">
-    <async-manage-contacts-analytics *ngIf="prospect" [prospect]="prospect"></async-manage-contacts-analytics>
+    <async-manage-contacts-analytics *ngIf="prospect" [prospect]="prospect"/>
   </ng-container>
     <ng-container *ngIf="isEmptyRecord">
         <div class="container">
