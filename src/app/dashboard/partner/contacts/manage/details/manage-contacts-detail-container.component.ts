@@ -8,8 +8,8 @@ import { ContactsInterface, ContactsService } from '../../contacts.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'async-manage-contacts-detail-container',
-    template: `
+selector: 'async-manage-contacts-detail-container',
+template: `
   <ng-container *ngIf="!isEmptyRecord">
     <async-manage-contacts-detail *ngIf="prospect" [prospect]="prospect"/>
   </ng-container>
@@ -20,8 +20,8 @@ import { Subscription } from 'rxjs';
         </div>
     </ng-container>
   `,
-    providers: [ContactsService],
-    imports: [ManageContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
+providers: [ContactsService],
+imports: [ManageContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
 styles: `
   .container {
     padding: 2em;
@@ -51,7 +51,8 @@ export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy
   ) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-contacts');
+    //this.router.navigateByUrl('dashboard/tools/contacts/list');
+    window.history.back(); 
   }
 
   ngOnInit(): void {
@@ -63,13 +64,9 @@ export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy
             this.contactsService.getProspectById(this.prospectId).subscribe({
               next: (prospect) => {
                 this.prospect = prospect;
-              },
-              error: () => {
-                this.isEmptyRecord = true;
               }
             })
           )
-          
         }
       });
   }
@@ -78,8 +75,4 @@ export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy
     // unsubscribe list
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
-
- /*  browserBackHistory () {
-    window.history.back();  
-  } */
 }

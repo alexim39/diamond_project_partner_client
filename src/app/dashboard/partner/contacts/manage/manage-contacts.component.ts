@@ -24,11 +24,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-    selector: 'async-manage-contatcs',
-    templateUrl: 'manage-contacts.component.html',
-    styleUrls: ['manage-contacts.component.scss', 'manage-contacts.mobile.scss'],
-    providers: [ContactsService],
-    imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+selector: 'async-manage-contatcs',
+templateUrl: 'manage-contacts.component.html',
+styleUrls: ['manage-contacts.component.scss'],
+providers: [ContactsService],
+imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatTooltipModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule, MatChipsModule]
 })
 export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit {

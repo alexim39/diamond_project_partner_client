@@ -1,78 +1,148 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Component,  Input, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router } from '@angular/router';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatListModule} from '@angular/material/list';
 import { CommonModule } from '@angular/common';
-import {MatButtonModule} from '@angular/material/button';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
-import Swal from 'sweetalert2';
-import { MatDialog } from '@angular/material/dialog';
-import { CollectCodeComponent } from './collect-code.component';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
-import { MatSnackBar } from '@angular/material/snack-bar';  
 import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
-import { ProspectListInterface } from '../../../prospects/prospects.service';
-import { ProspectResponseComponent } from '../../../prospects/general-prospect-list/prospect-response.component';
-import { HttpErrorResponse } from '@angular/common/http';
 import { SMSService } from '../../../sms/sms.service';
+import { ProspectBasicInformationComponent } from './basic-info-panel/basic-info-panel.component';
+import { ProspectStatusInformationComponent } from './status-info-panel/status-info-panel.component';
+import { ProspectActionsComponent } from './actions-panel/actions-panel.component';
+import { ProspectEmailPanelComponent } from './email-panel/email-panel.component';
+import { ProspectSMSComponent } from './sms-panel/sms-panel.component';
+import { Router } from '@angular/router';
+
 
 /** @title Prospect details */
 @Component({
-    selector: 'async-manage-contacts-detail',
-    templateUrl: 'manage-contacts-detail.component.html',
-    styleUrls: ['manage-contacts-detail.component.scss'],
-    imports: [
-        MatCheckboxModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatInputModule,
-        MatIconModule, MatButtonModule,
-        MatDividerModule, MatListModule, CommonModule
-    ],
-    providers: [ContactsService , SMSService, SMSGatewaysService]
+selector: 'async-manage-contacts-detail',
+template: `
+
+<section class="async-background">
+    <h2>Prospect Contact Details</h2>
+
+    <section class="async-container">
+        <div class="title">
+            <div class="control">
+                <div class="back" (click)="back()" title="Back">
+                    <mat-icon>arrow_back</mat-icon>
+                </div>
+            </div>
+            <h3>{{prospectData.prospectSurname | titlecase}} {{prospectData.prospectName | titlecase}}'s Details</h3>
+        </div>
+            <section class="flex-container">  
+                <async-prospect-basic-info-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
+                <async-prospect-status-info-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
+                <async-prospect-actions-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
+                <async-prospect-email-panel class="flex-item" *ngIf="prospect && partner " [prospect]="prospect" [partner]="partner"/>
+                <async-prospect-sms-panel class="flex-item" *ngIf="prospect && partner " [prospect]="prospect" [partner]="partner"/>
+            </section>
+    </section>
+</section>
+
+`,
+styles: [`
+
+.async-background {
+    margin: 2em;
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 1%;
+        height: 100%;
+        padding: 1em;
+
+        .title {
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .control {
+                display: flex;
+                justify-content: space-between;
+                .back {
+                    cursor: pointer;
+                }
+                .back:hover {
+                    cursor: pointer;
+                    opacity: 0.5;
+    
+                }
+            }
+
+           
+            h3 {
+                margin-top: 1em; 
+            }
+        }
+    }
+}
+
+
+.flex-container {  
+    display: flex;  
+    flex-wrap: wrap; /* Allow items to wrap to the next line */  
+    justify-content: space-around; /* Distribute space around items */  
+    padding: 40px; /* Add padding around the container */  
+    background-color: #ffffff; /* White background for each article */  
+    border-radius: 10px;
+    .flex-item {  
+      flex: 1 1 20em; /* Allow flex items to grow and shrink with a minimum width of 200px */  
+      min-width: 20em; /* Maximum width for articles */  
+      max-width: 40em; /* Maximum width for articles */  
+      margin: 15px; /* Add space around items */  
+      padding: 15px; /* Padding inside articles */  
+      border: 1px solid #ddd; /* Light gray border */  
+      border-radius: 8px; /* Rounded corners */  
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */  
+      transition: transform 0.2s; /* Transition effect for hover */  
+      &:hover {  
+          transform: translateY(-5px); /* Lift effect on hover */  
+      }  
+
+  }  
+
+}  
+
+/* Media Queries for Responsiveness */  
+@media (max-width: 600px) {  
+    section.flex-container {  
+        justify-content: center; /* Center content on small screens */  
+    }  
+
+    article.flex-item {  
+        flex-basis: 100%; /* Full width for items on small screens */  
+        max-width: none; /* Remove max-width restriction */  
+    }  
+}  
+
+@media (min-width: 601px) and (max-width: 900px) {  
+    article.flex-item {  
+        flex-basis: calc(50% - 30px); /* Two items per row on medium screens */  
+    }  
+}
+
+`],
+imports: [
+  CommonModule, MatIconModule,
+  ProspectBasicInformationComponent, ProspectStatusInformationComponent, ProspectActionsComponent, ProspectEmailPanelComponent, ProspectSMSComponent
+],
+providers: [ContactsService , SMSService, SMSGatewaysService]
 })
 export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   @Input() prospect!: ContactsInterface;
   prospectData!: any; 
-  duration!: null | number;
 
-  selectedStatus: string; 
-  remark: string; 
-  sms: string; 
-  emailBody: string; 
-  emailSubject: string; 
-  readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
 
-  
   constructor(
     private router: Router, 
-    private route: ActivatedRoute,
-    private contactsService: ContactsService,
-    private smsService: SMSService,
     private partnerService: PartnerService,
-    private snackBar: MatSnackBar,
-    private smsGatewayService: SMSGatewaysService
-  ) {
-     // You can initialize selectedStatus if needed  
-     this.selectedStatus = ''; // Default value or nothing 
-     this.remark = ''; // Default value or nothing 
-     this.sms = ``; // Default value or nothing 
-     this.emailBody = ''; // Default value or nothing 
-     this.emailSubject = ''; // Default value or nothing 
-  }
-
+  ) {}
 
   back(): void {
     this.router.navigateByUrl('dashboard/tools/contacts/list');
@@ -87,432 +157,14 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe({
-        next: (partnerObject) => {
-          this.partner = partnerObject as PartnerInterface
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
           //console.log(this.partner)
         }
       })
     )
 
    }
-
-   updateProspectStatus() {
-    const obj = {status: this.selectedStatus, prospectId: this.prospectData._id } 
-    if (!obj.status) {
-      Swal.fire({
-        position: "bottom",
-        icon: 'info',
-        text: 'You should select a status before updating!',
-        showConfirmButton: false,
-        timer: 4000
-      })
-      return;
-    }
-    this.subscriptions.push(
-      this.contactsService.updateProspectStatus(obj).subscribe({
-        next: (response) => {
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: response.message,
-            showConfirmButton: true,
-            timer: 10000,
-            confirmButtonColor: "#ffab40",
-          })
-        },
-        error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
-          Swal.fire({
-            position: "bottom",
-            icon: 'error',
-            text: errorMessage,
-            showConfirmButton: false,
-            timer: 4000
-          });  
-        }
-      })
-    )
-   }
-
-   updateProspectRemark() {
-
-    const obj = {remark: this.remark, prospectId: this.prospectData._id } 
-    if (!obj.remark) {
-      Swal.fire({
-        position: "bottom",
-        icon: 'info',
-        text: 'You should enter new remark before updating!',
-        showConfirmButton: false,
-        timer: 4000
-      })
-      return;
-    }
-
-    this.subscriptions.push(
-      this.contactsService.updateProspectRemark(obj).subscribe({
-        next: (response) => {
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: response.message,
-            showConfirmButton: true,
-            timer: 10000,
-            confirmButtonColor: "#ffab40",
-          });
-        },
-        error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
-          Swal.fire({
-            position: "bottom",
-            icon: 'error',
-            text: errorMessage,
-            showConfirmButton: false,
-            timer: 4000
-          });  
-        }
-   }))
-
-   }
-
-  deleteProspect() {
-    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
-    Swal.fire({
-      title: `Are you sure of deleting ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}?`,
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.subscriptions.push(
-          this.contactsService.deleteProspect(this.prospectData._id ).subscribe({
-
-            next: (response) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message,
-                showConfirmButton: true,
-                timer: 10000,
-                confirmButtonColor: "#ffab40",
-              });
-            },
-            error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000
-              });  
-            }
-
-           /*  next: (prospect: ContactsInterface) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: `Your have successfully deleted  ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)}`,
-                showConfirmButton: true,
-                confirmButtonColor: "#ffab40",
-                timer: 15000,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  this.router.navigateByUrl('dashboard/tools/contacts/list');
-                }
-              });
-            },
-            error: (error: HttpErrorResponse) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'info',
-                text: 'Server error occured, please and try again',
-                showConfirmButton: false,
-                timer: 4000
-              })
-            } */
-          })
-        )
-
-      }
-    });
-  }
-
-
-
-  promoteProspectToPartner() {
-    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-    //const obj = {prospectId: this.prospectData._id, code: '' } 
-
-    Swal.fire({
-      title: `Is ${capitalizeFirstLetter(this.prospectData.prospectSurname)} ${capitalizeFirstLetter(this.prospectData.prospectName)} now your partner?`,
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, promote!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.dialog.open(CollectCodeComponent, {
-          data: this.prospectData
-        });
-      }
-    });
-  }
-
-  copyLink() {  
-    const link = `www.diamondprojectonline.com/${this.partner.username}`;  
-    navigator.clipboard.writeText(link).then(() => {  
-      this.snackBar.open('Link copied to clipboard!', 'Close', {  
-        duration: 2000,  
-      });  
-    }).catch(err => {  
-      console.error('Failed to copy: ', err);  
-    });  
-  }  
-
-  sendSMS() {
-
-    this.subscriptions.push(
-      this.contactsService.signleSMSCharge(this.partner._id ).subscribe((smsCharge: any) => {
-        //console.log('sms ',smsCharge)
-        const transactionId = smsCharge?.data._id;
-
-        // call sms gateway
-        this.callSMSGate(transactionId)
-  
-      }, (error: any) => {
-        //console.log(error)
-        if (error.code == 401) {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Insufficient balance for transaction, please fund your account.',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        } else {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }
-        
-      })
-    )
-  }  
-
-  private callSMSGate(transactionId: string) {
-
-   this.subscriptions.push(
-
-      this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(  
-        response => {  
-          //console.log('SMS sent successfully:', response);  
-
-          if (response.data.status == 'success') {
-            const smsObject = {
-              partner: this.partner._id, 
-              prospect: this.prospectData.prospectPhone, 
-              smsBody: this.sms,
-              transactionId: transactionId,
-              status: "success"
-            }
-            // record sms to database
-            this.subscriptions.push(
-              this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: 'SMS sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-            )
-          } else {
-            const smsObject = {
-              partner: this.partner._id, 
-              prospect: this.prospectData.prospectPhone, 
-              smsBody: this.sms,
-              transactionId: transactionId,
-              status: "failed"
-            }
-            // record sms to database
-            this.subscriptions.push(
-              this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'info',
-                  text: 'SMS was not sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-            )
-          }
-         
-          
-        },  
-        (error) => {  
-          //console.error('Error sending SMS:', error);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'SMS not sent, there was an error sending SMS',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }  
-      )
-    );
-  }
-
-  sendEmail() {
-    const emailObject = {
-      partner: this.partner, 
-      prospect: this.prospectData, 
-      emailBody: this.emailBody,
-      emailSubject: this.emailSubject
-    }
-    this.subscriptions.push(
-
-      this.contactsService.sendProspectEmail(emailObject).subscribe( {
-
-        next: (response) => {
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: response.message,
-            showConfirmButton: true,
-            timer: 10000,
-            confirmButtonColor: "#ffab40",
-          });
-        },
-        error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
-          Swal.fire({
-            position: "bottom",
-            icon: 'error',
-            text: errorMessage,
-            showConfirmButton: false,
-            timer: 4000
-          });  
-        }
-        
-        /* response => {  
-          //console.log('SMS sent successfully:', response);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: 'Email sent successfully',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        },  
-        error => {  
-          //console.error('Error sending SMS:', error);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Email not sent, there was an error sending SMS',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        } */  
-    } )
-
-    );
-  }
-
-  editProspectDetail() {
-    //this.router.navigateByUrl('dashboard/edit-contacts', );
-    this.router.navigate(['/dashboard/edit-contacts', this.prospectData._id]);
-  }
-
-  bookProspectSession() {
-    //this.router.navigateByUrl('dashboard/edit-contacts', );
-    this.router.navigate(['/dashboard/book-prospect-session', this.prospectData._id]);
-  }
-
-  ViewResponse(prospect: ProspectListInterface) {
-    this.dialog.open(ProspectResponseComponent, {
-      data: prospect
-    });
-  }
-
-  // Move prospect back to survey list
-  moveProspectBackToProspectList(prospectId: string) {
-
-    Swal.fire({
-      title: `Are you sure of moving prospect back to survey list?`,
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, move it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.subscriptions.push(
-          this.contactsService.moveProspectBackToSurveyList(prospectId).subscribe({
-            next: (response) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message, //`Your have successfully updated prospect status`,
-                showConfirmButton: true,
-                confirmButtonColor: "#ffab40",
-                timer: 10000,
-              }).then((result) => {
-                this.router.navigateByUrl('dashboard/manage-contacts', );
-              })
-            },
-            error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000
-              }); 
-            }
-          })
-        )
-
-      }
-    });
-  }
 
   ngOnDestroy() {
     // unsubscribe list

@@ -60,9 +60,12 @@ export class ContactsService {
       return this.apiService.post<ContactsInterface>(`prospect/updateStatus`, formData, undefined, true);
   }
 
-  // update prospect remark
-  updateProspectRemark(formData: {remark: string; prospectId: string}): Observable<ContactsInterface> {
-      return this.apiService.post<ContactsInterface>(`prospect/updateRemark`, formData, undefined, true);
+  /**
+   * Update prospect communications
+   * @param formData - Object containing communication and prospectId
+  */
+  updateProspectCommunications(formData: {communication: string; selectedInterestLevel: string; prospectId: string}): Observable<any> {
+      return this.apiService.post<ContactsInterface>(`prospect/update-communictions`, formData, undefined, true);
   }
 
   // delete prospect 
