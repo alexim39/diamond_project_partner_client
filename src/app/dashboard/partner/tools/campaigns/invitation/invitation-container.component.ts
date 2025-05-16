@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InvitationComponent } from './invitation.component';
-import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
+import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 
 /**

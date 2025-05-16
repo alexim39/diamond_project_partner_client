@@ -26,7 +26,6 @@ export class ProspectService {
 
   // get prospect owned by the partner
   getAllMyProspect(username: string): Observable<ProspectListInterface> {
-    console.log(username)
       return this.apiService.get<ProspectListInterface>(`prospect/my/${username}`, undefined, undefined, true);
   }
 

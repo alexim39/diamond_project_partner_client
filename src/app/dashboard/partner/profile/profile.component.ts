@@ -1,7 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../../_common/services/api.service';
 
 /**
  * @title Profile
@@ -85,9 +86,13 @@ styles: [`
 imports: [MatButtonModule, CommonModule]
 })
 export class ProfileComponent implements OnInit {
-    // Define API
-    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run';
-    //apiURL = 'http://localhost:8080';
+  private api = '';
+
+  constructor(
+      private apiService: ApiService,
+  ){
+    this.api = this.apiService.baseUrl;
+  }
 
   @Input() partner!: PartnerInterface;
 
@@ -99,7 +104,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     //console.log(this.partner)
     if (this.partner.profileImage) {
-      this.profilePictureUrl = this.apiURL + `/uploads/${this.partner.profileImage}`;
+      this.profilePictureUrl = this.api + `/uploads/${this.partner.profileImage}`;
     }
 
     if (this.partner?.facebookPage) {

@@ -10,7 +10,7 @@ import { ManageContactsContainerComponent } from '../contacts/manage/manage-cont
 import { MarketingChannelsComponent } from './campaigns/create-campaign/marketing-channels.component';
 import { ManageCampaignContainerComponent } from './campaigns/manage-campaign/manage-campaign-container.component';
 import { ManageCampaignDetailContainerComponent } from './campaigns/manage-campaign/details/manage-campaign-detail-container.component';
-import { InvitationContainerComponent } from '../profile/invitation/invitation-container.component';
+import { InvitationContainerComponent } from './campaigns/invitation/invitation-container.component';
 
 
 export const ToolsRoutes: Routes = [

@@ -4,7 +4,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatCardModule} from '@angular/material/card';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';

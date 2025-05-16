@@ -26,7 +26,135 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
 selector: 'async-manage-contatcs',
 templateUrl: 'manage-contacts.component.html',
-styleUrls: ['manage-contacts.component.scss'],
+styles: [`
+
+.async-background {
+    margin: 2em;
+    h2 {
+        mat-icon {
+            cursor: pointer;
+        }
+    }
+    .async-container {
+        background-color: #dcdbdb;
+        border-radius: 10px;
+        height: 100%;
+        padding: 1em;
+        .title {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            padding: 1em;
+            .action-area {
+                .action {
+                    font-weight: bold;
+                    margin-top: 1em;
+                }
+            }
+        }
+
+        .search {
+            padding: 0.5em 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            mat-form-field {
+                width: 45%;
+
+            }
+        }  
+        
+        .export-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .table {
+            padding: 0 1em;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .no-campaign {
+            text-align: center;
+            color: rgb(196, 129, 4);
+            font-weight: bold;
+        }
+    }
+}
+
+.form-container {
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    .flex-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        .form-group {
+            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
+            display: flex;
+            flex-direction: column;
+        }    
+    }
+}
+
+
+@media (max-width: 600px) {
+    .form-group {
+        flex: 1 1 100%;
+    }
+}
+
+.partner {  
+    background-color: rgb(213, 248, 213); 
+    text-decoration: line-through; 
+}  
+
+.member {  
+    background-color: rgb(255, 182, 182); 
+    text-decoration: line-through; 
+}
+
+.closing {  
+    background-color: rgb(250, 251, 229); 
+}
+
+.not-interested {  
+    
+    background-color: rgb(249, 223, 223);
+}
+
+.bold-text {
+    font-weight: bolder;
+}
+
+.summary-action {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    .summary-area {
+        display: flex;
+        flex-direction: row;
+        .mat-chip {
+            font-size: 0.8em;
+        }
+        .value {
+            font-weight: bolder;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans';
+            font-size: 1.2em;
+        }
+     
+        
+    }
+}
+
+`],
 providers: [ContactsService],
 imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatTooltipModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule, MatChipsModule]

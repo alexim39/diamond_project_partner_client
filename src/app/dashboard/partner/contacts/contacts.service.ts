@@ -24,6 +24,16 @@ export interface codeData {
   code: string;
 }
   
+export interface Communication {
+  interestLevel: string;
+  date: Date;
+  type: 'call' | 'email' | 'text' | 'zoom' | 'meeting';
+  duration?: number;
+  description: string;
+  topicsDiscussed: string[];
+  prospectId: string;
+  _id?: string;
+}
 
 @Injectable()
 export class ContactsService {
@@ -32,17 +42,17 @@ export class ContactsService {
 
   // contact creatioin
   create(formData: ContactsInterface): Observable<any> {
-      return this.apiService.post<any>(`prospect/create`, formData, undefined, true);
+    return this.apiService.post<any>(`prospect/create`, formData, undefined, true);
   }
 
   // contact creatioin
   update(formData: ContactsInterface): Observable<any> {
-      return this.apiService.put<any>(`prospect/update`, formData, undefined, true);
+    return this.apiService.put<any>(`prospect/update`, formData, undefined, true);
   }
 
   // get contacts createdby
   getContctsCreatedBy(createdBy: string): Observable<any> {
-      return this.apiService.get<ContactsInterface>(`prospect/all-createdBy/${createdBy}`, undefined, undefined, true);
+    return this.apiService.get<ContactsInterface>(`prospect/all-createdBy/${createdBy}`, undefined, undefined, true);
   }
 
   // get contacts createdby
@@ -52,40 +62,32 @@ export class ContactsService {
 
   // get prospect byId
   getProspectById(prospectId: string): Observable<any> {
-      return this.apiService.get<ContactsInterface>(`prospect/getById/${prospectId}`, undefined, undefined, true);
+    return this.apiService.get<ContactsInterface>(`prospect/getById/${prospectId}`, undefined, undefined, true);
   }
 
   // update prospect status
   updateProspectStatus(formData: {status: string; prospectId: string}): Observable<any> {
-      return this.apiService.post<ContactsInterface>(`prospect/updateStatus`, formData, undefined, true);
-  }
-
-  /**
-   * Update prospect communications
-   * @param formData - Object containing communication and prospectId
-  */
-  updateProspectCommunications(formData: {communication: string; selectedInterestLevel: string; prospectId: string}): Observable<any> {
-      return this.apiService.post<ContactsInterface>(`prospect/update-communictions`, formData, undefined, true);
+    return this.apiService.post<{status: string; prospectId: string}>(`prospect/updateStatus`, formData, undefined, true);
   }
 
   // delete prospect 
   deleteProspect(id: string): Observable<any> {
-      return this.apiService.get<ContactsInterface>(`prospect/delete/${id}`, undefined, undefined, true);
+    return this.apiService.get<string>(`prospect/delete/${id}`, undefined, undefined, true);
   }
 
   // promote new prospect 
   promoteProspectToPartner(formData: codeData): Observable<any> {
-      return this.apiService.post<ContactsInterface>(`reservationCode/submit`, formData, undefined, true);
+    return this.apiService.post<ContactsInterface>(`reservationCode/submit`, formData, undefined, true);
   }
 
   // single sms charge
   signleSMSCharge(partnerId: string): Observable<any> {
-      return this.apiService.get<ContactsInterface>(`billing/single-sms-charge/${partnerId}`, undefined, undefined, true);
+    return this.apiService.get<ContactsInterface>(`billing/single-sms-charge/${partnerId}`, undefined, undefined, true);
   }
 
   // send single email
   sendProspectEmail(formData: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<any> {
-      return this.apiService.post<ContactsInterface>(`emails/send-emails`, formData, undefined, true);
+    return this.apiService.post<ContactsInterface>(`emails/send-emails`, formData, undefined, true);
   }
    
   // submit booking
@@ -95,7 +97,20 @@ export class ContactsService {
 
   // move prospect back to survey
   moveProspectBackToSurveyList(prospectId: string): Observable<any> {
-      return this.apiService.get<string>(`prospect/move-back-to-survey/${prospectId}`, undefined, undefined, true);
+    return this.apiService.get<string>(`prospect/move-back-to-survey/${prospectId}`, undefined, undefined, true);
+  }
+
+  /**
+   * Update prospect communications
+   * @param formData - Object containing communication and prospectId
+  */
+  updateProspectCommunications(formData: Communication): Observable<any> {
+    return this.apiService.post<Communication>(`prospect/communications`, formData, undefined, true);
+  }
+
+  // delete prospect communiction
+  deleteCommunictaionEntry(prospectId: string, communicationId: string): Observable<any> {
+    return this.apiService.delete<any>(`prospect/communications/${prospectId}/${communicationId}`, undefined, undefined, true);
   }
 
 }

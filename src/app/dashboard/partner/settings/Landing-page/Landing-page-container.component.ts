@@ -13,7 +13,7 @@ import { LandingPageSettingComponent } from './Landing-page.component';
     imports: [CommonModule, LandingPageSettingComponent],
     providers: [],
     template: `
-  <async-landing-page-setting *ngIf="partner" [partner]="partner"></async-landing-page-setting>
+  <async-landing-page-setting *ngIf="partner" [partner]="partner"/>
   `
 })
 export class LandingPageSettingContainerComponent implements OnInit, OnDestroy {
@@ -31,30 +31,16 @@ export class LandingPageSettingContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-           /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
-              this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
-            }) */
-          }
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
