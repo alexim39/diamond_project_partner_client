@@ -32,42 +32,6 @@ selector: 'async-profile-mgr',
 templateUrl: 'profile-mgr.component.html',
 styles: [`
 
-.async-background {
-    margin: 2em;
-    .async-container {
-        background-color: #dcdbdb;
-        border-radius: 1%;
-        height: 100%;
-        padding: 1em;
-        .title {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
-            .fund-area {
-                .fund {
-                    //display: flex;
-                    font-weight: bold;
-                    margin-top: 1em;
-                }
-            }
-        }
-
-        .search {
-            padding: 0.5em 0;
-            //display: flex;
-            //flex-direction: center;
-            text-align: center;
-            mat-form-field {
-                width: 70%;
-
-            }
-        }
-
-       
-    }
-}
-
 .address-section {
   margin: 0 auto;
   border: 1px solid gray;

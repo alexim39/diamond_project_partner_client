@@ -174,20 +174,27 @@
     </span>
     <span class="nav-spacer"></span>
     
-    <ng-content *ngIf="isDesktop">
-      <a mat-button [matMenuTriggerFor]="admin" *ngIf="partner?.role=='admin'">
-        <mat-icon>admin_panel_settings</mat-icon>  Administrator
-      </a>
-     <!--  <a mat-button [matMenuTriggerFor]="manage_accounts">
-        <mat-icon>manage_accounts</mat-icon>  User profile
-      </a> -->
-      <a mat-button [matMenuTriggerFor]="notifications">
-        <mat-icon>notifications</mat-icon> Notification
-      </a>
-      <a mat-button (click)="signOut()" title="Sign off application">
-        <mat-icon>power_settings_circle</mat-icon> Sign Off
-      </a>
-    </ng-content>
+    @if (isDesktop) {
+      <ng-content>
+        @if (partner?.role === 'admin') {
+          <ng-container>
+            <a mat-button [matMenuTriggerFor]="admin">
+              <mat-icon>admin_panel_settings</mat-icon> Administrator
+            </a>
+          </ng-container>
+        }
+
+      <!--  <a mat-button [matMenuTriggerFor]="manage_accounts">
+          <mat-icon>manage_accounts</mat-icon>  User profile
+        </a> -->
+        <a mat-button [matMenuTriggerFor]="notifications">
+          <mat-icon>notifications</mat-icon> Notification
+        </a>
+        <a mat-button (click)="signOut()" title="Sign off application">
+          <mat-icon>power_settings_circle</mat-icon> Sign Off
+        </a>
+      </ng-content>
+    }
   </mat-toolbar-row>
 
   <mat-toolbar-row *ngIf="isMobile">

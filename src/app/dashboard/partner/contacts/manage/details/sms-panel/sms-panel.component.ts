@@ -111,8 +111,8 @@ export class ProspectSMSComponent implements OnInit {
 
     ngOnInit(): void {     
         if (this.prospect.data) {
-        this.prospectData = this.prospect.data;
-        console.log('propsect', this.prospectData)
+          this.prospectData = this.prospect.data;
+          //console.log('propsect', this.prospectData)
         }
     }
 
