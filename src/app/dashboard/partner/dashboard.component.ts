@@ -17,6 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { PartnerAuthService } from '../../auth/auth.service';
+import { PushNotificationsComponent } from './index/push-notifications/push-notifications.component';
 
 type SubmenuKey = 'tools' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training';
 
@@ -95,29 +96,34 @@ mat-sidenav-content {
 }
 
 
+
+
+
 `],
 providers: [PartnerService, PartnerAuthService],
 imports: [
-        MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, MatListModule, MatIconModule, AsyncPipe, RouterModule, CommonModule, LogoComponent,
-        
-    ],
-    animations: [
-      trigger('submenuToggle', [
-        state('closed', style({
-            height: '0',
-            overflow: 'hidden',
-            opacity: 0,
-        })),
-        state('open', style({
-            height: '*',
-            overflow: 'hidden',
-            opacity: 1,
-        })),
-        transition('closed <=> open', [
-            animate('300ms ease-in-out')
-        ]),
-    ])
-  ]
+    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, 
+    MatListModule, MatIconModule, AsyncPipe, RouterModule, PushNotificationsComponent,
+    CommonModule, LogoComponent,
+    
+],
+animations: [
+  trigger('submenuToggle', [  
+    state('closed', style({
+        height: '0',
+        overflow: 'hidden',
+        opacity: 0,
+    })),
+    state('open', style({
+        height: '*',
+        overflow: 'hidden',
+        opacity: 1,
+    })),
+    transition('closed <=> open', [
+        animate('300ms ease-in-out')
+    ]),
+  ])
+]
 })
 export class DashboardComponent implements OnDestroy {
   private breakpointObserver = inject(BreakpointObserver);
@@ -172,18 +178,18 @@ export class DashboardComponent implements OnDestroy {
     this.isDesktop = this.deviceService.isDesktop();
 
     this.subscriptions.push(
-      this.partnerService.getPartner().subscribe(
-        res => {
-          //console.log('p',res)
-          this.partner = res as PartnerInterface;
-          //Emitters.authEmitter.emit(true);
-          this.partnerService.updatePartnerService(this.partner);
+      this.partnerService.getPartner().subscribe({
+        next: (response) => {
+          if (response.success) {
+            //console.log(response)
+            this.partner = response.data as PartnerInterface ;
+            this.partnerService.updatePartnerService(this.partner);
+          }
         },
-        error => {
-          //Emitters.authEmitter.emit(false);
+        error: () => {
           this.router.navigate(['/']);
         }
-      )
+      })
     );
   }
 
@@ -204,17 +210,17 @@ export class DashboardComponent implements OnDestroy {
   
     // Call backend signOut API
     this.subscriptions.push(
-      this.partnerAuthService.signOut({}).subscribe(
-        () => {
+      this.partnerAuthService.signOut({}).subscribe({
+        next: () => {
           localStorage.removeItem('authToken'); // Remove token from localStorage
           // Navigate to the login page
           this.router.navigate(['/'], { replaceUrl: true });
         },
-        error => {
+        error: (error) => {
           console.error('Error during sign out:', error);
           this.router.navigate(['/'], { replaceUrl: true });
         }
-      )
+      })
     );
   
     this.scrollToTop();

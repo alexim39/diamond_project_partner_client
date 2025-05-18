@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { retry, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 export interface PartnerInterface {
@@ -20,7 +18,7 @@ export interface PartnerInterface {
   visits?: number;
   dobDatePicker?: Date;
   balance?: number;
-  role?: string;
+  role: string;
   profileImage?: string;
   jobTitle?: string;
   educationBackground?: string;
@@ -36,6 +34,9 @@ export interface PartnerInterface {
   facebookPage?: string;
   twitterPage?: string;
   createdAt?: Date;
+  settings?: {
+    notification: string;
+  }
 }
 
 export interface Address {

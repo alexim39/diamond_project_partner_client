@@ -190,6 +190,7 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit(): void {
     if (this.prospectContact.data) {
+      //console.log(this.prospectContact.data)
       this.dataSource.data = this.prospectContact.data.sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });

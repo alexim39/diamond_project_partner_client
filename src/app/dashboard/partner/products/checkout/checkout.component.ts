@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 import Swal from 'sweetalert2';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'async-checkout',
@@ -108,39 +109,34 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
         partnerId: this.partner._id
       }
       this.subscriptions.push(
-        this.productService.checkout(cartObject).subscribe((cat: ProductInterface[]) => {
-          //console.log('prospectContact ',prospectStatus)
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: `Your have successfully ordered your products`,
-            showConfirmButton: true,
-            confirmButtonColor: "#ffab40",
-            timer: 15000,
-          })
+        this.productService.checkout(cartObject).subscribe({
 
-          // clear cart
-          this.clearCart();
-    
-        }, (error: any) => {
-          //console.log(error)
-          if (error.code == 401) {
+          next: (response) => {
+            //clear cart
+            this.clearCart();
+
             Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Insufficient balance for transaction, please fund your account.',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          } else {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please and try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          }
+              position: 'bottom',
+              icon: 'success',
+              text: response.message,
+              showConfirmButton: true,
+              timer: 5000,
+              confirmButtonColor: '#ffab40',
+            });
+          },
+         error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.';
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message;
+              }
+              Swal.fire({
+                position: 'bottom',
+                icon: 'error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4000,
+              });
+            }
         })
       )
   }

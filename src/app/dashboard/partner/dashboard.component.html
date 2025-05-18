@@ -71,7 +71,7 @@
           <a mat-list-item routerLink="prospects/email-list" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Email Subscription List"> - Email List</a>
         </div>
       </div>
-
+      
 
       <a mat-list-item (click)="toggleSubmenu('activities')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
@@ -176,17 +176,13 @@
     
     @if (isDesktop) {
       <ng-content>
-        @if (partner?.role === 'admin') {
+        @if (partner.role === 'admin') {
           <ng-container>
             <a mat-button [matMenuTriggerFor]="admin">
               <mat-icon>admin_panel_settings</mat-icon> Administrator
             </a>
           </ng-container>
         }
-
-      <!--  <a mat-button [matMenuTriggerFor]="manage_accounts">
-          <mat-icon>manage_accounts</mat-icon>  User profile
-        </a> -->
         <a mat-button [matMenuTriggerFor]="notifications">
           <mat-icon>notifications</mat-icon> Notification
         </a>
@@ -197,25 +193,24 @@
     }
   </mat-toolbar-row>
 
-  <mat-toolbar-row *ngIf="isMobile">
-    <a mat-button [matMenuTriggerFor]="admin" *ngIf="partner?.role=='admin'">
-      <mat-icon>admin_panel_settings</mat-icon>  Administrator
-    </a>
-   <!--  <a mat-button [matMenuTriggerFor]="manage_accounts">
-      <mat-icon>manage_accounts</mat-icon>  User profile
-    </a> -->
-    <a mat-button [matMenuTriggerFor]="notifications">
-      <mat-icon>notifications</mat-icon> Notification
-    </a>
-    <a mat-button (click)="signOut()" title="Sign off application">
-      <mat-icon>power_settings_circle</mat-icon> Sign Off
-    </a>
-  </mat-toolbar-row>
-     
+  @if (isMobile) {
+    <mat-toolbar-row>
+      @if (partner.role === 'admin') {
+        <a mat-button [matMenuTriggerFor]="admin">
+          <mat-icon>admin_panel_settings</mat-icon> Administrator
+        </a>
+      }
+      <a mat-button [matMenuTriggerFor]="notifications">
+        <mat-icon>notifications</mat-icon> Notification
+      </a>
+      <a mat-button (click)="signOut()" title="Sign off application">
+        <mat-icon>power_settings_circle</mat-icon> Sign Off
+      </a>
+    </mat-toolbar-row>
+  }
 
-    
-    <!-- Add Content Here -->
-    <router-outlet/>
+  <!-- Add Content Here -->
+  <router-outlet/>
     
   </mat-sidenav-content>
 </mat-sidenav-container>
@@ -230,7 +225,5 @@
   <a mat-menu-item routerLink="prospect-invite" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> Prospect invitation</a>
 </mat-menu> -->
 <mat-menu #notifications="matMenu">
-  <!-- <button mat-menu-item><mat-icon>manage_accounts</mat-icon> Profile manager</button>
-  <button mat-menu-item><mat-icon>groups</mat-icon> Team members</button>
-  <button mat-menu-item><mat-icon>rsvp</mat-icon> Invitation</button> -->
+  <async-push-notifications/>
 </mat-menu>

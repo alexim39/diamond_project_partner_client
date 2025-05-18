@@ -24,7 +24,7 @@ export interface codeData {
   code: string;
 }
   
-export interface Communication {
+export interface CommunicationInterface {
   interestLevel: string;
   date: Date;
   type: 'call' | 'email' | 'text' | 'zoom' | 'meeting';
@@ -66,8 +66,8 @@ export class ContactsService {
   }
 
   // update prospect status
-  updateProspectStatus(formData: {status: string; prospectId: string}): Observable<any> {
-    return this.apiService.post<{status: string; prospectId: string}>(`prospect/updateStatus`, formData, undefined, true);
+  updateProspectStatus(payload: { prospectId: string; status: { name: string; note: string | undefined; paydayDate: Date | undefined; }; }): Observable<any> {
+    return this.apiService.post<{status: {}; prospectId: string}>(`prospect/updateStatus`, payload, undefined, true);
   }
 
   // delete prospect 
@@ -104,8 +104,8 @@ export class ContactsService {
    * Update prospect communications
    * @param formData - Object containing communication and prospectId
   */
-  updateProspectCommunications(formData: Communication): Observable<any> {
-    return this.apiService.post<Communication>(`prospect/communications`, formData, undefined, true);
+  updateProspectCommunications(formData: CommunicationInterface): Observable<any> {
+    return this.apiService.post<CommunicationInterface>(`prospect/communications`, formData, undefined, true);
   }
 
   // delete prospect communiction
