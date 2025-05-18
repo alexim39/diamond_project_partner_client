@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { NotificationsSettingsComponent } from '../notifications/notifications.component';
 
 /**
  * @title Container
@@ -23,7 +24,7 @@ template: `
       <div class="title">
           <h1>Account Profile Manager</h1>
           <div class="fund-area">
-              <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
+            <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
           </div>
       </div>
 
@@ -33,7 +34,7 @@ template: `
         <async-profile-mgr *ngIf="partner" [partner]="partner" />
       </mat-tab>
       <mat-tab label="Notification Settings"> 
-        <p>Notification Management</p>
+        <async-notifications-settings *ngIf="partner" [partner]="partner" />
       </mat-tab>
     </mat-tab-group>
   </section>
@@ -41,7 +42,7 @@ template: `
 
 `,
 providers: [],
-imports: [CommonModule, ProfileMgrComponent, MatTabsModule, MatIconModule, MatButtonModule],
+imports: [CommonModule, ProfileMgrComponent, MatTabsModule, MatIconModule, MatButtonModule, NotificationsSettingsComponent],
 styles: [`
 
 .async-background {
@@ -82,6 +83,8 @@ styles: [`
 `]
 })
 export class ProfileMrgContainerComponent implements OnInit, OnDestroy {
+
+  //partner = signal<PartnerInterface>({});
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];

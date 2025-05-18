@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, Signal, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -115,6 +115,8 @@ imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, 
 export class ProfileMgrComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);
   @Input() partner!: PartnerInterface;
+  //@Input({ required: true}) partner!: Signal<PartnerInterface>;
+
   profileMgrForm!: FormGroup;
   usernameForm!: FormGroup;
   passwordForm!: FormGroup;

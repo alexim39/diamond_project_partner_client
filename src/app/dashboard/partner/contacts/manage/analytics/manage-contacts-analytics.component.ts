@@ -112,9 +112,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
       return;
     }
     this.subscriptions.push(
-      this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
-        // this.prospectContact = prospectContact;
-        //console.log('prospectContact ',prospectStatus)
+      /* this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
         Swal.fire({
           position: "bottom",
           icon: 'success',
@@ -133,7 +131,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
           showConfirmButton: false,
           timer: 4000
         })
-      })
+      }) */
     )
   }
 
