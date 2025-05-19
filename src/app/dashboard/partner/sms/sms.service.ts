@@ -23,7 +23,7 @@ export class SMSService {
   }
 
   // get sms byId
-  getSMSCreatedBy(partnerId: string): Observable<smsInterface> {
+  getSMSCreatedBy(partnerId: string): Observable<any> {
     return this.apiService.get<smsInterface>(`sms/getById/${partnerId}`, undefined, undefined, true);
   }
 

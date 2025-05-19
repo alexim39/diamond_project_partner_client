@@ -73,7 +73,7 @@ imports: [MatSliderModule, CommonModule, MatPaginatorModule, MatInputModule, Mat
 export class ManageCampaignComponent implements OnInit {
 
   @Input() partner!: PartnerInterface;
-  @Input() campaigns!: CampaignInterface;
+  @Input() campaigns!: CampaignInterface[];
   
   dataSource = new MatTableDataSource<any>([]);  
   isEmptyRecord = false;
@@ -89,9 +89,9 @@ export class ManageCampaignComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {  
-    if (this.campaigns.data) {  
+    if (this.campaigns) {  
       //console.log(this.campaigns.data)
-      this.dataSource.data = this.campaigns.data.sort((a, b) => {  
+      this.dataSource.data = this.campaigns.sort((a: any, b: any) => {  
         // Use the getTime() method to compare the Date values  
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();  
       });  
