@@ -183,8 +183,14 @@
             </a>
           </ng-container>
         }
-        <a mat-button [matMenuTriggerFor]="notifications">
+       <!--  <a mat-button [matMenuTriggerFor]="notifications">
           <mat-icon>notifications</mat-icon> Notification
+        </a> -->
+        <a mat-button [matMenuTriggerFor]="notifications">
+          <mat-icon matBadge="{{ notificationCount }}" matBadgeColor="warn" matBadgeHidden="{{ notificationCount === 0 }}">
+            notifications
+          </mat-icon>
+          Notification
         </a>
         <a mat-button (click)="signOut()" title="Sign off application">
           <mat-icon>power_settings_circle</mat-icon> Sign Off
@@ -200,8 +206,11 @@
           <mat-icon>admin_panel_settings</mat-icon> Administrator
         </a>
       }
-      <a mat-button [matMenuTriggerFor]="notifications">
-        <mat-icon>notifications</mat-icon> Notification
+     <a mat-button [matMenuTriggerFor]="notifications">
+        <mat-icon matBadge="{{ notificationCount }}" matBadgeColor="warn" matBadgeHidden="{{ notificationCount === 0 }}">
+          notifications
+        </mat-icon>
+        Notification
       </a>
       <a mat-button (click)="signOut()" title="Sign off application">
         <mat-icon>power_settings_circle</mat-icon> Sign Off
@@ -220,10 +229,12 @@
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>paid</mat-icon> Approve Withdrawal Request</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> See New Product Orders</a>
 </mat-menu>
-<!-- <mat-menu #manage_accounts="matMenu">
-  <a mat-menu-item routerLink="settings/profiles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Profile manager</a>
-  <a mat-menu-item routerLink="prospect-invite" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> Prospect invitation</a>
-</mat-menu> -->
+
 <mat-menu #notifications="matMenu">
-  <async-push-notifications/>
+  <async-push-notifications 
+   *ngIf="partner"
+   [partner]="partner"
+   (notificationCountChange)="updateNotificationCount($event)"
+  />
 </mat-menu>
+W

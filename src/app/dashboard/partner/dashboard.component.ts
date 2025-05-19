@@ -18,6 +18,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { PartnerAuthService } from '../../auth/auth.service';
 import { PushNotificationsComponent } from './index/push-notifications/push-notifications.component';
+import { MatBadgeModule } from '@angular/material/badge';
 
 type SubmenuKey = 'tools' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training';
 
@@ -104,7 +105,7 @@ providers: [PartnerService, PartnerAuthService],
 imports: [
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, 
     MatListModule, MatIconModule, AsyncPipe, RouterModule, PushNotificationsComponent,
-    CommonModule, LogoComponent,
+    CommonModule, LogoComponent, MatBadgeModule
     
 ],
 animations: [
@@ -150,6 +151,14 @@ export class DashboardComponent implements OnDestroy {
 
   partner!: PartnerInterface;
 
+  notificationCount = 0;
+
+  // Value is returned from notification child component
+  updateNotificationCount(count: number) {
+    this.notificationCount = count; // Update the notification count
+    //console.log('Notification count updated:', count);
+  }
+
   constructor(
     private deviceService: DeviceDetectorService,
     private router: Router,
@@ -162,14 +171,6 @@ export class DashboardComponent implements OnDestroy {
         this.isHandset = result.matches;
       })
     )
-
-    /* this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-        this.isLoading = true;
-      } else if (event instanceof NavigationEnd) {
-        this.isLoading = false;
-      }
-    }); */
   }
 
   ngOnInit(): void {

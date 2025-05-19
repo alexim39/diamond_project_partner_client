@@ -1,189 +1,194 @@
-import { Component} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import {MatDividerModule} from '@angular/material/divider';
+import { MatDividerModule } from '@angular/material/divider';
+import { CommonModule } from '@angular/common';
+import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { Subscription } from 'rxjs';
+import { PushNotificationInterface, PushNotificationService } from './push-notifications.service';
 
 @Component({
-selector: 'async-push-notifications',
-template: `
-    <section class="notification-list">
+  selector: 'async-push-notifications',
+  template: `
+    @if (notifications.length > 0) {
+
+      <section class="notification-list">
       <div class="notification-list__header">
-        <h2 class="notification-list__title">Today's Follow-ups</h2>
+        <h2 class="notification-list__title">Follow-ups Notifications</h2>
       </div>
 
-      <mat-divider class="notification-list__divider"/>
+      <mat-divider class="notification-list__divider" />
 
-      <button mat-menu-item class="notification-item notification-item--urgent">
+      <button mat-menu-item
+              class="notification-item"
+              [class.notification-item--urgent]="notif.urgency"
+              *ngFor="let notif of notifications">
         <div class="notification-item__icon">
-          <mat-icon color="warn">priority_high</mat-icon>
+          <mat-icon [color]="notif.urgency ? 'warn' : undefined">{{ notif.icon }}</mat-icon>
         </div>
         <div class="notification-item__content">
-          <h3 class="notification-item__title">URGENT: Call Rachel Peters</h3>
+          <h3 class="notification-item__title">{{ notif.title }}</h3>
           <p class="notification-item__description">
-            Expressed intent to join yesterday, send registration link
-            <span class="notification-item__tag">Promise made</span>
-          </p>
-        </div>
-        <div class="notification-item__actions"></div>
-      </button>
-
-      <button mat-menu-item class="notification-item">
-        <div class="notification-item__icon">
-          <mat-icon>smart_display</mat-icon>
-        </div>
-        <div class="notification-item__content">
-          <h3 class="notification-item__title">Call Mark Johnson</h3>
-          <p class="notification-item__description">
-            Watched opportunity video 2 days ago
-            <span class="notification-item__tag">75% completion rate</span>
-          </p>
-        </div>
-        <div class="notification-item__actions"></div>
-      </button>
-
-      <button mat-menu-item class="notification-item">
-        <div class="notification-item__icon">
-          <mat-icon>sms</mat-icon>
-        </div>
-        <div class="notification-item__content">
-          <h3 class="notification-item__title">Text Susan Williams</h3>
-          <p class="notification-item__description">
-            Product samples delivered yesterday
-            <span class="notification-item__tag">Confirmation needed</span>
-          </p>
-        </div>
-        <div class="notification-item__actions"></div>
-      </button>
-
-      <button mat-menu-item class="notification-item">
-        <div class="notification-item__icon">
-          <mat-icon>mail</mat-icon>
-        </div>
-        <div class="notification-item__content">
-          <h3 class="notification-item__title">Email Business Prospects Group</h3>
-          <p class="notification-item__description">
-            7-day follow-up with success story
-            <span class="notification-item__tag">Sequence Step 3</span>
-          </p>
-        </div>
-        <div class="notification-item__actions"></div>
-      </button>
-
-      <button mat-menu-item class="notification-item">
-        <div class="notification-item__icon">
-          <mat-icon>call</mat-icon>
-        </div>
-        <div class="notification-item__content">
-          <h3 class="notification-item__title">Call David Garcia</h3>
-          <p class="notification-item__description">
-            Asked for time to think 5 days ago
-            <span class="notification-item__tag">Decision checkpoint</span>
+            {{ notif.description }}
+            <span class="notification-item__tag">{{ notif.tag }}</span>
           </p>
         </div>
         <div class="notification-item__actions"></div>
       </button>
     </section>
-`,
-imports: [
-    MatIconModule, MatDividerModule
-],
-styles: `
-.notification-list {
-  width: 100%; /* Ensure it takes full width of its container */
-  max-width: 500px; /* Set a reasonable maximum width */
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
 
-  &__header {
-    padding: 16px 20px; /* Slightly more horizontal padding */
-    text-align: left;
-  }
+    } @else {
+      <section class="notification-list">
+        <strong>No notification available yet</strong>
+      </section>
+      
+    }
+  `,
+  styles: [`
+    .notification-list {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      strong {
+        color: orange;
+        margin: 1em;
+        padding: 1em;
+      }
+    }
 
-  &__title {
-    margin: 0;
-    font-size: 1.15rem; /* Slightly smaller, cleaner */
-    font-weight: 600;
-    color: #212121; /* Darker text */
-  }
+    .notification-list__header {
+      padding: 16px 20px;
+      text-align: left;
+    }
 
-  &__divider {
-    margin: 0; /* Ensure no extra spacing */
-  }
+    .notification-list__title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #212121;
+    }
 
-  .notification-item {
-    display: flex;
-    align-items: flex-start;
-    padding: 16px 20px; /* Consistent horizontal padding */
-    text-align: left;
-    white-space: normal;
-    transition: background-color 0.15s ease-in-out;
-    cursor: pointer;
+    .notification-list__divider {
+      margin: 0;
+    }
 
-    &:last-child {
+    .notification-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 16px 20px;
+      text-align: left;
+      white-space: normal;
+      transition: background-color 0.15s ease-in-out;
+      cursor: pointer;
+    }
+
+    .notification-item:last-child {
       border-bottom: none;
     }
 
-    &:hover {
-      background-color: #f5f5f5; /* Slightly darker hover */
+    .notification-item:hover {
+      background-color: #f5f5f5;
     }
 
-    &--urgent {
-      background-color: #ffebee; /* Light red */
-      border-left: 1px solid #c62828; /* Darker, more serious red */
+    .notification-item--urgent {
+      background-color: #ffebee;
+      border-left: 1px solid #c62828;
     }
 
-    &__icon {
-      margin-right: 16px; /* More spacing for better visual separation */
+    .notification-item__icon {
+      margin-right: 16px;
       margin-top: 2px;
-
-      mat-icon {
-        font-size: 22px; /* Slightly larger icons */
-        height: 22px;
-        width: 22px;
-        color: rgba(0, 0, 0, 0.7); /* Darker icons */
-      }
     }
 
-    &__content {
+    .notification-item__icon mat-icon {
+      font-size: 22px;
+      height: 22px;
+      width: 22px;
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    .notification-item__content {
       flex-grow: 1;
     }
 
-    &__title {
-      margin: 0 0 6px 0; /* Slightly more space below title */
+    .notification-item__title {
+      margin: 0 0 6px 0;
       font-size: 1rem;
-      font-weight: 500; /* Slightly lighter font weight */
-      color: #212121; /* Darker text */
-
-      /* Urgent title styling */
-      .notification-item--urgent & {
-        color: #b71c1c; /* Even darker red for urgent title */
-      }
+      font-weight: 500;
+      color: #212121;
     }
 
-    &__description {
-      font-size: 0.875rem; /* Slightly smaller description */
+    .notification-item--urgent .notification-item__title {
+      color: #b71c1c;
+    }
+
+    .notification-item__description {
+      font-size: 0.875rem;
       margin: 0;
-      color: #424242; /* Darker description text */
+      color: #424242;
       line-height: 1.4;
     }
 
-    &__tag {
+    .notification-item__tag {
       display: inline-block;
-      font-size: 0.7rem; /* Slightly smaller tag */
-      color: #1a237e; /* Darker blue */
-      background-color: #e0e0e0; /* Light gray background for tag */
+      font-size: 0.7rem;
+      color: #1a237e;
+      background-color: #e0e0e0;
       padding: 2px 6px;
       border-radius: 4px;
-      margin-top: 6px; /* More space above tag */
+      margin-top: 6px;
     }
 
-    &__actions {
+    .notification-item__actions {
       margin-left: 16px;
-      opacity: 0.8; /* Slightly more visible actions */
-      /* Add styling for action buttons here if needed */
+      opacity: 0.8;
     }
-  }
-}
-`
+  `],
+  imports: [
+    MatIconModule,
+    MatDividerModule,
+    CommonModule
+  ],
+  providers: [PushNotificationService]
 })
-export class PushNotificationsComponent {}
+export class PushNotificationsComponent implements OnInit, OnDestroy {
+  notifications: Array<PushNotificationInterface> = [];
+
+  @Input() partner!: PartnerInterface;
+  subscriptions: Subscription[] = [];
+  noNotifications = false;
+
+  @Output() notificationCountChange = new EventEmitter<number>(); // EventEmitter to send data to parent
+
+
+    constructor(
+      private notifier: PushNotificationService,
+    ) { }
+
+  ngOnInit(): void {
+    this.subscriptions.push(
+      this.notifier.getNotifications(this.partner._id).subscribe({
+          next: (response) => {
+            //console.log(response)
+          if (response.success) {
+            this.notifications = response.data;
+            this.notifyParent();
+
+          }   
+        }
+      })
+    )
+
+  }
+
+   ngOnDestroy() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  private notifyParent() {
+    const count = this.notifications.length; // Example: Sending the count of notifications
+    this.notificationCountChange.emit(count); // Emit the value to the parent
+  }
+  
+}
