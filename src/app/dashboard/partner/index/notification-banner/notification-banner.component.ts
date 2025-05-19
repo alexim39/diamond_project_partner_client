@@ -87,7 +87,7 @@ export class NotificationBannerComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.partner) {
-      this.isState = this.partner.address.state ? true : false;
+      this.isState = this.partner?.address?.state ? true : false;
     }
   }
 

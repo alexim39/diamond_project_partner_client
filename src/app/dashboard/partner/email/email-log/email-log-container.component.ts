@@ -7,27 +7,31 @@ import { EmailLogComponent } from './email-log.component';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 /**
  * @title Email log container
  */
 @Component({
-    selector: 'async-email-log-container',
-    imports: [CommonModule, EmailLogComponent, MatIconModule, MatButtonModule],
-    providers: [EmailService],
-    template: `
-  <ng-container *ngIf="!isEmptyRecord">
-  <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"/>
-  </ng-container>
-  <ng-container *ngIf="isEmptyRecord">
-        <div class="container">
-          <p class="no-content">Something Went Wrong or may be you dont have logs yet!</p>
-          <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-        </div>
-  </ng-container>
+selector: 'async-email-log-container',
+imports: [CommonModule, EmailLogComponent, MatIconModule, MatButtonModule],
+providers: [EmailService],
+template: `
+ @if(isEmptyRecord) {
+    <div class="container">
+      <p class="no-content">
+        <!-- Something Went Wrong or may be you dont have logs yet! -->
+         {{serverErrorMessage}} or Something went wrong
+
+      </p>
+      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
+    </div>
+ } @else {
+    <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"/>
+ }
   `,
-    styles: `
+styles: `
    .container {
      padding: 2em;
      display: flex;
@@ -40,7 +44,7 @@ import { MatButtonModule } from '@angular/material/button';
      font-weight: bold;
    }
     
-   `
+`
 })
 export class EmailLogContainerComponent implements OnInit, OnDestroy {
 
@@ -48,6 +52,7 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   emails!: any;
   isEmptyRecord = false;
+  serverErrorMessage = '';
 
   constructor(
     private partnerService: PartnerService,
@@ -59,27 +64,28 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
       
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(       
-        (partner: PartnerInterface) => {
+      this.partnerService.getSharedPartnerData$.subscribe({    
+        next: (partner: PartnerInterface) => {
           this.partner = partner;
           if (this.partner) {
             //console.log('=',this.partner)
-            this.email.getEmailsCreatedBy(this.partner._id).subscribe({
-              next: (response) => {
-                if (response.success) {
-                  this.emails = response.data;
-                  if (this.emails.length === 0) {
-                    this.isEmptyRecord = true;
-                  }
-                }          
-              },
-              error: () => {
-                this.isEmptyRecord = true;
-              }
-            })
+            this.subscriptions.push(
+              this.email.getEmailsCreatedBy(this.partner._id).subscribe({
+                next: (response) => {
+                  //console.log(response)
+                  if (response.success) {
+                    this.emails = response.data;
+                  }          
+                },
+                error: (error: HttpErrorResponse) => {
+                  this.isEmptyRecord = true;
+                  this.serverErrorMessage = error.error.message;
+                }
+              })
+            )
           }
         }
-      )
+      })
     )
   }  
 

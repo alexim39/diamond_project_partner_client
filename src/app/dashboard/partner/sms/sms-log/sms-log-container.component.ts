@@ -7,6 +7,7 @@ import { SMSLogComponent } from './sms-log.component';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 /**
@@ -17,17 +18,21 @@ import { MatButtonModule } from '@angular/material/button';
     imports: [CommonModule, SMSLogComponent, MatIconModule, MatButtonModule],
     providers: [SMSService],
     template: `
-  <ng-container *ngIf="!isEmptyRecord">
-    <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
-  </ng-container>
-  <ng-container *ngIf="isEmptyRecord">
-        <div class="container">
-          <p class="no-content">Something Went Wrong or may be you dont have logs yet!</p>
-          <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-        </div>
-    </ng-container>
+     @if(isEmptyRecord) {
+      <div class="container">
+        <p class="no-content">
+          <!-- Something Went Wrong or may be you dont have logs yet! -->
+          {{serverErrorMessage}} or Something went wrong
+
+        </p>
+        <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
+      </div>
+     } @else {
+      <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
+     }
+
   `,
-    styles: `
+styles: `
   .container {
     padding: 2em;
     display: flex;
@@ -40,7 +45,7 @@ import { MatButtonModule } from '@angular/material/button';
     font-weight: bold;
   }
    
-  `
+`
 })
 export class smsLogContainerComponent implements OnInit, OnDestroy {
 
@@ -48,6 +53,7 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   smsObject!: any;
   isEmptyRecord = false;
+  serverErrorMessage = '';
 
   constructor(
     private partnerService: PartnerService,
@@ -60,20 +66,26 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe({
-       
         next: (partner: PartnerInterface) => {
           this.partner = partner;
           if (this.partner) {
             //console.log('=',this.partner)
-            this.sms.getSMSCreatedBy(this.partner._id).subscribe((sms: smsInterface) => {
-              this.smsObject = sms;
+           this.subscriptions.push(
+            this.sms.getSMSCreatedBy(this.partner._id).subscribe({
+              //this.smsObject = sms;
+               next: (response) => {
+                if (response.success) {
+                  this.smsObject = response.data;
+                }          
+              },
+              error: (error: HttpErrorResponse) => {
+                this.isEmptyRecord = true;
+                this.serverErrorMessage = error.error.message;
+              }
             })
+           )
           }
-        }, 
-        error: () => {
-          this.isEmptyRecord = true;
         }
-
      })
     )
   }
@@ -85,8 +97,6 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }
