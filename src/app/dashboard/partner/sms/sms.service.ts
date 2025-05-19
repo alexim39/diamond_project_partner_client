@@ -36,7 +36,5 @@ export class SMSService {
   saveSMSRecord(formData: {partner: string, prospect: string | Array<string>, smsBody: string}): Observable<any> {
     return this.apiService.post<any>(`sms/save-sms`, formData, undefined, true);
   }
-
-
    
 }

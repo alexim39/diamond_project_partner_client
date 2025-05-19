@@ -1,6 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
 import { PartnerInterface } from '../../../_common/services/partner.service';
-import { SMSService } from './sms.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../_common/help-dialog.component';
@@ -14,7 +13,6 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 @Component({
 selector: 'async-sms',
 imports: [MatButtonModule, MatIconModule, MatTabsModule, RouterModule, EnterPhoneNumbersComponent, CommonModule, MatButtonToggleModule],
-providers: [SMSService],
 template: `
 
 <section class="breadcrumb-wrapper">
@@ -128,7 +126,6 @@ export class smsComponent {
   readonly dialog = inject(MatDialog);
 
   constructor(
-    private smsService: SMSService,
     private router: Router,
   ) {}
 
