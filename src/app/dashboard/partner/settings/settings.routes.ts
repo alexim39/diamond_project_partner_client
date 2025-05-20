@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ProfileMrgContainerComponent } from './profile-mgr/profile-mgr-container.component';
 import { LandingPageSettingContainerComponent } from './Landing-page/Landing-page-container.component';
 import { BillingContainerComponent } from '../billing/billing-container.component';
+import { PushNotificationListContainerComponent } from './push-notification-list/push-notification-list-container';
 
 export const SettingsRoutes: Routes = [
   {
@@ -25,6 +26,11 @@ export const SettingsRoutes: Routes = [
             path: 'billing',
             component: BillingContainerComponent,
             title: "Billing Settings - Manage your billing information",
+        }, 
+        {
+            path: 'notifications',
+            component: PushNotificationListContainerComponent,
+            title: "All Push Notification List - View all notification list",
         }, 
     ],
   },

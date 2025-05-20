@@ -5,15 +5,17 @@ import { CommonModule } from '@angular/common';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { PushNotificationInterface, PushNotificationService } from './push-notifications.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'async-push-notifications',
   template: `
     @if (notifications.length > 0) {
 
-      <section class="notification-list">
+    <section class="notification-list">
       <div class="notification-list__header">
         <h2 class="notification-list__title">Follow-ups Notifications</h2>
+        <div (click)="listAllNotifications()">View all notifications</div>
       </div>
 
       <mat-divider class="notification-list__divider" />
@@ -44,10 +46,10 @@ import { PushNotificationInterface, PushNotificationService } from './push-notif
     }
   `,
   styles: [`
-    .notification-list {
+  .notification-list {
       width: 100%;
       max-width: 500px;
-      border-radius: 8px;
+      //border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       strong {
@@ -59,7 +61,13 @@ import { PushNotificationInterface, PushNotificationService } from './push-notif
 
     .notification-list__header {
       padding: 16px 20px;
-      text-align: left;
+      text-align: center;
+      div {
+        color: gray;
+        cursor: pointer;
+        font-size: 0.9em;
+        margin-top: 0.5em;
+      }
     }
 
     .notification-list__title {
@@ -71,16 +79,19 @@ import { PushNotificationInterface, PushNotificationService } from './push-notif
 
     .notification-list__divider {
       margin: 0;
+      //padding-top: 0.5em;
+      color: gray;
     }
 
     .notification-item {
       display: flex;
       align-items: flex-start;
-      padding: 16px 20px;
+      padding: 16px 15px;
       text-align: left;
       white-space: normal;
       transition: background-color 0.15s ease-in-out;
       cursor: pointer;
+      border: none;
     }
 
     .notification-item:last-child {
@@ -89,6 +100,7 @@ import { PushNotificationInterface, PushNotificationService } from './push-notif
 
     .notification-item:hover {
       background-color: #f5f5f5;
+      border-radius: 10px;
     }
 
     .notification-item--urgent {
@@ -136,7 +148,7 @@ import { PushNotificationInterface, PushNotificationService } from './push-notif
       color: #1a237e;
       background-color: #e0e0e0;
       padding: 2px 6px;
-      border-radius: 4px;
+      //border-radius: 4px;
       margin-top: 6px;
     }
 
@@ -164,6 +176,7 @@ export class PushNotificationsComponent implements OnInit, OnDestroy {
 
     constructor(
       private notifier: PushNotificationService,
+      private router: Router,
     ) { }
 
   ngOnInit(): void {
@@ -189,6 +202,10 @@ export class PushNotificationsComponent implements OnInit, OnDestroy {
   private notifyParent() {
     const count = this.notifications.length; // Example: Sending the count of notifications
     this.notificationCountChange.emit(count); // Emit the value to the parent
+  }
+
+  listAllNotifications() {
+    this.router.navigateByUrl('dashboard/settings/notifications');
   }
   
 }
