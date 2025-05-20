@@ -24,7 +24,6 @@ export class LandingPageSettingContainerComponent implements OnInit, OnDestroy {
 
   constructor(
     private partnerService: PartnerService,
-    //private campaignService: CampaignService
   ) { }
 
   ngOnInit() {
