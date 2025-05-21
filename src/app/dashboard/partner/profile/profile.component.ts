@@ -3,6 +3,7 @@ import {MatButtonModule} from '@angular/material/button';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../_common/services/api.service';
+import { Router } from '@angular/router';
 
 /**
  * @title Profile
@@ -22,7 +23,7 @@ template: `
     <a [href]="linkedin"  target="_blank"><i class="fa fa-linkedin"></i></a>  
     <a [href]="facebook" target="_blank"><i class="fa fa-facebook"></i></a> 
   </div>
-  <button mat-button>Contact</button>
+  <button (click)="submitTicket()" mat-button>Contact</button>
 </div>
 
 `,
@@ -90,6 +91,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(
       private apiService: ApiService,
+      private router: Router
   ){
     this.api = this.apiService.baseUrl;
   }
@@ -124,5 +126,9 @@ export class ProfileComponent implements OnInit {
     } else {
       this.linkedin = '';
     }
+  }
+
+  submitTicket() {
+    this.router.navigate(['/dashboard/support/ticket'])
   }
 }

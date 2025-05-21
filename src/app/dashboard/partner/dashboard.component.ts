@@ -217,8 +217,8 @@ export class DashboardComponent implements OnDestroy {
           // Navigate to the login page
           this.router.navigate(['/'], { replaceUrl: true });
         },
-        error: (error) => {
-          console.error('Error during sign out:', error);
+        error: () => {
+          //console.error('Error during sign out:', error);
           this.router.navigate(['/'], { replaceUrl: true });
         }
       })

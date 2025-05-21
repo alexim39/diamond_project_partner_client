@@ -8,6 +8,9 @@ export interface PushNotificationInterface {
   icon: string;
   tag: string;
   urgency?: boolean;
+  status: any;
+  communication: any;
+  prospectId: string;
 }
   
 
@@ -18,6 +21,11 @@ export class PushNotificationService {
   // get sms byId
   getNotifications(partnerId: string): Observable<any> {
     return this.apiService.get<any>(`settings/notification/getById/${partnerId}`, undefined, undefined, true);
+  }
+
+  // get sms byId
+  MarkNotificationAsClosed(prospectId: string, notificationId: string): Observable<any> {
+    return this.apiService.get<any>(`settings/notification/delete/${prospectId}/${notificationId}`, undefined, undefined, true);
   }
 
 

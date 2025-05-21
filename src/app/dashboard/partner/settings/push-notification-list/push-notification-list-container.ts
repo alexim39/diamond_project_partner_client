@@ -6,9 +6,6 @@ import { PushNotificationListComponent } from './push-notification-list.componen
 import { PushNotificationInterface, PushNotificationService } from '../../index/push-notifications/push-notifications.service';
 
 
-/**
- * @title Manage comapaing container
- */
 @Component({
     selector: 'async-push-notification-list-container',
     imports: [CommonModule, PushNotificationListComponent],
@@ -35,16 +32,16 @@ export class PushNotificationListContainerComponent implements OnInit, OnDestroy
       this.partnerService.getSharedPartnerData$.subscribe({
         next: (partner: PartnerInterface) => {
           this.partner = partner;
-
-           this.subscriptions.push(
-            this.notifier.getNotifications(this.partner._id).subscribe({
+          if (this.partner) {
+            this.subscriptions.push(
+              this.notifier.getNotifications(this.partner._id).subscribe({
                 next: (response) => {
-                    //console.log(response)
-                    this.notifications = response.data;
+                  //console.log(response)
+                  this.notifications = response.data;
                 }
-            })
+              })
             )
-
+          }
         },
       })    
     )
