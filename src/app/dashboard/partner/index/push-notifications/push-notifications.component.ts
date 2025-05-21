@@ -53,7 +53,7 @@ import { Router } from '@angular/router';
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       strong {
-        color: orange;
+        color: #ffab40;
         margin: 1em;
         padding: 1em;
       }
