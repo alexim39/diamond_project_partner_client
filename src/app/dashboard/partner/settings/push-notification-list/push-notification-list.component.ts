@@ -99,7 +99,7 @@ template: `
           </li>
         </ul>
       } @else {
-        <p>No push notifications available.</p>
+        <p class="no-record">No push notifications available.</p>
       }
     </div>
   </section>
@@ -148,7 +148,7 @@ styles: [`
             }
         }       
 
-        .no-campaign {
+        .no-record {
             text-align: center;
             color: rgb(196, 129, 4);
             font-weight: bold;
