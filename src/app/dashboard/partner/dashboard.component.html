@@ -174,7 +174,7 @@
     </span>
     <span class="nav-spacer"></span>
     
-    @if (isDesktop) {
+    @if (isDesktop && partner) {
       <ng-content>
         @if (partner.role === 'admin') {
           <ng-container>
@@ -183,9 +183,6 @@
             </a>
           </ng-container>
         }
-       <!--  <a mat-button [matMenuTriggerFor]="notifications">
-          <mat-icon>notifications</mat-icon> Notification
-        </a> -->
         <a mat-button [matMenuTriggerFor]="notifications">
           <mat-icon matBadge="{{ notificationCount }}" matBadgeColor="warn" matBadgeHidden="{{ notificationCount === 0 }}">
             notifications
@@ -199,7 +196,7 @@
     }
   </mat-toolbar-row>
 
-  @if (isMobile) {
+  @if (isMobile && partner) {
     <mat-toolbar-row>
       @if (partner.role === 'admin') {
         <a mat-button [matMenuTriggerFor]="admin">

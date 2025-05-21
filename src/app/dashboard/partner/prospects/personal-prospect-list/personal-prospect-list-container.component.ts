@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { MyProspectListComponent } from './my-prospect-list.component';
+import { MyProspectListComponent } from './personal-prospect-list.component';
 import { ProspectService, ProspectListInterface } from '../prospects.service';
 
 

@@ -296,7 +296,7 @@ export class MyProspectListComponent implements OnInit, OnDestroy {
 
   moveToContact(prospectId: string): void {
     Swal.fire({
-      title: "Are you sure of moving prospect to contact list?",
+      title: "Confirm moving prospect to contact list?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",

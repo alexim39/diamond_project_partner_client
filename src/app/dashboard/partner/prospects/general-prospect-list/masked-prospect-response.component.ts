@@ -10,7 +10,6 @@ import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { ProspectService } from '../prospects.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
 
 /**
  * @title Prospect Detail 
@@ -149,17 +148,15 @@ export class MaskedProspectResponseComponent implements OnDestroy {
 
   constructor(
       private prospectService: ProspectService,
-      private router: Router,
   ) {}
 
   close(): void {
     this.dialogRef.close();
-    this.router.navigateByUrl('dashboard/prospect-list');
   }
 
   moveToContact(prospectId: string): void {
     Swal.fire({
-      title: "Are you sure of moving prospect to contact list?",
+      title: "Confirm moving prospect to contact list?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -177,7 +174,7 @@ export class MaskedProspectResponseComponent implements OnDestroy {
               Swal.fire({
                 position: "bottom",
                 icon: 'success',
-                text: response.message,//`Your have successfully moved prospect to contact list`,
+                text: response.message,
                 showConfirmButton: true,
                 confirmButtonColor: "#ffab40",
                 confirmButtonText: "OK",

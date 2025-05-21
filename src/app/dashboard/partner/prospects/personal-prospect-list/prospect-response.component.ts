@@ -153,17 +153,17 @@ styles: `
     imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class ProspectResponseComponent implements OnDestroy {
-    readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);
-    readonly data = inject<any>(MAT_DIALOG_DATA);
-    subscriptions: Array<Subscription> = [];
+  readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);
+  readonly data = inject<any>(MAT_DIALOG_DATA);
+  subscriptions: Array<Subscription> = [];
 
-    constructor(
-       private prospectService: ProspectService,
-    ) {}
+  constructor(
+      private prospectService: ProspectService,
+  ) {}
 
-    close(): void {
-        this.dialogRef.close();
-    }
+  close(): void {
+      this.dialogRef.close();
+  }
 
   /* deleteProspect(prospectId: string) {
     Swal.fire({

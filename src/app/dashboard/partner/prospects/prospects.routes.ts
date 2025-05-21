@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { ProspectListContainerComponent } from './general-prospect-list/prospect-list-container.component';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { EmailListContainerComponent } from './email-list/email-list-container.component';
-import { MyProspectListContainerComponent } from './my-prospect-list/my-prospect-list-container.component';
+import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
 import { ManageContactsDetailContainerComponent } from '../contacts/manage/details/manage-contacts-detail-container.component';
 
 export const ProspectsRoutes: Routes = [
@@ -34,11 +34,11 @@ export const ProspectsRoutes: Routes = [
             component: MyProspectListContainerComponent,
             title: "My Prospects List - View all my prospects",
         },   
-         {
-              path: 'detail/:id',
-              component: ManageContactsDetailContainerComponent,
-              title: "Prospect Details - View and manage your prospect details",
-          },  
+        {
+            path: 'detail/:id',
+            component: ManageContactsDetailContainerComponent,
+            title: "Prospect Details - View and manage your prospect details",
+        },  
               
     ],
   },
