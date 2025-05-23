@@ -16,6 +16,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { Location } from '@angular/common';  
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Contacts
@@ -250,46 +251,38 @@ export class EditContactsComponent implements OnInit, OnDestroy {
           // Redirect to a default route if there's no history  
          this.router.navigate(['/dashboard/tools/contacts/list']);
       }  
-  }
+   }
 
     onSubmit() {
       const prospectObject = this.prospectContactForm.value;
   
       this.subscriptions.push(
-        this.contactsService.update(prospectObject).subscribe((res: any) => {
-  
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: 'Your contact has been updated successfully',
-            showConfirmButton: true,
-            confirmButtonColor: "#ffab40",
-            timer: 15000,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              //this.router.navigate(['/dashboard/prospect-detail', this.prospect?.data?._id]);
-              this.location.back(); // This will take you to the previous page in the history 
-            }
-          });
-  
-        }, (error: any) => {
-          console.log(error)
-          if (error.code == 400) {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Prospect already exists with this phone number or email',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          } else {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
+        this.contactsService.update(prospectObject).subscribe({
+
+        next: (response) => {
+                Swal.fire({
+                    position: "bottom",
+                    icon: 'success',
+                    text: response.message, //`Your have successfully updated prospect status`,
+                    showConfirmButton: true,
+                    confirmButtonColor: "#ffab40",
+                    timer: 10000,
+                }).then((result) => {
+                  this.location.back(); // This will take you to the previous page in the history 
+                })
+        },
+        error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.'; // default error message.
+              if (error.error && error.error.message) {
+                  errorMessage = error.error.message; // Use backend's error message if available.
+              }
+              Swal.fire({
+                  position: "bottom",
+                  icon: 'error',
+                  text: errorMessage,
+                  showConfirmButton: false,
+                  timer: 4000
+              }); 
           }
         })
       )
@@ -311,8 +304,6 @@ export class EditContactsComponent implements OnInit, OnDestroy {
     
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

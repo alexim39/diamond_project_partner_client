@@ -1,11 +1,9 @@
 import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardIndexComponent } from "./index/index.component";
-import { EditContactsContainerComponent } from "./contacts/edit/edit-contacts-container.component";
 import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-meeting-container.component";
 import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
 import { CheckoutComponent } from "./products/checkout/checkout.component";
-import { BookSessionContainerComponent } from "./contacts/book-session/book-session-container.component";
 import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
 import { authGuard } from "./guard.service";
 
@@ -38,19 +36,6 @@ export const dashboardRoutes: Routes = [
             { path: 'prospects', loadChildren: () => import('./prospects/prospects.routes').then(r => r.ProspectsRoutes) }, 
             { path: 'tools', loadChildren: () => import('./tools/tools.routes').then(r => r.ToolsRoutes) }, 
             { path: 'support', loadChildren: () => import('./support/support.routes').then(r => r.SupportRoutes) }, 
-
-
-                
-            {
-                path: 'edit-contacts/:id',
-                component: EditContactsContainerComponent,
-                title: "Edit Contacts Details",
-            },        
-            {
-                path: 'book-prospect-session/:id',
-                component: BookSessionContainerComponent,
-                title: "Book a Prospect Session - Prosepct session booking",
-            },        
                 
                  
             {

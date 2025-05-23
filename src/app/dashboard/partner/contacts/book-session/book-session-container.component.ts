@@ -15,14 +15,13 @@ import { ActivatedRoute, Router } from '@angular/router';
     imports: [CommonModule, BookSessionComponent],
     providers: [ContactsService],
     template: `
-  <async-book-session *ngIf="prospect && partner" [prospect]="prospect"  [partner]="partner"></async-book-session>
+  <async-book-session *ngIf="prospect && partner" [prospect]="prospect"  [partner]="partner"/>
   `
 })
 export class BookSessionContainerComponent implements OnInit, OnDestroy {
 
   prospect!: ContactsInterface;
   prospectId!: string | null;
-  isEmptyRecord = false;
   subscriptions: Subscription[] = [];
   partner!: PartnerInterface;
 
@@ -33,9 +32,6 @@ export class BookSessionContainerComponent implements OnInit, OnDestroy {
     private partnerService: PartnerService,
   ) { }
 
-  back(): void {
-    this.router.navigateByUrl('dashboard/manage-contacts');
-  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -43,45 +39,29 @@ export class BookSessionContainerComponent implements OnInit, OnDestroy {
       if (this.prospectId) {
         // Fetch prospect details using the ID
         this.subscriptions.push(
-          this.contactsService.getProspectById(this.prospectId).subscribe(prospect => {
-            //console.log(prospect)
-            this.prospect = prospect;
-          }, error => {
-            this.isEmptyRecord = true;
+          this.contactsService.getProspectById(this.prospectId).subscribe({
+            next: (response) => {
+              this.prospect = response.data;
+            }
+            
           })
         )
-        
       }
     });
 
     // get current signed in user
     this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          /* if (this.partner) {
-            this.prospectListService.getProspectFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
-              this.prospectList = prospectContact;
-              //console.log('prospectContact ',prospectContact)
-              ///console.log('partner ',this.partner)
-            })
-          } */
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
+      this.partnerService.getSharedPartnerData$.subscribe({
+        next: (partner: PartnerInterface) => {
+          this.partner = partner;
         }
-      )
+      })
     )
   }
 
   ngOnDestroy() {
     // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
 }

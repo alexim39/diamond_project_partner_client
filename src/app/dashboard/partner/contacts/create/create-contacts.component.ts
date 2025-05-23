@@ -223,8 +223,6 @@ export class CreateContactsComponent implements OnInit, OnDestroy {
 
 
     ngOnInit(): void {
-      console.log(this.partner)
-
       if (this.partner) {
         this.prospectContactForm = new FormGroup({
           prospectName: new FormControl('', Validators.required),

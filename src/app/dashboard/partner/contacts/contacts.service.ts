@@ -107,8 +107,8 @@ export class ContactsService {
     return this.apiService.post<ContactsInterface>(`emails/send-emails`, formData, undefined, true);
   }
    
-  // submit booking
-  bookSurvey(formData: any): Observable<any> {
+  // submit booking session
+  bookSession(formData: any): Observable<any> {
       return this.apiService.post<any>(`booking/submit`, formData, undefined, true);
   }
 
