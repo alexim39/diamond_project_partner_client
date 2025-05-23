@@ -30,7 +30,7 @@
                     <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyNameFilter($event)">
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
+               <!--  <mat-form-field appearance="outline">
                     <mat-label>Filter contact by status</mat-label>
                     <mat-select [(value)]="filterStatus" (selectionChange)="applyStatusFilter()">
                         <mat-option  value="">Remove filter</mat-option>
@@ -52,7 +52,66 @@
                         <mat-option  value="Archive">Archive</mat-option>
                         <mat-option  value="Partner">Partner</mat-option>
                     </mat-select>
-                </mat-form-field>
+                </mat-form-field> -->
+
+                      <mat-form-field appearance="outline">
+                        <mat-label>Choose status to update</mat-label>
+                            <mat-select [(value)]="filterStatus" (selectionChange)="applyStatusFilter()">
+                            <mat-option  value="">Remove filter</mat-option>
+
+                            <!-- Initial Stage: New Contact -->
+                            <mat-optgroup label="Initial Contact">
+                            <mat-option value="New Prospect">New Prospect</mat-option>
+                            <mat-option value="Contacted - No Response">Contacted – No Response</mat-option>
+                            <mat-option value="Intro Call Completed">Intro Call Completed</mat-option>
+                            </mat-optgroup>
+
+                            <!-- Follow-Up Sequences -->
+                            <mat-optgroup label="Follow-Up Status">
+                            <mat-option value="Follow-Up Scheduled">Follow-Up Scheduled</mat-option>
+                            <mat-option value="Follow-Up Missed">Follow-Up Missed</mat-option>
+                            <mat-option value="Follow-Up Complete">Follow-Up Complete</mat-option>
+                            </mat-optgroup>
+
+                            <!-- Prospect Behavior -->
+                            <mat-optgroup label="Engagement & Behavior">
+                            <mat-option value="Watched Video (Partial)">Watched Opportunity Video (Partial)</mat-option>
+                            <mat-option value="Watched Video (Full)">Watched Opportunity Video (Full)</mat-option>
+                            <mat-option value="Attended Webinar">Attended Live/Recorded Webinar</mat-option>
+                            <mat-option value="Requested More Info">Requested More Info</mat-option>
+                            <mat-option value="Requested Success Stories">Requested Success Stories</mat-option>
+                            <mat-option value="Sample/Product Received">Sample or Product Received</mat-option>
+                            </mat-optgroup>
+
+                            <!-- Commitments & Promises -->
+                            <mat-optgroup label="Commitments Made">
+                            <mat-option value="Promised to Join">Promised to Join</mat-option>
+                            <mat-option value="Thinking About It">Needs Time to Think</mat-option>
+                            <mat-option value="Will Decide After Event">Decision After Event</mat-option>
+                            <mat-option value="Waiting for Pay Day">Waiting for Pay Day</mat-option>
+                            </mat-optgroup>
+
+                            <!-- Sales Funnel Progression -->
+                            <mat-optgroup label="Sales Funnel Stage">
+                            <mat-option value="Interested">Interested</mat-option>
+                            <mat-option value="Nurturing">Nurturing</mat-option>
+                            <mat-option value="Closing Phase">In Closing Phase</mat-option>
+                            <mat-option value="Booked for Onboarding">Booked for Onboarding</mat-option>
+                            </mat-optgroup>
+
+                            <!-- Final Outcomes -->
+                            <mat-optgroup label="Final Outcome">
+                            <mat-option value="Currently a Member">Currently a Member</mat-option>
+                            <mat-option value="Now a Partner">Now a Partner</mat-option>
+                            <mat-option value="Not Interested">Not Interested</mat-option>
+                            <mat-option value="Disqualified">Disqualified</mat-option>
+                            <mat-option value="Inactive">Inactive</mat-option>
+                            <mat-option value="Needs Re-engagement">Needs Re-engagement</mat-option>
+                            <mat-option value="Archived">Archived</mat-option>
+                            </mat-optgroup>
+
+                        </mat-select>
+                        </mat-form-field>
 
             </div>
 

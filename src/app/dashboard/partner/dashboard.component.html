@@ -148,10 +148,8 @@
         </div>
       </a>
       <div [@submenuToggle]="isSubmenuOpen('help') ? 'open' : 'closed'" class="submenu">
-        
-        <a mat-list-item routerLink="support/ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Submit a Ticket">
-          Submit a Ticket
-        </a>
+        <a mat-list-item routerLink="support/ticket" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Submit a Ticket">Submit a Ticket</a>
+        <a mat-list-item routerLink="support/about/app" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="About Application">About App</a>
       </div>
     
     </mat-nav-list>

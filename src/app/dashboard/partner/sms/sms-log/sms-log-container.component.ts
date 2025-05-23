@@ -2,58 +2,30 @@ import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { smsInterface, SMSService } from '../sms.service';
+import { SMSService } from '../sms.service';
 import { SMSLogComponent } from './sms-log.component';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { HttpErrorResponse } from '@angular/common/http';
 
 
 /**
  * @title cell meeting container
  */
 @Component({
-    selector: 'async-sms-log-container',
-    imports: [CommonModule, SMSLogComponent, MatIconModule, MatButtonModule],
-    providers: [SMSService],
-    template: `
-     @if(isEmptyRecord) {
-      <div class="container">
-        <p class="no-content">
-          <!-- Something Went Wrong or may be you dont have logs yet! -->
-          {{serverErrorMessage}} or Something went wrong
-
-        </p>
-        <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-      </div>
-     } @else {
-      <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
-     }
+  selector: 'async-sms-log-container',
+  imports: [CommonModule, SMSLogComponent, MatIconModule, MatButtonModule],
+  providers: [SMSService],
+  template: `
+     <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
 
   `,
-styles: `
-  .container {
-    padding: 2em;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .no-content {
-    color: rgb(196, 129, 4);
-    font-weight: bold;
-  }
-   
-`
 })
 export class smsLogContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
   smsObject!: any;
-  isEmptyRecord = false;
-  serverErrorMessage = '';
 
   constructor(
     private partnerService: PartnerService,
@@ -72,15 +44,13 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
             //console.log('=',this.partner)
            this.subscriptions.push(
             this.sms.getSMSCreatedBy(this.partner._id).subscribe({
-              //this.smsObject = sms;
                next: (response) => {
-                if (response.success) {
-                  this.smsObject = response.data;
-                }          
+                 if (response.success) {
+                    this.smsObject = response.data;
+                 }
               },
-              error: (error: HttpErrorResponse) => {
-                this.isEmptyRecord = true;
-                this.serverErrorMessage = error.error.message;
+              error: () => {
+                this.smsObject = [];
               }
             })
            )
@@ -91,8 +61,13 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
   }
   
   back(): void {
-    //window.history
-   this.router.navigateByUrl('dashboard/tools/sms/new');
+    if (window.history.length > 1) {
+        //window.history  
+        window.history.back();  
+    } else {  
+      // Redirect to a default route if there's no history  
+      this.router.navigateByUrl('dashboard/tools/sms/new');
+    }  
   }
 
   ngOnDestroy() {

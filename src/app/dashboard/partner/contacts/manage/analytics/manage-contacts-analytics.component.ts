@@ -79,8 +79,8 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     //console.log(this.prospect.data)
-    if (this.prospect.data) {
-      this.prospectData = this.prospect.data;
+    if (this.prospect) {
+      this.prospectData = this.prospect;
     }
 
     // get current signed in user

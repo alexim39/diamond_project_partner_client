@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -159,10 +159,10 @@ providers: [ContactsService],
 imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatTooltipModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule, MatChipsModule]
 })
-export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
-  @Input() prospectContact!: ContactsInterface;
+  @Input() prospectContact: ContactsInterface[] = [];
 
   subscriptions: Array<Subscription> = [];
 
@@ -189,29 +189,35 @@ export class ManageContactsComponent implements OnInit, OnDestroy, AfterViewInit
   ) { }
 
   ngOnInit(): void {
-    if (this.prospectContact.data) {
-      //console.log(this.prospectContact.data)
-      this.dataSource.data = this.prospectContact.data.sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-
-      if (this.dataSource.data.length === 0) {
-        this.isEmptyRecord = true;
-      }
 
      // Calculate daily, weekly, and monthly new contacts
      this.calculateDailyNewContacts();
      this.calculateWeeklyNewContacts();
      this.calculateMonthlyNewContacts();
-    }
+
+    
 
     // Combined filter predicate to filter by name and status
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
+    this.dataSource.filterPredicate = (data: ContactsInterface, filter: string) => {
+      console.log(data)
       const filterValues = JSON.parse(filter);
       const nameMatch = data.prospectName.toLowerCase().includes(filterValues.name.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filterValues.name.toLowerCase());
-      const statusMatch = data.status.toLowerCase().includes(filterValues.status.toLowerCase());
+      const statusMatch = data.status.name.toLowerCase().includes(filterValues.status.name.toLowerCase());
       return nameMatch && statusMatch;
+      //return nameMatch;
     };
+  }
+
+
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['prospectContact'] && this.prospectContact) {
+      this.dataSource.data = this.prospectContact.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      this.isEmptyRecord = this.prospectContact.length === 0;
+    }
   }
 
   private calculateDailyNewContacts() {

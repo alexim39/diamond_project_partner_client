@@ -33,15 +33,17 @@ template: `
     <section class="async-container">
 
         <div class="title">
-            <h3>Send New Email</h3>
-            <div class="action-area">
-                <!-- <a mat-list-item title="Import Numbers from Contact" (click)="importEmailsNumbers()" mat-raised-button><mat-icon>cloud_download</mat-icon>Import Emails from Contact</a> -->
-                <mat-button-toggle-group>
+            <div class="control">
+                <div class="back" (click)="back()" title="Back">
+                    <mat-icon>arrow_back</mat-icon>
+                </div>
+                 <mat-button-toggle-group>
                     <mat-button-toggle routerLink="../../../tools/email/logs" routerLinkActive="active" (click)="scrollToTop()" title="View email list"><mat-icon>mail</mat-icon> Mails</mat-button-toggle>
                     <mat-button-toggle (click)="importEmailsNumbers()" title="Import Emails from contact list"><mat-icon>cloud_download</mat-icon> Import Emails from Contact</mat-button-toggle>
                 </mat-button-toggle-group>
-
             </div>
+            <h3>Send New Email</h3>
+
         </div>
 
 
@@ -64,29 +66,36 @@ template: `
 
 `,
 styles: [`
-
 .async-background {
     margin: 2em;
-    h2 {
-        mat-icon {
-            cursor: pointer;
-        }
-    }
     .async-container {
         background-color: #dcdbdb;
         border-radius: 10px;
         height: 100%;
         padding: 1em;
         .title {
-            display: flex;
-            justify-content: space-between;
             border-bottom: 1px solid #ccc;
             padding: 1em;
-            .action-area {
-                .action {
-                    font-weight: bold;
-                    margin-top: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .control {
+                display: flex;
+                justify-content: space-between;
+                .back {
+                    cursor: pointer;
                 }
+                .back:hover {
+                    cursor: pointer;
+                    opacity: 0.5;
+    
+                }
+            }
+
+           
+            h3 {
+                margin-top: 1em; 
             }
         }
 
@@ -150,5 +159,14 @@ export class EmailComponent{
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+   back(): void {  
+      if (window.history.length > 1) {  
+          window.history.back();  
+      } else {  
+          // Redirect to a default route if there's no history  
+          this.router.navigate(['/dashboard/tools/contacts/list']);
+      }  
+    }
     
 }

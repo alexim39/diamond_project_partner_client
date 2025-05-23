@@ -257,7 +257,7 @@ template: `
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      @if (prospectData.communications.length === 0) {
+      @if (prospectData?.communications?.length === 0) {
 
         <div class="no-communiction">
           <p>
@@ -545,8 +545,8 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {     
-      if (this.prospect.data) {
-        this.prospectData = this.prospect.data;
+      if (this.prospect) {
+        this.prospectData = this.prospect;
         //console.log(this.prospectData)
       }
 

@@ -63,7 +63,7 @@ export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy
           this.subscriptions.push(
             this.contactsService.getProspectById(this.prospectId).subscribe({
               next: (prospect) => {
-                this.prospect = prospect;
+                this.prospect = prospect.data;
               }
             })
           )

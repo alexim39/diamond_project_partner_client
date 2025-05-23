@@ -21,7 +21,7 @@ export class ManageContactsContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
-  prospectContact!: ContactsInterface;
+  prospectContact: ContactsInterface[] = [];
 
   constructor(
     private partnerService: PartnerService,
@@ -36,9 +36,15 @@ export class ManageContactsContainerComponent implements OnInit, OnDestroy {
         next: (partnerObject) => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.contactsService.getContctsCreatedBy(this.partner._id).subscribe((prospectContact: ContactsInterface) => {
-              this.prospectContact = prospectContact;
-              //console.log('prospectContact ',prospectContact)
+            this.contactsService.getContactsCreatedBy(this.partner._id).subscribe({
+              next: (response) => {
+                if (response.success) {
+                  this.prospectContact = response.data;
+                }
+              },
+              error: () => {
+                this.prospectContact = [];
+              }
             })
           }
         }

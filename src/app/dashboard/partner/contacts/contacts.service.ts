@@ -4,7 +4,23 @@ import { PartnerInterface } from '../../../_common/services/partner.service';
 import { ApiService } from '../../../_common/services/api.service';
 
 export interface ContactsInterface {
-  message: string;
+    prospectName: string;
+    prospectSurname: string;
+    prospectEmail: string;
+    prospectPhone: string;
+    prospectSource: string;
+    prospectRemark?: string;
+    createdAt: Date;
+    status: {
+      createdAt: Date;
+      expectedDecisionDate: Date;
+      name: string;
+      note: string;
+      status: string;
+      _id: string;
+    };
+    _id: string;
+ /*  message: string;
   data?: Array<{
     prospectName: string;
     prospectSurname: string;
@@ -15,7 +31,8 @@ export interface ContactsInterface {
     createdAt: Date;
     status: string;
     id: string;
-  }> 
+  }>;
+  success: boolean; */
 }
 
 export interface codeData {
@@ -51,7 +68,7 @@ export class ContactsService {
   }
 
   // get contacts createdby
-  getContctsCreatedBy(createdBy: string): Observable<any> {
+  getContactsCreatedBy(createdBy: string): Observable<any> {
     return this.apiService.get<ContactsInterface>(`prospect/all-createdBy/${createdBy}`, undefined, undefined, true);
   }
 

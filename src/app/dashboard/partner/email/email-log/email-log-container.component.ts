@@ -18,33 +18,9 @@ selector: 'async-email-log-container',
 imports: [CommonModule, EmailLogComponent, MatIconModule, MatButtonModule],
 providers: [EmailService],
 template: `
- @if(isEmptyRecord) {
-    <div class="container">
-      <p class="no-content">
-        <!-- Something Went Wrong or may be you dont have logs yet! -->
-         {{serverErrorMessage}} or Something went wrong
-
-      </p>
-      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-    </div>
- } @else {
-    <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"/>
- }
-  `,
-styles: `
-   .container {
-     padding: 2em;
-     display: flex;
-     flex-direction: column;
-     justify-content: center;
-     align-items: center;
-   }
-   .no-content {
-     color: rgb(196, 129, 4);
-     font-weight: bold;
-   }
-    
-`
+ <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"/>
+`,
+   
 })
 export class EmailLogContainerComponent implements OnInit, OnDestroy {
 
@@ -72,14 +48,12 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
             this.subscriptions.push(
               this.email.getEmailsCreatedBy(this.partner._id).subscribe({
                 next: (response) => {
-                  //console.log(response)
                   if (response.success) {
                     this.emails = response.data;
-                  }          
+                  }
                 },
-                error: (error: HttpErrorResponse) => {
-                  this.isEmptyRecord = true;
-                  this.serverErrorMessage = error.error.message;
+                error: () => {
+                  this.emails = [];
                 }
               })
             )
@@ -89,10 +63,14 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
     )
   }  
 
-    
   back(): void {
-    //window.history
-   this.router.navigateByUrl('dashboard/tools/email/new');
+    if (window.history.length > 1) {
+        //window.history  
+        window.history.back();  
+    } else {  
+      // Redirect to a default route if there's no history  
+      this.router.navigateByUrl('dashboard/tools/email/new');
+    }  
   }
 
   ngOnDestroy() {

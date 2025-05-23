@@ -29,7 +29,7 @@ template: `
                     <mat-icon>arrow_back</mat-icon>
                 </div>
             </div>
-            <h3>{{prospectData.prospectSurname | titlecase}} {{prospectData.prospectName | titlecase}}'s Details</h3>
+            <h3>{{prospect.prospectSurname | titlecase}} {{prospect.prospectName | titlecase}}'s Details</h3>
         </div>
             <section class="flex-container">  
                 <async-prospect-basic-info-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
@@ -134,7 +134,6 @@ providers: [ContactsService , SMSService, SMSGatewaysService]
 export class ManageContactsDetailComponent implements OnInit, OnDestroy {
 
   @Input() prospect!: ContactsInterface;
-  prospectData!: any; 
 
   subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
@@ -149,11 +148,7 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
   }
 
   
-  ngOnInit(): void {     
-    if (this.prospect.data) {
-      this.prospectData = this.prospect.data;
-    }
-
+  ngOnInit(): void { 
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe({
