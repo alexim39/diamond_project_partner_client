@@ -30,12 +30,10 @@ export class CreateContactsContainerComponent implements OnInit, OnDestroy {
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe({
-       
         next: (partner: PartnerInterface) => {
           this.partner = partner;
         },
-        
-    })
+      })
     )
   }
 

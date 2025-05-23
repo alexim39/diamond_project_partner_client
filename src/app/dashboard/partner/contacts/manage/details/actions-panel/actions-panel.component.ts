@@ -168,13 +168,11 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
     }
 
     editProspectDetail() {
-        //this.router.navigateByUrl('dashboard/edit-contacts', );
-        this.router.navigate(['/dashboard/edit-contacts', this.prospectData._id]);
+        this.router.navigate(['/dashboard/prospects/edit', this.prospectData._id]);
     }
 
     bookProspectSession() {
-        //this.router.navigateByUrl('dashboard/edit-contacts', );
-        this.router.navigate(['/dashboard/book-prospect-session', this.prospectData._id]);
+        this.router.navigate(['/dashboard/prospects/booking', this.prospectData._id]);
     }
 
      ViewResponse(prospect: ProspectListInterface) {
@@ -209,21 +207,21 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
                     confirmButtonColor: "#ffab40",
                     timer: 10000,
                 }).then((result) => {
-                    this.router.navigateByUrl('dashboard/manage-contacts', );
+                    this.router.navigateByUrl('dashboard/tools/contacts/list', );
                 })
                 },
                 error: (error: HttpErrorResponse) => {
-                let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                if (error.error && error.error.message) {
-                    errorMessage = error.error.message; // Use backend's error message if available.
-                }
-                Swal.fire({
-                    position: "bottom",
-                    icon: 'error',
-                    text: errorMessage,
-                    showConfirmButton: false,
-                    timer: 4000
-                }); 
+                    let errorMessage = 'Server error occurred, please try again.'; // default error message.
+                    if (error.error && error.error.message) {
+                        errorMessage = error.error.message; // Use backend's error message if available.
+                    }
+                    Swal.fire({
+                        position: "bottom",
+                        icon: 'error',
+                        text: errorMessage,
+                        showConfirmButton: false,
+                        timer: 4000
+                    }); 
                 }
             })
             )

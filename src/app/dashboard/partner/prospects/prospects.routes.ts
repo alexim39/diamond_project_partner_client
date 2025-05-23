@@ -4,6 +4,8 @@ import { ProspectBookingContainerComponent } from './prospect-booking/prospect-b
 import { EmailListContainerComponent } from './email-list/email-list-container.component';
 import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
 import { ManageContactsDetailContainerComponent } from '../contacts/manage/details/manage-contacts-detail-container.component';
+import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
+import { BookSessionContainerComponent } from '../contacts/book-session/book-session-container.component';
 
 export const ProspectsRoutes: Routes = [
   {
@@ -38,6 +40,16 @@ export const ProspectsRoutes: Routes = [
             path: 'detail/:id',
             component: ManageContactsDetailContainerComponent,
             title: "Prospect Details - View and manage your prospect details",
+        }, 
+         {
+            path: 'edit/:id',
+            component: EditContactsContainerComponent,
+            title: "Edit Contacts Details",
+        },  
+         {
+            path: 'booking/:id',
+            component: BookSessionContainerComponent,
+            title: "Book a Prospect Session - Prosepct session booking",
         },  
               
     ],
