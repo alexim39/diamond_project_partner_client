@@ -23,7 +23,7 @@ template:`
 <form (ngSubmit)="onSubmit()" [formGroup]="bulckEmailForm">  
     <mat-form-field appearance="outline" class="sender-id">  
         <mat-label>Email Subject</mat-label>  
-        <input matInput placeholder="Ex. Meeting Request: Join Our Online Strategy Discussion on Diamond Project Mentorship - March 15, 2090" formControlName="emailSubject">  
+        <input matInput placeholder="Eg. Meeting Request: Join Our Online Strategy Discussion - March 15, 2090" formControlName="emailSubject">  
         <mat-error *ngIf="bulckEmailForm.get('emailSubject')?.hasError('required') ">  
             This field is required.  
         </mat-error>   
@@ -59,18 +59,33 @@ form {
     align-items: stretch; /* Ensure the items take full width */  
 
     .sender-id {
-        width: 80%;
+        width: 100%;
     }
-    .email-address {
-        width: 80%;
-        height: 10em;
-        margin-top: 20px; 
+    .email-address { 
+      margin-bottom: 1em;
+      mat-error {
+         color: darkorange;
+         font-weight: bold;
+      }
+        textarea {
+          min-height: 120px;   /* or use height: 120px; */
+          max-height: 300px;
+          width: 100%;         /* or set a fixed width like 400px */
+          //resize: vertical;    /* allow vertical resizing only */
+          font-size: 1rem;
+        }
     }
-    .email-message {
-        width: 80%;
-        height: 15em;
-        margin-top: 20px; 
+    .email-message {; 
+         textarea {
+          min-height: 120px;   /* or use height: 120px; */
+          max-height:800px;
+          width: 100%;         /* or set a fixed width like 400px */
+          //resize: vertical;    /* allow vertical resizing only */
+          font-size: 1rem;
+        }
     }
+
+   
 
     button {
         width: 20em;

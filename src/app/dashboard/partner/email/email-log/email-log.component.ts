@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -39,21 +39,23 @@ template: `
     <section class="async-container">
 
         <div class="title">
+          <div class="control">
+              <div class="back" (click)="back()" title="Back">
+                  <mat-icon>arrow_back</mat-icon>
+              </div>
+              <a mat-list-item routerLink="../../email/new" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button><mat-icon>add</mat-icon>New Emails</a>
+          </div>
             <h3>Email History</h3>
-            <div class="action-area">
-                <a mat-list-item routerLink="../../email/new" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button><mat-icon>add</mat-icon>New Emails</a>
-            </div>
         </div>
 
-
-        <ng-container *ngIf="!isEmptyRecord">
+        @if(!isEmptyRecord) {
 
             <div class="search">
                 <mat-form-field appearance="outline">
                   <mat-label>Filter by email message</mat-label>
                   <input matInput type="search" name="smsFilter" [(ngModel)]="filterText" (input)="filterEmail()" />
                 </mat-form-field>
-              </div>
+            </div>
 
             <div class="table">    
     
@@ -86,15 +88,12 @@ template: `
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openEmailDetailDialog(row)"></tr>
                 </table>
                 <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
-
     
             </div>
-        </ng-container>
-        <ng-container *ngIf="isEmptyRecord">
-            <p class="no-campaign">No record available yet</p>
-        </ng-container>
 
-        
+        } @else {
+          <p class="no-campaign">No record available yet</p>  
+        }        
     </section>
     
 </section>
@@ -104,26 +103,34 @@ styles: [`
 
 .async-background {
     margin: 2em;
-    h2 {
-        mat-icon {
-            cursor: pointer;
-        }
-    }
     .async-container {
         background-color: #dcdbdb;
         border-radius: 10px;
         height: 100%;
         padding: 1em;
         .title {
-            display: flex;
-            justify-content: space-between;
             border-bottom: 1px solid #ccc;
             padding: 1em;
-            .action-area {
-                .action {
-                    font-weight: bold;
-                    margin-top: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .control {
+                display: flex;
+                justify-content: space-between;
+                .back {
+                    cursor: pointer;
                 }
+                .back:hover {
+                    cursor: pointer;
+                    opacity: 0.5;
+    
+                }
+            }
+
+           
+            h3 {
+                margin-top: 1em; 
             }
         }
 
@@ -134,13 +141,7 @@ styles: [`
                 width: 70%;
 
             }
-        }  
-        
-        .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
-        }
+        }       
 
         .no-campaign {
             text-align: center;
@@ -207,7 +208,7 @@ export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    if (this.emails) {
+   /*  if (this.emails) {
       const sortedData = this.emails.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
@@ -215,8 +216,19 @@ export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
       if (sortedData.length === 0) {
         this.isEmptyRecord = true;
       }
-    }
+    } */
 
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(this.emails)
+    if (changes['emails'] && this.emails) {
+      this.dataSource.data = this.emails.sort((a: any, b: any) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      this.isEmptyRecord = this.emails.length === 0;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -255,4 +267,13 @@ export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
       data: emailRecord
     });
   }
+
+   back(): void {  
+      if (window.history.length > 1) {  
+          window.history.back();  
+      } else {  
+          // Redirect to a default route if there's no history  
+          this.router.navigate(['/dashboard/tools/email/new']);
+      }  
+    }
 }

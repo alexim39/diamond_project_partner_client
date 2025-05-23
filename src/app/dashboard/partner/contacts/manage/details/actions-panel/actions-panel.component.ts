@@ -140,8 +140,8 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
 
 
     ngOnInit(): void {     
-        if (this.prospect.data) {
-            this.prospectData = this.prospect.data;
+        if (this.prospect) {
+            this.prospectData = this.prospect;
         }
     }
 

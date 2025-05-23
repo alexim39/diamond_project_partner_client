@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -23,31 +23,119 @@ import { SMSDetailDialogComponent } from './sms-detail/sms-detail.component';
 
 @Component({
 selector: 'async-sms-log',
-templateUrl: 'sms-log.component.html',
+template: `
+
+<section class="breadcrumb-wrapper">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+      <a>Tools</a> &gt;
+      <a>SMS</a> &gt;
+      <span>SMS log</span>
+    </div>
+</section>
+  
+  <section class="async-background">
+    <h2>Manage Bulk SMS List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  
+    <section class="async-container">
+      <div class="title">
+        <div class="control">
+              <div class="back" (click)="back()" title="Back">
+                  <mat-icon>arrow_back</mat-icon>
+              </div>
+              <a mat-list-item routerLink="../../sms/new" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button>
+                <mat-icon>add</mat-icon>New SMS
+              </a>
+        </div>
+        <h3>SMS History</h3>
+      </div>
+  
+      <ng-container *ngIf="!isEmptyRecord">
+        <div class="search">
+          <mat-form-field appearance="outline">
+            <mat-label>Filter by sms message</mat-label>
+            <input matInput type="search" name="smsFilter" [(ngModel)]="filterText" (input)="filterSMS()" />
+          </mat-form-field>
+        </div>
+  
+        <div class="table">
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <ng-container matColumnDef="reference">
+              <th mat-header-cell *matHeaderCellDef> Reference </th>
+              <td mat-cell *matCellDef="let element"> {{ element.transaction.reference }} </td>
+            </ng-container>
+            <ng-container matColumnDef="message">
+              <th mat-header-cell *matHeaderCellDef> Message </th>
+              <td mat-cell *matCellDef="let element"> {{ element.smsBody | truncate:50 }} </td>
+            </ng-container>
+            <ng-container matColumnDef="recipients">
+              <th mat-header-cell *matHeaderCellDef> Recipients </th>
+              <td mat-cell *matCellDef="let element"> {{ element.prospect | truncate:35 }} </td>
+            </ng-container>
+            <ng-container matColumnDef="cost">
+              <th mat-header-cell *matHeaderCellDef> Cost </th>
+              <td mat-cell *matCellDef="let element"> {{ element.transaction.amount | currency:'₦':'symbol':'1.2-2' }} </td>
+            </ng-container>
+            <ng-container matColumnDef="pages">
+              <th mat-header-cell *matHeaderCellDef> Pages </th>
+              <td mat-cell *matCellDef="let element"> {{ pages(element.smsBody) }} </td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef> Status </th>
+              <td mat-cell *matCellDef="let element"> {{ element.status }} </td>
+            </ng-container>
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef> Date </th>
+              <td mat-cell *matCellDef="let element"> {{ element.createdAt | date }} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openSMSDetailDialog(row)"></tr>
+          </table>
+          <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
+        </div>
+      </ng-container>
+  
+      <ng-container *ngIf="isEmptyRecord">
+        <p class="no-campaign">No record available yet</p>
+      </ng-container>
+    </section>
+  </section>
+  
+
+
+`,
 styles: [`
   
-  .async-background {
+.async-background {
     margin: 2em;
-    h2 {
-        mat-icon {
-            cursor: pointer;
-        }
-    }
     .async-container {
         background-color: #dcdbdb;
         border-radius: 10px;
         height: 100%;
         padding: 1em;
         .title {
-            display: flex;
-            justify-content: space-between;
             border-bottom: 1px solid #ccc;
             padding: 1em;
-            .action-area {
-                .action {
-                    font-weight: bold;
-                    margin-top: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .control {
+                display: flex;
+                justify-content: space-between;
+                .back {
+                    cursor: pointer;
                 }
+                .back:hover {
+                    cursor: pointer;
+                    opacity: 0.5;
+    
+                }
+            }
+
+           
+            h3 {
+                margin-top: 1em; 
             }
         }
 
@@ -58,13 +146,7 @@ styles: [`
                 width: 70%;
 
             }
-        }
-        
-        .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
-        }
+        }       
 
         .no-campaign {
             text-align: center;
@@ -130,7 +212,7 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
   ) { }
 
   ngOnInit(): void {
-    if (this.smsObject.data) {
+   /*  if (this.smsObject.data) {
       const sortedData = this.smsObject.data.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
@@ -139,6 +221,16 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
       if (sortedData.length === 0) {
         this.isEmptyRecord = true;
       }
+    } */
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['smsObject'] && this.smsObject) {
+      this.dataSource.data = this.smsObject.sort((a: any, b: any) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      this.isEmptyRecord = this.smsObject.length === 0;
     }
   }
 
@@ -182,4 +274,13 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
       data: smsRecord
     });
   }
+
+   back(): void {  
+      if (window.history.length > 1) {  
+          window.history.back();  
+      } else {  
+          // Redirect to a default route if there's no history  
+          this.router.navigate(['/dashboard/tools/sms/new']);
+      }  
+    }
 }

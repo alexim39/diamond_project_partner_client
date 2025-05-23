@@ -248,7 +248,7 @@ export class EditContactsComponent implements OnInit, OnDestroy {
           window.history.back();  
       } else {  
           // Redirect to a default route if there's no history  
-          this.router.navigateByUrl('dashboard/manage-contacts');  
+         this.router.navigate(['/dashboard/tools/contacts/list']);
       }  
   }
 

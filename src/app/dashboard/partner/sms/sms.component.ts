@@ -28,16 +28,18 @@ template: `
     <h2>Create Bulk SMS List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
-
         <div class="title">
-            <h3>Send New SMS</h3>
-            <div class="action-area">
-                <mat-button-toggle-group>
+            <div class="control">
+                <div class="back" (click)="back()" title="Back">
+                    <mat-icon>arrow_back</mat-icon>
+                </div>
+                 <mat-button-toggle-group>
                     <mat-button-toggle routerLink="../../../tools/sms/messages" routerLinkActive="active" (click)="scrollToTop()" title="View email list"><mat-icon>sms</mat-icon> Messages</mat-button-toggle>
                     <mat-button-toggle (click)="importContactPhoneNumbers()" title="Import Numbers from contact list"><mat-icon>cloud_download</mat-icon> Import Numbers from Contact</mat-button-toggle>
                 </mat-button-toggle-group>
-
             </div>
+            <h3>Send New SMS</h3>
+            
         </div>
 
 
@@ -63,26 +65,34 @@ styles: [`
 
 .async-background {
     margin: 2em;
-    h2 {
-        mat-icon {
-            cursor: pointer;
-        }
-    }
     .async-container {
         background-color: #dcdbdb;
         border-radius: 10px;
         height: 100%;
         padding: 1em;
         .title {
-            display: flex;
-            justify-content: space-between;
             border-bottom: 1px solid #ccc;
             padding: 1em;
-            .action-area {
-                .action {
-                    font-weight: bold;
-                    margin-top: 1em;
+            display: flex;
+            flex-direction: column;  
+            //align-items: center; /* Vertically center the items */  
+            justify-content: flex-start; 
+            .control {
+                display: flex;
+                justify-content: space-between;
+                .back {
+                    cursor: pointer;
                 }
+                .back:hover {
+                    cursor: pointer;
+                    opacity: 0.5;
+    
+                }
+            }
+
+           
+            h3 {
+                margin-top: 1em; 
             }
         }
 
@@ -143,6 +153,15 @@ export class smsComponent {
 
     scrollToTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    back(): void {  
+      if (window.history.length > 1) {  
+          window.history.back();  
+      } else {  
+          // Redirect to a default route if there's no history  
+          this.router.navigate(['/dashboard/tools/contacts/list']);
+      }  
     }
       
 }

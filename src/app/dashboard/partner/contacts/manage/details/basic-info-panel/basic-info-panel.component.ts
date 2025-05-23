@@ -15,53 +15,53 @@ template: `
 
         <div class="list">
             <h5> Names </h5>
-            <span class="data">{{prospectData.prospectName | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
+            <span class="data">{{prospectData?.prospectName | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
         </div>
         <mat-divider></mat-divider>
 
 
         <div class="list">
             <h5> Phone Number </h5>
-            <span class="data">{{prospectData.prospectPhone }} </span>
+            <span class="data">{{prospectData?.prospectPhone }} </span>
         </div>
         <mat-divider></mat-divider>
 
         <div class="list">
             <h5> Email Address </h5>
-            <span class="data">{{prospectData.prospectEmail | lowercase }} </span>
+            <span class="data">{{prospectData?.prospectEmail | lowercase }} </span>
         </div>
         <mat-divider></mat-divider>
 
         <div class="list">
             <h5> Age Range</h5>
-            <span class="data">{{prospectData.survey.ageRange ? prospectData.survey.ageRange : 'No age range' }} </span>
+            <span class="data">{{prospectData?.survey?.ageRange ? prospectData.survey.ageRange : 'No age range' }} </span>
         </div>
         <mat-divider></mat-divider>
 
         <div class="list">
             <h5> Contact Channel</h5>
-            <span class="data">{{prospectData.prospectSource | titlecase }} </span>
+            <span class="data">{{prospectData?.prospectSource | titlecase }} </span>
         </div>
         <mat-divider></mat-divider>
 
         <div class="list">
             <h5> Prospect Source</h5>
-            <span class="data">{{prospectData.survey.referral ? (prospectData.survey.referral | titlecase) : 'No source' }} </span>
-            @if (prospectData.survey.referralCode) {
-                <div class="info">Prospect was referred by <strong>{{prospectData.survey.referralCode}}</strong>, who is probably a member in <strong>{{prospectData.survey.state}}</strong> State (Find out prospect's level of connection with referral if possible)</div>
+            <span class="data">{{prospectData?.survey?.referral ? (prospectData.survey.referral | titlecase) : 'No source' }} </span>
+            @if (prospectData?.survey?.referralCode) {
+                <div class="info">Prospect was referred by <strong>{{prospectData?.survey?.referralCode}}</strong>, who is probably a member in <strong>{{prospectData.survey.state}}</strong> State (Find out prospect's level of connection with referral if possible)</div>
             }
         </div>
         <mat-divider></mat-divider>
 
         <div class="list">
             <h5> Employment Status</h5>
-            <span class="data">{{prospectData.survey.employedStatus ? (prospectData.survey.employedStatus | titlecase) : 'Unavailable' }} </span>
+            <span class="data">{{prospectData?.survey?.employedStatus ? (prospectData.survey.employedStatus | titlecase) : 'Unavailable' }} </span>
         </div>
         <mat-divider></mat-divider>
 
         <div class="list">
             <h5> Prospect Origin</h5>
-            <span class="data">{{prospectData.survey.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{prospectData.survey.country | titlecase }} </span>
+            <span class="data">{{prospectData?.survey?.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{prospectData?.survey?.country | titlecase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -74,13 +74,13 @@ template: `
     
         <div class="list">
             <h5> Created Date </h5>
-            <span class="data">{{prospectData.createdAt | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
+            <span class="data">{{prospectData?.createdAt | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
         </div>
         <mat-divider></mat-divider>
         
         <div class="list">
             <h5> Modified Date </h5>
-            <span class="data">{{prospectData.updatedAt | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
+            <span class="data">{{prospectData?.updatedAt | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
         </div>
         
 </article>
@@ -135,8 +135,8 @@ export class ProspectBasicInformationComponent implements OnInit {
     prospectData!: any; 
 
     ngOnInit(): void {     
-        if (this.prospect.data) {
-        this.prospectData = this.prospect.data;
+        if (this.prospect) {
+            this.prospectData = this.prospect;
         }
     }
 }
