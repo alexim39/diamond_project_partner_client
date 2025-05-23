@@ -311,7 +311,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
         const partnerId = this.partner._id;
 
         this.subscriptions.push(
-          this.prospectService.importSingle({ partnerId, prospectId }).subscribe({
+          this.prospectService.importSingle({ partnerId, prospectId, source: 'website' }).subscribe({
             next: (response) => {
               Swal.fire({
                 position: "bottom",

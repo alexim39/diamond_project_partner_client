@@ -36,7 +36,7 @@ export class ProspectService {
 
   // get contacts createdby
   importSingle(importId: any): Observable<any> {
-    return this.apiService.get<ProspectListInterface>(`prospect/import-single/${importId.partnerId}/${importId.prospectId}`, undefined, undefined, true);
+    return this.apiService.get<ProspectListInterface>(`prospect/import-single/${importId.partnerId}/${importId.prospectId}/${importId.source}`, undefined, undefined, true);
   }
 
    // detele single prospect
