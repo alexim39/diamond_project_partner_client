@@ -5,13 +5,12 @@ import { ApiService } from '../../../_common/services/api.service';
 
 export interface ProspectListInterface {
   message: string;
-  data?: Array<{
-    surname: string;
-    name: string;
-    email: string;
-    phoneNumber: string;
-    createdAt: Date;
-  }>  
+  surname: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  createdAt: Date; 
+  _id: string; 
 }
   
 
@@ -20,12 +19,12 @@ export class ProspectService {
   constructor(private apiService: ApiService) {}
  
   // get prospect owned by the system
-  getAllProspect(): Observable<ProspectListInterface> {
+  getAllProspect(): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/all`, undefined, undefined, true);
   }
 
   // get prospect owned by the partner
-  getAllMyProspect(username: string): Observable<ProspectListInterface> {
+  getAllMyProspect(username: string): Observable<any> {
       return this.apiService.get<ProspectListInterface>(`prospect/my/${username}`, undefined, undefined, true);
   }
 

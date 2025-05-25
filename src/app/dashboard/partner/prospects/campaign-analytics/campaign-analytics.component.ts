@@ -31,7 +31,7 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 export class CampaignAnalyticsComponent implements OnInit, OnDestroy  {
     @Input() partner!: PartnerInterface;
     readonly dialog = inject(MatDialog);
-    @Input() prospectList!: ProspectListInterface;
+    @Input() prospectList!: ProspectListInterface[];
 
     subscriptions: Array<Subscription> = [];
 
@@ -50,7 +50,7 @@ export class CampaignAnalyticsComponent implements OnInit, OnDestroy  {
 
  
     ngOnInit(): void {
-        if (this.prospectList.data) {  
+        if (this.prospectList) {  
   
         if (this.dataSource.data.length === 0) {  
           this.isEmptyRecord = true;  

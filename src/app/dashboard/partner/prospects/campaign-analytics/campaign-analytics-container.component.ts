@@ -14,14 +14,14 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
     imports: [CommonModule, CampaignAnalyticsComponent],
     providers: [ProspectService],
     template: `
-  <async-campaign-analytics *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"></async-campaign-analytics>
+  <async-campaign-analytics *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"/>
   `
 })
 export class CampaignAnalyticsContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
-  prospectList!: ProspectListInterface;
+  prospectList!: ProspectListInterface[];
 
   constructor(
     private partnerService: PartnerService,

@@ -124,8 +124,8 @@ export class LinkAnalyticsComponent implements OnInit, OnDestroy  {
 
  
     ngOnInit(): void {
-        if (this.prospectList.data) {  
-        console.log(this.prospectList.data)
+        if (this.prospectList) {  
+        console.log(this.prospectList)
         console.log(this.partner)
         //this.dataSource.data  = this.prospectList.data  
     

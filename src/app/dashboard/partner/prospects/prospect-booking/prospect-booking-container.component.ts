@@ -21,7 +21,7 @@ export class ProspectBookingContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
-  prospectList!: ProspectListInterface;
+  prospectList!: ProspectListInterface[];
 
   constructor(
     private partnerService: PartnerService,
@@ -36,9 +36,11 @@ export class ProspectBookingContainerComponent implements OnInit, OnDestroy {
         next: (partnerObject: PartnerInterface) => {
           this.partner = partnerObject;
           if (this.partner) {
-            this.prospectListService.getSessionBookingsFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
-              this.prospectList = prospectContact;
-              //console.log('prospectContact ',prospectContact)
+            this.prospectListService.getSessionBookingsFor(this.partner._id).subscribe({
+              next: (response) => {
+                this.prospectList = response.data;
+                //console.log('prospectList ',this.prospectList)
+              },
             })
           }
       
