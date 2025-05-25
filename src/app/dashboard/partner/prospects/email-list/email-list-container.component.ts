@@ -21,7 +21,7 @@ export class EmailListContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
-  prospectList!: ProspectListInterface;
+  prospectList!: ProspectListInterface[];
 
   constructor(
     private partnerService: PartnerService,
@@ -36,9 +36,11 @@ export class EmailListContainerComponent implements OnInit, OnDestroy {
         next: (partner: PartnerInterface) => {
           this.partner = partner;
           if (this.partner) {
-            this.prospectListService.getEmailList(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
-              this.prospectList = prospectContact;
-              //console.log('prospectEmais ',prospectContact)
+            this.prospectListService.getEmailList(this.partner._id).subscribe( {
+              next: (response) => {
+                this.prospectList = response.data;
+                //console.log('prospectList ',this.prospectList)
+              },
             })
           }
         },

@@ -33,7 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class ProspectBookingComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
-  @Input() prospectList!: ProspectListInterface;
+  @Input() prospectList!: ProspectListInterface[];
 
   subscriptions: Array<Subscription> = [];
 
@@ -59,9 +59,9 @@ export class ProspectBookingComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-    if (this.prospectList.data) {
+    if (this.prospectList) {
       //console.log(this.prospectList.data)
-      this.dataSource.data = this.prospectList.data.sort((a, b) => {
+      this.dataSource.data = this.prospectList.sort((a, b) => {
         // Use the getTime() method to compare the Date values  
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });

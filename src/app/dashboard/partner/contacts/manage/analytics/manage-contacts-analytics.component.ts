@@ -18,7 +18,7 @@ import { PartnerInterface, PartnerService } from '../../../../../_common/service
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../prospects/prospects.service';
-import { ProspectResponseComponent } from '../../../prospects/general-prospect-list/prospect-response.component';
+import { ProspectResponseComponent } from '../../../mentorship/my-partners/contacts/details/prospect-response.component';
 import { SMSService } from '../../../sms/sms.service';
 
 /** @title Prospect details */

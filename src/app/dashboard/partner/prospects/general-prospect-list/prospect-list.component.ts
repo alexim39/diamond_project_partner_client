@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -126,7 +126,7 @@ template: `
                 <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
             </div>
         </ng-container>
-        <ng-container *ngIf="isEmptyRecord">
+        <ng-container *ngIf="isEmptyRecord && dataSource.data.length === 0">
             <p class="no-campaign">No prospect contact available yet</p>
         </ng-container>
     </section>
@@ -224,7 +224,7 @@ imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsM
 export class ProspectListComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
-  @Input() prospectList!: ProspectListInterface;
+  @Input() prospectList!: ProspectListInterface[];
 
   subscriptions: Array<Subscription> = [];
 
@@ -247,22 +247,22 @@ export class ProspectListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    if (this.prospectList.data) {
-      this.dataSource.data = this.prospectList.data.sort((a, b) => {
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
+    };
+  }
+
+   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['prospectList'] && this.prospectList) {
+      this.dataSource.data = this.prospectList.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
-      if (this.dataSource.data.length === 0) {
-        this.isEmptyRecord = true;
-      }
+      this.isEmptyRecord = this.prospectList.length === 0;
 
       this.calculateNewBookings();
       this.calculateBadgeValue();
     }
-
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
-    };
   }
 
   calculateNewBookings(): void {
@@ -296,7 +296,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
     });
   }
 
-  moveToContact(prospectId: string): void {
+ /*  moveToContact(prospectId: string): void {
     Swal.fire({
       title: "Are you sure of moving prospect to contact list?",
       icon: "warning",
@@ -345,7 +345,60 @@ export class ProspectListComponent implements OnInit, OnDestroy {
         )
       }
     });
-  }
+  } */
+
+    moveToContact(prospectId: string): void {
+      Swal.fire({
+        title: "Are you sure of moving prospect to contact list?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, move it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.scrollToTop();
+
+          const partnerId = this.partner._id;
+
+          this.subscriptions.push(
+            this.prospectService.importSingle({ partnerId, prospectId, source: 'website' }).subscribe({
+              next: (response) => {
+                // Remove the moved prospect from the table
+                this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
+
+                // Recalculate badges and today's prospect count
+                this.calculateNewBookings();
+                this.calculateBadgeValue();
+
+                Swal.fire({
+                  position: "bottom",
+                  icon: 'success',
+                  text: response.message,
+                  showConfirmButton: true,
+                  confirmButtonColor: "#ffab40",
+                  confirmButtonText: "OK",
+                  timer: 15000,
+                });
+              },
+              error: (error: HttpErrorResponse) => {
+                let errorMessage = 'Server error occurred, please try again.';
+                if (error.error && error.error.message) {
+                  errorMessage = error.error.message;
+                }
+                Swal.fire({
+                  position: "bottom",
+                  icon: 'error',
+                  text: errorMessage,
+                  showConfirmButton: false,
+                  timer: 4000
+                });  
+              }
+            })
+          )
+        }
+      });
+    }
 
   showDescription() {
     this.dialog.open(HelpDialogComponent, {

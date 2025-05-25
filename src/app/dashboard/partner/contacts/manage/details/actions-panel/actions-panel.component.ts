@@ -12,7 +12,7 @@ import { CollectCodeComponent } from '../collect-code.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProspectListInterface } from '../../../../prospects/prospects.service';
-import { ProspectResponseComponent } from '../../../../prospects/general-prospect-list/prospect-response.component';
+import { ProspectResponseComponent } from '../../../../mentorship/my-partners/contacts/details/prospect-response.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 

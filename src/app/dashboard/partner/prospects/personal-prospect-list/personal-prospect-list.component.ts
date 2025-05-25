@@ -124,7 +124,7 @@ template: `
                 <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
             </div>
         </ng-container>
-        <ng-container *ngIf="isEmptyRecord">
+        <ng-container *ngIf="isEmptyRecord && dataSource.data.length === 0">
             <p class="no-campaign">No prospect contact available yet</p>
         </ng-container>
     </section>
@@ -222,7 +222,7 @@ imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsM
 export class MyProspectListComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
-  @Input() prospectList!: ProspectListInterface;
+  @Input() prospectList!: ProspectListInterface[];
 
   subscriptions: Array<Subscription> = [];
 
@@ -245,8 +245,8 @@ export class MyProspectListComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    if (this.prospectList.data) {
-      this.dataSource.data = this.prospectList.data.sort((a, b) => {
+    if (this.prospectList) {
+      this.dataSource.data = this.prospectList.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
@@ -311,6 +311,14 @@ export class MyProspectListComponent implements OnInit, OnDestroy {
         this.subscriptions.push(
           this.prospectService.importSingle({ partnerId, prospectId, source: 'link' }).subscribe({
             next: (response) => {
+
+               // Remove the moved prospect from the table
+                this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
+
+                // Recalculate badges and today's prospect count
+                this.calculateNewBookings();
+                this.calculateBadgeValue();
+
               Swal.fire({
                 position: "bottom",
                 icon: 'success',
@@ -319,12 +327,7 @@ export class MyProspectListComponent implements OnInit, OnDestroy {
                 confirmButtonColor: "#ffab40",
                 confirmButtonText: "OK",
                 timer: 15000,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  //this.router.navigateByUrl('dashboard/prospect-list');
-                  window.location.reload();
-                }
-              });
+              })
             },
             error: (error: HttpErrorResponse) => {
               let errorMessage = 'Server error occurred, please try again.'; // default error message.

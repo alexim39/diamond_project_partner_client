@@ -33,7 +33,7 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 export class EmailListComponent implements OnInit, OnDestroy  {
     @Input() partner!: PartnerInterface;
     readonly dialog = inject(MatDialog);
-    @Input() prospectList!: ProspectListInterface;
+    @Input() prospectList!: ProspectListInterface[];
 
     subscriptions: Array<Subscription> = [];
 
@@ -54,10 +54,10 @@ export class EmailListComponent implements OnInit, OnDestroy  {
 
  
     ngOnInit(): void {
-        if (this.prospectList.data) {  
+        if (this.prospectList) {  
         //console.log('prospect list', this.prospectList.data)
         //console.log('partner detail', this.partner)
-        this.dataSource.data  = this.prospectList.data.sort((a, b) => {  
+        this.dataSource.data  = this.prospectList.sort((a, b) => {  
           // Use the getTime() method to compare the Date values  
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();  
         });  

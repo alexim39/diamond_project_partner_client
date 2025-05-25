@@ -21,7 +21,7 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
-  prospectList!: ProspectListInterface;
+  prospectList: ProspectListInterface[] = [];
 
   constructor(
     private partnerService: PartnerService,
@@ -33,12 +33,16 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe({
-        next:  (partnerObject) => {
-          this.partner = partnerObject as PartnerInterface
+        next:  (partner: PartnerInterface) => {
+          this.partner = partner;
           if (this.partner) {
-            this.prospectListService.getAllProspect().subscribe((prospectContact: ProspectListInterface) => {
-              this.prospectList = prospectContact;
-              //console.log('prospectContact ',prospectContact)
+            this.prospectListService.getAllProspect().subscribe({
+              next: (response) => {
+                this.prospectList = response.data;
+              },
+              error: () => {
+                this.prospectList = [];
+              }
             })
           }
         }
