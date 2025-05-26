@@ -35,7 +35,10 @@ export interface PartnerInterface {
   twitterPage?: string;
   createdAt?: Date;
   settings?: {
-    notification: string;
+    notification: {
+      send: 'email' | 'sms' | 'both' | 'off';
+      receive: 'email' | 'sms' | 'both' | 'off';
+    };
   }
 }
 
