@@ -11,8 +11,12 @@ export interface SettingsInterface {
 export class SettingsService {
   constructor(private apiService: ApiService) {}
 
-   updateNotificationPreference(formData: {value: string; partnerId: string}): Observable<any> {
-    return this.apiService.put<string>(`settings/notification`, formData, undefined, true);
+  updateSendNotificationPreference(formData: {value: string; partnerId: string}): Observable<any> {
+    return this.apiService.put<string>(`settings/notification/send`, formData, undefined, true);
+  }
+
+  updateReceiveNotificationPreference(formData: {value: string; partnerId: string}): Observable<any> {
+    return this.apiService.put<string>(`settings/notification/receive`, formData, undefined, true);
   }
 
  /*  // profile update

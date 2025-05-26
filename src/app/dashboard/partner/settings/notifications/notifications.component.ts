@@ -15,22 +15,47 @@ template: `
       <h2 class="title">Notification Preferences</h2>
       
       <mat-accordion>
+
         <mat-expansion-panel [expanded]="true">
           <mat-expansion-panel-header>
-            <mat-panel-title>Set Your Notification Method</mat-panel-title>
+            <mat-panel-title>Set Send Notification Method</mat-panel-title>
           </mat-expansion-panel-header>
 
-          <mat-radio-group [(ngModel)]="selectedOption" class="radio-group">
+          <mat-radio-group [(ngModel)]="selectedSendNotificationOption" class="radio-group">
             <mat-radio-button value="email">Email Only</mat-radio-button>
             <mat-radio-button value="sms">SMS Only</mat-radio-button>
             <mat-radio-button value="both">Both Email & SMS</mat-radio-button>
+            <mat-radio-button value="off">Off</mat-radio-button>
           </mat-radio-group>
+
+           <div class="action-row">
+            <button mat-flat-button color="primary" (click)="saveSendNotification()">Save Settings</button>
+          </div>
+
         </mat-expansion-panel>
+        
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Set Receive Notification Method</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <mat-radio-group [(ngModel)]="selectedReceiveNotificationOption" class="radio-group">
+            <mat-radio-button value="email">Email Only</mat-radio-button>
+            <mat-radio-button value="sms">SMS Only</mat-radio-button>
+            <mat-radio-button value="both">Both Email & SMS</mat-radio-button>
+            <mat-radio-button value="off">Off</mat-radio-button>
+          </mat-radio-group>
+
+           <div class="action-row">
+            <button mat-flat-button color="primary" (click)="saveReceiveNotification()">Save Settings</button>
+          </div>
+
+        </mat-expansion-panel>
+
+       
       </mat-accordion>
 
-      <div class="action-row">
-        <button mat-flat-button color="primary" (click)="save()">Save Settings</button>
-      </div>
+      
     </mat-card>
 `,
 styles: [`
@@ -67,7 +92,8 @@ imports: [
 providers: [SettingsService]
 })
 export class NotificationsSettingsComponent implements OnInit {
-  selectedOption = 'email'; // Default value
+  selectedSendNotificationOption = 'email'; // Default value
+  selectedReceiveNotificationOption = 'email'; // Default value
   @Input() partner!: PartnerInterface;
   
   constructor(
@@ -75,15 +101,48 @@ export class NotificationsSettingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.selectedOption = this.partner?.settings?.notification as string;
+    this.selectedSendNotificationOption = this.partner?.settings?.notification?.send as string;
+    this.selectedReceiveNotificationOption = this.partner?.settings?.notification?.receive as string;
   }
 
-  save() {
+  saveSendNotification() {
     const formObject = {
-      value: this.selectedOption,
+      value: this.selectedSendNotificationOption,
       partnerId: this.partner._id
     }
-    this.settingsService.updateNotificationPreference(formObject).subscribe({
+    this.settingsService.updateSendNotificationPreference(formObject).subscribe({
+      next: (response) => {
+        Swal.fire({
+          position: 'bottom',
+          icon: 'success',
+          text: response.message,
+          showConfirmButton: true,
+          timer: 5000,
+          confirmButtonColor: '#ffab40',
+        });
+      },
+      error: (error) => {
+        let errorMessage = 'Server error occurred, please try again.';
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
+        Swal.fire({
+          position: 'bottom',
+          icon: 'error',
+          text: errorMessage,
+          showConfirmButton: false,
+          timer: 4000,
+        });
+      }
+    });
+  }
+
+  saveReceiveNotification() {
+    const formObject = {
+      value: this.selectedReceiveNotificationOption,
+      partnerId: this.partner._id
+    }
+    this.settingsService.updateReceiveNotificationPreference(formObject).subscribe({
       next: (response) => {
         Swal.fire({
           position: 'bottom',
