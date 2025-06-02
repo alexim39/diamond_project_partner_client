@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { ProspectListComponent } from './prospect-list.component';
+import { GeneralProspectListComponent } from './general-prospect-list.component';
 import { ProspectService, ProspectListInterface } from '../prospects.service';
 
 
@@ -11,17 +11,17 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
  */
 @Component({
     selector: 'async-prospect-list-container',
-    imports: [CommonModule, ProspectListComponent],
+    imports: [CommonModule, GeneralProspectListComponent],
     providers: [ProspectService],
     template: `
   <async-prospect-list *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"/>
   `
 })
-export class ProspectListContainerComponent implements OnInit, OnDestroy {
+export class GeneralProspectListContainerComponent implements OnInit, OnDestroy {
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
-  prospectList: ProspectListInterface[] = [];
+  prospectList!: ProspectListInterface[];
 
   constructor(
     private partnerService: PartnerService,
@@ -36,14 +36,16 @@ export class ProspectListContainerComponent implements OnInit, OnDestroy {
         next:  (partner: PartnerInterface) => {
           this.partner = partner;
           if (this.partner) {
-            this.prospectListService.getAllProspect().subscribe({
-              next: (response) => {
-                this.prospectList = response.data;
-              },
-              error: () => {
-                this.prospectList = [];
-              }
-            })
+           this.subscriptions.push(
+             this.prospectListService.getAllProspect().subscribe({
+                next: (response) => {
+                  this.prospectList = response.data;
+                },
+                error: () => {
+                  this.prospectList = [];
+                }
+              })
+           )
           }
         }
       })

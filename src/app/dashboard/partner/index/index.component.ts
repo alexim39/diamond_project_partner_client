@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NotificationBannerComponent } from './notification-banner/notification-banner.component';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
+import { AnnouncementsComponent } from './announcements/announcements.component';
 
 /**
  * @title dashboard index
@@ -25,12 +26,15 @@ import { Subscription } from 'rxjs';
     CommonModule,
     IndexSearchContainerComponent,
     MatInputModule,
-    NotificationBannerComponent
+    NotificationBannerComponent,
+    AnnouncementsComponent
   ],
 template: `
     <async-notification-banner *ngIf="partner" [partner]="partner"/>
     <async-index-search-container />
     <router-outlet />
+
+    <async-announcements/>
 
 
   `,

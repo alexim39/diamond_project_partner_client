@@ -219,7 +219,7 @@ imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsM
   MatButtonToggleModule
 ]
 })
-export class MyProspectListComponent implements OnInit, OnDestroy {
+export class MyProspectListComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
   @Input() prospectList!: ProspectListInterface[];

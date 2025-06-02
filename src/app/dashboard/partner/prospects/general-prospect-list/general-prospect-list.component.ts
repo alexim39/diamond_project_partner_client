@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -221,7 +221,7 @@ imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsM
   MatButtonToggleModule
 ]
 })
-export class ProspectListComponent implements OnInit, OnDestroy {
+export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
   @Input() prospectList!: ProspectListInterface[];
@@ -246,24 +246,25 @@ export class ProspectListComponent implements OnInit, OnDestroy {
     private router: Router,
   ) { }
 
-  ngOnInit(): void {
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
-    };
-  }
-
-   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['prospectList'] && this.prospectList) {
+ ngOnInit(): void {
+    if (this.prospectList) {
       this.dataSource.data = this.prospectList.sort((a: any, b: any) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
-      this.isEmptyRecord = this.prospectList.length === 0;
+      if (this.dataSource.data.length === 0) {
+        this.isEmptyRecord = true;
+      }
 
       this.calculateNewBookings();
       this.calculateBadgeValue();
     }
+
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
+    };
   }
+   
 
   calculateNewBookings(): void {
     const today = new Date().toISOString().split('T')[0];
@@ -283,7 +284,9 @@ export class ProspectListComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
+    // if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    //}
   }
 
   getDateAgo(element: any): string {
@@ -296,56 +299,6 @@ export class ProspectListComponent implements OnInit, OnDestroy {
     });
   }
 
- /*  moveToContact(prospectId: string): void {
-    Swal.fire({
-      title: "Are you sure of moving prospect to contact list?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, move it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.scrollToTop();
-
-        const partnerId = this.partner._id;
-
-        this.subscriptions.push(
-          this.prospectService.importSingle({ partnerId, prospectId, source: 'website' }).subscribe({
-            next: (response) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message,//`Your have successfully moved prospect to contact list`,
-                showConfirmButton: true,
-                confirmButtonColor: "#ffab40",
-                confirmButtonText: "OK",
-                timer: 15000,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  //this.router.navigateByUrl('dashboard/prospect-list');
-                  window.location.reload();
-                }
-              });
-            },
-            error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000
-              });  
-            }
-          })
-        )
-      }
-    });
-  } */
 
     moveToContact(prospectId: string): void {
       Swal.fire({
@@ -363,13 +316,11 @@ export class ProspectListComponent implements OnInit, OnDestroy {
 
           this.subscriptions.push(
             this.prospectService.importSingle({ partnerId, prospectId, source: 'website' }).subscribe({
-              next: (response) => {
-                // Remove the moved prospect from the table
+             next: (response) => {
                 this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
 
-                // Recalculate badges and today's prospect count
-                this.calculateNewBookings();
-                this.calculateBadgeValue();
+                  this.calculateNewBookings();
+                  this.calculateBadgeValue();
 
                 Swal.fire({
                   position: "bottom",
@@ -381,6 +332,7 @@ export class ProspectListComponent implements OnInit, OnDestroy {
                   timer: 15000,
                 });
               },
+
               error: (error: HttpErrorResponse) => {
                 let errorMessage = 'Server error occurred, please try again.';
                 if (error.error && error.error.message) {
