@@ -36,12 +36,17 @@ export class MyProspectListContainerComponent implements OnInit, OnDestroy {
         next:  (partnerObject) => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            this.prospectService.getAllMyProspect(this.partner.username).subscribe({
-              next: (response) => {
-                this.prospectList = response.data;
-                //console.log('prospectList ',this.prospectList)
-              },
-            })
+            this.subscriptions.push(
+              this.prospectService.getAllMyProspect(this.partner.username).subscribe({
+                next: (response) => {
+                  this.prospectList = response.data;
+                  //console.log('prospectList ',this.prospectList)
+                },
+                error: () => {
+                  this.prospectList = [];
+                }
+              })
+            )
           }
         }
       })

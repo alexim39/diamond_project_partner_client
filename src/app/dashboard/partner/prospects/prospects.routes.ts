@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ProspectListContainerComponent } from './general-prospect-list/prospect-list-container.component';
+import { GeneralProspectListContainerComponent } from './general-prospect-list/general-prospect-list-container.component';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { EmailListContainerComponent } from './email-list/email-list-container.component';
 import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
@@ -18,7 +18,7 @@ export const ProspectsRoutes: Routes = [
     children: [
         {
             path: 'general-list',
-            component: ProspectListContainerComponent,
+            component: GeneralProspectListContainerComponent,
             title: "General Prospects List - View all prospects",
         },   
         {
