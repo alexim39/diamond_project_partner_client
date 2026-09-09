@@ -108,6 +108,7 @@
         <a mat-list-item (click)="toggleSubSubmenu('my-partners')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Manage Partners</a>
         <div [@submenuToggle]="isSubSubmenuOpen('my-partners') ? 'open' : 'closed'" class="subsubmenu">
           <a mat-list-item  routerLink="mentorship/partners/my-partners" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Manage Your Partners"> - View Partners</a>
+          <a mat-list-item  routerLink="network/tree" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"  (click)="scrollToTop(); isHandset && drawer.close()" title="Visualize your network tree"> - Network Tree</a>
         </div>
       </div>
 
