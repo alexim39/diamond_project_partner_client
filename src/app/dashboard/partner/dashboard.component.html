@@ -142,6 +142,7 @@
         <a mat-list-item routerLink="settings/profiles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Account settings">Account Settings</a>
         <a mat-list-item routerLink="settings/landing-page" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Landing Page Settings">Landing Page Settings</a>
         <a mat-list-item routerLink="settings/billing" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Manage Billings">Billing</a>
+        <a mat-list-item routerLink="settings/billing/commissions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Track commission earnings">Commissions</a>
       </div>
 
       <a mat-list-item (click)="toggleSubmenu('help')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -224,6 +225,7 @@
 
 <mat-menu #admin="matMenu">
   <a mat-menu-item routerLink="admin/roles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>badge</mat-icon> Manage Roles</a>
+  <a mat-menu-item routerLink="admin/payouts" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>payments</mat-icon> Payout Queue</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Activate New Partner</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>paid</mat-icon> Approve Withdrawal Request</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> See New Product Orders</a>
