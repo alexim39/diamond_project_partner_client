@@ -5,7 +5,7 @@ import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 
 
@@ -244,11 +244,9 @@ footer p {
 `],
 providers: [],
 imports: [
-    CommonModule, 
-    MatIconModule, 
-    RouterModule, 
-    MatButtonModule, 
-
+    MatIconModule,
+    RouterModule,
+    MatButtonModule
 ]
 })
 export class AboutAppComponent implements OnDestroy {

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -15,11 +15,13 @@ import { HttpErrorResponse } from '@angular/common/http';
  */
 @Component({
 selector: 'async-email-log-container',
-imports: [CommonModule, EmailLogComponent, MatIconModule, MatButtonModule],
+imports: [EmailLogComponent, MatIconModule, MatButtonModule],
 providers: [EmailService],
 template: `
- <async-email-log *ngIf="partner && emails" [partner]="partner" [emails]="emails"/>
-`,
+ @if (partner && emails) {
+   <async-email-log [partner]="partner" [emails]="emails"/>
+ }
+ `,
    
 })
 export class EmailLogContainerComponent implements OnInit, OnDestroy {

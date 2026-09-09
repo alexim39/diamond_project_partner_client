@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TextDownloadComponent } from './text-download/text-download.component';
 import { ImageDownloadComponent } from './image-download/image-download.component';
 import { VideoDownloadComponent } from './video-download/video-download.component';
-import { CommonModule } from '@angular/common';
+
 
 
 /**
@@ -22,13 +22,17 @@ template: `
   <h2>Resource Templates Downloads <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
   <section class="async-container">
-    
+
     <mat-tab-group>
-      <mat-tab label="Download Text Contents"> 
-        <async-text-download *ngIf="partner" [partner]="partner"/>
+      <mat-tab label="Download Text Contents">
+        @if (partner) {
+          <async-text-download [partner]="partner"/>
+        }
       </mat-tab>
       <mat-tab label="Download Image Contents (Banners/Flyers)">
-        <async-image-download *ngIf="partner" [partner]="partner"/>
+        @if (partner) {
+          <async-image-download [partner]="partner"/>
+        }
       </mat-tab>
       <mat-tab label="Download Video Contents">
         <async-video-download/>
@@ -59,7 +63,7 @@ styles: [`
 }
 
 `],
-imports: [MatTabsModule, MatIconModule, CommonModule, TextDownloadComponent, ImageDownloadComponent, VideoDownloadComponent]
+imports: [MatTabsModule, MatIconModule, TextDownloadComponent, ImageDownloadComponent, VideoDownloadComponent]
 })
 export class ResourceDownloadComponent {
   @Input() partner!: PartnerInterface;

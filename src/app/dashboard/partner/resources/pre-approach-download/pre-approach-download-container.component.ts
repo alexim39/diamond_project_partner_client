@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { PreApproachDownloadComponent } from './pre-approach-download.component'
  */
 @Component({
     selector: 'async-manage-campaign-container',
-    imports: [CommonModule, PreApproachDownloadComponent],
+    imports: [PreApproachDownloadComponent],
     providers: [],
     template: `
-  <async-preapproach-download *ngIf="partner" [partner]="partner"></async-preapproach-download>
+  @if (partner) {
+    <async-preapproach-download [partner]="partner"></async-preapproach-download>
+  }
   `
 })
 export class PreapproachDownloadContainerComponent implements OnInit, OnDestroy {

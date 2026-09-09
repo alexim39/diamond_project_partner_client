@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -14,12 +14,14 @@ import { MatButtonModule } from '@angular/material/button';
  */
 @Component({
   selector: 'async-sms-log-container',
-  imports: [CommonModule, SMSLogComponent, MatIconModule, MatButtonModule],
+  imports: [SMSLogComponent, MatIconModule, MatButtonModule],
   providers: [SMSService],
   template: `
-     <async-sms-log *ngIf="partner && smsObject" [partner]="partner" [smsObject]="smsObject"/>
-
-  `,
+     @if (partner && smsObject) {
+       <async-sms-log [partner]="partner" [smsObject]="smsObject"/>
+     }
+     
+     `,
 })
 export class smsLogContainerComponent implements OnInit, OnDestroy {
 

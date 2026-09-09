@@ -6,12 +6,16 @@ import { CommonModule } from '@angular/common';
   selector: 'async-spinner',
   imports: [CommonModule],
   template: `
-    <div *ngIf="loadingService.loading$ | async" class="overlay">
-      <div class="circle-loader">
-        <div class="dot" *ngFor="let dot of dots; index as i" [style.animationDelay.ms]="i * 1000"></div>
+    @if (loadingService.loading$ | async) {
+      <div class="overlay">
+        <div class="circle-loader">
+          @for (dot of dots; track dot; let i = $index) {
+            <div class="dot" [style.animationDelay.ms]="i * 1000"></div>
+          }
+        </div>
       </div>
-    </div>
-  `,
+    }
+    `,
   styles: [`
     .overlay {
       position: fixed;

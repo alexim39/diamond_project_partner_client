@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MyPartnerSupportComponent } from './support.component';
@@ -11,22 +11,23 @@ import { MyPartnersService } from '../my-partners.service';
 @Component({
     selector: 'async-my-partner-support-container',
     template: `
-  <ng-container *ngIf="!isEmptyRecord">
-    <async-my-partner-support 
-      *ngIf="myPartner" 
+  @if (!isEmptyRecord) {
+    @if (myPartner) {
+      <async-my-partner-support
         [myPartner]="myPartner"
-       [myPartnerPartners]="myPartnerPartners"
-    />
-  </ng-container>
-    <ng-container *ngIf="isEmptyRecord">
-        <div class="container">
-          <p class="no-content">Something Went Wrong or may be you dont have contacts yet!</p>
-          <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-        </div>
-    </ng-container>
+        [myPartnerPartners]="myPartnerPartners"
+        />
+    }
+  }
+  @if (isEmptyRecord) {
+    <div class="container">
+      <p class="no-content">Something Went Wrong or may be you dont have contacts yet!</p>
+      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
+    </div>
+  }
   `,
     providers: [MyPartnersService],
-    imports: [MyPartnerSupportComponent, CommonModule, MatButtonModule, MatIconModule],
+    imports: [MyPartnerSupportComponent, MatButtonModule, MatIconModule],
     styles: `
   .container {
     padding: 2em;

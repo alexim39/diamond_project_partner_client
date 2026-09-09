@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { CommonModule } from '@angular/common';
+
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { PushNotificationInterface, PushNotificationService } from './push-notifications.service';
@@ -11,40 +11,42 @@ import { Router } from '@angular/router';
   selector: 'async-push-notifications',
   template: `
     @if (notifications.length > 0) {
-
-    <section class="notification-list">
-      <div class="notification-list__header">
-        <h2 class="notification-list__title">Follow-ups Notifications</h2>
-        <div (click)="listAllNotifications()">View all notifications</div>
-      </div>
-
-      <mat-divider class="notification-list__divider" />
-
-      <button mat-menu-item
-              class="notification-item"
-              [class.notification-item--urgent]="notif.urgency"
-              *ngFor="let notif of notifications">
-        <div class="notification-item__icon">
-          <mat-icon [color]="notif.urgency ? 'warn' : undefined">{{ notif.icon }}</mat-icon>
+    
+      <section class="notification-list">
+        <div class="notification-list__header">
+          <h2 class="notification-list__title">Follow-ups Notifications</h2>
+          <div (click)="listAllNotifications()">View all notifications</div>
         </div>
-        <div class="notification-item__content">
-          <h3 class="notification-item__title">{{ notif.title }}</h3>
-          <p class="notification-item__description">
-            {{ notif.description }}
-            <span class="notification-item__tag">{{ notif.tag }}</span>
-          </p>
-        </div>
-        <div class="notification-item__actions"></div>
-      </button>
-    </section>
-
+    
+        <mat-divider class="notification-list__divider" />
+    
+        @for (notif of notifications; track notif) {
+          <button mat-menu-item
+            class="notification-item"
+            [class.notification-item--urgent]="notif.urgency"
+            >
+            <div class="notification-item__icon">
+              <mat-icon [color]="notif.urgency ? 'warn' : undefined">{{ notif.icon }}</mat-icon>
+            </div>
+            <div class="notification-item__content">
+              <h3 class="notification-item__title">{{ notif.title }}</h3>
+              <p class="notification-item__description">
+                {{ notif.description }}
+                <span class="notification-item__tag">{{ notif.tag }}</span>
+              </p>
+            </div>
+            <div class="notification-item__actions"></div>
+          </button>
+        }
+      </section>
+    
     } @else {
       <section class="notification-list">
         <strong>No notification available yet</strong>
       </section>
-      
+    
     }
-  `,
+    `,
   styles: [`
   .notification-list {
       width: 100%;
@@ -159,9 +161,8 @@ import { Router } from '@angular/router';
   `],
   imports: [
     MatIconModule,
-    MatDividerModule,
-    CommonModule
-  ],
+    MatDividerModule
+],
   providers: [PushNotificationService]
 })
 export class PushNotificationsComponent implements OnInit, OnDestroy {

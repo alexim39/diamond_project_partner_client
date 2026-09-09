@@ -33,179 +33,197 @@ imports: [CommonModule, MatIconModule, RouterModule,
 template: `
 
 <section class="async-background ">
-    <h2>Book Prospect Session <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <h2>Book Prospect Session <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
-    <section class="async-container">
-        <div class="title">
-            <div class="control">
-                <div class="back" (click)="back()" title="Back">
-                    <mat-icon>arrow_back</mat-icon>
-                </div>
-                <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
-            </div>
-            <h3>{{prospect?.prospectSurname | titlecase}} {{prospect?.prospectName | titlecase}}'s Session Booking</h3>
+  <section class="async-container">
+    <div class="title">
+      <div class="control">
+        <div class="back" (click)="back()" title="Back">
+          <mat-icon>arrow_back</mat-icon>
+        </div>
+        <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
+      </div>
+      <h3>{{prospect?.prospectSurname | titlecase}} {{prospect?.prospectName | titlecase}}'s Session Booking</h3>
+    </div>
+
+
+    <div class="form-container">
+      <form class="flex-form" [formGroup]="prospectContactForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="prospectName" required>
+            @if (prospectContactForm.get('prospectName')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Surname</mat-label>
+            <input matInput formControlName="prospectSurname" required>
+            @if (prospectContactForm.get('prospectSurname')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Email Address</mat-label>
+            <input matInput formControlName="prospectEmail" required>
+            @if (prospectContactForm.get('prospectEmail')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="prospectPhone" required>
+            @if (prospectContactForm.get('prospectPhone')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Source of Contact</mat-label>
+            <mat-select formControlName="prospectSource" required>
+              <mat-option value="Family">Family</mat-option>
+              <mat-option value="Friend">Friend</mat-option>
+              <mat-option value="Relative">Relative</mat-option>
+              <mat-option value="Unique Link">Unique Link</mat-option>
+              <mat-option value="Referrals">Referrals</mat-option>
+              <mat-option value="Contact Recommendation">Contact Recommendation</mat-option>
+              <mat-option value="Social Media">Social Media</mat-option>
+              <mat-option value="Website">Website</mat-option>
+              <mat-option value="Content Marketing">Content Marketing</mat-option>
+              <mat-option value="Email Marketing">Email Marketing</mat-option>
+              <mat-option value="Networking Events">Networking Events</mat-option>
+              <mat-option value="Ads">Ads</mat-option>
+              <mat-option value="Purchased Lists">Purchased Lists</mat-option>
+              <mat-option value="Partner's List">Partner's List</mat-option>
+              <mat-option value="Offline Marketing">Offline Marketing</mat-option>
+              <mat-option value="Market Research">Market Research</mat-option>
+              <mat-option value="Survey Form">Survey Form</mat-option>
+              <mat-option value="Other Means">Other Means</mat-option>
+            </mat-select>
+            @if (prospectContactForm.get('prospectSource')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
         </div>
 
 
-        <div class="form-container">
-            <form class="flex-form" [formGroup]="prospectContactForm" (ngSubmit)="onSubmit()">
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Name</mat-label>
-                        <input matInput formControlName="prospectName" required>
-                        <mat-error *ngIf="prospectContactForm.get('prospectName')?.hasError('required') ">
-                            This field is required.  
-                        </mat-error> 
-                    </mat-form-field>
-                </div>
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Surname</mat-label>
-                        <input matInput formControlName="prospectSurname" required>
-                        <mat-error *ngIf="prospectContactForm.get('prospectSurname')?.hasError('required') ">
-                            This field is required.  
-                        </mat-error> 
-                    </mat-form-field>
-                </div>
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Email Address</mat-label>
-                        <input matInput formControlName="prospectEmail" required>
-                        <mat-error *ngIf="prospectContactForm.get('prospectEmail')?.hasError('required') "> 
-                            This field is required.  
-                        </mat-error> 
-                    </mat-form-field>
-                </div>
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Phone Number</mat-label>
-                        <input matInput formControlName="prospectPhone" required>
-                        <mat-error *ngIf="prospectContactForm.get('prospectPhone')?.hasError('required') ">
-                            This field is required.  
-                        </mat-error> 
-                    </mat-form-field>
-                </div>
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Source of Contact</mat-label>
-                        <mat-select formControlName="prospectSource" required>
-                            <mat-option value="Family">Family</mat-option>
-                            <mat-option value="Friend">Friend</mat-option>
-                            <mat-option value="Relative">Relative</mat-option>
-                            <mat-option value="Unique Link">Unique Link</mat-option>
-                            <mat-option value="Referrals">Referrals</mat-option>
-                            <mat-option value="Contact Recommendation">Contact Recommendation</mat-option>
-                            <mat-option value="Social Media">Social Media</mat-option>
-                            <mat-option value="Website">Website</mat-option>
-                            <mat-option value="Content Marketing">Content Marketing</mat-option>
-                            <mat-option value="Email Marketing">Email Marketing</mat-option>
-                            <mat-option value="Networking Events">Networking Events</mat-option>
-                            <mat-option value="Ads">Ads</mat-option>
-                            <mat-option value="Purchased Lists">Purchased Lists</mat-option>
-                            <mat-option value="Partner's List">Partner's List</mat-option>
-                            <mat-option value="Offline Marketing">Offline Marketing</mat-option>
-                            <mat-option value="Market Research">Market Research</mat-option>
-                            <mat-option value="Survey Form">Survey Form</mat-option>
-                            <mat-option value="Other Means">Other Means</mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="prospectContactForm.get('prospectSource')?.hasError('required') ">
-                            This field is required.  
-                        </mat-error> 
-                    </mat-form-field>
-                </div>
-
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Short Remark/Comment</mat-label>
-                        <textarea matInput formControlName="prospectRemark"></textarea>
-                    </mat-form-field>
-                </div>
-
-                <div style="border: 1px dotted rgb(235, 235, 235); width: 100%; margin: 1em 0 2em 0;"></div>
-
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Consultation Topic/Reason  </mat-label>
-                        <mat-select formControlName="reason">
-                        <mat-option value=" Investment Strategy"> Investment Strategy</mat-option>
-                        <mat-option value="Cashflow Management">Cashflow Management</mat-option>
-                        <mat-option value="Wealth Mindset">Wealth Mindset</mat-option>
-                        <mat-option value="Business Guidance">Business Guidance</mat-option>
-                        <mat-option value="General Financial Planning">General Financial Planning</mat-option>
-                        <mat-option value="About Diamond Project Business">About Diamond Project Business</mat-option>
-                        <mat-option value="cant say">Can't say</mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="prospectContactForm.get('reason')?.hasError('required') ">
-                            This answer is required
-                        </mat-error>
-                    </mat-form-field>
-                </div>
-
-                <div class="form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Preferred Contact Method </mat-label>
-                        <mat-select formControlName="contactMethod">
-                        <mat-option value="Email">Email</mat-option>
-                        <mat-option value="Phone">Phone</mat-option>
-                        <mat-option value="WhatsApp">WhatsApp</mat-option>
-                        <mat-option value="Text Message">Text Message</mat-option>
-                        <mat-option value="Video Call">Video Call (Zoom, Google Meet, etc.)</mat-option>
-                        <mat-option value="Any Option">Any Option</mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="prospectContactForm.get('contactMethod')?.hasError('required') ">
-                        This answer is required
-                        </mat-error>
-                    </mat-form-field>
-                </div>
-    
-                  <div class="none-form-group">
-                    <mat-form-field appearance="outline">
-                        <mat-label> Leave a brief Description/Questions (Optional)</mat-label>
-                        <textarea matInput formControlName="description"></textarea>
-                    </mat-form-field>
-                  </div>
-
-                  <div class="form-group">
-                    <!-- date -->
-                    <mat-form-field appearance="outline">
-                        <mat-label>Choose a date</mat-label>
-                        <input matInput [matDatepicker]="picker" formControlName="consultDate" [min]="minDate">
-                        <mat-hint>MM/DD/YYYY</mat-hint>
-                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                        <mat-datepicker #picker></mat-datepicker>
-                        <mat-error *ngIf="prospectContactForm.get('consultDate')?.hasError('required') ">
-                            Date is required
-                          </mat-error>
-                      </mat-form-field>
-
-                    </div>
-
-                  <div class="form-group">
-                      <mat-form-field appearance="outline">
-                          <mat-label>Choose a time</mat-label>
-                          <input matInput type="time" formControlName="consultTime">
-                          <mat-hint>HH/MM/am/pm</mat-hint>
-                          <mat-error *ngIf="prospectContactForm.get('consultTime')?.hasError('required') ">
-                              Time is required
-                          </mat-error>
-                      </mat-form-field>
-                  </div>
-
-
-                <div class="form-group"></div>
-
-
-                <button mat-flat-button color="primary">Save Booking</button>
-            </form>
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Short Remark/Comment</mat-label>
+            <textarea matInput formControlName="prospectRemark"></textarea>
+          </mat-form-field>
         </div>
 
-    </section>
+        <div style="border: 1px dotted rgb(235, 235, 235); width: 100%; margin: 1em 0 2em 0;"></div>
+
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Consultation Topic/Reason  </mat-label>
+            <mat-select formControlName="reason">
+              <mat-option value=" Investment Strategy"> Investment Strategy</mat-option>
+              <mat-option value="Cashflow Management">Cashflow Management</mat-option>
+              <mat-option value="Wealth Mindset">Wealth Mindset</mat-option>
+              <mat-option value="Business Guidance">Business Guidance</mat-option>
+              <mat-option value="General Financial Planning">General Financial Planning</mat-option>
+              <mat-option value="About Diamond Project Business">About Diamond Project Business</mat-option>
+              <mat-option value="cant say">Can't say</mat-option>
+            </mat-select>
+            @if (prospectContactForm.get('reason')?.hasError('required') ) {
+              <mat-error>
+                This answer is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Preferred Contact Method </mat-label>
+            <mat-select formControlName="contactMethod">
+              <mat-option value="Email">Email</mat-option>
+              <mat-option value="Phone">Phone</mat-option>
+              <mat-option value="WhatsApp">WhatsApp</mat-option>
+              <mat-option value="Text Message">Text Message</mat-option>
+              <mat-option value="Video Call">Video Call (Zoom, Google Meet, etc.)</mat-option>
+              <mat-option value="Any Option">Any Option</mat-option>
+            </mat-select>
+            @if (prospectContactForm.get('contactMethod')?.hasError('required') ) {
+              <mat-error>
+                This answer is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="none-form-group">
+          <mat-form-field appearance="outline">
+            <mat-label> Leave a brief Description/Questions (Optional)</mat-label>
+            <textarea matInput formControlName="description"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <!-- date -->
+          <mat-form-field appearance="outline">
+            <mat-label>Choose a date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="consultDate" [min]="minDate">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (prospectContactForm.get('consultDate')?.hasError('required') ) {
+              <mat-error>
+                Date is required
+              </mat-error>
+            }
+          </mat-form-field>
+
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Choose a time</mat-label>
+            <input matInput type="time" formControlName="consultTime">
+            <mat-hint>HH/MM/am/pm</mat-hint>
+            @if (prospectContactForm.get('consultTime')?.hasError('required') ) {
+              <mat-error>
+                Time is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+
+        <div class="form-group"></div>
+
+
+        <button mat-flat-button color="primary">Save Booking</button>
+      </form>
+    </div>
+
+  </section>
 </section>
 
 `,

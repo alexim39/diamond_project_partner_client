@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import { ContactsInterface, ContactsService } from '../../../contacts.service';
-import { CommonModule } from '@angular/common';
+
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -21,57 +21,59 @@ import { Subscription } from 'rxjs';
 selector: 'async-prospect-actions-panel',
 template: `
 
-<article>  
-    <h2>Action</h2>  
+<article>
+  <h2>Action</h2>
 
+  <div class="list">
+    <h5> Promote to Partner </h5>
+    <span class="data">
+      <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
+    </span>
+  </div>
+  <mat-divider></mat-divider>
+
+  <div class="list">
+    <h5> Edit Prospect Details </h5>
+    <span class="data">
+      <button mat-flat-button (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit</button>
+    </span>
+  </div>
+  <mat-divider></mat-divider>
+
+  <div class="list">
+    <h5> Book for Session </h5>
+    <span class="data">
+      <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
+    </span>
+  </div>
+  <mat-divider></mat-divider>
+
+  @if (prospectData.survey) {
     <div class="list">
-        <h5> Promote to Partner </h5>
-        <span class="data">
-            <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
-        </span>
+      <h5> Survey Response </h5>
+      <span class="data">
+        <button mat-flat-button (click)="ViewResponse(prospectData)"><mat-icon>quiz</mat-icon>View Survey Response </button>
+      </span>
+      <mat-divider style="margin-top: 1em;"></mat-divider>
     </div>
-    <mat-divider></mat-divider>
+  }
 
-    <div class="list">
-        <h5> Edit Prospect Details </h5>
-        <span class="data">
-            <button mat-flat-button (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit</button>
-        </span>
-    </div>
-    <mat-divider></mat-divider>
+  <div class="list">
+    <h5> Move Prospect's Record Back to Prospect List </h5>
+    <span class="data">
+      <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="moveProspectBackToProspectList(prospectData._id)"><mat-icon>replay</mat-icon>Move Back to Survey List</button>
+    </span>
+    <mat-divider style="margin-top: 1em;"></mat-divider>
+  </div>
 
-    <div class="list">
-        <h5> Book for Session </h5>
-        <span class="data">
-            <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
-        </span>
-    </div>
-    <mat-divider></mat-divider>
+  <div class="list">
+    <h5> Delete Prospect's Record </h5>
+    <span class="data">
+      <button mat-stroked-button style="color: rgba(223, 10, 10, 0.578)" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete</button>
+    </span>
+  </div>
 
-    <div class="list" *ngIf="prospectData.survey">
-        <h5> Survey Response </h5>
-        <span class="data">
-            <button mat-flat-button (click)="ViewResponse(prospectData)"><mat-icon>quiz</mat-icon>View Survey Response </button>
-        </span>
-        <mat-divider style="margin-top: 1em;"></mat-divider>
-    </div>
-
-    <div class="list">
-        <h5> Move Prospect's Record Back to Prospect List </h5>
-        <span class="data">
-            <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="moveProspectBackToProspectList(prospectData._id)"><mat-icon>replay</mat-icon>Move Back to Survey List</button>
-        </span>
-        <mat-divider style="margin-top: 1em;"></mat-divider>
-    </div>
-
-    <div class="list">
-        <h5> Delete Prospect's Record </h5>
-        <span class="data">
-            <button mat-stroked-button style="color: rgba(223, 10, 10, 0.578)" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete</button>
-        </span>
-    </div>
-
-</article> 
+</article>
 
 
 `,
@@ -119,10 +121,9 @@ imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatIconModule, 
+    MatIconModule,
     MatButtonModule,
-    MatDividerModule, 
-    CommonModule,
+    MatDividerModule
 ],
 })
 export class ProspectActionsComponent implements OnInit, OnDestroy {

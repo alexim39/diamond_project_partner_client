@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,36 +19,36 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
     template: `
 
 
-    <router-outlet></router-outlet>
+<router-outlet></router-outlet>
 
 
-    <ng-container *ngIf="!isEmptyRecord">
-      <async-my-partners
-        *ngIf="partner && myPartners"
-        [partner]="partner"
-        [myPartners]="myPartners.data">
-      </async-my-partners>
-    </ng-container>
+@if (!isEmptyRecord) {
+  @if (partner && myPartners) {
+    <async-my-partners
+      [partner]="partner"
+      [myPartners]="myPartners.data">
+    </async-my-partners>
+  }
+}
 
-    <ng-container *ngIf="isEmptyRecord">
-      <div class="container">
-        <div class="btn-area">
-          <button mat-raised-button class="activate-btn" (click)="activateNewPartner()">
-            <mat-icon>card_membership</mat-icon>
-            Activate New Partner
-          </button>
-        </div>
-
-        <p class="no-content">
-          Something went wrong, or maybe you don't have partners yet!
-        </p>
-        <button mat-flat-button class="back-btn" (click)="navigateBack()">
-          <mat-icon>arrow_back</mat-icon>
-          Go Back
-        </button>
-      </div>
-    </ng-container>
-  `,
+@if (isEmptyRecord) {
+  <div class="container">
+    <div class="btn-area">
+      <button mat-raised-button class="activate-btn" (click)="activateNewPartner()">
+        <mat-icon>card_membership</mat-icon>
+        Activate New Partner
+      </button>
+    </div>
+    <p class="no-content">
+      Something went wrong, or maybe you don't have partners yet!
+    </p>
+    <button mat-flat-button class="back-btn" (click)="navigateBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Go Back
+    </button>
+  </div>
+}
+`,
     styles: [
         `
       .container {
@@ -80,7 +80,7 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
     `,
     ],
     providers: [MyPartnersService],
-    imports: [CommonModule, MyPartnersComponent, MatButtonModule, MatIconModule, RouterModule]
+    imports: [MyPartnersComponent, MatButtonModule, MatIconModule, RouterModule]
 })
 export class MyPartnersContainerComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;

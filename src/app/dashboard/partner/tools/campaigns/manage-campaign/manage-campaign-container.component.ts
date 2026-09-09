@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -15,22 +15,24 @@ import { Router } from '@angular/router';
  */
 @Component({
 selector: 'async-manage-campaign-container',
-imports: [CommonModule, ManageCampaignComponent, MatIconModule, MatButtonModule],
+imports: [ManageCampaignComponent, MatIconModule, MatButtonModule],
 providers: [CampaignService],
 template: `
  @if(isEmptyRecord) {
-    <div class="container">
-      <p class="no-content">
-        <!-- Something Went Wrong or may be you dont have logs yet! -->
-         {{serverErrorMessage}} or Something went wrong
-
-      </p>
-      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-    </div>
+   <div class="container">
+     <p class="no-content">
+       <!-- Something Went Wrong or may be you dont have logs yet! -->
+       {{serverErrorMessage}} or Something went wrong
+ 
+     </p>
+     <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
+   </div>
  } @else {
- <async-manage-campaign *ngIf="partner && campaigns" [partner]="partner" [campaigns]="campaigns"/> }
-
-`,
+   @if (partner && campaigns) {
+     <async-manage-campaign [partner]="partner" [campaigns]="campaigns"/>
+     } }
+ 
+ `,
 styles: `
    .container {
      padding: 2em;

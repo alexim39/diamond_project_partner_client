@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,12 @@ import { ContactsInterface, ContactsService } from '../contacts.service';
  */
 @Component({
     selector: 'async-manage-contacts-container',
-    imports: [CommonModule, ManageContactsComponent],
+    imports: [ManageContactsComponent],
     providers: [ContactsService],
     template: `
-  <async-manage-contatcs *ngIf="partner && prospectContact" [partner]="partner" [prospectContact]="prospectContact"/>
+  @if (partner && prospectContact) {
+    <async-manage-contatcs [partner]="partner" [prospectContact]="prospectContact"/>
+  }
   `
 })
 export class ManageContactsContainerComponent implements OnInit, OnDestroy {

@@ -1,19 +1,21 @@
 import { Component, Input } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 
 @Component({
 selector: 'async-profile-picture-upload',
-imports: [CommonModule, MatButtonModule],
+imports: [MatButtonModule],
 template: `
   <section>
     <div class="profile-picture-upload">
-        <img *ngIf="profilePictureUrl" [src]="profilePictureUrl" alt="Profile Picture" class="profile-picture-preview"/>
-        <input type="file" (change)="onFileSelected($event)" accept="image/*" />
-        <button mat-flat-button (click)="onUpload()">Upload</button>
+      @if (profilePictureUrl) {
+        <img [src]="profilePictureUrl" alt="Profile Picture" class="profile-picture-preview"/>
+      }
+      <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+      <button mat-flat-button (click)="onUpload()">Upload</button>
     </div>
   </section>
   `,

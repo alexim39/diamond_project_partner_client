@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
+
 import { ContactsService } from '../../contacts/contacts.service';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -20,33 +20,39 @@ import { HttpErrorResponse } from '@angular/common/http';
 selector: 'async-enter-email',
 template:`
 
-<form (ngSubmit)="onSubmit()" [formGroup]="bulckEmailForm">  
-    <mat-form-field appearance="outline" class="sender-id">  
-        <mat-label>Email Subject</mat-label>  
-        <input matInput placeholder="Eg. Meeting Request: Join Our Online Strategy Discussion - March 15, 2090" formControlName="emailSubject">  
-        <mat-error *ngIf="bulckEmailForm.get('emailSubject')?.hasError('required') ">  
-            This field is required.  
-        </mat-error>   
-    </mat-form-field>  
+<form (ngSubmit)="onSubmit()" [formGroup]="bulckEmailForm">
+  <mat-form-field appearance="outline" class="sender-id">
+    <mat-label>Email Subject</mat-label>
+    <input matInput placeholder="Eg. Meeting Request: Join Our Online Strategy Discussion - March 15, 2090" formControlName="emailSubject">
+    @if (bulckEmailForm.get('emailSubject')?.hasError('required') ) {
+      <mat-error>
+        This field is required.
+      </mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field appearance="outline" class="email-address">  
-      <mat-label>Enter Email Addresses</mat-label>  
-      <textarea matInput placeholder="Ex. aleximenwo@async.com, aleximenwo@async.ng, ..." formControlName="prospects"></textarea>  
-      <mat-hint align="start"><strong>Separate each email with a comer</strong> </mat-hint>
-      <mat-error *ngIf="bulckEmailForm.get('prospects')?.hasError('required') ">  
-        At least an email address should be entered  
-      </mat-error>  
-    </mat-form-field>  
+  <mat-form-field appearance="outline" class="email-address">
+    <mat-label>Enter Email Addresses</mat-label>
+    <textarea matInput placeholder="Ex. aleximenwo@async.com, aleximenwo@async.ng, ..." formControlName="prospects"></textarea>
+    <mat-hint align="start"><strong>Separate each email with a comer</strong> </mat-hint>
+    @if (bulckEmailForm.get('prospects')?.hasError('required') ) {
+      <mat-error>
+        At least an email address should be entered
+      </mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field appearance="outline" class="email-message">  
-        <mat-label>Type Email Messages</mat-label>  
-        <textarea matInput placeholder="Email messages here ..." formControlName="emailBody"></textarea>  
-        <mat-error *ngIf="bulckEmailForm.get('emailBody')?.hasError('required') ">  
-            Enter the email message to be sent   
-        </mat-error>  
-    </mat-form-field>  
+  <mat-form-field appearance="outline" class="email-message">
+    <mat-label>Type Email Messages</mat-label>
+    <textarea matInput placeholder="Email messages here ..." formControlName="emailBody"></textarea>
+    @if (bulckEmailForm.get('emailBody')?.hasError('required') ) {
+      <mat-error>
+        Enter the email message to be sent
+      </mat-error>
+    }
+  </mat-form-field>
 
-    <button mat-flat-button>Send Email</button>  
+  <button mat-flat-button>Send Email</button>
 </form>
 
 `,
@@ -113,7 +119,7 @@ form {
 
 `,
 providers: [ContactsService],
-imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule]
+imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule]
 })
 export class EnterEmailComponent implements OnInit, OnDestroy {
     @Input() partner!: PartnerInterface;

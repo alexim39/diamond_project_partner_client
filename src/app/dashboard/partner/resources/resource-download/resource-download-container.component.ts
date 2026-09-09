@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { ResourceDownloadComponent } from './resource-download.component';
 
 /**
@@ -11,10 +11,12 @@ import { ResourceDownloadComponent } from './resource-download.component';
 @Component({
     selector: 'async-resource-download-container',
     template: `
-    <async-resource-download *ngIf="partner" [partner]="partner"/>
-  `,
+    @if (partner) {
+      <async-resource-download [partner]="partner"/>
+    }
+    `,
     providers: [],
-    imports: [MatIconModule, CommonModule, ResourceDownloadComponent]
+    imports: [MatIconModule, ResourceDownloadComponent]
 })
 export class ResourceDownloadContainerComponent implements OnInit, OnDestroy {
 

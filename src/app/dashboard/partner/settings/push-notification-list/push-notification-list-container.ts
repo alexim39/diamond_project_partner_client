@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -8,10 +8,12 @@ import { PushNotificationInterface, PushNotificationService } from '../../index/
 
 @Component({
     selector: 'async-push-notification-list-container',
-    imports: [CommonModule, PushNotificationListComponent],
+    imports: [PushNotificationListComponent],
     providers: [PushNotificationService],
     template: `
-  <async-push-notification-list *ngIf="partner && notifications" [partner]="partner" [notifications]="notifications"/>
+  @if (partner && notifications) {
+    <async-push-notification-list [partner]="partner" [notifications]="notifications"/>
+  }
   `
 })
 export class PushNotificationListContainerComponent implements OnInit, OnDestroy {

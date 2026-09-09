@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,12 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
  */
 @Component({
     selector: 'async-prospect-booking-container',
-    imports: [CommonModule, ProspectBookingComponent],
+    imports: [ProspectBookingComponent],
     providers: [ProspectService],
     template: `
-  <async-prospect-booking *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"/>
+  @if (partner && prospectList) {
+    <async-prospect-booking [partner]="partner" [prospectList]="prospectList"/>
+  }
   `
 })
 export class ProspectBookingContainerComponent implements OnInit, OnDestroy {

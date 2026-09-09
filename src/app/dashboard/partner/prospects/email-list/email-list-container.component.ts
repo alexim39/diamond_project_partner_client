@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,12 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
  */
 @Component({
     selector: 'async-email-list-container',
-    imports: [CommonModule, EmailListComponent],
+    imports: [EmailListComponent],
     providers: [ProspectService],
     template: `
-  <async-email-list *ngIf="partner && prospectList" [partner]="partner" [prospectList]="prospectList"/>
+  @if (partner && prospectList) {
+    <async-email-list [partner]="partner" [prospectList]="prospectList"/>
+  }
   `
 })
 export class EmailListContainerComponent implements OnInit, OnDestroy {

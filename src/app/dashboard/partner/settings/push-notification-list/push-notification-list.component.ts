@@ -30,79 +30,85 @@ template: `
     <div class="push-notification-list">
       @if (notifications.length) {
         <ul>
-          <li *ngFor="let notification of notifications" class="notification-item">
-            <div class="notification-content">
-              <div>
-                <h3><mat-icon>{{ notification.icon }}</mat-icon> {{ notification.title }}</h3>
-                <p>{{ notification.description }}</p>
-                <!-- <p *ngIf="notification.tag"><strong>Tag:</strong> {{ notification.tag }}</p> -->
-                <p *ngIf="notification.urgency"><strong style="color: red;">Urgent</strong></p>
-                <!-- <p *ngIf="notification.prospectId"><strong>Prospect ID:</strong> {{ notification.prospectId }}</p> -->
-
-                <!-- Status Info -->
-                <div *ngIf="notification.status">
-                  <h4>Status Informations</h4>
-                  <!-- <ul>
-                    <li *ngFor="let key of getKeys(notification.status)">
-                      <strong>{{ key }}:</strong> {{ notification.status[key] }}
-                    </li>
-                  </ul> -->
-                  <ul>
-                    <li>
+          @for (notification of notifications; track notification) {
+            <li class="notification-item">
+              <div class="notification-content">
+                <div>
+                  <h3><mat-icon>{{ notification.icon }}</mat-icon> {{ notification.title }}</h3>
+                  <p>{{ notification.description }}</p>
+                  <!-- <p *ngIf="notification.tag"><strong>Tag:</strong> {{ notification.tag }}</p> -->
+                  @if (notification.urgency) {
+                    <p><strong style="color: red;">Urgent</strong></p>
+                  }
+                  <!-- <p *ngIf="notification.prospectId"><strong>Prospect ID:</strong> {{ notification.prospectId }}</p> -->
+                  <!-- Status Info -->
+                  @if (notification.status) {
+                    <div>
+                      <h4>Status Informations</h4>
+                      <!-- <ul>
+                      <li *ngFor="let key of getKeys(notification.status)">
+                        <strong>{{ key }}:</strong> {{ notification.status[key] }}
+                      </li>
+                    </ul> -->
+                    <ul>
+                      <li>
                         <strong>Info: </strong> {{ notification.status.name ? notification.status.name : 'Not captured' }}
-                    </li>
-                    <li>
+                      </li>
+                      <li>
                         <strong>Note: </strong> {{ notification.status.note ? notification.status.note : 'Not captured' }}
-                    </li>
-                    <li>
+                      </li>
+                      <li>
                         <strong>Expected Decision Date: </strong> {{ notification.status.expectedDecisionDate ? (notification.status.expectedDecisionDate | date) : 'No date' }}
-                    </li>
-                  </ul>
-                </div>
-
+                      </li>
+                    </ul>
+                  </div>
+                }
                 <!-- Communication Info -->
-                <div *ngIf="notification.communication">
-                  <h4>Last Communication</h4>
-                 <!--  <ul>
+                @if (notification.communication) {
+                  <div>
+                    <h4>Last Communication</h4>
+                    <!--  <ul>
                     <li *ngFor="let key of getKeys(notification.communication)">
                       <strong>{{ key }}:</strong> {{ notification.communication[key] }}
                     </li>
                   </ul> -->
                   <ul>
                     <li>
-                        <strong>Communication Type: </strong> {{ notification.communication.type ? notification.communication.type : 'Not captured' }}
+                      <strong>Communication Type: </strong> {{ notification.communication.type ? notification.communication.type : 'Not captured' }}
                     </li>
                     <li>
-                        <strong>Duration: </strong> {{ notification.communication.duration ? notification.communication.duration+'min' : 'Not captured'}}
+                      <strong>Duration: </strong> {{ notification.communication.duration ? notification.communication.duration+'min' : 'Not captured'}}
                     </li>
                     <li>
-                        <strong>Description: </strong> {{ notification.communication.description ? notification.communication.description : 'Not captured' }}
+                      <strong>Description: </strong> {{ notification.communication.description ? notification.communication.description : 'Not captured' }}
                     </li>
                     <li>
-                        <strong>Interest Level: </strong> {{ notification.communication.interestLevel ? notification.communication.interestLevel : 'Not available' }}
+                      <strong>Interest Level: </strong> {{ notification.communication.interestLevel ? notification.communication.interestLevel : 'Not available' }}
                     </li>
                     <li>
-                        <strong>Expected Date: </strong> {{ notification.communication.date ? (notification.communication.date | date) : 'No date' }}
+                      <strong>Expected Date: </strong> {{ notification.communication.date ? (notification.communication.date | date) : 'No date' }}
                     </li>
                   </ul>
                 </div>
-
-                <small *ngIf="notification.status?.createdAt">Created date: {{ notification.status.createdAt | date }}</small>
-              </div>
-
-              <div class="notification-actions">
-                <button mat-mini-fab color="warn" aria-label="Delete" style="color: red;" (click)="closeNotification(notification)">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
+              }
+              @if (notification.status?.createdAt) {
+                <small>Created date: {{ notification.status.createdAt | date }}</small>
+              }
             </div>
-          </li>
-        </ul>
-      } @else {
-        <p class="no-record">No push notifications available.</p>
+            <div class="notification-actions">
+              <button mat-mini-fab color="warn" aria-label="Delete" style="color: red;" (click)="closeNotification(notification)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </li>
       }
-    </div>
-  </section>
+    </ul>
+  } @else {
+    <p class="no-record">No push notifications available.</p>
+  }
+</div>
+</section>
 </section>
 
 

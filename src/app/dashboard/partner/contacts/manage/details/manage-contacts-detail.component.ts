@@ -20,25 +20,35 @@ selector: 'async-manage-contacts-detail',
 template: `
 
 <section class="async-background">
-    <h2>Prospect Contact Details</h2>
+  <h2>Prospect Contact Details</h2>
 
-    <section class="async-container">
-        <div class="title">
-            <div class="control">
-                <div class="back" (click)="back()" title="Back">
-                    <mat-icon>arrow_back</mat-icon>
-                </div>
-            </div>
-            <h3>{{prospect.prospectSurname | titlecase}} {{prospect.prospectName | titlecase}}'s Details</h3>
+  <section class="async-container">
+    <div class="title">
+      <div class="control">
+        <div class="back" (click)="back()" title="Back">
+          <mat-icon>arrow_back</mat-icon>
         </div>
-            <section class="flex-container">  
-                <async-prospect-basic-info-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
-                <async-prospect-status-info-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
-                <async-prospect-actions-panel class="flex-item" *ngIf="prospect" [prospect]="prospect"/>
-                <async-prospect-email-panel class="flex-item" *ngIf="prospect && partner " [prospect]="prospect" [partner]="partner"/>
-                <async-prospect-sms-panel class="flex-item" *ngIf="prospect && partner " [prospect]="prospect" [partner]="partner"/>
-            </section>
+      </div>
+      <h3>{{prospect.prospectSurname | titlecase}} {{prospect.prospectName | titlecase}}'s Details</h3>
+    </div>
+    <section class="flex-container">
+      @if (prospect) {
+        <async-prospect-basic-info-panel class="flex-item" [prospect]="prospect"/>
+      }
+      @if (prospect) {
+        <async-prospect-status-info-panel class="flex-item" [prospect]="prospect"/>
+      }
+      @if (prospect) {
+        <async-prospect-actions-panel class="flex-item" [prospect]="prospect"/>
+      }
+      @if (prospect && partner ) {
+        <async-prospect-email-panel class="flex-item" [prospect]="prospect" [partner]="partner"/>
+      }
+      @if (prospect && partner ) {
+        <async-prospect-sms-panel class="flex-item" [prospect]="prospect" [partner]="partner"/>
+      }
     </section>
+  </section>
 </section>
 
 `,

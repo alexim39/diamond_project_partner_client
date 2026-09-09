@@ -4,11 +4,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'async-index-why-we-exist',
-    imports: [RouterModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, CommonModule],
+    imports: [RouterModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
     template: `
     <aside class="why-we-exist">
       <div class="features">

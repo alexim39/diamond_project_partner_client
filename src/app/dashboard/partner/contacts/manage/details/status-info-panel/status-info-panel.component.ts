@@ -46,13 +46,13 @@ template: `
   <div class="list">
     <h6>Current Pipeline Status</h6>
     <span class="data">
-      {{ selectedStatus ? selectedStatus : prospectData?.status?.name }} 
+      {{ selectedStatus ? selectedStatus : prospectData?.status?.name }}
       @if (prospectData?.status?.paydayDate) {
         - {{prospectData.status.paydayDate | date}}
       } @else if (prospectData?.status?.expectedDecisionDate) {
         - {{prospectData.status.expectedDecisionDate | date}}
       } @else if (prospectData?.status?.onboardingDate) {
-         - {{prospectData.status.onboardingDate | date}}
+        - {{prospectData.status.onboardingDate | date}}
       }
     </span>
     <div class="sub-data">{{ prospectData?.status?.note ? prospectData.status.note : '' }}</div>
@@ -65,99 +65,99 @@ template: `
     <span class="data" style="display: flex; flex-direction: column;">
 
       <mat-form-field appearance="outline">
-      <mat-label>Choose status to update</mat-label>
+        <mat-label>Choose status to update</mat-label>
         <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusChange($event.value)" required>
 
 
-        <!-- Initial Stage: New Contact -->
-        <mat-optgroup label="Initial Contact">
-          <mat-option value="New Prospect">New Prospect</mat-option>
-          <mat-option value="Contacted - No Response">Contacted – No Response</mat-option>
-          <mat-option value="Intro Call Completed">Intro Call Completed</mat-option>
-        </mat-optgroup>
+          <!-- Initial Stage: New Contact -->
+          <mat-optgroup label="Initial Contact">
+            <mat-option value="New Prospect">New Prospect</mat-option>
+            <mat-option value="Contacted - No Response">Contacted – No Response</mat-option>
+            <mat-option value="Intro Call Completed">Intro Call Completed</mat-option>
+          </mat-optgroup>
 
-        <!-- Follow-Up Sequences -->
-        <mat-optgroup label="Follow-Up Status">
-          <mat-option value="Follow-Up Scheduled">Follow-Up Scheduled</mat-option>
-          <mat-option value="Follow-Up Missed">Follow-Up Missed</mat-option>
-          <mat-option value="Follow-Up Complete">Follow-Up Complete</mat-option>
-        </mat-optgroup>
+          <!-- Follow-Up Sequences -->
+          <mat-optgroup label="Follow-Up Status">
+            <mat-option value="Follow-Up Scheduled">Follow-Up Scheduled</mat-option>
+            <mat-option value="Follow-Up Missed">Follow-Up Missed</mat-option>
+            <mat-option value="Follow-Up Complete">Follow-Up Complete</mat-option>
+          </mat-optgroup>
 
-        <!-- Prospect Behavior -->
-        <mat-optgroup label="Engagement & Behavior">
-          <mat-option value="Watched Video (Partial)">Watched Opportunity Video (Partial)</mat-option>
-          <mat-option value="Watched Video (Full)">Watched Opportunity Video (Full)</mat-option>
-          <mat-option value="Attended Webinar">Attended Live/Recorded Webinar</mat-option>
-          <mat-option value="Requested More Info">Requested More Info</mat-option>
-          <mat-option value="Requested Success Stories">Requested Success Stories</mat-option>
-          <mat-option value="Sample/Product Received">Sample or Product Received</mat-option>
-        </mat-optgroup>
+          <!-- Prospect Behavior -->
+          <mat-optgroup label="Engagement & Behavior">
+            <mat-option value="Watched Video (Partial)">Watched Opportunity Video (Partial)</mat-option>
+            <mat-option value="Watched Video (Full)">Watched Opportunity Video (Full)</mat-option>
+            <mat-option value="Attended Webinar">Attended Live/Recorded Webinar</mat-option>
+            <mat-option value="Requested More Info">Requested More Info</mat-option>
+            <mat-option value="Requested Success Stories">Requested Success Stories</mat-option>
+            <mat-option value="Sample/Product Received">Sample or Product Received</mat-option>
+          </mat-optgroup>
 
-        <!-- Commitments & Promises -->
-        <mat-optgroup label="Commitments Made">
-          <mat-option value="Promised to Join">Promised to Join</mat-option>
-          <mat-option value="Thinking About It">Needs Time to Think</mat-option>
-          <mat-option value="Will Decide After Event">Decision After Event</mat-option>
-          <mat-option value="Waiting for Pay Day">Waiting for Pay Day</mat-option>
-        </mat-optgroup>
+          <!-- Commitments & Promises -->
+          <mat-optgroup label="Commitments Made">
+            <mat-option value="Promised to Join">Promised to Join</mat-option>
+            <mat-option value="Thinking About It">Needs Time to Think</mat-option>
+            <mat-option value="Will Decide After Event">Decision After Event</mat-option>
+            <mat-option value="Waiting for Pay Day">Waiting for Pay Day</mat-option>
+          </mat-optgroup>
 
-        <!-- Sales Funnel Progression -->
-        <mat-optgroup label="Sales Funnel Stage">
-          <mat-option value="Interested">Interested</mat-option>
-          <mat-option value="Nurturing">Nurturing</mat-option>
-          <mat-option value="Closing Phase">In Closing Phase</mat-option>
-          <mat-option value="Booked for Onboarding">Booked for Onboarding</mat-option>
-        </mat-optgroup>
+          <!-- Sales Funnel Progression -->
+          <mat-optgroup label="Sales Funnel Stage">
+            <mat-option value="Interested">Interested</mat-option>
+            <mat-option value="Nurturing">Nurturing</mat-option>
+            <mat-option value="Closing Phase">In Closing Phase</mat-option>
+            <mat-option value="Booked for Onboarding">Booked for Onboarding</mat-option>
+          </mat-optgroup>
 
-        <!-- Final Outcomes -->
-        <mat-optgroup label="Final Outcome">
-          <mat-option value="Currently a Member">Currently a Member</mat-option>
-          <mat-option value="Now a Partner">Now a Partner</mat-option>
-          <mat-option value="Not Interested">Not Interested</mat-option>
-          <mat-option value="Disqualified">Disqualified</mat-option>
-          <mat-option value="Inactive">Inactive</mat-option>
-          <mat-option value="Needs Re-engagement">Needs Re-engagement</mat-option>
-          <mat-option value="Archived">Archived</mat-option>
-        </mat-optgroup>
+          <!-- Final Outcomes -->
+          <mat-optgroup label="Final Outcome">
+            <mat-option value="Currently a Member">Currently a Member</mat-option>
+            <mat-option value="Now a Partner">Now a Partner</mat-option>
+            <mat-option value="Not Interested">Not Interested</mat-option>
+            <mat-option value="Disqualified">Disqualified</mat-option>
+            <mat-option value="Inactive">Inactive</mat-option>
+            <mat-option value="Needs Re-engagement">Needs Re-engagement</mat-option>
+            <mat-option value="Archived">Archived</mat-option>
+          </mat-optgroup>
 
-      </mat-select>
-    </mat-form-field>
+        </mat-select>
+      </mat-form-field>
 
 
-  <!-- Conditional Additional Inputs -->
-  <ng-container *ngIf="selectedStatus === 'Waiting for Pay Day'">
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Expected Pay Day</mat-label>
-      <input matInput [matDatepicker]="paydayPicker" [(ngModel)]="followUpDetails.paydayDate">
-      <mat-datepicker-toggle matSuffix [for]="paydayPicker"></mat-datepicker-toggle>
-      <mat-datepicker #paydayPicker></mat-datepicker>
-    </mat-form-field>
-  </ng-container>
+      <!-- Conditional Additional Inputs -->
+      @if (selectedStatus === 'Waiting for Pay Day') {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Expected Pay Day</mat-label>
+          <input matInput [matDatepicker]="paydayPicker" [(ngModel)]="followUpDetails.paydayDate">
+          <mat-datepicker-toggle matSuffix [for]="paydayPicker"></mat-datepicker-toggle>
+          <mat-datepicker #paydayPicker></mat-datepicker>
+        </mat-form-field>
+      }
 
-  <ng-container *ngIf="selectedStatus === 'Promised to Join' || selectedStatus === 'Thinking About It'">
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Expected Decision Date</mat-label>
-      <input matInput [matDatepicker]="decisionDatePicker" [(ngModel)]="followUpDetails.expectedDecisionDate">
-      <mat-datepicker-toggle matSuffix [for]="decisionDatePicker"></mat-datepicker-toggle>
-      <mat-datepicker #decisionDatePicker></mat-datepicker>
-    </mat-form-field>
-  </ng-container>
+      @if (selectedStatus === 'Promised to Join' || selectedStatus === 'Thinking About It') {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Expected Decision Date</mat-label>
+          <input matInput [matDatepicker]="decisionDatePicker" [(ngModel)]="followUpDetails.expectedDecisionDate">
+          <mat-datepicker-toggle matSuffix [for]="decisionDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #decisionDatePicker></mat-datepicker>
+        </mat-form-field>
+      }
 
-  <ng-container *ngIf="selectedStatus === 'Booked for Onboarding'">
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Onboarding Date</mat-label>
-      <input matInput [matDatepicker]="onboardingDatePicker" [(ngModel)]="followUpDetails.onboardingDate">
-      <mat-datepicker-toggle matSuffix [for]="onboardingDatePicker"></mat-datepicker-toggle>
-      <mat-datepicker #onboardingDatePicker></mat-datepicker>
-    </mat-form-field>
-  </ng-container>
+      @if (selectedStatus === 'Booked for Onboarding') {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Onboarding Date</mat-label>
+          <input matInput [matDatepicker]="onboardingDatePicker" [(ngModel)]="followUpDetails.onboardingDate">
+          <mat-datepicker-toggle matSuffix [for]="onboardingDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #onboardingDatePicker></mat-datepicker>
+        </mat-form-field>
+      }
 
-  <ng-container *ngIf="selectedStatus">
-    <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Note or Context (Optional)</mat-label>
-      <textarea matInput rows="2" [(ngModel)]="followUpDetails.note" placeholder="Add any specific promise, objection, or interest..."></textarea>
-    </mat-form-field>
-  </ng-container>
+      @if (selectedStatus) {
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Note or Context (Optional)</mat-label>
+          <textarea matInput rows="2" [(ngModel)]="followUpDetails.note" placeholder="Add any specific promise, objection, or interest..."></textarea>
+        </mat-form-field>
+      }
 
 
       <div style="display: flex; justify-content: center; align-items: center;">
@@ -168,29 +168,31 @@ template: `
   <mat-divider></mat-divider>
   <br>
 
-  <!-- Communication Form --> 
-  <mat-accordion>
+    <!-- Communication Form -->
+    <mat-accordion>
 
-  <!-- Record Communication -->
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Record Communications </mat-panel-title>
-        <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
-      </mat-expansion-panel-header>
-      
-      
+      <!-- Record Communication -->
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title> Record Communications </mat-panel-title>
+          <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
+        </mat-expansion-panel-header>
+
+
         <form [formGroup]="communicationForm" (ngSubmit)="onSubmit()" class="communication-form">
 
-        <!-- Date Field -->
-        <mat-form-field appearance="outline">
-          <mat-label>Date</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="date" required />
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          <mat-error *ngIf="communicationForm.controls['date'].invalid && communicationForm.controls['date'].touched">
-            Date is required.
-          </mat-error>
-        </mat-form-field>
+          <!-- Date Field -->
+          <mat-form-field appearance="outline">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="date" required />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (communicationForm.controls['date'].invalid && communicationForm.controls['date'].touched) {
+              <mat-error>
+                Date is required.
+              </mat-error>
+            }
+          </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Type</mat-label>
@@ -203,26 +205,34 @@ template: `
               <mat-option value="zoom">Zoom Meeting</mat-option>
               <mat-option value="meeting">In-person Meeting</mat-option>
             </mat-select>
-            <mat-error *ngIf="communicationForm.controls['type'].invalid && communicationForm.controls['type'].touched">
-              Communication type is required.
-            </mat-error>
+            @if (communicationForm.controls['type'].invalid && communicationForm.controls['type'].touched) {
+              <mat-error>
+                Communication type is required.
+              </mat-error>
+            }
           </mat-form-field>
 
           <!-- Duration Field -->
-          <mat-form-field appearance="outline" *ngIf="communicationForm.controls['type'].value === 'call' || communicationForm.controls['type'].value === 'zoom' || communicationForm.controls['type'].value === 'whatsapp call'">
-            <mat-label>Duration (minutes)</mat-label>
-            <input matInput type="number" formControlName="duration" min="0" required  placeholder="Eg. 60"/>
-            <mat-error *ngIf="communicationForm.controls['duration'].invalid && communicationForm.controls['duration'].touched">
-              Duration must be at least 0.
-            </mat-error>
-          </mat-form-field>
+          @if (communicationForm.controls['type'].value === 'call' || communicationForm.controls['type'].value === 'zoom' || communicationForm.controls['type'].value === 'whatsapp call') {
+            <mat-form-field appearance="outline">
+              <mat-label>Duration (minutes)</mat-label>
+              <input matInput type="number" formControlName="duration" min="0" required  placeholder="Eg. 60"/>
+              @if (communicationForm.controls['duration'].invalid && communicationForm.controls['duration'].touched) {
+                <mat-error>
+                  Duration must be at least 0.
+                </mat-error>
+              }
+            </mat-form-field>
+          }
 
           <mat-form-field appearance="outline">
             <mat-label>Description</mat-label>
             <textarea matInput formControlName="description" rows="3" required placeholder="Add any specific remarks, comments, or observation..."></textarea>
-            <mat-error *ngIf="communicationForm.controls['description'].invalid && communicationForm.controls['description'].touched">
-              Description is required.
-            </mat-error>
+            @if (communicationForm.controls['description'].invalid && communicationForm.controls['description'].touched) {
+              <mat-error>
+                Description is required.
+              </mat-error>
+            }
           </mat-form-field>
 
 
@@ -247,57 +257,61 @@ template: `
           </div>
         </form>
 
-    </mat-expansion-panel>
+      </mat-expansion-panel>
 
-    <!-- View communictaions -->
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          View Communications
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+      <!-- View communictaions -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            View Communications
+          </mat-panel-title>
+        </mat-expansion-panel-header>
 
-      @if (prospectData?.communications?.length === 0) {
+        @if (prospectData?.communications?.length === 0) {
 
-        <div class="no-communiction">
-          <p>
-            No communication record available yet
-          </p>
-        </div>
+          <div class="no-communiction">
+            <p>
+              No communication record available yet
+            </p>
+          </div>
 
-      } @else {
+        } @else {
 
-          <div *ngFor="let communication of prospectData.communications" class="communication-card">
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>
-                {{ communication.type | titlecase }} on {{ communication.date | date:'mediumDate' }}
-              </mat-card-title>
-              <mat-card-subtitle>
-                Interest Level: {{ communication.interestLevel | titlecase }}
-              </mat-card-subtitle>
-              <mat-icon 
-                class="delete-icon" 
-                (click)="deleteCommunication(communication._id)"
-                matTooltip="Delete Communication">
-                delete
-              </mat-icon>
-            </mat-card-header>
-            <mat-card-content>
-              <p><strong>Description:</strong> {{ communication.description }}</p>
-              <p *ngIf="communication.duration"><strong>Duration:</strong> {{ communication.duration }} minutes</p>
-              <p><strong>Topics Discussed:</strong> {{ communication.topicsDiscussed.join(', ') || 'None' }}</p>
-            </mat-card-content>
-          </mat-card>
-        </div>
+          @for (communication of prospectData.communications; track communication) {
+            <div class="communication-card">
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title>
+                    {{ communication.type | titlecase }} on {{ communication.date | date:'mediumDate' }}
+                  </mat-card-title>
+                  <mat-card-subtitle>
+                    Interest Level: {{ communication.interestLevel | titlecase }}
+                  </mat-card-subtitle>
+                  <mat-icon
+                    class="delete-icon"
+                    (click)="deleteCommunication(communication._id)"
+                    matTooltip="Delete Communication">
+                    delete
+                  </mat-icon>
+                </mat-card-header>
+                <mat-card-content>
+                  <p><strong>Description:</strong> {{ communication.description }}</p>
+                  @if (communication.duration) {
+                    <p><strong>Duration:</strong> {{ communication.duration }} minutes</p>
+                  }
+                  <p><strong>Topics Discussed:</strong> {{ communication.topicsDiscussed.join(', ') || 'None' }}</p>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          }
 
-      }
+        }
 
-    </mat-expansion-panel>
+      </mat-expansion-panel>
 
-  </mat-accordion>
+    </mat-accordion>
 
-</article>   
+  </article>
 
 
 `,

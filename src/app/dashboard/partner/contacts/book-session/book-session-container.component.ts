@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -12,10 +12,12 @@ import { ActivatedRoute, Router } from '@angular/router';
  */
 @Component({
     selector: 'async-book-session-container',
-    imports: [CommonModule, BookSessionComponent],
+    imports: [BookSessionComponent],
     providers: [ContactsService],
     template: `
-  <async-book-session *ngIf="prospect && partner" [prospect]="prospect"  [partner]="partner"/>
+  @if (prospect && partner) {
+    <async-book-session [prospect]="prospect"  [partner]="partner"/>
+  }
   `
 })
 export class BookSessionContainerComponent implements OnInit, OnDestroy {

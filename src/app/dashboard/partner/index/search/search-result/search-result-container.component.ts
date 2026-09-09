@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -12,10 +12,12 @@ import { SearchService } from '../search.service';
  */
 @Component({
     selector: 'async-search-result-container',
-    imports: [CommonModule, SearchResultComponent],
+    imports: [SearchResultComponent],
     providers: [SearchService],
     template: `
-  <async-search-result *ngIf="searchPartners?.data" [searchPartners]="searchPartners?.data" #srechResultComponentMethod></async-search-result>
+  @if (searchPartners?.data) {
+    <async-search-result [searchPartners]="searchPartners?.data" #srechResultComponentMethod></async-search-result>
+  }
   `
 })
 export class SearchResultContainerComponent implements OnInit, OnDestroy {

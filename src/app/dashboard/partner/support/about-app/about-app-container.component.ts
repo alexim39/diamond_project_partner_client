@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -7,10 +7,12 @@ import { AboutAppComponent } from './about-app.component';
 
 @Component({
     selector: 'async-about-app-container',
-    imports: [CommonModule, AboutAppComponent],
+    imports: [AboutAppComponent],
     providers: [],
     template: `
-  <async-about-app *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-about-app [partner]="partner"/>
+  }
   `
 })
 export class AboutAppContainerComponent implements OnInit, OnDestroy {

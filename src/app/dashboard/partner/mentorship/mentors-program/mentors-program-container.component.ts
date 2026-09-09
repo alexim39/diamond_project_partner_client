@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { MentorsProgramComponent } from './mentors-program.component';
  */
 @Component({
     selector: 'async-mentors-program-container',
-    imports: [CommonModule, MentorsProgramComponent],
+    imports: [MentorsProgramComponent],
     providers: [],
     template: `
-  <async-mentors-program *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-mentors-program [partner]="partner"/>
+  }
   `
 })
 export class MentorsProgramContainerComponent implements OnInit, OnDestroy {

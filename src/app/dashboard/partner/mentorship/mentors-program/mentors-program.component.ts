@@ -10,7 +10,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MentorsProgramService } from './mentors-program.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import Swal from 'sweetalert2';
@@ -95,7 +95,7 @@ styles: [`
 
 `],
 providers: [MentorsProgramService],
-imports: [CommonModule, MatIconModule, RouterModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
+imports: [MatIconModule, RouterModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class MentorsProgramComponent implements OnInit {
     @Input() partner!: PartnerInterface;

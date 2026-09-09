@@ -4,7 +4,7 @@ import { MonthlyPurchaseComponent } from './monthly-purchase.component';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { ProductObjectInterface, ProductService } from './monthly-purchase.service';
 import { Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 
 /**
  * @title Monthly purchase container
@@ -12,10 +12,12 @@ import { CommonModule } from '@angular/common';
 @Component({
     selector: 'async-monthly-purchase-container',
     template: `
-    <async-monthly-purchase *ngIf="productsObject" [productsObject]="productsObject"/>
-  `,
+    @if (productsObject) {
+      <async-monthly-purchase [productsObject]="productsObject"/>
+    }
+    `,
     providers: [ProductService],
-    imports: [MatIconModule, MonthlyPurchaseComponent, CommonModule]
+    imports: [MatIconModule, MonthlyPurchaseComponent]
 })
 export class MonthlyPurchaseContainerComponent implements OnInit, OnDestroy {
 

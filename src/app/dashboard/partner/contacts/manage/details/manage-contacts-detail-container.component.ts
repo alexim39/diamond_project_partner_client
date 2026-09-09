@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import { ManageContactsDetailComponent } from './manage-contacts-detail.component';
@@ -10,18 +10,20 @@ import { Subscription } from 'rxjs';
 @Component({
 selector: 'async-manage-contacts-detail-container',
 template: `
-  <ng-container *ngIf="!isEmptyRecord">
-    <async-manage-contacts-detail *ngIf="prospect" [prospect]="prospect"/>
-  </ng-container>
-    <ng-container *ngIf="isEmptyRecord">
-        <div class="container">
-          <p class="no-content">Something Went Wrong or may be you dont have contacts yet!</p>
-          <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
-        </div>
-    </ng-container>
+  @if (!isEmptyRecord) {
+    @if (prospect) {
+      <async-manage-contacts-detail [prospect]="prospect"/>
+    }
+  }
+  @if (isEmptyRecord) {
+    <div class="container">
+      <p class="no-content">Something Went Wrong or may be you dont have contacts yet!</p>
+      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
+    </div>
+  }
   `,
 providers: [ContactsService],
-imports: [ManageContactsDetailComponent, CommonModule, MatButtonModule, MatIconModule],
+imports: [ManageContactsDetailComponent, MatButtonModule, MatIconModule],
 styles: `
   .container {
     padding: 2em;

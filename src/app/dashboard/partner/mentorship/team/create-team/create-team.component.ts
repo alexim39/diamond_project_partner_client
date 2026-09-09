@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { Router, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import {MatExpansionModule} from '@angular/material/expansion';
@@ -26,7 +26,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     templateUrl: 'create-team.component.html',
     styleUrls: ['create-team.component.scss'],
     providers: [TeamService],
-    imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
+    imports: [MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class CreateTeamComponent implements OnInit {
   readonly panelOpenState = signal(false);

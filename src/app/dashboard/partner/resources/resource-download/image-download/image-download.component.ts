@@ -5,7 +5,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 //import templatesData from './../../../../../../../public/resource-templates/img/source.json';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
@@ -25,7 +25,7 @@ interface Template {
     selector: 'async-image-download',
     templateUrl: 'image-download.component.html',
     styleUrls: ['image-download.component.scss'],
-    imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, CommonModule, FormsModule, MatInputModule, MatSelectModule]
+    imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class ImageDownloadComponent implements OnDestroy, OnInit {
  filteredTemplates: Template[] = [];

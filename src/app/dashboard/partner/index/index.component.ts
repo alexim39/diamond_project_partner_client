@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,21 +23,22 @@ import { AnnouncementsComponent } from './announcements/announcements.component'
     MatIconModule,
     MatCardModule,
     MatBadgeModule,
-    CommonModule,
     IndexSearchContainerComponent,
     MatInputModule,
     NotificationBannerComponent,
     AnnouncementsComponent
-  ],
+],
 template: `
-    <async-notification-banner *ngIf="partner" [partner]="partner"/>
+    @if (partner) {
+      <async-notification-banner [partner]="partner"/>
+    }
     <async-index-search-container />
     <router-outlet />
-
+    
     <async-announcements/>
-
-
-  `,
+    
+    
+    `,
 styles: [`
 `],
 })

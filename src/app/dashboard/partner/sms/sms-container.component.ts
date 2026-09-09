@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { smsComponent } from './sms.component';
  */
 @Component({
     selector: 'async-sms-container',
-    imports: [CommonModule, smsComponent],
+    imports: [smsComponent],
     providers: [],
     template: `
-  <async-sms *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-sms [partner]="partner"/>
+  }
   `
 })
 export class smsContainerComponent implements OnInit, OnDestroy {

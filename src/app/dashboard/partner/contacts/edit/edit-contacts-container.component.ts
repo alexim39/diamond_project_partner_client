@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EditContactsComponent } from './edit-contacts.component';
@@ -11,10 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
  */
 @Component({
     selector: 'async-edit-container',
-    imports: [CommonModule, EditContactsComponent],
+    imports: [EditContactsComponent],
     providers: [ContactsService],
     template: `
-  <async-edit-contatcs *ngIf="prospect" [prospect]="prospect"/>
+  @if (prospect) {
+    <async-edit-contatcs [prospect]="prospect"/>
+  }
   `
 })
 export class EditContactsContainerComponent implements OnInit, OnDestroy {

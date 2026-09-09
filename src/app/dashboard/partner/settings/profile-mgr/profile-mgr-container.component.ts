@@ -1,5 +1,5 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ProfileMgrComponent } from './profile-mgr.component';
@@ -21,20 +21,24 @@ template: `
   <h2>Account Settings <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
 
   <section class="async-container">
-      <div class="title">
-          <h1>Account Profile Manager</h1>
-          <div class="fund-area">
-            <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
-          </div>
+    <div class="title">
+      <h1>Account Profile Manager</h1>
+      <div class="fund-area">
+        <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
       </div>
+    </div>
 
 
     <mat-tab-group>
-      <mat-tab label="Profile Settings"> 
-        <async-profile-mgr *ngIf="partner" [partner]="partner" />
+      <mat-tab label="Profile Settings">
+        @if (partner) {
+          <async-profile-mgr [partner]="partner" />
+        }
       </mat-tab>
-      <mat-tab label="Notification Settings"> 
-        <async-notifications-settings *ngIf="partner" [partner]="partner" />
+      <mat-tab label="Notification Settings">
+        @if (partner) {
+          <async-notifications-settings [partner]="partner" />
+        }
       </mat-tab>
     </mat-tab-group>
   </section>
@@ -42,7 +46,7 @@ template: `
 
 `,
 providers: [],
-imports: [CommonModule, ProfileMgrComponent, MatTabsModule, MatIconModule, MatButtonModule, NotificationsSettingsComponent],
+imports: [ProfileMgrComponent, MatTabsModule, MatIconModule, MatButtonModule, NotificationsSettingsComponent],
 styles: [`
 
 .async-background {

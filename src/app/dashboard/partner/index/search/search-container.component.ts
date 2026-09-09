@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,12 @@ import { SearchService } from './search.service';
  */
 @Component({
     selector: 'async-index-search-container',
-    imports: [CommonModule, IndexSearchComponent],
+    imports: [IndexSearchComponent],
     providers: [SearchService],
     template: `
-  <async-index-search *ngIf="partner && partners" [partner]="partner" [partners]="partners"></async-index-search>
+  @if (partner && partners) {
+    <async-index-search [partner]="partner" [partners]="partners"></async-index-search>
+  }
   `
 })
 export class IndexSearchContainerComponent implements OnInit, OnDestroy, AfterViewInit  {
