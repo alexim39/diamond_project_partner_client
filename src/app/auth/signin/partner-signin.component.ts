@@ -1,205 +1,156 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { PartnerAuthService, PartnerSignInInterface } from '../auth.service';
-import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { HttpErrorResponse } from '@angular/common/http';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../core/auth/auth.service';
+import { SigninRequest } from '../../core/auth/auth.models';
+import { ApiError } from '../../core/http/api-error';
 
 /**
  * @title Partner signin
+ *
+ * Modernized: OnPush + signals, block control flow, auto-cleanup via
+ * `takeUntilDestroyed`, fully typed. Session is the backend httpOnly
+ * cookie — nothing is written to `localStorage` (legacy stored the
+ * response object there, i.e. the string `"[object Object]"`).
  */
 @Component({
-selector: 'async-partner-signin',
-providers: [PartnerAuthService],
-imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-template: `
+  selector: 'async-partner-signin',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, RouterModule],
+  template: `
+    <div class="page">
+      <div class="login-panel">
+        <h1>Partner Sign in</h1>
+        <h2>Log in into your account</h2>
+        <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Email address</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" />
+            @if (email?.hasError('email') && email?.touched) {
+              <mat-error>Email is invalid</mat-error>
+            }
+            @if (email?.hasError('required') && email?.touched) {
+              <mat-error>Email is required</mat-error>
+            }
+          </mat-form-field>
 
-<div class="page">
-    <div class="login-panel">
-      <h1>Partner Sign in</h1>
-      <h2>Log in into your account</h2>
-      <form [formGroup]="signInForm" (submit)="onSubmit()">
+          <mat-form-field appearance="outline">
+            <mat-label>Enter your password</mat-label>
+            <input matInput [type]="hide() ? 'password' : 'text'" formControlName="password" autocomplete="current-password" />
+            @if (password?.hasError('required') && password?.touched) {
+              <mat-error>Password is required</mat-error>
+            }
+            <button mat-icon-button matSuffix type="button" (click)="hide.set(!hide())" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide()">
+              <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Email address</mat-label>
-          <input matInput type="email" formControlName="email">
-          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
-            Email is invalid
-          </mat-error>
-          <mat-error *ngIf="signInForm.get('email')?.hasError('required') ">
-            Email is required
-          </mat-error>
-        </mat-form-field>
+          @if (serverError()) {
+            <p class="server-error" role="alert">{{ serverError() }}</p>
+          }
 
-        <mat-form-field appearance="outline">
-          <mat-label>Enter your password</mat-label>
-          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
-          <mat-error *ngIf="signInForm.get('password')?.hasError('password') ">
-            Password is invalid
-          </mat-error>
-          <mat-error *ngIf="signInForm.get('password')?.hasError('required') ">
-            Password is required
-          </mat-error>
-          <a mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-          </a>
-        </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting()">
+            {{ isSubmitting() ? 'Signing in…' : 'Sign in' }}
+          </button>
+        </form>
 
+        <p>
+          <a routerLink="../../partner/forgot-password" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Forgot password?</a>
+        </p>
 
-        <button mat-flat-button color="primary">Sign in</button>
+        <div class="line"></div>
 
-      </form>
-
-      <p>
-        <a routerLink="../../partner/forgot-password" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Forgot password?</a>
-      </p>
-
-      <div class="line"></div>
-
-      <p>
-        Not a Diamond Project partner yet? <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign up</a>
-      </p>
+        <p>
+          Not a Diamond Project partner yet?
+          <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Sign up</a>
+        </p>
+      </div>
     </div>
-</div>
-
-`,
-styles: [`
-
-.page {
-    background: #eee;
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    padding-top: 2em;
-    height: 80%;
-    .login-panel {
+  `,
+  styles: [`
+    .page {
+      background: #eee;
       display: flex;
-      flex-direction: column;
-      h2 {
-        font-size: 1em;
-        color: #ffab40;
-      }
-      form {
+      justify-content: center;
+      text-align: center;
+      padding-top: 2em;
+      height: 80%;
+      .login-panel {
         display: flex;
         flex-direction: column;
-        .progress-bar {
-          margin-bottom: 1em;
-        }
-        
-      }
-      p {
-        margin: 2em 0;
-        a {
-          text-decoration: none;
+        h2 {
+          font-size: 1em;
           color: #ffab40;
         }
-      }
-      .line {
-        border: 1px solid #ccc;
-        margin: 1em 0;
+        form {
+          display: flex;
+          flex-direction: column;
+        }
+        .server-error {
+          color: #d32f2f;
+          margin: 0 0 1em;
+        }
+        p {
+          margin: 2em 0;
+          a {
+            text-decoration: none;
+            color: #ffab40;
+          }
+        }
+        .line {
+          border: 1px solid #ccc;
+          margin: 1em 0;
+        }
       }
     }
-}
-
-`]
+  `],
 })
-export class PartnerSigninComponent implements OnInit, OnDestroy {
-  hide = true;
+export class PartnerSigninComponent {
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  signInForm: FormGroup = new FormGroup({}); // Assigning a default value
-  subscriptions: Array<Subscription> = [];
+  protected readonly hide = signal(true);
+  protected readonly isSubmitting = signal(false);
+  protected readonly serverError = signal<string | null>(null);
 
-  constructor(
-    private router: Router,
-    private fb: FormBuilder,
-    private partnerSignInService: PartnerAuthService
-  ) { }
+  protected readonly signInForm = this.fb.nonNullable.group({
+    email: ['', [Validators.email, Validators.required]],
+    password: ['', Validators.required],
+  });
 
-  ngOnInit(): void {
-    this.signInForm = this.fb.group({
-      email: ['', [Validators.email, Validators.required]],
-      password: ['', Validators.required],
-    });
+  protected get email() {
+    return this.signInForm.get('email');
   }
 
-  onSubmit(): void {
-
-    // Mark all form controls as touched to trigger the display of error messages
-    this.markAllAsTouched();
-
-    if (this.signInForm.valid) {
-      // Send the form value to your Node.js backend
-     const formData: PartnerSignInInterface = this.signInForm.value;
-      this.subscriptions.push(
-        this.partnerSignInService.siginin(formData).subscribe( {
-
-          next: (response) => {
-            localStorage.setItem('authToken', response); // Save token to localStorage
-            this.router.navigateByUrl('dashboard');
-          },
-          error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-            }
-            Swal.fire({
-              position: "bottom",
-              icon: 'error',
-              text: errorMessage,
-              showConfirmButton: false,
-              timer: 4000
-            });
-          }
-
-          
-        /*   localStorage.setItem('authToken', res); // Save token to localStorage
-          this.router.navigateByUrl('dashboard');
-        }, error => {
-          if (error.code == 404) {// user not found
-            Swal.fire({
-              position: 'bottom',
-              icon: 'warning',
-              text: "Check your email or password",
-              showConfirmButton: false,
-              timer: 4000
-            });
-          }
-          if (error.code == 400) {// invalid credentail
-            Swal.fire({
-              position: 'bottom',
-              icon: 'warning',
-              text: "Check your email or password",
-              showConfirmButton: false,
-              timer: 4000
-            });
-          } */
-        })
-      )
-    }
+  protected get password() {
+    return this.signInForm.get('password');
   }
 
-  // Helper method to mark all form controls as touched
-  private markAllAsTouched() {
-    Object.keys(this.signInForm.controls).forEach(controlName => {
-      this.signInForm.get(controlName)?.markAsTouched();
-    });
+  protected onSubmit(): void {
+    if (this.isSubmitting()) return;
+    this.signInForm.markAllAsTouched();
+    if (this.signInForm.invalid) return;
+
+    this.isSubmitting.set(true);
+    this.serverError.set(null);
+
+    const credentials = this.signInForm.getRawValue() as SigninRequest;
+    this.authService
+      .signin(credentials)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigateByUrl('dashboard'),
+        error: (error: ApiError) => {
+          this.isSubmitting.set(false);
+          this.serverError.set(error.message);
+        },
+      });
   }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-  }
-
-
 }

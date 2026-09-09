@@ -5,7 +5,7 @@ import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-me
 import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
 import { CheckoutComponent } from "./products/checkout/checkout.component";
 import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
-import { authGuard } from "./guard.service";
+import { authGuard } from "../../core/auth/auth.guard";
 
 
 
