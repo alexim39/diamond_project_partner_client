@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ProductInterface, ProductService } from '../monthly-purchase.service';
 import { Subscription } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     templateUrl: './checkout.component.html',
     styleUrls: ['./checkout.component.scss'],
     providers: [ProductService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatIconModule, CommonModule, RouterModule, TruncatePipe, MatButtonModule, FormsModule, MatButtonModule]
 })
 export class CheckoutComponent implements OnInit, OnDestroy  {

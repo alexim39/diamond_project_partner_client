@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, ChangeDetectionStrategy} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { Router } from '@angular/router';
@@ -97,6 +97,7 @@ styles: [`
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatTabsModule, MatIconModule, MatButtonModule, SocialMediaSettingsComponent, TestimonialWriteupSettingsComponent]
 })
 export class LandingPageSettingComponent {

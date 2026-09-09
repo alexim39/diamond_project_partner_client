@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +31,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
         MatFormFieldModule,
         MatInputModule,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [provideNativeDateAdapter(), CreateCampaignService]
 })
 export class FacebookComponent implements OnInit, OnDestroy {

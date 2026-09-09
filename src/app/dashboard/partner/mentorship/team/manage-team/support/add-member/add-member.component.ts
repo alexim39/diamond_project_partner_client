@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -87,6 +87,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
         CommonModule,
         MatSnackBarModule
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: `
     .example-chip-list {
       width: 100%;

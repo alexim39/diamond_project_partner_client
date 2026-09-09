@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatToolbarModule} from '@angular/material/toolbar';
 @Component({
 selector: 'async-footer',
@@ -70,6 +70,7 @@ mat-toolbar {
 }
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatToolbarModule,]
 })
 export class FooterComponent {

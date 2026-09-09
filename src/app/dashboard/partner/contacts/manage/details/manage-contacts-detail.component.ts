@@ -1,4 +1,4 @@
-import { Component,  Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
@@ -139,6 +139,7 @@ imports: [
   CommonModule, MatIconModule,
   ProspectBasicInformationComponent, ProspectStatusInformationComponent, ProspectActionsComponent, ProspectEmailPanelComponent, ProspectSMSComponent
 ],
+changeDetection: ChangeDetectionStrategy.Eager,
 providers: [ContactsService , SMSService, SMSGatewaysService]
 })
 export class ManageContactsDetailComponent implements OnInit, OnDestroy {

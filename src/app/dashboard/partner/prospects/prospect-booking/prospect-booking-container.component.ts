@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ProspectBookingComponent } from './prospect-booking.component';
@@ -13,6 +13,7 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
     selector: 'async-prospect-booking-container',
     imports: [ProspectBookingComponent],
     providers: [ProspectService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner && prospectList) {
     <async-prospect-booking [partner]="partner" [prospectList]="prospectList"/>

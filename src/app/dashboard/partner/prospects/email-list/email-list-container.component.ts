@@ -1,5 +1,5 @@
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { EmailListComponent } from './email-list.component';
@@ -13,6 +13,7 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
     selector: 'async-email-list-container',
     imports: [EmailListComponent],
     providers: [ProspectService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner && prospectList) {
     <async-email-list [partner]="partner" [prospectList]="prospectList"/>

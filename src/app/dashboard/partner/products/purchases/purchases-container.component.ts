@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { ProductObjectInterface, ProductService } from '../monthly-purchase.service';
@@ -17,6 +17,7 @@ import { PurchasesComponent } from './purchases.component';
     }
     `,
     providers: [ProductService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatIconModule, PurchasesComponent]
 })
 export class PurchaseContainerComponent implements OnInit, OnDestroy {

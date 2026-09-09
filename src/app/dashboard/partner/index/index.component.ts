@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -39,6 +39,7 @@ template: `
     
     
     `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 `],
 })

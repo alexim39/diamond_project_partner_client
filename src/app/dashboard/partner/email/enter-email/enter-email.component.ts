@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -119,6 +119,7 @@ form {
 
 `,
 providers: [ContactsService],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule]
 })
 export class EnterEmailComponent implements OnInit, OnDestroy {

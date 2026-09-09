@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit, signal} from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -243,6 +243,7 @@ footer p {
 
 `],
 providers: [],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [
     MatIconModule,
     RouterModule,

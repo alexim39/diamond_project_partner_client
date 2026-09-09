@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ template: `
     </div>
   </section>
   `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
   section {
     display: flex;  

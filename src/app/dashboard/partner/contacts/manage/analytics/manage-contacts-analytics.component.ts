@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -36,6 +36,7 @@ import { SMSService } from '../../../sms/sms.service';
         MatIconModule, MatButtonModule,
         MatDividerModule, MatListModule, CommonModule
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [ContactsService, SMSService]
 })
 export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {

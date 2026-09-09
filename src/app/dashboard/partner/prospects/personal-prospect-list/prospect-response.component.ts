@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {Component, inject, OnDestroy} from '@angular/core';
+import {Component, inject, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -154,6 +154,7 @@ styles: `
 </mat-dialog-actions>
 
 `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class ProspectResponseComponent implements OnDestroy {

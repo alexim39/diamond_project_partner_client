@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {Component, inject, OnDestroy} from '@angular/core';
+import {Component, inject, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
@@ -41,6 +41,7 @@ import { Subscription } from 'rxjs';
 </mat-dialog-actions>
 
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatDialogModule, MatInputModule, FormsModule, MatFormFieldModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class CollectCodeComponent implements OnDestroy {

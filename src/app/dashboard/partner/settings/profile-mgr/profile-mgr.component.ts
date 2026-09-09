@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, Signal, signal } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, Signal, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -108,6 +108,7 @@ styles: [`
 
 `],
 providers: [provideNativeDateAdapter(), ProfileService],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
     ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
 ]

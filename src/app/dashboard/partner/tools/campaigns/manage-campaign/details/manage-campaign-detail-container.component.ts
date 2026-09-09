@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ManageCampaignDetailComponent } from './manage-campaign-detail.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CampaignInterface, CampaignService } from '../manage-campaign.service';
@@ -23,6 +23,7 @@ import {MatIconModule} from '@angular/material/icon';
   `,
     providers: [CampaignService],
     imports: [ManageCampaignDetailComponent, MatButtonModule, MatIconModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: `
   .container {
     padding: 2em;

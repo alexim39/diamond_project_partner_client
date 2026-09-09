@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -54,6 +54,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     styles: `
   `,
     providers: [EmailService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule]
 })
 export class EmailDetailDialogComponent implements OnDestroy, OnInit {

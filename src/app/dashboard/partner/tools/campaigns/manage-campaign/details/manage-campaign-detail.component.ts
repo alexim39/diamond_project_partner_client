@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -17,6 +17,7 @@ import {MatButtonModule} from '@angular/material/button';
     selector: 'async-manage-campain-detail',
     templateUrl: 'manage-campaign-detail.component.html',
     styleUrls: ['manage-campaign-detail.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
       MatCheckboxModule,
       FormsModule,

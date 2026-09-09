@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { EmailService } from './email.service';
 import { MatButtonModule } from '@angular/material/button';
@@ -67,6 +67,7 @@ template: `
 </section>
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 .async-background {
     margin: 2em;

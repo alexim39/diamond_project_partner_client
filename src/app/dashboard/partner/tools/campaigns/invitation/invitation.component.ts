@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {FormsModule} from '@angular/forms';
@@ -146,6 +146,7 @@ styles:  `
  }
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatCardModule, MatRadioModule, MatIconModule, MatButtonModule, FormsModule, MatCheckboxModule, MatSlideToggleModule]
 })
 export class InvitationComponent implements OnInit {

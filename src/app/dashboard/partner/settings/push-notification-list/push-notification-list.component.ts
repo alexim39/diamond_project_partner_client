@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -118,6 +118,7 @@ template: `
 
 `,
 imports: [CommonModule, MatIconModule, RouterModule, MatButtonModule],
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 
 .async-background {

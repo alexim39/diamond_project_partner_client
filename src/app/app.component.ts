@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SpinnerComponent } from './_common/services/loader/spinner.component';
 
@@ -15,6 +15,7 @@ template: `
     </div>
   </div>
   `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 
 #container {

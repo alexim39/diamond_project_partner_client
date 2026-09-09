@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ManageContactsComponent } from './manage-contacts.component';
@@ -13,6 +13,7 @@ import { ContactsInterface, ContactsService } from '../contacts.service';
     selector: 'async-manage-contacts-container',
     imports: [ManageContactsComponent],
     providers: [ContactsService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner && prospectContact) {
     <async-manage-contatcs [partner]="partner" [prospectContact]="prospectContact"/>

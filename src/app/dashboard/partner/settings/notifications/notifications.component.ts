@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
@@ -89,6 +89,7 @@ imports: [
     MatButtonModule,
     FormsModule
 ],
+changeDetection: ChangeDetectionStrategy.Eager,
 providers: [SettingsService]
 })
 export class NotificationsSettingsComponent implements OnInit {

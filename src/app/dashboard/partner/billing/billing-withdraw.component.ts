@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -164,6 +164,7 @@ button[disabled] {
 
 
 `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, MatFormFieldModule, MatProgressBarModule, CommonModule, ReactiveFormsModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
 export class BillingWithdrawComponent implements OnInit, OnDestroy {

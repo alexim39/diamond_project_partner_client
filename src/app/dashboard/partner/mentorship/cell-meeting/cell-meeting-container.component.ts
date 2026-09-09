@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { CellMeetingComponent } from './cell-meeting.component';
@@ -12,6 +12,7 @@ import { CellMeetingComponent } from './cell-meeting.component';
     selector: 'async-contacts-container',
     imports: [CellMeetingComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-cell-meeting [partner]="partner"></async-cell-meeting>

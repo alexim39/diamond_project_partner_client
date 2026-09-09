@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
 selector: 'async-banner',
@@ -15,6 +15,7 @@ template: `
 </div>
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
 
 /* Create a two-column layout */

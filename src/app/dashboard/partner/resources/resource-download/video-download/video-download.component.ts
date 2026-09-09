@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 
 /**
@@ -8,6 +8,7 @@ import {MatTabsModule} from '@angular/material/tabs';
     selector: 'async-video-download',
     templateUrl: 'video-download.component.html',
     styleUrls: ['video-download.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatTabsModule]
 })
 export class VideoDownloadComponent {}

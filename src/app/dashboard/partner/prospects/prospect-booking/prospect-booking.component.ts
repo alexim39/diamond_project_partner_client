@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnChanges, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnChanges, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -28,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     templateUrl: 'prospect-booking.component.html',
     styleUrls: ['prospect-booking.component.scss', 'prospect-booking.mobile.scss'],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatTooltipModule, MatChipsModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class ProspectBookingComponent implements OnInit, OnDestroy {

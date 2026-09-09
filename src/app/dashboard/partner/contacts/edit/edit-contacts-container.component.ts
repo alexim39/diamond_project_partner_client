@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EditContactsComponent } from './edit-contacts.component';
 import { ContactsInterface, ContactsService } from '../contacts.service';
@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     selector: 'async-edit-container',
     imports: [EditContactsComponent],
     providers: [ContactsService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (prospect) {
     <async-edit-contatcs [prospect]="prospect"/>

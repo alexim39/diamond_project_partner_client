@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import {MatButtonModule} from '@angular/material/button';
@@ -26,6 +26,7 @@ template: `
   `,
 providers: [ContactsService, MyPartnersService],
 imports: [MyPartnerContactsDetailComponent, MatButtonModule, MatIconModule],
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
   .container {
     padding: 2em;

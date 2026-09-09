@@ -1,5 +1,5 @@
 
-import { Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -153,6 +153,7 @@ template:   `
 `,
 providers: [ContactsService],
 imports: [MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule],
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 
 .async-background {

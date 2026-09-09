@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
@@ -84,6 +84,7 @@ styles: [`
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatButtonModule, CommonModule]
 })
 export class ProfileComponent implements OnInit {

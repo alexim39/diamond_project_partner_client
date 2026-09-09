@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy } from '@angular/core';
+import { Component, inject, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,6 +24,7 @@ import { Subscription } from 'rxjs';
     templateUrl: 'monthly-purchase.component.html',
     styleUrls: ['monthly-purchase.component.scss'],
     providers: [ProductService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatIconModule, CommonModule, MatTooltipModule, RouterModule, MatInputModule, MatFormFieldModule, FormsModule, MatButtonModule, ProductFilterPipe]
 })
 export class MonthlyPurchaseComponent implements OnDestroy {

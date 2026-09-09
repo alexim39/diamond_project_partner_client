@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { ContactsInterface } from '../../../contacts.service';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
@@ -15,7 +15,7 @@ template: `
 
         <div class="list">
             <h5> Names </h5>
-            <span class="data">{{prospectData?.prospectName | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
+            <span class="data">{{$safeNavigationMigration(prospectData?.prospectName) | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -28,7 +28,7 @@ template: `
 
         <div class="list">
             <h5> Email Address </h5>
-            <span class="data">{{prospectData?.prospectEmail | lowercase }} </span>
+            <span class="data">{{$safeNavigationMigration(prospectData?.prospectEmail) | lowercase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -40,7 +40,7 @@ template: `
 
         <div class="list">
             <h5> Contact Channel</h5>
-            <span class="data">{{prospectData?.prospectSource | titlecase }} </span>
+            <span class="data">{{$safeNavigationMigration(prospectData?.prospectSource) | titlecase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -61,7 +61,7 @@ template: `
 
         <div class="list">
             <h5> Prospect Origin</h5>
-            <span class="data">{{prospectData?.survey?.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{prospectData?.survey?.country | titlecase }} </span>
+            <span class="data">{{prospectData?.survey?.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{$safeNavigationMigration(prospectData?.survey?.country) | titlecase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -74,13 +74,13 @@ template: `
     
         <div class="list">
             <h5> Created Date </h5>
-            <span class="data">{{prospectData?.createdAt | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
+            <span class="data">{{$safeNavigationMigration(prospectData?.createdAt) | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
         </div>
         <mat-divider></mat-divider>
         
         <div class="list">
             <h5> Modified Date </h5>
-            <span class="data">{{prospectData?.updatedAt | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
+            <span class="data">{{$safeNavigationMigration(prospectData?.updatedAt) | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
         </div>
         
 </article>
@@ -126,6 +126,7 @@ styles: `
 
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [
     MatDividerModule, MatListModule, CommonModule,
 ],

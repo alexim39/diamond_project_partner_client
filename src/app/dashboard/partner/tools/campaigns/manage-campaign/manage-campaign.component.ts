@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -68,6 +68,7 @@ styles: `
 
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatSliderModule, CommonModule, MatPaginatorModule, MatInputModule, MatFormFieldModule, RouterModule, FormsModule, MatButtonModule, MatIconModule, MatTableModule]
 })
 export class ManageCampaignComponent implements OnInit {

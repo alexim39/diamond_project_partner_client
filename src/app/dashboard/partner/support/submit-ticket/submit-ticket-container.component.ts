@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { SubmitTicketComponent } from './submit-ticket.component';
@@ -12,6 +12,7 @@ import { SubmitTicketComponent } from './submit-ticket.component';
     selector: 'async-submit-ticket-container',
     imports: [SubmitTicketComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-submit-ticket [partner]="partner"/>

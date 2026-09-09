@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';  
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';  
 import { MatInputModule } from '@angular/material/input';  
 import { MatFormFieldModule } from '@angular/material/form-field';  
 import { FormsModule } from '@angular/forms';  
@@ -23,6 +23,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
     styleUrls: ['billing.component.scss', 'billing.mobile.scss'],
     templateUrl: 'billing.component.html',
     providers: [PaystackService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         FormsModule,
         CommonModule,

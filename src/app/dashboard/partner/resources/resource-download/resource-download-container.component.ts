@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -16,6 +16,7 @@ import { ResourceDownloadComponent } from './resource-download.component';
     }
     `,
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatIconModule, ResourceDownloadComponent]
 })
 export class ResourceDownloadContainerComponent implements OnInit, OnDestroy {

@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { MentorsProgramComponent } from './mentors-program.component';
@@ -12,6 +12,7 @@ import { MentorsProgramComponent } from './mentors-program.component';
     selector: 'async-mentors-program-container',
     imports: [MentorsProgramComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-mentors-program [partner]="partner"/>

@@ -238,7 +238,7 @@
         <details open>
           <summary>Marketing Budget Summary</summary>
           <p>Budget Type: {{ budgetFormGroup.get('budgetType')?.value }}</p>
-          <p>Budget Amount: {{ budgetFormGroup.get('budgetAmount')?.value | currency:'₦':'symbol':'1.0-0' }}</p>
+          <p>Budget Amount: {{ $safeNavigationMigration(budgetFormGroup.get('budgetAmount')?.value) | currency:'₦':'symbol':'1.0-0' }}</p>
 
         </details>
       </div>
@@ -246,8 +246,8 @@
       <div class="summary-ad-duration">
         <details open>
           <summary>Ad Duration Summary</summary>
-          <p>Campaign Start Date: {{ adDurationFormGroup.get('campaignStartDate')?.value | date }} </p>
-          <p>Campaign End Date: {{ adDurationFormGroup.get('noEndDate')?.value ? 'No end date' : this.adDurationFormGroup.get('campaignEndDate')?.value | date}}</p>
+          <p>Campaign Start Date: {{ $safeNavigationMigration(adDurationFormGroup.get('campaignStartDate')?.value) | date }} </p>
+          <p>Campaign End Date: {{ adDurationFormGroup.get('noEndDate')?.value ? 'No end date' : $safeNavigationMigration(this.adDurationFormGroup.get('campaignEndDate')?.value) | date}}</p>
           <p>Duration: {{ adDurationFormGroup.get('noEndDate')?.value ? 'Continuous' : duration + ' days' }}</p>
 
         </details>

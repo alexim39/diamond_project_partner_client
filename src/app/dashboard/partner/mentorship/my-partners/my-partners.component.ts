@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -92,6 +92,7 @@ imports: [
         MatSlideToggleModule,
         MatTooltipModule
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: []
 })
 export class MyPartnersComponent implements OnInit, AfterViewInit {

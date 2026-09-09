@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -41,6 +41,7 @@ import { RouterModule } from '@angular/router';
       <a mat-flat-button color="primary" routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
     </aside>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
   aside {
     padding: 3em 1em;

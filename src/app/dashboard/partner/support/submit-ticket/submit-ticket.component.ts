@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal} from '@angular/core';
+import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -213,6 +213,7 @@ styles: [`
 
 `],
 providers: [TicketService],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class SubmitTicketComponent implements OnInit {

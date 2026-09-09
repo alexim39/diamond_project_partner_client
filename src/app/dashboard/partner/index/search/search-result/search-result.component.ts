@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';  
+import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';  
 import { MatInputModule } from '@angular/material/input';  
 import { MatFormFieldModule } from '@angular/material/form-field';  
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';  
@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
     imports: [FormsModule, MatButtonModule, CommonModule, MatIconModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule],
     providers: [],
     templateUrl: 'search-result.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['search-result.component.scss']
 })  
 export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {

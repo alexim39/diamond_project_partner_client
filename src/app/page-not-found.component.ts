@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
@@ -76,6 +76,7 @@ styles: [`
 }
 
 `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
 <section class="page_404">
     <div class="four_zero_four_bg">

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -189,6 +189,7 @@ tr:active {
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [CommonModule, MatIconModule, TruncatePipe, MatPaginatorModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule]
 })

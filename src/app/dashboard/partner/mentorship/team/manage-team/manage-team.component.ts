@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
@@ -86,6 +86,7 @@ imports: [
     MatCheckboxModule,
     MatSlideToggleModule,
 ],
+changeDetection: ChangeDetectionStrategy.Eager,
 providers: [TeamService]
 })
 export class ManageTeamComponent implements OnInit {
