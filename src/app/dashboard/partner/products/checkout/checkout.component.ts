@@ -11,6 +11,7 @@ import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 import Swal from 'sweetalert2';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BillingService } from '../../../../core/billing/billing.service';
 
 @Component({
     selector: 'async-checkout',
@@ -31,6 +32,7 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
         private getProductService: GetProductService,
         private router: Router,
         private partnerService: PartnerService,
+        private billingService: BillingService,
     ) {}
   
     ngOnInit(): void {
@@ -115,6 +117,17 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
           next: (response) => {
             //clear cart
             this.clearCart();
+
+            // Phase D glue: accrue upline commissions (idempotent — safe to
+            // retry; failures only log since entries can be accrued later).
+            const cartId: string | undefined = (response as { data?: { cartId?: string } })?.data?.cartId;
+            if (cartId) {
+              this.subscriptions.push(
+                this.billingService.accrue(cartId).subscribe({
+                  error: (accrueError: unknown) => console.error('Commission accrual failed:', accrueError),
+                })
+              );
+            }
 
             Swal.fire({
               position: 'bottom',
