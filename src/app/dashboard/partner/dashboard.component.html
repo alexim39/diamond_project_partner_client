@@ -222,6 +222,7 @@
 </mat-sidenav-container>
 
 <mat-menu #admin="matMenu">
+  <a mat-menu-item routerLink="admin/roles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>badge</mat-icon> Manage Roles</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>manage_accounts</mat-icon> Activate New Partner</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>paid</mat-icon> Approve Withdrawal Request</a>
   <a mat-menu-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>rsvp</mat-icon> See New Product Orders</a>

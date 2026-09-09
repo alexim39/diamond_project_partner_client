@@ -1,7 +1,13 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { AuthUser, MeResponse, SigninRequest, SigninResponse, SignupRequest } from './auth.models';
+import { AuthUser, MeResponse, SigninRequest, SigninResponse, SignupRequest, UserRole } from './auth.models';
+
+/** Canonical roles — absorbs legacy 'User'/'admin' casing from the API. */
+export function normalizeRole(value: unknown): UserRole {
+  const v = String(value ?? '').trim().toLowerCase();
+  return v === 'admin' || v === 'leader' ? v : 'user';
+}
 
 /**
  * Session authority for the app. The JWT lives in an httpOnly cookie
@@ -21,13 +27,20 @@ export class AuthService {
   /** Last-known user; null until `me()` succeeds. */
   readonly currentUser = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
+  /** Canonical role (backend may still serve legacy casing). */
+  readonly role = computed(() => normalizeRole(this.userSignal()?.role));
+  readonly isAdmin = computed(() => this.role() === 'admin');
+  readonly isLeader = computed(() => this.role() === 'leader' || this.role() === 'admin');
+
+  private track(user: AuthUser | null | undefined): void {
+    if (user) user = { ...user, role: normalizeRole(user.role) };
+    this.userSignal.set(user ?? null);
+    this.hydrated = true;
+  }
 
   signin(credentials: SigninRequest): Observable<SigninResponse> {
     return this.api.post<SigninResponse>('v1/auth/signin', credentials).pipe(
-      tap((res) => {
-        this.userSignal.set(res.data?.user ?? null);
-        this.hydrated = true;
-      }),
+      tap((res) => this.track(res.data?.user)),
     );
   }
 
@@ -46,12 +59,7 @@ export class AuthService {
 
   /** Server-verified session check (cookie → `GET /v1/auth/me`). */
   me(): Observable<MeResponse> {
-    return this.api.get<MeResponse>('v1/auth/me').pipe(
-      tap((res) => {
-        this.userSignal.set(res.data);
-        this.hydrated = true;
-      }),
-    );
+    return this.api.get<MeResponse>('v1/auth/me').pipe(tap((res) => this.track(res.data)));
   }
 
   /**

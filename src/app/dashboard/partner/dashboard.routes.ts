@@ -36,6 +36,7 @@ export const dashboardRoutes: Routes = [
             { path: 'prospects', loadChildren: () => import('./prospects/prospects.routes').then(r => r.ProspectsRoutes) }, 
             { path: 'tools', loadChildren: () => import('./tools/tools.routes').then(r => r.ToolsRoutes) }, 
             { path: 'support', loadChildren: () => import('./support/support.routes').then(r => r.SupportRoutes) }, 
+            { path: 'admin', loadChildren: () => import('../admin/admin.routes').then(r => r.AdminRoutes) }, 
                 
                  
             {
