@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { CellMeetingService } from './cell-meeting.service';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
         </div>
     </div>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: `
   .container {
     display: flex;                      /* Enable Flexbox layout */  

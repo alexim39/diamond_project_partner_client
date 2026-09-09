@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { PushNotificationListComponent } from './push-notification-list.component';
@@ -10,6 +10,7 @@ import { PushNotificationInterface, PushNotificationService } from '../../index/
     selector: 'async-push-notification-list-container',
     imports: [PushNotificationListComponent],
     providers: [PushNotificationService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner && notifications) {
     <async-push-notification-list [partner]="partner" [notifications]="notifications"/>

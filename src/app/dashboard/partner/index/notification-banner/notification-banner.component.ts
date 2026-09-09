@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
@@ -23,6 +23,7 @@ import { PartnerInterface } from '../../../../_common/services/partner.service';
     } -->
 
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .info-alert {

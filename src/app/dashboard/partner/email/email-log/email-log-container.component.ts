@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { EmailInterface, EmailService } from '../email.service';
@@ -17,6 +17,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 selector: 'async-email-log-container',
 imports: [EmailLogComponent, MatIconModule, MatButtonModule],
 providers: [EmailService],
+changeDetection: ChangeDetectionStrategy.Eager,
 template: `
  @if (partner && emails) {
    <async-email-log [partner]="partner" [emails]="emails"/>

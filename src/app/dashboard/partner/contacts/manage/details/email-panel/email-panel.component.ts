@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { ContactsInterface, ContactsService } from '../../../contacts.service';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -91,6 +91,7 @@ styles: `
 }
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [
     FormsModule,
     ReactiveFormsModule,

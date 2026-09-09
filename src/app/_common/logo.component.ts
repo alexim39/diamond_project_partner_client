@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
       <img src="./img/plogo.png">
     </a>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
     a {
       text-decoration: none;

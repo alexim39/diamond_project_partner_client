@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { SearchResultComponent } from './search-result.component';
@@ -14,9 +14,10 @@ import { SearchService } from '../search.service';
     selector: 'async-search-result-container',
     imports: [SearchResultComponent],
     providers: [SearchService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (searchPartners?.data) {
-    <async-search-result [searchPartners]="searchPartners?.data" #srechResultComponentMethod></async-search-result>
+    <async-search-result [searchPartners]="$safeNavigationMigration(searchPartners?.data)" #srechResultComponentMethod></async-search-result>
   }
   `
 })

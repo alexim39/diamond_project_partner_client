@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     providers: [PartnerAuthService],
     imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
     templateUrl: 'partner-signup.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
 })
 export class PartnerSignupComponent implements OnInit, OnDestroy {

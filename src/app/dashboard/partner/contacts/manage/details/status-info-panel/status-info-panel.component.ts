@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { CommunicationInterface, ContactsInterface, ContactsService } from '../../../contacts.service';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
@@ -315,6 +315,7 @@ template: `
 
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
 
 

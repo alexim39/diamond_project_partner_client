@@ -1,5 +1,5 @@
 
-import {Component, inject} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 
@@ -23,6 +23,7 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, Ma
 </mat-dialog-actions>
 
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatDialogModule, MatButtonModule, MatDialogContent, MatDialogActions]
 })
 export class HelpDialogComponent {

@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -155,6 +155,7 @@ a {
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class TextDownloadComponent {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../../_common/help-dialog.component';
@@ -27,6 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     templateUrl: 'contacts.component.html',
     styleUrls: ['contacts.component.scss'],
     providers: [ContactsService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatIconModule, MatChipsModule, MatTooltipModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule, MatPaginatorModule]
 })

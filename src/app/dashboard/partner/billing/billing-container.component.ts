@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { BillingComponent } from './billing.component';
@@ -13,6 +13,7 @@ import { PaystackService, TransactionInterface } from './paystack.service';
     selector: 'async-billing-container',
     imports: [BillingComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner && transactions) {
     <async-billing [partner]="partner"  [transactions]="transactions"></async-billing>

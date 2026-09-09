@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, ChangeDetectionStrategy} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -63,6 +63,7 @@ styles: [`
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatTabsModule, MatIconModule, TextDownloadComponent, ImageDownloadComponent, VideoDownloadComponent]
 })
 export class ResourceDownloadComponent {

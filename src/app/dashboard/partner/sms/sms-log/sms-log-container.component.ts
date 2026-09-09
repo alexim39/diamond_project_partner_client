@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { SMSService } from '../sms.service';
@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'async-sms-log-container',
   imports: [SMSLogComponent, MatIconModule, MatButtonModule],
   providers: [SMSService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
      @if (partner && smsObject) {
        <async-sms-log [partner]="partner" [smsObject]="smsObject"/>

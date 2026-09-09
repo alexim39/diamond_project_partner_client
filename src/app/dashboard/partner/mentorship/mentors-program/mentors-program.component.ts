@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit} from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -95,6 +95,7 @@ styles: [`
 
 `],
 providers: [MentorsProgramService],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatIconModule, RouterModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class MentorsProgramComponent implements OnInit {

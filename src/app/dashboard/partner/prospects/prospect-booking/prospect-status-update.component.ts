@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -202,6 +202,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 
 `,
     providers: [ProspectService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, ReactiveFormsModule, FormsModule, MatExpansionModule, MatIconModule, MatListModule, MatInputModule, MatSelectModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })
 export class BookingStatusUpdateComponent implements OnInit {

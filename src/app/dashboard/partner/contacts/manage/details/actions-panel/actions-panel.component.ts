@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { ContactsInterface, ContactsService } from '../../../contacts.service';
 
 import { MatDividerModule } from '@angular/material/divider';
@@ -116,6 +116,7 @@ styles: `
 }
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [
     FormsModule,
     ReactiveFormsModule,

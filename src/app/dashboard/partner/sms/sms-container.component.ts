@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { smsComponent } from './sms.component';
@@ -12,6 +12,7 @@ import { smsComponent } from './sms.component';
     selector: 'async-sms-container',
     imports: [smsComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-sms [partner]="partner"/>

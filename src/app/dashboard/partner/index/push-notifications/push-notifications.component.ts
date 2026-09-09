@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -163,6 +163,7 @@ import { Router } from '@angular/router';
     MatIconModule,
     MatDividerModule
 ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [PushNotificationService]
 })
 export class PushNotificationsComponent implements OnInit, OnDestroy {

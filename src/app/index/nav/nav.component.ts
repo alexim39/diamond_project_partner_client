@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -51,6 +51,7 @@ import { Router, RouterModule, } from '@angular/router';
 </mat-toolbar>
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
 .nav-spacer {
     flex: 1 1 auto;

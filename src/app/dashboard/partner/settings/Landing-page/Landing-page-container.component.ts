@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { LandingPageSettingComponent } from './Landing-page.component';
@@ -12,6 +12,7 @@ import { LandingPageSettingComponent } from './Landing-page.component';
     selector: 'async-landing-page-setting-container',
     imports: [LandingPageSettingComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-landing-page-setting [partner]="partner"/>

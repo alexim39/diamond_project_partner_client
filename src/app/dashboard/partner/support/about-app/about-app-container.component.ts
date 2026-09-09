@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { AboutAppComponent } from './about-app.component';
@@ -9,6 +9,7 @@ import { AboutAppComponent } from './about-app.component';
     selector: 'async-about-app-container',
     imports: [AboutAppComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-about-app [partner]="partner"/>

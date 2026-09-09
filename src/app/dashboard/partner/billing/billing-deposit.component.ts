@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +36,7 @@ import Swal from 'sweetalert2';
     </mat-dialog-actions>
 
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, MatFormFieldModule, CommonModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
 export class BillingDepositComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FacebookComponent } from './facebook/facebook.component';
 import { YoutubeComponent } from './youtube/youtube.component';
@@ -36,6 +36,7 @@ styles: [`
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, LinkedinComponent, MatIconModule]
 })
 export class MarketingChannelsComponent implements OnInit, OnDestroy {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -36,7 +36,7 @@ template: `
         </div>
         <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
       </div>
-      <h3>{{prospect?.prospectSurname | titlecase}} {{prospect?.prospectName | titlecase}}'s Details</h3>
+      <h3>{{$safeNavigationMigration(prospect?.prospectSurname) | titlecase}} {{$safeNavigationMigration(prospect?.prospectName) | titlecase}}'s Details</h3>
     </div>
 
 
@@ -222,6 +222,7 @@ styles: [`
 
 `],
 providers: [ContactsService],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [CommonModule, MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class EditContactsComponent implements OnInit, OnDestroy {

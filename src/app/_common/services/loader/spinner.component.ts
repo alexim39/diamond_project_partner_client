@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { LoadingService } from './spinner.service';
 import { CommonModule } from '@angular/common';
 
@@ -16,6 +16,7 @@ import { CommonModule } from '@angular/common';
       </div>
     }
     `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .overlay {
       position: fixed;

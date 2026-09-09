@@ -1,5 +1,5 @@
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { PreApproachDownloadComponent } from './pre-approach-download.component';
@@ -12,6 +12,7 @@ import { PreApproachDownloadComponent } from './pre-approach-download.component'
     selector: 'async-manage-campaign-container',
     imports: [PreApproachDownloadComponent],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner) {
     <async-preapproach-download [partner]="partner"></async-preapproach-download>

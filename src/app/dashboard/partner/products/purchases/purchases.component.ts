@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
@@ -204,6 +204,7 @@ $border-radius: 8px;
 }
 
 `],
+changeDetection: ChangeDetectionStrategy.Eager,
 imports: [
     MatCardModule,
     CommonModule,

@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal} from '@angular/core';
+import { Component, inject, Input, signal, ChangeDetectionStrategy } from '@angular/core';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import {MatInputModule} from '@angular/material/input';
@@ -19,6 +19,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     templateUrl: 'testimonial-writeup.component.html',
     styleUrls: ['testimonial-writeup.component.scss', 'testimonial-writeup.mobile.scss'],
     imports: [MatExpansionModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [MatSnackBar, LandingPageService]
 })
 export class TestimonialWriteupSettingsComponent {

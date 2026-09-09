@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { BannerComponent } from './banner/banner.component';
 import { WhyWeExistComponent } from './why-we-exist/why-we-exist.component';
@@ -14,6 +14,7 @@ import { BePartnerComponent } from './be-partner/be-partner.component';
     <async-be-partner></async-be-partner>
     <async-index-why-we-exist></async-index-why-we-exist>
   `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [` `]
 })
 export class IndexBodyComponent {}

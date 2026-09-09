@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';  
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';  
 import { MatInputModule } from '@angular/material/input';  
 import { MatFormFieldModule } from '@angular/material/form-field';  
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';  
@@ -43,6 +43,7 @@ import { MatIconModule } from '@angular/material/icon';
         </div>
       </section>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: `
     section {
         padding: 2em;

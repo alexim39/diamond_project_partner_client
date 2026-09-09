@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import {MatTabsModule} from '@angular/material/tabs';
     selector: 'async-preapproach-download',
     styleUrls: ['pre-approach-download.component.scss'],
     templateUrl: 'pre-approach-download.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, MatFormFieldModule, MatTabsModule, MatButtonModule, MatInputModule, MatIconModule, MatInputModule]
 })
 export class PreApproachDownloadComponent implements OnInit {

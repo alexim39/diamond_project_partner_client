@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -17,6 +17,7 @@ import { TeamInterface, TeamService } from '../team.service';
   }
   `,
     providers: [TeamService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [EditTeamComponent]
 })
 export class EditTeamContainerComponent implements OnInit, OnDestroy {

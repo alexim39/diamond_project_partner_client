@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -25,6 +25,7 @@ interface Template {
     selector: 'async-image-download',
     templateUrl: 'image-download.component.html',
     styleUrls: ['image-download.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class ImageDownloadComponent implements OnDestroy, OnInit {

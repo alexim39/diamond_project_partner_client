@@ -1,5 +1,5 @@
 
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { IndexSearchComponent } from './search.component';
@@ -13,6 +13,7 @@ import { SearchService } from './search.service';
     selector: 'async-index-search-container',
     imports: [IndexSearchComponent],
     providers: [SearchService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
   @if (partner && partners) {
     <async-index-search [partner]="partner" [partners]="partners"></async-index-search>

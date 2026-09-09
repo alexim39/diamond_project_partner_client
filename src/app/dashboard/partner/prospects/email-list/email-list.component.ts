@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -28,6 +28,7 @@ import {MatTableDataSource, MatTableModule} from '@angular/material/table';
     templateUrl: 'email-list.component.html',
     styleUrls: ['email-list.component.scss'],
     providers: [ProspectService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, MatIconModule, RouterModule, MatTableModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class EmailListComponent implements OnInit, OnDestroy  {

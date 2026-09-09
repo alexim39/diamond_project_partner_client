@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -65,6 +65,7 @@ template: `
 
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
 
 .forums-container {

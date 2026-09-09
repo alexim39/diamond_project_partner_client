@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal} from '@angular/core';
+import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../../_common/help-dialog.component';
@@ -26,6 +26,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     templateUrl: 'create-team.component.html',
     styleUrls: ['create-team.component.scss'],
     providers: [TeamService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatIconModule, RouterModule, MatNativeDateModule, MatDatepickerModule, MatExpansionModule, MatFormFieldModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule]
 })
 export class CreateTeamComponent implements OnInit {

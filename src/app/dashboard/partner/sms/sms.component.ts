@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -63,6 +63,7 @@ template: `
 </section>
 
 `,
+changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 
 .async-background {

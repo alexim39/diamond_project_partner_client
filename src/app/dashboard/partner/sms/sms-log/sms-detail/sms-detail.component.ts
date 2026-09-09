@@ -1,5 +1,5 @@
 
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -53,6 +53,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
     styles: `
   `,
     providers: [SMSService],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatDialogModule, MatExpansionModule, MatListModule, MatIconModule, MatButtonModule]
 })
 export class SMSDetailDialogComponent implements OnDestroy, OnInit {
