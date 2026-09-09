@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { CellMeetingComponent } from './cell-meeting.component';
  */
 @Component({
     selector: 'async-contacts-container',
-    imports: [CommonModule, CellMeetingComponent],
+    imports: [CellMeetingComponent],
     providers: [],
     template: `
-  <async-cell-meeting *ngIf="partner" [partner]="partner"></async-cell-meeting>
+  @if (partner) {
+    <async-cell-meeting [partner]="partner"></async-cell-meeting>
+  }
   `
 })
 export class CellMettingContainerComponent implements OnInit, OnDestroy {

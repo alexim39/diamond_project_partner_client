@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, inject} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
@@ -23,7 +23,7 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, Ma
 </mat-dialog-actions>
 
   `,
-    imports: [CommonModule, MatDialogModule, MatButtonModule, MatDialogContent, MatDialogActions]
+    imports: [MatDialogModule, MatButtonModule, MatDialogContent, MatDialogActions]
 })
 export class HelpDialogComponent {
     readonly dialogRef = inject(MatDialogRef<HelpDialogComponent>);

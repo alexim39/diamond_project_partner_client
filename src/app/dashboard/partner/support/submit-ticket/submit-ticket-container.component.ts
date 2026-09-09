@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { SubmitTicketComponent } from './submit-ticket.component';
  */
 @Component({
     selector: 'async-submit-ticket-container',
-    imports: [CommonModule, SubmitTicketComponent],
+    imports: [SubmitTicketComponent],
     providers: [],
     template: `
-  <async-submit-ticket *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-submit-ticket [partner]="partner"/>
+  }
   `
 })
 export class SubmitTicketContainerComponent implements OnInit, OnDestroy {

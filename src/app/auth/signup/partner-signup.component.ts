@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { PartnerAuthService, PartnerSignUpInterface } from '../auth.service';
-import { CommonModule } from '@angular/common';
+
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
@@ -24,7 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
     selector: 'async-partner-signup',
     providers: [PartnerAuthService],
-    imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, CommonModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+    imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
     templateUrl: 'partner-signup.component.html',
     styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
 })

@@ -5,7 +5,7 @@ import { YoutubeComponent } from './youtube/youtube.component';
 import { LinkedinComponent } from './linkedin/linkedin.component';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../../_common/help-dialog.component';
@@ -36,7 +36,7 @@ styles: [`
 }
 
 `],
-imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, LinkedinComponent, CommonModule, MatIconModule]
+imports: [MatTabsModule, RouterModule, FacebookComponent, YoutubeComponent, LinkedinComponent, MatIconModule]
 })
 export class MarketingChannelsComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;

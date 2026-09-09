@@ -5,7 +5,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import templatesData from '../../../../../../../public/resource-templates/text/source.json';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
@@ -20,42 +20,44 @@ selector: 'async-text-download',
 template: `
 
 <div class="wrapper">
-    <section class="content-header">
-      <h1>Social Media Text Templates</h1>
-      <h6>Copy the content templates below to start posting your Ads</h6>
-    </section>
-    
-    <section class="filter-search">
-      <div class="filters">
-        <mat-form-field appearance="outline">
-          <mat-label>Select Platform</mat-label>
-          <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="filterTemplates()">
-            <mat-option value="All Platforms">All Platforms</mat-option>
-            <mat-option value="Facebook">Facebook</mat-option>
-            <mat-option value="Twitter">Twitter</mat-option>
-            <mat-option value="Instagram">Instagram</mat-option>
-            <mat-option value="WhatsApp">WhatsApp</mat-option>
-            <mat-option value="LinkedIn">LinkedIn</mat-option>
-            <mat-option value="Pinterest">Pinterest</mat-option>
-            <mat-option value="TikTok">TikTok</mat-option>
-            <mat-option value="YouTube">YouTube</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </section>
-  
-    <section class="template-list">
-      <div class="template-item" *ngFor="let template of filteredTemplates">
+  <section class="content-header">
+    <h1>Social Media Text Templates</h1>
+    <h6>Copy the content templates below to start posting your Ads</h6>
+  </section>
+
+  <section class="filter-search">
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Select Platform</mat-label>
+        <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="filterTemplates()">
+          <mat-option value="All Platforms">All Platforms</mat-option>
+          <mat-option value="Facebook">Facebook</mat-option>
+          <mat-option value="Twitter">Twitter</mat-option>
+          <mat-option value="Instagram">Instagram</mat-option>
+          <mat-option value="WhatsApp">WhatsApp</mat-option>
+          <mat-option value="LinkedIn">LinkedIn</mat-option>
+          <mat-option value="Pinterest">Pinterest</mat-option>
+          <mat-option value="TikTok">TikTok</mat-option>
+          <mat-option value="YouTube">YouTube</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </section>
+
+  <section class="template-list">
+    @for (template of filteredTemplates; track template) {
+      <div class="template-item">
         <mat-icon class="copy-icon" (click)="copyContent(template)">content_copy</mat-icon>
         <h3>{{ template.title }}</h3>
         <p>{{ template.description }}</p>
         <p>Visit <a href="https://diamondprojectonline.com/{{partner.username}}" target="_blank">diamondprojectonline.com/{{partner.username}}</a> to get started</p>
       </div>
-    </section>
-  
-    <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()">
-      <mat-icon>arrow_upward</mat-icon>
-    </button>
+    }
+  </section>
+
+  <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()">
+    <mat-icon>arrow_upward</mat-icon>
+  </button>
 </div>
 
 `,
@@ -153,7 +155,7 @@ a {
 }
 
 `],
-imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, CommonModule, FormsModule, MatInputModule, MatSelectModule]
+imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class TextDownloadComponent {
   templates = templatesData;

@@ -1,37 +1,44 @@
-<div class="container" *ngFor="let searchPartner of searchPartners"> 
-    <div class="profile-header">  
-        <div class="profile-picture">  
-          <img [src]="searchPartner.profileImage ? (apiURL + '/uploads/' + searchPartner.profileImage) : './img/default_pp.png'" alt="Profile Picture">  
-          <div class="username">&#64;{{searchPartner.username}}</div>
-        </div>  
-        <div class="profile-info">  
-          <h1>{{searchPartner.name | titlecase}} {{searchPartner.surname | titlecase}} <span *ngIf="isYou" style="font-size: 12px; color: gray">(Me)</span></h1>  
-          <p class="bio">  
-            {{ searchPartner.jobTitle ? (searchPartner.jobTitle ) : 'Job title not set' }}   
-            | {{ searchPartner.skill ? (searchPartner.skill ) : 'Skill not set' }}   
-            | {{ searchPartner.hobby ? (searchPartner.hobby | titlecase) : 'Hobby not set' }}  
-          </p>  
-          <div class="social-buttons">  
-            <button mat-button class="btn connect" *ngIf="!isYou"><mat-icon>group_add</mat-icon>Send Team Invite</button>  
-      
-            <button mat-button class="btn like" (click)="follow(searchPartner._id)" *ngIf="!isFollowing && !isYou">
+@for (searchPartner of searchPartners; track searchPartner) {
+  <div class="container">
+    <div class="profile-header">
+      <div class="profile-picture">
+        <img [src]="searchPartner.profileImage ? (apiURL + '/uploads/' + searchPartner.profileImage) : './img/default_pp.png'" alt="Profile Picture">
+        <div class="username">&#64;{{searchPartner.username}}</div>
+      </div>
+      <div class="profile-info">
+        <h1>{{searchPartner.name | titlecase}} {{searchPartner.surname | titlecase}} @if (isYou) {
+          <span style="font-size: 12px; color: gray">(Me)</span>
+        }</h1>
+        <p class="bio">
+          {{ searchPartner.jobTitle ? (searchPartner.jobTitle ) : 'Job title not set' }}
+          | {{ searchPartner.skill ? (searchPartner.skill ) : 'Skill not set' }}
+          | {{ searchPartner.hobby ? (searchPartner.hobby | titlecase) : 'Hobby not set' }}
+        </p>
+        <div class="social-buttons">
+          @if (!isYou) {
+            <button mat-button class="btn connect"><mat-icon>group_add</mat-icon>Send Team Invite</button>
+          }
+          @if (!isFollowing && !isYou) {
+            <button mat-button class="btn like" (click)="follow(searchPartner._id)">
               <mat-icon>thumb_up</mat-icon>Follow
-            </button>  
-            <button mat-button class="btn follow" (click)="follow(searchPartner._id)" *ngIf="isFollowing && !isYou">
+            </button>
+          }
+          @if (isFollowing && !isYou) {
+            <button mat-button class="btn follow" (click)="follow(searchPartner._id)">
               <mat-icon>thumb_down</mat-icon>Unfollow
-            </button>  
-          </div>  
-        </div>  
-      </div>  
-      
-    <!-- <div class="posts-section">  
-        <h2>Posts</h2>  
-        <div class="post">  
-            <p>This is a sample post content!</p>  
-        </div>  
-        <div class="post">  
-            <p>Another interesting thing happening today!</p>  
-        </div>  
-         
-    </div>  --> 
-</div>  
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+    <!-- <div class="posts-section">
+    <h2>Posts</h2>
+    <div class="post">
+      <p>This is a sample post content!</p>
+    </div>
+    <div class="post">
+      <p>Another interesting thing happening today!</p>
+    </div>
+  </div>  -->
+</div>
+}

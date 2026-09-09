@@ -3,47 +3,50 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { LogoComponent } from '../../_common/logo.component';
-import { CommonModule } from '@angular/common';
+
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { Router, RouterModule, } from '@angular/router';
 
 @Component({
   selector: 'async-nav',
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, LogoComponent, CommonModule, RouterModule],
+  imports: [MatToolbarModule, MatIconModule, MatButtonModule, LogoComponent, RouterModule],
   template: `
-  
-  <mat-toolbar color="primary">
+
+<mat-toolbar color="primary">
   <mat-toolbar-row>
     <span class="logo">
       <async-logo/>
     </span>
     <span class="nav-spacer"></span>
-    
-    <ng-content *ngIf="isDesktop">
-      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        Home
-      </a>
+
+    @if (isDesktop) {
+      <ng-content>
+        <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+          Home
+        </a>
+        <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+          <mat-icon>output</mat-icon> Sign In
+        </a>
+        <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
+          <mat-icon>input</mat-icon> Sign Up
+        </a>
+      </ng-content>
+    }
+  </mat-toolbar-row>
+
+  @if (isMobile) {
+    <mat-toolbar-row>
+      <!-- <span>Second Line</span> -->
+      <span class="nav-spacer"></span>
+      <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
       <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>output</mat-icon> Sign In
       </a>
       <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
         <mat-icon>input</mat-icon> Sign Up
       </a>
-    </ng-content>
-  </mat-toolbar-row>
-
-  <mat-toolbar-row *ngIf="isMobile">
-    <!-- <span>Second Line</span> -->
-
-    <span class="nav-spacer"></span>
-    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Home</a>
-      <a mat-button routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <mat-icon>output</mat-icon> Sign In
-      </a>
-      <a mat-button routerLink="partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">
-        <mat-icon>input</mat-icon> Sign Up
-      </a>
-  </mat-toolbar-row>
+    </mat-toolbar-row>
+  }
 
 </mat-toolbar>
 

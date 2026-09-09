@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { LandingPageSettingComponent } from './Landing-page.component';
  */
 @Component({
     selector: 'async-landing-page-setting-container',
-    imports: [CommonModule, LandingPageSettingComponent],
+    imports: [LandingPageSettingComponent],
     providers: [],
     template: `
-  <async-landing-page-setting *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-landing-page-setting [partner]="partner"/>
+  }
   `
 })
 export class LandingPageSettingContainerComponent implements OnInit, OnDestroy {

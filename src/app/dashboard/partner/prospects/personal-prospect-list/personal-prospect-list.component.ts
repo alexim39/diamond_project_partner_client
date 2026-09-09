@@ -32,102 +32,99 @@ selector: 'async-my-prospect-list',
 template: `
 
 <section class="breadcrumb-wrapper">
-    <div class="breadcrumb">
-        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
-        <a>Prospect Analytics</a> &gt;
-        <a>Converstion Analytics</a> &gt;
-        <span>Prospect list</span>
-    </div>
+  <div class="breadcrumb">
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Prospect Analytics</a> &gt;
+    <a>Converstion Analytics</a> &gt;
+    <span>Prospect list</span>
+  </div>
 </section>
 
 <section class="async-background ">
-    <h2>Manage My Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <h2>Manage My Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
-    <section class="async-container">
-        <div class="title">
-            <h3>My Online Survey List</h3>
-            <div class="action-area">
-                <mat-button-toggle-group>
-                  <mat-button-toggle routerLink="../../tools/contacts/list" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
-                  <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
-                  <mat-button-toggle routerLink="../../prospects/general-list" routerLinkActive="active" (click)="scrollToTop()" title="General Prospect List"><mat-icon>groups</mat-icon> General Prospect List</mat-button-toggle>
-              </mat-button-toggle-group>
-            </div>
-            
-        </div>
+  <section class="async-container">
+    <div class="title">
+      <h3>My Online Survey List</h3>
+      <div class="action-area">
+        <mat-button-toggle-group>
+          <mat-button-toggle routerLink="../../tools/contacts/list" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
+          <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
+          <mat-button-toggle routerLink="../../prospects/general-list" routerLinkActive="active" (click)="scrollToTop()" title="General Prospect List"><mat-icon>groups</mat-icon> General Prospect List</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
 
-        <ng-container *ngIf="!isEmptyRecord">
-            <div class="search">
-                <mat-form-field appearance="outline">
-                    <mat-label>Filter by prospect name</mat-label>
-                    <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
-                </mat-form-field>
-            </div>
-    
-            <div class="table">
-                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                    <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <span matTooltip="Not yet moved contact" *ngIf="badgeValue > 0" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
-                            <span *ngIf="badgeValue === 0">Name</span>
-                        </th>
-                      <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses"> 
-                        {{element.name | titlecase }} {{element.surname | titlecase}} 
-                      </td> 
-                    </ng-container>
-                  
-                    <ng-container matColumnDef="phone">
-                      <th mat-header-cell *matHeaderCellDef> Phone </th>
-                      <td mat-cell *matCellDef="let element"> {{element.phoneNumber}} </td>
-                    </ng-container>
-                  
-                    <ng-container matColumnDef="email">
-                      <th mat-header-cell *matHeaderCellDef> Email </th>
-                      <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
-                    </ng-container>
-    
-                    <ng-container matColumnDef="status">
-                        <th mat-header-cell *matHeaderCellDef> Status </th>
-                        <td 
-                          mat-cell 
-                          *matCellDef="let element" 
-                          [ngClass]="{'bold-text': element.prospectStatus === 'Moved to Contact'}">
-                          {{element.prospectStatus}}
-                        </td>
-                    </ng-container>
+    </div>
 
-                    <ng-container matColumnDef="date">
-                        <th mat-header-cell *matHeaderCellDef>  
-                            <span matTooltip="Today's prospect" *ngIf="badgeValue > 0" [matBadge]="todaysProsect" matBadgeOverlap="false">Date</span>
-                        </th>
-                        <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="dateAgo">
-                        <th mat-header-cell *matHeaderCellDef> Duration </th>
-                        <td mat-cell *matCellDef="let element"> {{ getDateAgo(element) }}  </td>
-                    </ng-container>    
-
-                    <ng-container matColumnDef="action">
-                        <th mat-header-cell *matHeaderCellDef> Action </th>
-                        <td mat-cell *matCellDef="let element" style="cursor: pointer;"> 
-                            <button (click)="moveToContact(element._id)" mat-button [disabled]="element.prospectStatus == 'Moved to Contact'">Move to Contact</button>
-                        </td>
-                    </ng-container>
-                  
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-                        [ngClass]="{'moved-to-contact': row.prospectStatus == 'Moved to Contact'}">
-                    </tr>
-                </table>
-
-                <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
-            </div>
-        </ng-container>
-        <ng-container *ngIf="isEmptyRecord && dataSource.data.length === 0">
-            <p class="no-campaign">No prospect contact available yet</p>
-        </ng-container>
-    </section>
+    @if (!isEmptyRecord) {
+      <div class="search">
+        <mat-form-field appearance="outline">
+          <mat-label>Filter by prospect name</mat-label>
+          <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
+        </mat-form-field>
+      </div>
+      <div class="table">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>
+              @if (badgeValue > 0) {
+                <span matTooltip="Not yet moved contact" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
+              }
+              @if (badgeValue === 0) {
+                <span>Name</span>
+              }
+            </th>
+            <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses">
+              {{element.name | titlecase }} {{element.surname | titlecase}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef> Phone </th>
+            <td mat-cell *matCellDef="let element"> {{element.phoneNumber}} </td>
+          </ng-container>
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef> Email </th>
+            <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Status </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [ngClass]="{'bold-text': element.prospectStatus === 'Moved to Contact'}">
+              {{element.prospectStatus}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>
+              @if (badgeValue > 0) {
+                <span matTooltip="Today's prospect" [matBadge]="todaysProsect" matBadgeOverlap="false">Date</span>
+              }
+            </th>
+            <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
+          </ng-container>
+          <ng-container matColumnDef="dateAgo">
+            <th mat-header-cell *matHeaderCellDef> Duration </th>
+            <td mat-cell *matCellDef="let element"> {{ getDateAgo(element) }}  </td>
+          </ng-container>
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef> Action </th>
+            <td mat-cell *matCellDef="let element" style="cursor: pointer;">
+              <button (click)="moveToContact(element._id)" mat-button [disabled]="element.prospectStatus == 'Moved to Contact'">Move to Contact</button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            [ngClass]="{'moved-to-contact': row.prospectStatus == 'Moved to Contact'}">
+          </tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
+      </div>
+    }
+    @if (isEmptyRecord && dataSource.data.length === 0) {
+      <p class="no-campaign">No prospect contact available yet</p>
+    }
+  </section>
 </section>
 
 

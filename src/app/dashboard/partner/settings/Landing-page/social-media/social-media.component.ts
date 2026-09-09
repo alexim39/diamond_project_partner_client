@@ -5,7 +5,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';  
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
+
 import { SocialMediaSettingsService } from './social-media.service';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
@@ -18,7 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     selector: 'async-social-media-settings',
     templateUrl: 'social-media.component.html',
     styleUrls: ['social-media.component.scss', 'social-media.mobile.scss'],
-    imports: [MatExpansionModule, CommonModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
+    imports: [MatExpansionModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
     providers: [MatSnackBar, SocialMediaSettingsService]
 })
 export class SocialMediaSettingsComponent {

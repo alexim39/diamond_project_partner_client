@@ -36,36 +36,40 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
         <mat-form-field class="example-chip-list">
           <mat-label>Add A Member</mat-label>
           <mat-chip-grid #chipGrid aria-label="Partner selection">
-            <mat-chip-row *ngFor="let partner of selectedPartners" (removed)="remove(partner)">
-              {{ partner.name }} {{ partner.surname }}  <button matChipRemove [attr.aria-label]="'remove ' + partner.name">
+            @for (partner of selectedPartners; track partner) {
+              <mat-chip-row (removed)="remove(partner)">
+                {{ partner.name }} {{ partner.surname }}  <button matChipRemove [attr.aria-label]="'remove ' + partner.name">
                 <mat-icon>cancel</mat-icon>
               </button>
             </mat-chip-row>
-          </mat-chip-grid>
-          <input
-            name="currentPartner"
-            placeholder="New Partner..."
-            #partnerInput
-            [formControl]="partnerCtrl"
-            [matChipInputFor]="chipGrid"
-            [matAutocomplete]="auto"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            (matChipInputTokenEnd)="add($event)"
+          }
+        </mat-chip-grid>
+        <input
+          name="currentPartner"
+          placeholder="New Partner..."
+          #partnerInput
+          [formControl]="partnerCtrl"
+          [matChipInputFor]="chipGrid"
+          [matAutocomplete]="auto"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="add($event)"
           />
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-            <mat-option *ngFor="let partner of filteredPartners | async" [value]="partner.name">
-              {{partner.name }} {{partner.surname}}
-            </mat-option>
+            @for (partner of filteredPartners | async; track partner) {
+              <mat-option [value]="partner.name">
+                {{partner.name }} {{partner.surname}}
+              </mat-option>
+            }
           </mat-autocomplete>
         </mat-form-field>
       </form>
     </mat-dialog-content>
-
+    
     <mat-dialog-actions>
       <button mat-button (click)="onClose()">Close</button>
       <button mat-button (click)="addMember(data.team._id)">Add</button>
     </mat-dialog-actions>
-  `,
+    `,
     providers: [SearchService, TeamService],
     imports: [
         MatDialogModule,

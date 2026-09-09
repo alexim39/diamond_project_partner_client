@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -53,7 +53,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
     styles: `
   `,
     providers: [SMSService],
-    imports: [MatDialogModule, MatExpansionModule, CommonModule, MatListModule, MatIconModule, MatButtonModule]
+    imports: [MatDialogModule, MatExpansionModule, MatListModule, MatIconModule, MatButtonModule]
 })
 export class SMSDetailDialogComponent implements OnDestroy, OnInit {
     readonly data = inject<any>(MAT_DIALOG_DATA);

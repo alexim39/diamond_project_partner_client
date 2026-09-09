@@ -3,7 +3,7 @@ import {MatIconModule} from '@angular/material/icon';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { ProductObjectInterface, ProductService } from '../monthly-purchase.service';
 import { Subscription } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { PurchasesComponent } from './purchases.component';
 
 /**
@@ -12,10 +12,12 @@ import { PurchasesComponent } from './purchases.component';
 @Component({
     selector: 'async-purchases-container',
     template: `
-    <async-purchases *ngIf="cartObject" [cartObject]="cartObject"/>
-  `,
+    @if (cartObject) {
+      <async-purchases [cartObject]="cartObject"/>
+    }
+    `,
     providers: [ProductService],
-    imports: [MatIconModule, CommonModule, PurchasesComponent]
+    imports: [MatIconModule, PurchasesComponent]
 })
 export class PurchaseContainerComponent implements OnInit, OnDestroy {
 

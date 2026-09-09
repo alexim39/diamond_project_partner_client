@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ManageTeamComponent } from './manage-team.component';
@@ -11,10 +11,12 @@ import { TeamInterface, TeamService } from '../team.service';
 @Component({
     selector: 'async-manage-team-container',
     template: `
-  <async-manage-team *ngIf="partner && teams" [partner]="partner" [teams]="teams"/>
+  @if (partner && teams) {
+    <async-manage-team [partner]="partner" [teams]="teams"/>
+  }
   `,
     providers: [TeamService],
-    imports: [CommonModule, ManageTeamComponent]
+    imports: [ManageTeamComponent]
 })
 export class ManageTeamContainerComponent implements OnInit, OnDestroy {
 

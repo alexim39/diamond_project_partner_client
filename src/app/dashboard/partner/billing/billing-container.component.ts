@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,12 @@ import { PaystackService, TransactionInterface } from './paystack.service';
  */
 @Component({
     selector: 'async-billing-container',
-    imports: [CommonModule, BillingComponent],
+    imports: [BillingComponent],
     providers: [],
     template: `
-  <async-billing *ngIf="partner && transactions" [partner]="partner"  [transactions]="transactions"></async-billing>
+  @if (partner && transactions) {
+    <async-billing [partner]="partner"  [transactions]="transactions"></async-billing>
+  }
   `
 })
 export class BillingContainerComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { CreateContactsComponent } from './create-contacts.component';
  */
 @Component({
     selector: 'async-contacts-container',
-    imports: [CommonModule, CreateContactsComponent],
+    imports: [CreateContactsComponent],
     providers: [],
     template: `
-  <async-create-contatcs *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-create-contatcs [partner]="partner"/>
+  }
   `
 })
 export class CreateContactsContainerComponent implements OnInit, OnDestroy {

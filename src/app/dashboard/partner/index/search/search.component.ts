@@ -14,32 +14,34 @@ import { MatIconModule } from '@angular/material/icon';
     imports: [FormsModule, CommonModule, MatIconModule, ReactiveFormsModule, AsyncPipe, MatFormFieldModule, MatInputModule, MatAutocompleteModule],
     providers: [],
     template: `
-    <section>  
-        <div class="search">  
-            <form class="search-form">  
-                <mat-form-field appearance="outline" class="search-field">  
-                    <mat-label>App Directory</mat-label>  
-                    <input matInput placeholder="Search for partner" [matAutocomplete]="auto" [formControl]="partnerCtrl">
-
-                    <button mat-icon-button matSuffix (click)="onSearchClick()" aria-label="Search">
-                        <mat-icon>search</mat-icon>
-                    </button>
-
-                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">  
-                        <mat-option *ngFor="let partner of filteredPartners | async" [value]="partner.name + ' ' + partner.surname" class="partner-option">  
-                            <div class="partner-content">  
-                                <img alt="Profile-image"   
-                                    class="img"   
-                                    [src]="partner.profileImage ? (apiURL + '/uploads/' + partner.profileImage) : './img/default_pp.png'"   
-                                    height="25">  
-                                <span class="partner-name">{{partner.name | titlecase }} {{partner.surname | titlecase }}</span>  
-                            </div>  
-                        </mat-option>
-                    </mat-autocomplete>  
-                </mat-form-field>  
-            </form>  
-        </div>  
-    </section>
+    <section>
+      <div class="search">
+        <form class="search-form">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>App Directory</mat-label>
+            <input matInput placeholder="Search for partner" [matAutocomplete]="auto" [formControl]="partnerCtrl">
+    
+            <button mat-icon-button matSuffix (click)="onSearchClick()" aria-label="Search">
+              <mat-icon>search</mat-icon>
+            </button>
+    
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
+              @for (partner of filteredPartners | async; track partner) {
+                <mat-option [value]="partner.name + ' ' + partner.surname" class="partner-option">
+                  <div class="partner-content">
+                    <img alt="Profile-image"
+                      class="img"
+                      [src]="partner.profileImage ? (apiURL + '/uploads/' + partner.profileImage) : './img/default_pp.png'"
+                      height="25">
+                      <span class="partner-name">{{partner.name | titlecase }} {{partner.surname | titlecase }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+          </form>
+        </div>
+      </section>
     `,
     styles: `
     section {

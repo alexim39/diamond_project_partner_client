@@ -86,32 +86,34 @@ button[disabled] {
     template: `
 
 
-    <div class="header">
-      <h2 mat-dialog-title>Hi {{partner.surname | titlecase}} {{partner.name | titlecase}}</h2>
+<div class="header">
+  <h2 mat-dialog-title>Hi {{partner.surname | titlecase}} {{partner.name | titlecase}}</h2>
 
-      <mat-icon [mat-dialog-close] cdkFocusInitial (click)="close()">close</mat-icon>
-    </div>
+  <mat-icon [mat-dialog-close] cdkFocusInitial (click)="close()">close</mat-icon>
+</div>
 
-    <mat-dialog-content>
+<mat-dialog-content>
 
-    <p>Use the below field to withdraw from your account</p>
+  <p>Use the below field to withdraw from your account</p>
 
-    <!-- <mat-form-field appearance="outline" floatLabel="always">
-        <mat-label>Enter Amount</mat-label>
-        <input matInput type="number" [(ngModel)]="amount"placeholder="0" />
-        <span matTextPrefix>&#8358;</span>
-        <span matTextSuffix>.00</span>
-    </mat-form-field> -->
+  <!-- <mat-form-field appearance="outline" floatLabel="always">
+  <mat-label>Enter Amount</mat-label>
+  <input matInput type="number" [(ngModel)]="amount"placeholder="0" />
+  <span matTextPrefix>&#8358;</span>
+  <span matTextSuffix>.00</span>
+</mat-form-field> -->
 
-    <div class="withdraw-container">
+<div class="withdraw-container">
   <h2>Withdraw Funds</h2>
   <form [formGroup]="withdrawForm" (ngSubmit)="onSubmit()">
-    
+
     <!-- Bank Dropdown -->
     <label for="bank">Select Bank</label>
     <select formControlName="bank" (change)="onBankChange($event)">
       <option value="" disabled>Select Bank</option>
-      <option *ngFor="let bank of banks" [value]="bank.code">{{ bank.name }}</option>
+      @for (bank of banks; track bank) {
+        <option [value]="bank.code">{{ bank.name }}</option>
+      }
     </select>
 
     <!-- Account Number Field -->
@@ -122,44 +124,46 @@ button[disabled] {
       formControlName="accountNumber"
       (input)="resolveAccountName()"
       placeholder="Enter Account Number"
-    />
+      />
 
-    <!-- Account Name Field (Auto-Populated) -->
-    <label for="accountName">Account Name</label>
-    <input
-      type="text"
-      id="accountName"
-      formControlName="accountName"
-      readonly
-      placeholder="Account Name will be auto-filled"
-    />
+      <!-- Account Name Field (Auto-Populated) -->
+      <label for="accountName">Account Name</label>
+      <input
+        type="text"
+        id="accountName"
+        formControlName="accountName"
+        readonly
+        placeholder="Account Name will be auto-filled"
+        />
 
-    <!-- Amount Field -->
-    <label for="amount">Amount to Withdraw</label>
-    <input
-      type="number"
-      id="amount"
-      formControlName="amount"
-      placeholder="Enter Amount"
-    />
+        <!-- Amount Field -->
+        <label for="amount">Amount to Withdraw</label>
+        <input
+          type="number"
+          id="amount"
+          formControlName="amount"
+          placeholder="Enter Amount"
+          />
 
-    <!-- Submit Button -->
-    <button type="submit" [disabled]="withdrawForm.invalid">Withdraw</button>
-  </form>
-</div>
+          <!-- Submit Button -->
+          <button type="submit" [disabled]="withdrawForm.invalid">Withdraw</button>
+        </form>
+      </div>
 
 
     </mat-dialog-content>
 
     <mat-dialog-actions>
-        <!-- <button mat-button [mat-dialog-close] cdkFocusInitial (click)="close()">Close</button> -->
-        <!-- <button mat-raised-button color="primary" (click)="addFunds()"><mat-icon>add</mat-icon>Add</button> -->
+      <!-- <button mat-button [mat-dialog-close] cdkFocusInitial (click)="close()">Close</button> -->
+      <!-- <button mat-raised-button color="primary" (click)="addFunds()"><mat-icon>add</mat-icon>Add</button> -->
 
-      <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
     </mat-dialog-actions>
 
 
-  `,
+`,
     imports: [FormsModule, MatFormFieldModule, MatProgressBarModule, CommonModule, ReactiveFormsModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
 export class BillingWithdrawComponent implements OnInit, OnDestroy {

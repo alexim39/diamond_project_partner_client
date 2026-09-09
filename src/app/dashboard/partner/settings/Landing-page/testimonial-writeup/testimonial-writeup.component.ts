@@ -5,7 +5,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';  
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
+
 import { LandingPageService } from '../landing-page.service';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
@@ -18,7 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     selector: 'async-testimonial-writeup-settings',
     templateUrl: 'testimonial-writeup.component.html',
     styleUrls: ['testimonial-writeup.component.scss', 'testimonial-writeup.mobile.scss'],
-    imports: [MatExpansionModule, CommonModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
+    imports: [MatExpansionModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatFormFieldModule],
     providers: [MatSnackBar, LandingPageService]
 })
 export class TestimonialWriteupSettingsComponent {

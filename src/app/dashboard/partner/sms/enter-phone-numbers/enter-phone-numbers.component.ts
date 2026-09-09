@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
+
 import { SMSGatewaysService } from '../../../../_common/services/sms.service';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -20,34 +20,40 @@ import { HttpErrorResponse } from '@angular/common/http';
 selector: 'async-enter-phone-numbers',
 template: `
 
-<form (ngSubmit)="onSubmit()" [formGroup]="bulckSMSForm">  
-    <mat-form-field appearance="outline" class="sender-id">  
-        <mat-label>Sender Id</mat-label>  
-        <input matInput placeholder="Ex. DiamondProj" maxlength="11" formControlName="senderId" value="C21FG" readonly="true">  
-        <mat-error *ngIf="bulckSMSForm.get('senderId')?.hasError('required') ">  
-            This field is required.  
-        </mat-error>   
-    </mat-form-field>  
+<form (ngSubmit)="onSubmit()" [formGroup]="bulckSMSForm">
+  <mat-form-field appearance="outline" class="sender-id">
+    <mat-label>Sender Id</mat-label>
+    <input matInput placeholder="Ex. DiamondProj" maxlength="11" formControlName="senderId" value="C21FG" readonly="true">
+    @if (bulckSMSForm.get('senderId')?.hasError('required') ) {
+      <mat-error>
+        This field is required.
+      </mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field appearance="outline" class="message-phone">  
-      <mat-label>Enter Phone Numbers</mat-label>  
-      <textarea matInput placeholder="Ex. 08080386208, 09062537816, ..." formControlName="phoneNumbers"></textarea>  
-      <mat-hint align="start"><strong>Separate each phone with a comer</strong> </mat-hint>
-      <mat-error *ngIf="bulckSMSForm.get('phoneNumbers')?.hasError('required') ">  
-        At least a phone number should be entered  
-      </mat-error>  
-    </mat-form-field>  
+  <mat-form-field appearance="outline" class="message-phone">
+    <mat-label>Enter Phone Numbers</mat-label>
+    <textarea matInput placeholder="Ex. 08080386208, 09062537816, ..." formControlName="phoneNumbers"></textarea>
+    <mat-hint align="start"><strong>Separate each phone with a comer</strong> </mat-hint>
+    @if (bulckSMSForm.get('phoneNumbers')?.hasError('required') ) {
+      <mat-error>
+        At least a phone number should be entered
+      </mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field appearance="outline" class="message-phone">  
-        <mat-label>Enter Text Messages</mat-label>  
-        <textarea matInput placeholder="Type text messages here ..." formControlName="textMessage" #message maxlength="960"></textarea>  
-        <mat-hint align="end"><strong>Pages {{pages}}</strong>, {{message.value.length}} / 160</mat-hint>  
-        <mat-error *ngIf="bulckSMSForm.get('textMessage')?.hasError('required') ">  
-            Enter the text message to be sent   
-        </mat-error>  
-    </mat-form-field>  
+  <mat-form-field appearance="outline" class="message-phone">
+    <mat-label>Enter Text Messages</mat-label>
+    <textarea matInput placeholder="Type text messages here ..." formControlName="textMessage" #message maxlength="960"></textarea>
+    <mat-hint align="end"><strong>Pages {{pages}}</strong>, {{message.value.length}} / 160</mat-hint>
+    @if (bulckSMSForm.get('textMessage')?.hasError('required') ) {
+      <mat-error>
+        Enter the text message to be sent
+      </mat-error>
+    }
+  </mat-form-field>
 
-    <button mat-flat-button>Send SMS</button>  
+  <button mat-flat-button>Send SMS</button>
 </form>
 
 `,
@@ -94,7 +100,7 @@ form {
 
 `,
 providers: [SMSService, SMSGatewaysService],
-imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, CommonModule]
+imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule]
 })
 export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;

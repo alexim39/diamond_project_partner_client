@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { ContactsInterface, ContactsService } from '../../../contacts.service';
-import { CommonModule } from '@angular/common';
+
 import { PartnerInterface } from '../../../../../../_common/services/partner.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -84,13 +84,12 @@ styles: `
 
 `,
 imports: [
-  FormsModule,
-  ReactiveFormsModule,
-  MatFormFieldModule,
-  MatInputModule,
-  MatIconModule, 
-  MatButtonModule,
-  CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule
 ],
 })
 export class ProspectSMSComponent implements OnInit {

@@ -1,12 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 
 @Component({
   selector: 'async-notification-banner',
-  imports: [CommonModule, MatIconModule, RouterModule],
+  imports: [MatIconModule, RouterModule],
   providers: [],
   template: `
 

@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { InvitationComponent } from './invitation.component';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -10,10 +10,12 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'async-invitation-container',
     template: `
-  <async-invitation *ngIf="partner" [partner]="partner"/>
+  @if (partner) {
+    <async-invitation [partner]="partner"/>
+  }
   `,
     providers: [],
-    imports: [CommonModule, InvitationComponent]
+    imports: [InvitationComponent]
 })
 export class InvitationContainerComponent implements OnInit, OnDestroy {
 

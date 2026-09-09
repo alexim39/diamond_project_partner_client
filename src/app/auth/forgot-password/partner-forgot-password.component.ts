@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Subscription } from 'rxjs';
 import { PartnerAuthService, PartnerSignInInterface } from '../auth.service';
 import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common';
+
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 /**
@@ -19,40 +19,44 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 @Component({
 selector: 'async-partner-signin',
 providers: [PartnerAuthService],
-imports: [MatButtonModule, CommonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
+imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
 template: `
 
 <div class="page">
-    <div class="login-panel">
-      <h1>Partner Reset Password</h1>
-      <h4>We will send you a link to reset your password</h4>
-      <form [formGroup]="signInForm" (submit)="onSubmit()">
+  <div class="login-panel">
+    <h1>Partner Reset Password</h1>
+    <h4>We will send you a link to reset your password</h4>
+    <form [formGroup]="signInForm" (submit)="onSubmit()">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Email address</mat-label>
-          <input matInput type="email" formControlName="email">
-          <mat-error *ngIf="signInForm.get('email')?.hasError('email') ">
+      <mat-form-field appearance="outline">
+        <mat-label>Email address</mat-label>
+        <input matInput type="email" formControlName="email">
+        @if (signInForm.get('email')?.hasError('email') ) {
+          <mat-error>
             Email is invalid
           </mat-error>
-          <mat-error *ngIf="signInForm.get('email')?.hasError('required') ">
+        }
+        @if (signInForm.get('email')?.hasError('required') ) {
+          <mat-error>
             Email is required
           </mat-error>
-        </mat-form-field>
+        }
+      </mat-form-field>
 
-        <button mat-flat-button color="primary">Send</button>
+      <button mat-flat-button color="primary">Send</button>
 
-      </form>
+    </form>
 
-      <p>
-        <a routerLink="../../partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Return to login?</a>
-      </p>
+    <p>
+      <a routerLink="../../partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Return to login?</a>
+    </p>
 
-      <div class="line"></div>
+    <div class="line"></div>
 
-      <p>
-        Not a Diamond Project partner yet? <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign up</a>
-      </p>
-    </div>
+    <p>
+      Not a Diamond Project partner yet? <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign up</a>
+    </p>
+  </div>
 </div>
 
 `,

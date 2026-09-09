@@ -51,151 +51,156 @@ import { MatExpansionModule } from '@angular/material/expansion';
 <h2 mat-dialog-title>{{data.surname | titlecase}} {{data.name | titlecase}}'s Booking Details & Update</h2>
 
 <mat-dialog-content>
-  
-<mat-list>
-  
-  <mat-list-item>
-    <span matListItemTitle>Phone Number:</span>
-    <span matListItemLine class="bolder">{{data.phone}}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
 
-  <mat-list-item>
-    <span matListItemTitle>Email Address:</span>
-    <span matListItemLine class="bolder">{{data.email}}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
+  <mat-list>
 
-  <mat-list-item>
-    <span matListItemTitle>Current Booking Status:</span>
-    <span matListItemLine class="bolder">{{data.status}}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Phone Number:</span>
+      <span matListItemLine class="bolder">{{data.phone}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item>
-    <span matListItemTitle>Session Date:</span>
-    <span matListItemLine class="bolder">{{data.consultDate | date }}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Email Address:</span>
+      <span matListItemLine class="bolder">{{data.email}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item>
-    <span matListItemTitle>Session Time:</span>
-    <span matListItemLine class="bolder">{{data.consultTime}}</span>
-    <!-- <small style="color: gray;"><em>Note that {{data.referralCode}} may be a partner in our business</em></small> -->
-  </mat-list-item>
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Current Booking Status:</span>
+      <span matListItemLine class="bolder">{{data.status}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item>
-    <span matListItemTitle>Channel of Contact:</span>
-    <span matListItemLine class="bolder">{{data.contactMethod}}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Session Date:</span>
+      <span matListItemLine class="bolder">{{data.consultDate | date }}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item>
-    <span matListItemTitle>Purpose of Session:</span>
-    <span matListItemLine class="bolder">{{data.reason}}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Session Time:</span>
+      <span matListItemLine class="bolder">{{data.consultTime}}</span>
+      <!-- <small style="color: gray;"><em>Note that {{data.referralCode}} may be a partner in our business</em></small> -->
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item>  
-    <span matListItemTitle>Session Scheduler:</span>  
-    <span matListItemLine class="bolder">  
-      <ng-container *ngIf="data.referral === 'Booked for prospect'; else bookedByProspect">  
-        {{ data.referral }}  
-      </ng-container>  
-      <ng-template #bookedByProspect>  
-        booked by prospect  
-      </ng-template>  
-    </span>  
-  </mat-list-item>  
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Channel of Contact:</span>
+      <span matListItemLine class="bolder">{{data.contactMethod}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item>
-    <span matListItemTitle>Date of Booking</span>
-    <span matListItemLine class="bolder">{{ data.createdAt | date:'fullDate' }} by {{ data.createdAt | date:'shortTime' }}</span>
-  </mat-list-item>
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Purpose of Session:</span>
+      <span matListItemLine class="bolder">{{data.reason}}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <mat-list-item *ngIf="data.description" class="custom-list-item">  
-    <span matListItemTitle>Current Comment/Remark:</span>  
-    <span matListItemLine class="bolder long-description">{{ data.description }}</span>  
-  </mat-list-item>  
-  <mat-divider></mat-divider>
+    <mat-list-item>
+      <span matListItemTitle>Session Scheduler:</span>
+      <span matListItemLine class="bolder">
+        @if (data.referral === 'Booked for prospect') {
+          {{ data.referral }}
+        } @else {
+          booked by prospect
+        }
+      </span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-  <form [formGroup]="bookingUpdateForm" (ngSubmit)="onSubmit()">
-  <mat-list-item class="custom-list-item">
-    <span matListItemTitle><!-- Update Session Status: --></span>
-    <span matListItemLine class="bolder long-description">
-      
-    <mat-form-field appearance="outline">
-      <mat-label>Update Session Status</mat-label>
-      <mat-select formControlName="sessionStatus" required>
-        <mat-option value="Scheduled">Scheduled</mat-option>
-        <mat-option value="No Show from Prospect">No Show from Prospect</mat-option>
-        <mat-option value="No Show from Partner">No Show from Partner</mat-option>
-        <mat-option value="Completed">Completed</mat-option>
-        <mat-option value="Incomplete">Incomplete</mat-option>
-        <mat-option value="Rebooked">Rebooked</mat-option>
-        <mat-option value="In Progress">In Progress</mat-option>
-        <mat-option value="Cancelled">Cancelled</mat-option>
-      </mat-select>
-      <mat-error *ngIf="bookingUpdateForm.get('sessionStatus')?.hasError('required')">
-          This field is required.  
-      </mat-error>
-    </mat-form-field>
+    <mat-list-item>
+      <span matListItemTitle>Date of Booking</span>
+      <span matListItemLine class="bolder">{{ data.createdAt | date:'fullDate' }} by {{ data.createdAt | date:'shortTime' }}</span>
+    </mat-list-item>
+    <mat-divider></mat-divider>
 
-    </span>
-  </mat-list-item>
-  <!-- <mat-divider></mat-divider> -->
+    @if (data.description) {
+      <mat-list-item class="custom-list-item">
+        <span matListItemTitle>Current Comment/Remark:</span>
+        <span matListItemLine class="bolder long-description">{{ data.description }}</span>
+      </mat-list-item>
+    }
+    <mat-divider></mat-divider>
 
-  <mat-list-item class="custom-list-item" style="margin: -2.5em 0 1em 0;">
-    <span matListItemTitle><!-- Update Session Status: --></span>
-    <span matListItemLine class="bolder long-description">
-      
-      <mat-form-field appearance="outline">
-      <mat-label>Leave a comment or remark</mat-label>
-      <textarea matInput formControlName="sessionRemark" required></textarea>
-      <mat-error *ngIf="bookingUpdateForm.get('sessionRemark')?.hasError('required') ">
-          This field is required.  
-      </mat-error> 
-    </mat-form-field>
+    <form [formGroup]="bookingUpdateForm" (ngSubmit)="onSubmit()">
+      <mat-list-item class="custom-list-item">
+        <span matListItemTitle><!-- Update Session Status: --></span>
+        <span matListItemLine class="bolder long-description">
 
-    </span>
-  </mat-list-item>
- <!--  <mat-divider></mat-divider> -->
+          <mat-form-field appearance="outline">
+            <mat-label>Update Session Status</mat-label>
+            <mat-select formControlName="sessionStatus" required>
+              <mat-option value="Scheduled">Scheduled</mat-option>
+              <mat-option value="No Show from Prospect">No Show from Prospect</mat-option>
+              <mat-option value="No Show from Partner">No Show from Partner</mat-option>
+              <mat-option value="Completed">Completed</mat-option>
+              <mat-option value="Incomplete">Incomplete</mat-option>
+              <mat-option value="Rebooked">Rebooked</mat-option>
+              <mat-option value="In Progress">In Progress</mat-option>
+              <mat-option value="Cancelled">Cancelled</mat-option>
+            </mat-select>
+            @if (bookingUpdateForm.get('sessionStatus')?.hasError('required')) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
 
- <div style="display: flex; justify-content: center; align-items: center;">
-  <button mat-raised-button>Submit</button>
- </div>
-  </form>
+        </span>
+      </mat-list-item>
+      <!-- <mat-divider></mat-divider> -->
 
-</mat-list>
+      <mat-list-item class="custom-list-item" style="margin: -2.5em 0 1em 0;">
+        <span matListItemTitle><!-- Update Session Status: --></span>
+        <span matListItemLine class="bolder long-description">
 
-<br>
-<mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title> More Action </mat-panel-title>
-      <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
-    </mat-expansion-panel-header>
-    <p style="color: gray;">Delete prospect from system</p>
-    <button mat-stroked-button (click)="deleteBooking(data._id)" style="color: red;">
-      <mat-icon>delete</mat-icon>
-      Delete
-    </button>
-    
-  </mat-expansion-panel>
- </mat-accordion>
+          <mat-form-field appearance="outline">
+            <mat-label>Leave a comment or remark</mat-label>
+            <textarea matInput formControlName="sessionRemark" required></textarea>
+            @if (bookingUpdateForm.get('sessionRemark')?.hasError('required') ) {
+              <mat-error>
+                This field is required.
+              </mat-error>
+            }
+          </mat-form-field>
 
- <br><br><br>
+        </span>
+      </mat-list-item>
+      <!--  <mat-divider></mat-divider> -->
 
-</mat-dialog-content>
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <button mat-raised-button>Submit</button>
+      </div>
+    </form>
 
-<mat-dialog-actions>
-<button mat-button (click)="close()">Close</button>
-</mat-dialog-actions>
+  </mat-list>
 
-  `,
+  <br>
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title> More Action </mat-panel-title>
+          <!-- <mat-panel-description> This is a summary of the content </mat-panel-description> -->
+        </mat-expansion-panel-header>
+        <p style="color: gray;">Delete prospect from system</p>
+        <button mat-stroked-button (click)="deleteBooking(data._id)" style="color: red;">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <br><br><br>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="close()">Close</button>
+  </mat-dialog-actions>
+
+`,
     providers: [ProspectService],
     imports: [CommonModule, ReactiveFormsModule, FormsModule, MatExpansionModule, MatIconModule, MatListModule, MatInputModule, MatSelectModule, MatDialogModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
 })

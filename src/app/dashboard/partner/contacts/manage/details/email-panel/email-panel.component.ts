@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { ContactsInterface, ContactsService } from '../../../contacts.service';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -96,9 +96,8 @@ imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatIconModule, 
-    MatButtonModule,
-    CommonModule,
+    MatIconModule,
+    MatButtonModule
 ],
 })
 export class ProspectEmailPanelComponent implements OnInit {

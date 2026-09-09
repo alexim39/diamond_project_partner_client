@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { SocialMediaSettingsComponent } from './social-media/social-media.component';
-import { CommonModule } from '@angular/common';
+
 import { TestimonialWriteupSettingsComponent } from './testimonial-writeup/testimonial-writeup.component';
 
 /**
@@ -21,27 +21,31 @@ template: `
   <h2>Landing Page Settings <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
 
   <section class="async-container">
-      <div class="title">
-          <h3>Partner Page Setup</h3>
-          <!--  <div class="action-area">
-              <a mat-list-item routerLink="../create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign" mat-raised-button><mat-icon>add</mat-icon>New Campaign</a>
-          </div> -->
-      </div>
+    <div class="title">
+      <h3>Partner Page Setup</h3>
+      <!--  <div class="action-area">
+      <a mat-list-item routerLink="../create-campaign" routerLinkActive="active" (click)="scrollToTop()" title="Create Campaign" mat-raised-button><mat-icon>add</mat-icon>New Campaign</a>
+    </div> -->
+  </div>
 
-      <div class="content">
+  <div class="content">
 
-          <mat-tab-group>
-              <mat-tab label="Social Medial Settings">
-                  <async-social-media-settings *ngIf="partner" [partner]="partner"/>
-              </mat-tab>
-              <!-- <mat-tab label="Testimonial Video Upload"> Content 2 </mat-tab> -->
-              <mat-tab label="Testimonial Write Up"> 
-                  <async-testimonial-writeup-settings *ngIf="partner" [partner]="partner"/>
-              </mat-tab>
-          </mat-tab-group>
-              
-        </div>
-    </section>
+    <mat-tab-group>
+      <mat-tab label="Social Medial Settings">
+        @if (partner) {
+          <async-social-media-settings [partner]="partner"/>
+        }
+      </mat-tab>
+      <!-- <mat-tab label="Testimonial Video Upload"> Content 2 </mat-tab> -->
+      <mat-tab label="Testimonial Write Up">
+        @if (partner) {
+          <async-testimonial-writeup-settings [partner]="partner"/>
+        }
+      </mat-tab>
+    </mat-tab-group>
+
+  </div>
+</section>
 </section>
 
 `,
@@ -93,7 +97,7 @@ styles: [`
 }
 
 `],
-imports: [MatTabsModule, CommonModule, MatIconModule, MatButtonModule, SocialMediaSettingsComponent, TestimonialWriteupSettingsComponent]
+imports: [MatTabsModule, MatIconModule, MatButtonModule, SocialMediaSettingsComponent, TestimonialWriteupSettingsComponent]
 })
 export class LandingPageSettingComponent {
   @Input() partner!: PartnerInterface;
