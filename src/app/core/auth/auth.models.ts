@@ -18,6 +18,9 @@ export interface SignupRequest {
   tnc?: boolean;
 }
 
+/** Canonical roles (backend normalizes legacy 'User'/'admin' casing). */
+export type UserRole = 'user' | 'leader' | 'admin';
+
 export interface AuthUser {
   id: string;
   username: string;
@@ -25,7 +28,7 @@ export interface AuthUser {
   surname: string;
   email: string;
   phone?: string;
-  role?: string;
+  role?: UserRole | string;
   [key: string]: unknown;
 }
 
