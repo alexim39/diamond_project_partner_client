@@ -38,6 +38,7 @@ export const dashboardRoutes: Routes = [
             { path: 'support', loadChildren: () => import('./support/support.routes').then(r => r.SupportRoutes) }, 
             { path: 'admin', loadChildren: () => import('../admin/admin.routes').then(r => r.AdminRoutes) }, 
             { path: 'network', loadChildren: () => import('../network/network.routes').then(r => r.NetworkRoutes) }, 
+            { path: 'notifications', loadChildren: () => import('../notifications/notifications.routes').then(r => r.NotificationsRoutes) }, 
                 
                  
             {
