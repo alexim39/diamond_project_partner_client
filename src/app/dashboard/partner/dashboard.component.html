@@ -113,6 +113,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('insights') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="insights" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Insights - Daily actions, funnel and team health"> - Overview & Actions</a>
+        <a mat-list-item routerLink="insights/team-reports" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Team Reports - Report up to your upline, request from your downline"> - Team Reports</a>
       </div>
 
 
