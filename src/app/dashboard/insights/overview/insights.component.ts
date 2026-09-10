@@ -129,6 +129,11 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
       }
 
       <h3>Team health</h3>
+      @if (team(); as src) {
+        <p class="muted source-note">
+          {{ src.source === 'snapshot' ? 'Overnight snapshot · refreshes nightly' : 'Computed live just now' }}
+        </p>
+      }
       @if (team(); as t) {
         <div class="stat-grid">
           <mat-card>
@@ -224,6 +229,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .reco-list li { display: flex; gap: 0.5em; align-items: flex-start; color: #555; }
     .reco-list mat-icon { color: #f9a825; font-size: 20px; height: 20px; width: 20px; }
     .muted { color: #777; font-size: 0.85em; }
+    .source-note { margin: -0.5em 0 0; }
     .exports { display: flex; gap: 0.25em; flex-wrap: wrap; align-items: center; }
     .goals-strip { margin: 0; }
     .goals-strip a { text-decoration: none; font-weight: 600; }
