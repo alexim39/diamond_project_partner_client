@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { ActionPriority, DailyAction, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
 import { ApiError } from '../../../core/http/api-error';
@@ -92,8 +91,17 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
         <p class="empty">Nothing urgent — enjoy the quiet, or go prospecting.</p>
       }
 
-      <h3>Recruitment funnel <span class="muted">({{ funnel()?.days }}-day cohort)</span></h3>
-      @if (funnel(); as f) {
+      @if (goalSummary(); as gs) {
+        <p class="goals-strip">
+          <a routerLink="/dashboard/goals">Goals:</a>
+          {{ gs.complete }}/{{ gs.total }} complete
+          @if (gs.behind > 0) {
+            · <strong class="behind">{{ gs.behind }} behind pace</strong>
+          }
+        </p>
+      }
+
+      <h3>Recruitment funnel <span class="muted">({{ funnel()?.days }}-day cohort)</span></h3>      @if (funnel(); as f) {
         <div class="funnel">
           @for (step of f.steps; track step.stage) {
             <div class="funnel-row">
@@ -198,6 +206,9 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .reco-list li { display: flex; gap: 0.5em; align-items: flex-start; color: #555; }
     .reco-list mat-icon { color: #f9a825; font-size: 20px; height: 20px; width: 20px; }
     .muted { color: #777; font-size: 0.85em; }
+    .goals-strip { margin: 0; }
+    .goals-strip a { text-decoration: none; font-weight: 600; }
+    .behind { color: #d32f2f; }
     .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
     .empty { color: #666; }
   `],
@@ -212,6 +223,7 @@ export class InsightsOverviewComponent implements OnInit {
   protected readonly actions = signal<DailyAction[]>([]);
   protected readonly funnel = signal<Funnel | null>(null);
   protected readonly team = signal<TeamAnalytics | null>(null);
+  protected readonly goalSummary = signal<{ total: number; complete: number; behind: number } | null>(null);
 
   protected readonly funnelMax = computed(() =>
     Math.max(1, ...(this.funnel()?.steps.map((s) => s.count) ?? [1])),
@@ -229,17 +241,17 @@ export class InsightsOverviewComponent implements OnInit {
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
-    forkJoin({
-      actions: this.analytics.actions(),
-      funnel: this.analytics.funnel(this.days()),
-      team: this.analytics.team(this.days()),
-    })
+    // Single aggregation call — actions, funnel, team, goals in one round trip.
+    this.analytics
+      .overview(this.days())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ actions, funnel, team }) => {
-          this.actions.set(actions.data?.actions ?? []);
-          this.funnel.set(funnel.data ?? null);
-          this.team.set(team.data ?? null);
+        next: (res) => {
+          this.actions.set(res.data?.actions?.actions ?? []);
+          this.funnel.set(res.data?.funnel ?? null);
+          this.team.set(res.data?.team ?? null);
+          const g = res.data?.goals;
+          this.goalSummary.set(g ? { total: g.total, complete: g.complete, behind: g.behind } : null);
           this.loading.set(false);
         },
         error: (err: ApiError) => {

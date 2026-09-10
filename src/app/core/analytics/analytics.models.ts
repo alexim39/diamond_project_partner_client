@@ -56,3 +56,21 @@ export interface TeamAnalytics {
 export interface TeamEnvelope extends ApiEnvelope<TeamAnalytics> {
   data: TeamAnalytics;
 }
+
+export interface GoalSummaryItem {
+  id: string;
+  title: string;
+  progress: { complete: boolean; onTrack: boolean; percent: number; daysLeft: number };
+}
+
+export interface DashboardOverview {
+  actions: { actions: DailyAction[]; total: number };
+  funnel: Funnel;
+  team: TeamAnalytics;
+  goals: { items: GoalSummaryItem[]; total: number; complete: number; behind: number };
+  notifications: { unreadCount: number; recent: Array<{ id: string }> };
+}
+
+export interface OverviewEnvelope extends ApiEnvelope<DashboardOverview> {
+  data: DashboardOverview;
+}
