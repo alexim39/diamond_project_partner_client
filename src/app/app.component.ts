@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SpinnerComponent } from './_common/services/loader/spinner.component';
+import { ThemeTogglerService } from './_common/services/theme-toggler.service';
 
 
 
@@ -45,4 +46,10 @@ styles: [`
   
 `]
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  private readonly themes = inject(ThemeTogglerService);
+
+  ngOnInit(): void {
+    this.themes.init();
+  }
+}

@@ -227,6 +227,9 @@
             </mat-icon>
             Notification
           </a>
+          <button mat-icon-button (click)="toggleTheme()" [title]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" aria-label="Toggle color theme">
+            <mat-icon>{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
           <a mat-button (click)="signOut()" title="Sign off application">
             <mat-icon>power_settings_circle</mat-icon> Sign Off
           </a>
@@ -247,6 +250,9 @@
           </mat-icon>
           Notification
         </a>
+        <button mat-icon-button (click)="toggleTheme()" title="Toggle color theme" aria-label="Toggle color theme">
+          <mat-icon>{{ theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
         <a mat-button (click)="signOut()" title="Sign off application">
           <mat-icon>power_settings_circle</mat-icon> Sign Off
         </a>

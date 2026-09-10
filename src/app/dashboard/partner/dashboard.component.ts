@@ -16,6 +16,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
+import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { PartnerAuthService } from '../../auth/auth.service';
 import { PushNotificationsComponent } from './index/push-notifications/push-notifications.component';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -28,21 +29,22 @@ templateUrl: './dashboard.component.html',
 styles: [`
 
 .sidenav-container {
-  background: #eee;
+  background: var(--dp-paper);
   height: 100%;
   .sidenav {
-    width: 200px;
-    
+    width: 212px;
+    background: var(--dp-sidenav);
+    color: var(--dp-sidenav-text);
   }
-  
+
   .sidenav .mat-toolbar {
-    background: inherit;
+    background: transparent;
   }
   .mat-toolbar.mat-primary {
     position: sticky;
     top: 0;
     z-index: 1;
-  }  
+  }
 }
 
 
@@ -52,13 +54,14 @@ mat-sidenav {
   mat-nav-list {
     margin-top: 12em;
     a {
-      
+      color: var(--dp-sidenav-text);
       div {
         display: flex;
         align-items: center;
         justify-content: flex-start;
         mat-icon {
           font-size: 1.2em;
+          color: var(--dp-gold);
         }
         div {
           font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -83,14 +86,19 @@ mat-sidenav-content {
 }
 
 .active {
-  color: #ffab40 !important;
-  text-decoration:overline;
-  font-size: 1.2em;
+  color: var(--dp-gold) !important;
+  border-left: 3px solid var(--dp-gold);
+  background: rgba(169, 127, 44, 0.14);
+  font-weight: 600;
 }
 
 .submenu {
   padding: 0 0 5px 20px;
-  border-bottom: 1px solid #e2e2e2;
+  border-bottom: 1px solid rgba(169, 127, 44, 0.25);
+  a {
+    color: var(--dp-sidenav-text);
+    opacity: 0.85;
+  }
   .subsubmenu {
     padding: 0 0 5px 20px;
   }
@@ -156,6 +164,13 @@ export class DashboardComponent implements OnDestroy {
   partner!: PartnerInterface;
 
   notificationCount = 0;
+
+  private readonly themes = inject(ThemeTogglerService);
+  readonly theme = this.themes.theme;
+
+  toggleTheme(): void {
+    this.themes.toggle();
+  }
 
   // Value is returned from notification child component
   updateNotificationCount(count: number) {
