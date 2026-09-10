@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ConvertEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
+import { ConvertEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -25,6 +25,14 @@ export class LeadPipelineService {
 
   convert(prospectId: string): Observable<ConvertEnvelope> {
     return this.api.post<ConvertEnvelope>(`v1/prospects/${prospectId}/convert`, {});
+  }
+
+  getById(prospectId: string): Observable<ProspectDetailEnvelope> {
+    return this.api.get<ProspectDetailEnvelope>(`v1/prospects/${prospectId}`);
+  }
+
+  logCommunication(prospectId: string, payload: LogCommunicationPayload): Observable<unknown> {
+    return this.api.post(`v1/prospects/${prospectId}/communications`, payload);
   }
 
   prospectName(lead: ProspectLead): string {

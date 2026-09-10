@@ -37,6 +37,37 @@ export interface ConvertEnvelope extends ApiEnvelope<{ code: string; prospect: P
   data: { code: string; prospect: ProspectLead };
 }
 
+/** Full communication entry — mirrors backend `createCommunicationEntity`. */
+export interface ProspectCommunication {
+  id?: string;
+  _id?: string;
+  type: 'call' | 'email' | 'text' | 'zoom' | 'whatsapp';
+  interestLevel?: string;
+  date?: string;
+  duration?: number;
+  description?: string;
+  followUpAction?: string;
+  topicsDiscussed?: string[];
+  status?: string;
+}
+
+export interface ProspectDetail extends Omit<ProspectLead, 'communications'> {
+  communications?: ProspectCommunication[];
+}
+
+export interface ProspectDetailEnvelope extends ApiEnvelope<ProspectDetail> {
+  data: ProspectDetail;
+}
+
+export interface LogCommunicationPayload {
+  type: 'call' | 'email' | 'text' | 'zoom' | 'whatsapp';
+  interestLevel: 'hot' | 'warm' | 'cold';
+  date?: string;
+  duration?: number;
+  description: string;
+  followUpAction?: string;
+}
+
 /** Stuck-in-pipeline entry — mirrors backend `stuckAnalysis`. */
 export interface StuckEntry {
   prospectId: string;
