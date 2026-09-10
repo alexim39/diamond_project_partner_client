@@ -9,6 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
+import { ExportKind, ExportService } from '../../../core/analytics/export.service';
 import { ActionPriority, DailyAction, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -175,6 +176,23 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
           </ul>
         }
       }
+
+      <h3>Take your data</h3>
+      <div class="exports">
+        @for (item of exportKinds; track item.kind) {
+          <button
+            mat-button
+            (click)="export(item.kind)"
+            [disabled]="downloading() !== null"
+          >
+            <mat-icon>download</mat-icon>
+            {{ downloading() === item.kind ? 'Preparing…' : item.label }}
+          </button>
+        }
+        @if (exportError(); as err) {
+          <span class="error" role="alert">{{ err }}</span>
+        }
+      </div>
     </section>
   `,
   styles: [`
@@ -206,6 +224,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .reco-list li { display: flex; gap: 0.5em; align-items: flex-start; color: #555; }
     .reco-list mat-icon { color: #f9a825; font-size: 20px; height: 20px; width: 20px; }
     .muted { color: #777; font-size: 0.85em; }
+    .exports { display: flex; gap: 0.25em; flex-wrap: wrap; align-items: center; }
     .goals-strip { margin: 0; }
     .goals-strip a { text-decoration: none; font-weight: 600; }
     .behind { color: #d32f2f; }
@@ -215,10 +234,13 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
 })
 export class InsightsOverviewComponent implements OnInit {
   private readonly analytics = inject(AnalyticsService);
+  private readonly exporter = inject(ExportService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly downloading = signal<ExportKind | null>(null);
+  protected readonly exportError = signal<string | null>(null);
   protected readonly days = signal(30);
   protected readonly actions = signal<DailyAction[]>([]);
   protected readonly funnel = signal<Funnel | null>(null);
@@ -271,5 +293,28 @@ export class InsightsOverviewComponent implements OnInit {
 
   protected delta(pct: number): string {
     return `${pct > 0 ? '+' : ''}${pct}% vs prior`;
+  }
+
+  protected readonly exportKinds: Array<{ kind: ExportKind; label: string }> = [
+    { kind: 'team', label: 'Team roster' },
+    { kind: 'pipeline', label: 'Pipeline' },
+    { kind: 'commissions', label: 'Commissions' },
+    { kind: 'reports-mine', label: 'My reports' },
+    { kind: 'reports-team', label: 'Team reports' },
+  ];
+
+  protected export(kind: ExportKind): void {
+    this.downloading.set(kind);
+    this.exportError.set(null);
+    this.exporter
+      .download(kind)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.downloading.set(null),
+        error: (err: ApiError) => {
+          this.downloading.set(null);
+          this.exportError.set(err.message);
+        },
+      });
   }
 }

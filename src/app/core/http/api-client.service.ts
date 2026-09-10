@@ -38,4 +38,9 @@ export class ApiClient {
   delete<T>(endpoint: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
     return this.http.delete<T>(this.url(endpoint), { params, headers, withCredentials: true });
   }
+
+  /** File downloads (CSV exports) — cookie session preserved, binary body. */
+  download(endpoint: string): Observable<Blob> {
+    return this.http.get(this.url(endpoint), { withCredentials: true, responseType: 'blob' });
+  }
 }
