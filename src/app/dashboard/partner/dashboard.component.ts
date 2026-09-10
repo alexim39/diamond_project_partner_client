@@ -20,7 +20,7 @@ import { PartnerAuthService } from '../../auth/auth.service';
 import { PushNotificationsComponent } from './index/push-notifications/push-notifications.component';
 import { MatBadgeModule } from '@angular/material/badge';
 
-type SubmenuKey = 'tools' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training' | 'goals';
+type SubmenuKey = 'tools' | 'analytics' | 'settings' | 'activities' | 'mentorship' | 'help' | 'training' | 'goals' | 'insights';
 
 @Component({
 selector: 'async-dashboard',
@@ -147,6 +147,7 @@ export class DashboardComponent implements OnDestroy {
     training: false,
     help: false,
     goals: false,
+    insights: false,
   };
 
   subSubmenus: Record<string, boolean> = {};
