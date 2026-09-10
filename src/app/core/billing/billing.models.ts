@@ -58,3 +58,18 @@ export interface PendingCart {
 export interface PendingQueueEnvelope extends ApiEnvelope<{ items: PendingCart[]; total: number }> {
   data: { items: PendingCart[]; total: number };
 }
+
+export interface EarningsTrendBucket {
+  label: string;
+  total: number;
+  count: number;
+}
+
+export interface EarningsTrend {
+  months: number;
+  buckets: EarningsTrendBucket[];
+}
+
+export interface EarningsTrendEnvelope extends ApiEnvelope<EarningsTrend> {
+  data: EarningsTrend;
+}
