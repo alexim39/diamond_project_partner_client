@@ -40,6 +40,7 @@ export const dashboardRoutes: Routes = [
             { path: 'network', loadChildren: () => import('../network/network.routes').then(r => r.NetworkRoutes) }, 
             { path: 'notifications', loadChildren: () => import('../notifications/notifications.routes').then(r => r.NotificationsRoutes) }, 
             { path: 'goals', loadChildren: () => import('../goals/goals.routes').then(r => r.GoalsRoutes) }, 
+            { path: 'insights', loadChildren: () => import('../insights/insights.routes').then(r => r.InsightsRoutes) }, 
                 
                  
             {

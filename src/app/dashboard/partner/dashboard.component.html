@@ -105,6 +105,17 @@
       </div>
 
 
+      <a mat-list-item (click)="toggleSubmenu('insights')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <div>
+          <mat-icon>insights</mat-icon>
+          <span>Insights</span>
+        </div>
+      </a>
+      <div [@submenuToggle]="isSubmenuOpen('insights') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="insights" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Insights - Daily actions, funnel and team health"> - Overview & Actions</a>
+      </div>
+
+
       <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>menu_book</mat-icon>
