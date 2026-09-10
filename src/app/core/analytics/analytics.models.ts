@@ -44,6 +44,7 @@ export interface TrendMetric {
 
 export interface TeamAnalytics {
   days: number;
+  source: 'live' | 'snapshot';
   recruits: TrendMetric;
   teamVolume: TrendMetric;
   personalVolume: { total: number; orders: number };
