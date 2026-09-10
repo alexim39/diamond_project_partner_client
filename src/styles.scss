@@ -1,14 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+/* Diamond Project design system — brand tokens on top of Angular Material.
+ * Primary: #111111 (ink) · #A97F2C (gold). Material handles component
+ * contrast; these tokens drive shell chrome, status semantics and dark mode.
+ */
 @use "@angular/material" as mat;
 
 @include mat.elevation-classes();
 @include mat.app-background();
 
-$angular-material-3-theme: mat.define-theme(
+$dp-light-theme: mat.define-theme(
   (
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
+      primary: mat.$orange-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+$dp-dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: mat.$orange-palette,
       tertiary: mat.$blue-palette,
     ),
     density: (
@@ -18,16 +34,95 @@ $angular-material-3-theme: mat.define-theme(
 );
 
 :root {
-  @include mat.all-component-themes($angular-material-3-theme);
+  @include mat.all-component-themes($dp-light-theme);
+
+  --dp-ink: #111111;
+  --dp-gold: #a97f2c;
+  --dp-gold-soft: #f3e8d2;
+  --dp-gold-ink: #6e5218;
+  --dp-paper: #faf8f3;
+  --dp-surface: #ffffff;
+  --dp-text: #1c1a15;
+  --dp-muted: #6e6e6e;
+  --dp-line: #e4ddcd;
+  --dp-sidenav: #111111;
+  --dp-sidenav-text: #f3ecdd;
+  --dp-success: #1b5e20;
+  --dp-success-bg: #c8e6c9;
+  --dp-warning: #7a5c00;
+  --dp-warning-bg: #ffecb3;
+  --dp-error: #b71c1c;
+  --dp-error-bg: #ffcdd2;
+  --dp-info: #0d47a1;
+  --dp-info-bg: #bbdefb;
+  --dp-radius: 10px;
+  --dp-font: "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  @include mat.all-component-colors($dp-dark-theme);
+
+  --dp-paper: #141311;
+  --dp-surface: #1e1c18;
+  --dp-text: #f0ebe0;
+  --dp-muted: #a8a094;
+  --dp-line: #38342c;
+  --dp-sidenav: #0b0a09;
+  --dp-sidenav-text: #f3ecdd;
+  --dp-gold-soft: #2c2417;
+  --dp-gold-ink: #d9b36a;
+  --dp-success-bg: #1d3a24;
+  --dp-warning-bg: #3a2f14;
+  --dp-error-bg: #3f1d1d;
+  --dp-info-bg: #1c2f4d;
+
+  color-scheme: dark;
 }
 
 html, body { height: 100%; }
 /* body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; } */
-body { margin: 0; }
+body {
+  margin: 0;
+  font-family: var(--dp-font);
+  background: var(--dp-paper);
+  color: var(--dp-text);
+}
+
+/* Visible keyboard focus everywhere (WCAG 2.4.7). */
+:focus-visible {
+  outline: 2px solid var(--dp-gold);
+  outline-offset: 2px;
+}
+
+/* Brand utilities for feature pages (both themes). */
+.dp-muted { color: var(--dp-muted); }
+.dp-card {
+  background: var(--dp-surface);
+  border: 1px solid var(--dp-line);
+  border-radius: var(--dp-radius);
+}
+.dp-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15em 0.7em;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+.dp-status--ok { background: var(--dp-success-bg); color: var(--dp-success); }
+.dp-status--warn { background: var(--dp-warning-bg); color: var(--dp-warning); }
+.dp-status--bad { background: var(--dp-error-bg); color: var(--dp-error); }
+.dp-status--info { background: var(--dp-info-bg); color: var(--dp-info); }
+html[data-theme="dark"] .dp-status--ok { color: #9ccc9f; }
+html[data-theme="dark"] .dp-status--warn { color: #e3c878; }
+html[data-theme="dark"] .dp-status--bad { color: #e89a9a; }
+html[data-theme="dark"] .dp-status--info { color: #90caf9; }
 
 .breadcrumb-wrapper {
-  border-top: 1px solid rgb(247, 247, 247);
-  border-bottom: 1px solid rgb(224, 224, 224);
+  border-top: 1px solid var(--dp-line);
+  border-bottom: 1px solid var(--dp-line);
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -37,14 +132,14 @@ body { margin: 0; }
     font-size: 0.7em;
     a {
       text-decoration: none;
-      color: #071135;
+      color: var(--dp-gold-ink);
       padding: 0 0.5em;
     }
     a:hover {
       text-decoration: underline;
     }
     span {
-      color: #6e6e6e;
+      color: var(--dp-muted);
       padding: 0 0.5em;
     }
   }
