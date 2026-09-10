@@ -129,6 +129,17 @@
       </div>
 
 
+      <a mat-list-item (click)="toggleSubmenu('earnings')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <div>
+          <mat-icon>payments</mat-icon>
+          <span>Earnings</span>
+        </div>
+      </a>
+      <div [@submenuToggle]="isSubmenuOpen('earnings') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="earnings" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="My Earnings - Trends and ledger history"> - My Earnings</a>
+      </div>
+
+
       <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>menu_book</mat-icon>

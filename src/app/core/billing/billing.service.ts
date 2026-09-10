@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { CommissionStatus, LedgerEnvelope, PendingQueueEnvelope, PerformanceEnvelope } from './billing.models';
+import { CommissionStatus, EarningsTrendEnvelope, LedgerEnvelope, PendingQueueEnvelope, PerformanceEnvelope } from './billing.models';
 
 /**
  * Money data access → backend `/v1/billing/*`.
@@ -23,6 +23,10 @@ export class BillingService {
 
   performance(): Observable<PerformanceEnvelope> {
     return this.api.get<PerformanceEnvelope>('v1/billing/performance');
+  }
+
+  trends(months = 6): Observable<EarningsTrendEnvelope> {
+    return this.api.get<EarningsTrendEnvelope>(`v1/billing/trends?months=${months}`);
   }
 
   accrue(cartId: string): Observable<unknown> {
