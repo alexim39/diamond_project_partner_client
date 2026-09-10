@@ -22,7 +22,7 @@ export interface ProspectLead {
   prospectEmail?: string;
   prospectSource: string;
   partnerId: string;
-  status?: { name?: string; stage?: ProspectStage; note?: string; status?: string };
+  status?: { name?: string; stage?: ProspectStage; note?: string; status?: string; stageEnteredAt?: string };
   communications?: Array<{ interestLevel?: string; date?: string }>;
   createdAt?: string;
   updatedAt?: string;
@@ -35,6 +35,20 @@ export interface ProspectListEnvelope extends ApiEnvelope<ProspectLead[]> {
 
 export interface ConvertEnvelope extends ApiEnvelope<{ code: string; prospect: ProspectLead }> {
   data: { code: string; prospect: ProspectLead };
+}
+
+/** Stuck-in-pipeline entry — mirrors backend `stuckAnalysis`. */
+export interface StuckEntry {
+  prospectId: string;
+  name: string;
+  stage: ProspectStage;
+  daysInStage: number;
+  limit: number;
+  overBy: number;
+}
+
+export interface StuckEnvelope extends ApiEnvelope<StuckEntry[]> {
+  data: StuckEntry[];
 }
 
 /** Next forward step in the pipeline, or null at terminal stages. */

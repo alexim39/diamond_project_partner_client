@@ -13,7 +13,8 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
-import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER } from './lead.models';
+import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, StuckEntry } from './lead.models';
+import { forkJoin } from 'rxjs';
 
 /**
  * @title Lead pipeline — modern lead management.
@@ -88,6 +89,15 @@ import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER } from 
           <input matInput type="search" placeholder="Name, phone or email" (input)="search.set($any($event.target).value)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
+        <button
+          mat-button
+          [color]="stuckOnly() ? 'warn' : undefined"
+          (click)="stuckOnly.set(!stuckOnly())"
+          [disabled]="stuckCount() === 0"
+          title="Show only prospects past their stage attention threshold"
+        >
+          <mat-icon>warning</mat-icon> Stuck ({{ stuckCount() }})
+        </button>
         @if (loading()) {
           <mat-progress-bar mode="indeterminate" class="loader" />
         }
@@ -126,6 +136,11 @@ import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER } from 
                   [style.color]="chip(lead).text"
                   highlighted
                 >{{ chip(lead).label }}</mat-chip>
+                @if (stuckOf(lead); as stuck) {
+                  <div class="stuck-badge" title="No movement for {{ stuck.daysInStage }} days (threshold {{ stuck.limit }})">
+                    ⚠ stuck {{ stuck.daysInStage }}d
+                  </div>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="interest">
@@ -196,6 +211,7 @@ import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER } from 
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
+    .stuck-badge { color: #b71c1c; font-size: 0.78em; font-weight: 600; margin-top: 0.25em; }
     .muted { color: #777; font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }
     .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
@@ -214,6 +230,8 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly search = signal('');
   protected readonly stageFilter = signal<ProspectStage | null>(null);
+  protected readonly stuckOnly = signal(false);
+  protected readonly stuckDays = signal<Record<string, StuckEntry>>({});
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly issuedCode = signal<{ name: string; code: string } | null>(null);
@@ -236,13 +254,17 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly filtered = computed(() => {
     const q = this.search().trim().toLowerCase();
     const stage = this.stageFilter();
+    const stuckMap = this.stuckDays();
     return this.rows().filter((lead) => {
       if (stage && (lead.status?.stage ?? 'New') !== stage) return false;
+      if (this.stuckOnly() && !stuckMap[lead.id]) return false;
       if (!q) return true;
       const haystack = `${lead.prospectName} ${lead.prospectSurname ?? ''} ${lead.prospectPhone} ${lead.prospectEmail ?? ''}`.toLowerCase();
       return haystack.includes(q);
     });
   });
+
+  protected readonly stuckCount = computed(() => Object.keys(this.stuckDays()).length);
 
   ngOnInit(): void {
     this.reload();
@@ -257,13 +279,16 @@ export class LeadPipelineComponent implements OnInit {
     }
     this.loading.set(true);
     this.error.set(null);
-    this.leads
-      .listByPartner(partnerId)
+    forkJoin({
+      leads: this.leads.listByPartner(partnerId),
+      stuck: this.leads.stuck(partnerId),
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => {
-          this.rows.set(res.data ?? []);
-          this.total.set(res.meta?.total ?? (res.data ?? []).length);
+        next: ({ leads, stuck }) => {
+          this.rows.set(leads.data ?? []);
+          this.total.set(leads.meta?.total ?? (leads.data ?? []).length);
+          this.stuckDays.set(Object.fromEntries((stuck.data ?? []).map((s) => [s.prospectId, s])));
           this.loading.set(false);
         },
         error: (err: ApiError) => {
@@ -275,6 +300,10 @@ export class LeadPipelineComponent implements OnInit {
 
   protected toggleStageFilter(stage: ProspectStage): void {
     this.stageFilter.set(this.stageFilter() === stage ? null : stage);
+  }
+
+  protected stuckOf(lead: ProspectLead): StuckEntry | null {
+    return this.stuckDays()[lead.id] ?? null;
   }
 
   protected names(lead: ProspectLead): string {
