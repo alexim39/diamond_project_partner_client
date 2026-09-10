@@ -119,7 +119,7 @@ import { forkJoin } from 'rxjs';
           <table mat-table [dataSource]="filtered()" class="mat-elevation-z2">
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let lead" class="name-cell">{{ names(lead) }}</td>
+              <td mat-cell *matCellDef="let lead" class="name-cell"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a></td>
             </ng-container>
             <ng-container matColumnDef="contact">
               <th mat-header-cell *matHeaderCellDef>Contact</th>
@@ -211,6 +211,8 @@ import { forkJoin } from 'rxjs';
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
+    .name-link { text-decoration: none; color: inherit; }
+    .name-link:hover { color: var(--dp-gold-ink); }
     .stuck-badge { color: #b71c1c; font-size: 0.78em; font-weight: 600; margin-top: 0.25em; }
     .muted { color: #777; font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }

@@ -4,7 +4,8 @@ import { ProspectBookingContainerComponent } from './prospect-booking/prospect-b
 import { EmailListContainerComponent } from './email-list/email-list-container.component';
 import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
-import { ManageContactsDetailContainerComponent } from '../contacts/manage/details/manage-contacts-detail-container.component';
+import { PipelineBoardComponent } from './pipeline-board/board.component';
+import { ProspectDetailComponent } from './prospect-detail/detail.component';
 import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
 import { BookSessionContainerComponent } from '../contacts/book-session/book-session-container.component';
 
@@ -41,12 +42,17 @@ export const ProspectsRoutes: Routes = [
             path: 'pipeline',
             component: LeadPipelineComponent,
             title: "Lead Pipeline - Track prospects through to conversion",
-        },   
+        },
+        {
+            path: 'board',
+            component: PipelineBoardComponent,
+            title: "Pipeline Board - Drag and drop your deals",
+        },
         {
             path: 'detail/:id',
-            component: ManageContactsDetailContainerComponent,
-            title: "Prospect Details - View and manage your prospect details",
-        }, 
+            component: ProspectDetailComponent,
+            title: "Prospect Details - Timeline, activities and conversion",
+        },
          {
             path: 'edit/:id',
             component: EditContactsContainerComponent,
