@@ -94,6 +94,17 @@
       </div>
 
 
+      <a mat-list-item (click)="toggleSubmenu('goals')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <div>
+          <mat-icon>flag</mat-icon>
+          <span>Goals</span>
+        </div>
+      </a>
+      <div [@submenuToggle]="isSubmenuOpen('goals') ? 'open' : 'closed'" class="submenu">
+        <a mat-list-item routerLink="goals" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="My Goals - Targets, progress and sales trends"> - My Goals & Trends</a>
+      </div>
+
+
       <a mat-list-item (click)="toggleSubmenu('mentorship')" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <div>
           <mat-icon>menu_book</mat-icon>
