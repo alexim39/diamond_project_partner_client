@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { ActionsEnvelope, FunnelEnvelope, TeamEnvelope } from './analytics.models';
+import { ActionsEnvelope, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
 
 /** Read-only analytics → backend `/v1/analytics/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -18,5 +18,10 @@ export class AnalyticsService {
 
   actions(limit = 15): Observable<ActionsEnvelope> {
     return this.api.get<ActionsEnvelope>(`v1/analytics/actions?limit=${limit}`);
+  }
+
+  /** Single aggregation powering the Insights page (replaces 3 calls). */
+  overview(days = 30): Observable<OverviewEnvelope> {
+    return this.api.get<OverviewEnvelope>(`v1/dashboard/overview?days=${days}`);
   }
 }
