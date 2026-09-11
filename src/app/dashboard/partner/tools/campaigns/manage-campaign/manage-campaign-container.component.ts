@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ManageCampaignComponent } from './manage-campaign.component';
 import { CampaignInterface, CampaignService } from './manage-campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -49,14 +50,14 @@ styles: `
     
 `
 })
-export class ManageCampaignContainerComponent implements OnInit, OnDestroy {
+export class ManageCampaignContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
   campaigns!: CampaignInterface[];
-  subscriptions: Subscription[] = [];
   isEmptyRecord = false;
   serverErrorMessage = '';
-  
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private partnerService: PartnerService,
     private campaignService: CampaignService,
@@ -64,41 +65,30 @@ export class ManageCampaignContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
-       
-        next: (partner: PartnerInterface) => {
-          this.partner = partner;
-          if (this.partner) {
-            this.subscriptions.push(
-              this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe({
-                next: (response) => {
-                  //console.log(response)
-                  if (response.success) {
-                    this.campaigns = response.data;
-                  }
-                },
-                error: (error: HttpErrorResponse) => {
-                  this.isEmptyRecord = true;
-                  this.serverErrorMessage = error.error.message;
-                }
-              })
-            )
+
+    // get current signed in user, then their campaigns — one stream,
+    // no nested subscribes (re-emissions cancel the in-flight fetch).
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter((partner): partner is PartnerInterface => !!partner),
+      tap(partner => { this.partner = partner; }),
+      switchMap(partner => this.campaignService.getCampaignCreatedBy(partner._id))
+    ).subscribe({
+        next: (response) => {
+          //console.log(response)
+          if (response.success) {
+            this.campaigns = response.data;
           }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isEmptyRecord = true;
+          this.serverErrorMessage = error.error.message;
         }
       })
-    )
   }
 
    back(): void {
     //window.history
    this.router.navigateByUrl('dashboard/tools/campaigns/new');
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 }

@@ -1,5 +1,5 @@
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationBannerComponent } from './notification-banner/notification-banner.component';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AnnouncementsComponent } from './announcements/announcements.component';
 
 /**
@@ -46,28 +46,23 @@ styles: [`
 export class DashboardIndexComponent {
 
     partner!: PartnerInterface;
-    subscriptions: Subscription[] = [];
-  
+    private readonly destroyRef = inject(DestroyRef);
+
     constructor(
       private partnerService: PartnerService,
     ) { }
-  
+
     ngOnInit() {
-        
-      // get current signed in user
-      this.subscriptions.push(
-        this.partnerService.getSharedPartnerData$.subscribe({
-         
+
+      // get current signed in user (shared subject — tracked)
+      this.partnerService.getSharedPartnerData$.pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+
           next: (partner: PartnerInterface) => {
             this.partner = partner;
           },
-          
+
       })
-      )
-    }
-  
-    ngOnDestroy() {
-      // unsubscribe list
-      this.subscriptions.forEach(subscription => subscription.unsubscribe());
     }
 }

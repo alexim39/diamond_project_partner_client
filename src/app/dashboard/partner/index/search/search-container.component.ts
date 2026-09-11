@@ -1,7 +1,7 @@
 
-import {AfterViewInit, Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {AfterViewInit, Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IndexSearchComponent } from './search.component';
 import { SearchService } from './search.service';
 
@@ -20,11 +20,11 @@ import { SearchService } from './search.service';
   }
   `
 })
-export class IndexSearchContainerComponent implements OnInit, OnDestroy, AfterViewInit  {
+export class IndexSearchContainerComponent implements OnInit, AfterViewInit  {
 
   partner!: PartnerInterface;
   partners!: Array<PartnerInterface>;
-  subscriptions: Subscription[] = [];
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private partnerService: PartnerService,
@@ -32,10 +32,11 @@ export class IndexSearchContainerComponent implements OnInit, OnDestroy, AfterVi
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+
+    // get current signed in user (shared subject — tracked)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {       }
@@ -44,27 +45,17 @@ export class IndexSearchContainerComponent implements OnInit, OnDestroy, AfterVi
           // redirect to home page
         }
       )
-    )
   }
 
-  ngAfterViewInit() {  
-    this.loadAllPartners();  
+  ngAfterViewInit() {
+    this.loadAllPartners();
   }
 
   private loadAllPartners() {
-    // get all user
-    this.subscriptions.push(
-      this.searchService.getAllUsers().subscribe((partners: Array<PartnerInterface>) => {
+    // get all user (one-shot HTTP — self-completes)
+    this.searchService.getAllUsers().subscribe((partners: Array<PartnerInterface>) => {
         this.partners = partners;
         //console.log('partners ',partners)
       })
-    )
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
   }
 }

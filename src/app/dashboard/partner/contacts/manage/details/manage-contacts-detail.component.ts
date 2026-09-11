@@ -1,8 +1,8 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
 import { SMSService } from '../../../sms/sms.service';
@@ -142,15 +142,15 @@ imports: [
 changeDetection: ChangeDetectionStrategy.Eager,
 providers: [ContactsService , SMSService, SMSGatewaysService]
 })
-export class ManageContactsDetailComponent implements OnInit, OnDestroy {
+export class ManageContactsDetailComponent implements OnInit {
 
   @Input() prospect!: ContactsInterface;
 
-  subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private partnerService: PartnerService,
   ) {}
 
@@ -158,24 +158,18 @@ export class ManageContactsDetailComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('dashboard/tools/contacts/list');
   }
 
-  
-  ngOnInit(): void { 
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
+
+  ngOnInit(): void {
+    // get current signed in user (shared subject — tracked)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
         next: (partner: PartnerInterface) => {
           this.partner = partner;
           //console.log(this.partner)
         }
       })
-    )
 
    }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-
 
 }

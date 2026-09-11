@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SearchResultComponent } from './search-result.component';
 import { ActivatedRoute } from '@angular/router';
 import { SearchService } from '../search.service';
@@ -21,12 +22,12 @@ import { SearchService } from '../search.service';
   }
   `
 })
-export class SearchResultContainerComponent implements OnInit, OnDestroy {
+export class SearchResultContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
   searchPartners!: any;
-  subscriptions: Subscription[] = [];
-  
+  private readonly destroyRef = inject(DestroyRef);
+
   @ViewChild(SearchResultComponent) searchResultComponent!: SearchResultComponent;
 
   constructor(
@@ -36,11 +37,12 @@ export class SearchResultContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
+
+    // get current signed in user (shared subject — tracked)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(
+
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
@@ -50,71 +52,45 @@ export class SearchResultContainerComponent implements OnInit, OnDestroy {
             }) */
           }
         },
-        
+
         (error) => {
           console.log(error)
           // redirect to home page
         }
-      )
-    );
+      );
 
-    this.subscriptions.push(
-      // Subscribe to query parameters to be notified of changes  
-      this.route.queryParams.subscribe(params => {  
+    // Subscribe to query parameters — switchMap cancels the in-flight
+    // lookup on re-navigation instead of stacking subscriptions.
+    this.route.queryParams.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      switchMap(params => {
         if (params['name'] && params['surname']) {
           const name = params['name'].trim();
-          const surname = params['surname'].trim();  
-          this.subscriptions.push(
-            // Call the service to get the partner details by ID  
-            this.searchService.getPartnerByNames(name, surname ).subscribe(  
-                (searchPartners: PartnerInterface) => {  
-                  // Handle the fetched data as needed  
-                  this.searchPartners = searchPartners;
-                  this.callChildMethod(this.searchPartners);
-                },  
-                (error) => {  
-                  console.log(error)
-                  console.error('Error fetching partner details:', error);  
-                }  
-            )
-          )
-        } else {
-
-          const name = params['name'].trim();
-
-          this.subscriptions.push(
-            // Call the service to get the partner details by ID  
-            this.searchService.getPartnerByName(name).subscribe(  
-                (searchPartners: PartnerInterface) => {  
-                  // Handle the fetched data as needed  
-                  this.searchPartners = searchPartners;
-                  this.callChildMethod(this.searchPartners);
-                },  
-                (error) => {  
-                  console.log(error)
-                  console.error('Error fetching partner details:', error);  
-                }  
-            )
-          )
-
+          const surname = params['surname'].trim();
+          return this.searchService.getPartnerByNames(name, surname);
         }
+        const name = params['name'].trim();
+        return this.searchService.getPartnerByName(name);
       })
-    );
+    ).subscribe({
+      next: (searchPartners: PartnerInterface) => {
+        // Handle the fetched data as needed
+        this.searchPartners = searchPartners;
+        this.callChildMethod(this.searchPartners);
+      },
+      error: (error) => {
+        console.log(error)
+        console.error('Error fetching partner details:', error);
+      }
+    });
   }
 
   private callChildMethod(searchPartners: PartnerInterface[]) {
    // if (this.searchPartners) {
-      this.searchPartners.forEach((partner: PartnerInterface) => {  
-        this.searchResultComponent.checkFollowStatus(partner._id);  
+      this.searchPartners.forEach((partner: PartnerInterface) => {
+        this.searchResultComponent.checkFollowStatus(partner._id);
       });
-    //}   
+    //}
     //this.searchResultComponent.checkFollowStatus();
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
   }
 }

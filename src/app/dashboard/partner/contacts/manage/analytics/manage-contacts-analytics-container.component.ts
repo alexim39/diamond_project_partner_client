@@ -1,11 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ManageContactsAnalyticsComponent } from './manage-contacts-analytics.component';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'async-manage-contacts-analytics-container',
@@ -38,12 +39,12 @@ import { Subscription } from 'rxjs';
    
   `
 })
-export class ManageContactsAnalyticsContainerComponent implements OnInit, OnDestroy {
+export class ManageContactsAnalyticsContainerComponent implements OnInit {
 
   prospect!: ContactsInterface;
   prospectId!: string | null;
   isEmptyRecord = false;
-  subscriptions: Subscription[] = [];
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private router: Router,
@@ -56,30 +57,27 @@ export class ManageContactsAnalyticsContainerComponent implements OnInit, OnDest
   }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.prospectId = params.get('id');
-      if (this.prospectId) {
+    // Route params are infinite; the lookup is one-shot — switchMap
+    // cancels the in-flight fetch on re-navigation instead of stacking.
+    this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter(params => params.get('id') !== null),
+      switchMap(params => {
+        this.prospectId = params.get('id');
         // Fetch prospect details using the ID
-        this.subscriptions.push(
-          this.contactsService.getProspectById(this.prospectId).subscribe(prospect => {
-            this.prospect = prospect;
-          }, error => {
-            this.isEmptyRecord = true;
-          })
-        )
-
+        return this.contactsService.getProspectById(this.prospectId as string);
+      })
+    ).subscribe({
+      next: prospect => {
+        this.prospect = prospect;
+      },
+      error: () => {
+        this.isEmptyRecord = true;
       }
     });
   }
 
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-  }
-
   /*  browserBackHistory () {
-     window.history.back();  
+     window.history.back();
    } */
 }

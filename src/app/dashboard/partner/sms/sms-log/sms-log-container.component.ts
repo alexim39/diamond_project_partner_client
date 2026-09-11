@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SMSService } from '../sms.service';
 import { SMSLogComponent } from './sms-log.component';
 import { Router } from '@angular/router';
@@ -24,11 +25,11 @@ import { MatButtonModule } from '@angular/material/button';
      
      `,
 })
-export class smsLogContainerComponent implements OnInit, OnDestroy {
+export class smsLogContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
   smsObject!: any;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private partnerService: PartnerService,
@@ -37,44 +38,32 @@ export class smsLogContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
-        next: (partner: PartnerInterface) => {
-          this.partner = partner;
-          if (this.partner) {
-            //console.log('=',this.partner)
-           this.subscriptions.push(
-            this.sms.getSMSCreatedBy(this.partner._id).subscribe({
-               next: (response) => {
-                 if (response.success) {
-                    this.smsObject = response.data;
-                 }
-              },
-              error: () => {
-                this.smsObject = [];
-              }
-            })
-           )
+
+    // get current signed in user, then their SMS logs — one stream.
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter((partner): partner is PartnerInterface => !!partner),
+      tap(partner => { this.partner = partner; }),
+      switchMap(partner => this.sms.getSMSCreatedBy(partner._id))
+    ).subscribe({
+        next: (response) => {
+          if (response.success) {
+              this.smsObject = response.data;
           }
+        },
+        error: () => {
+          this.smsObject = [];
         }
-     })
-    )
-  }
-  
-  back(): void {
-    if (window.history.length > 1) {
-        //window.history  
-        window.history.back();  
-    } else {  
-      // Redirect to a default route if there's no history  
-      this.router.navigateByUrl('dashboard/tools/sms/new');
-    }  
+      })
   }
 
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  back(): void {
+    if (window.history.length > 1) {
+        //window.history
+        window.history.back();
+    } else {
+      // Redirect to a default route if there's no history
+      this.router.navigateByUrl('dashboard/tools/sms/new');
+    }
   }
 }

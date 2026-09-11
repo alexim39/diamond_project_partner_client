@@ -1,10 +1,10 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';  
-import { MatInputModule } from '@angular/material/input';  
-import { MatFormFieldModule } from '@angular/material/form-field';  
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';  
-import { MatAutocompleteModule } from '@angular/material/autocomplete';  
-import { CommonModule } from '@angular/common';  
-import { Subscription } from 'rxjs';  
+import { Component, DestroyRef, inject, Input, OnChanges, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { environment } from '../../../../../../environments/environment';
 import { SearchService } from '../search.service';
@@ -20,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
     changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['search-result.component.scss']
 })  
-export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
+export class SearchResultComponent implements OnInit, OnChanges  {
   // Define API
   apiURL = environment.apiUrl;
 
@@ -28,7 +28,7 @@ export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
     searchPartnersSimulate!: PartnerInterface[];
 
     partner!: PartnerInterface;
-    subscriptions: Subscription[] = [];
+    private readonly destroyRef = inject(DestroyRef);
 
     isYou = false;
 
@@ -37,24 +37,25 @@ export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
     constructor(
         private searchService: SearchService,
         private partnerService: PartnerService,
-    ) {  }  
+    ) {  }
 
     ngOnInit(): void {
-        // get current signed in user
-        this.subscriptions.push(
-            this.partnerService.getSharedPartnerData$.subscribe(
-            
+        // get current signed in user (shared subject — tracked;
+        // follow/unfollow HTTP calls below are one-shot and self-complete)
+        this.partnerService.getSharedPartnerData$.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(
+
             partnerObject => {
                 this.partner = partnerObject as PartnerInterface
             },
-            
+
             (error) => {
                 console.log(error)
                 // redirect to home page
             }
-            )
-        ); 
-        
+            );
+
         // Simulating an async call to load data (replace with actual API call)
         this.loadPartners().then(() => {
             // Trigger checkFollowStatus for each partner once data is loaded
@@ -87,8 +88,7 @@ export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
 
 
     checkFollowStatus(searchPartnerId: string) {
-        this.subscriptions.push(
-            this.searchService.checkFollowStatus(this.partner._id, searchPartnerId).subscribe((status: any) => {
+        this.searchService.checkFollowStatus(this.partner._id, searchPartnerId).subscribe((status: any) => {
                 this.isFollowing = status.isFollowing;
                 if (this.partner._id === searchPartnerId) {
                     this.isYou = true;
@@ -98,35 +98,23 @@ export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
             }, (error: any) => {
                 console.error('Error checking follow status:', error);
             })
-        ) 
     }
 
     follow(searchPartnerId: string) {
-        
+
         if (this.isFollowing) {
-          this.subscriptions.push(
-            this.searchService.unfollow(this.partner._id, searchPartnerId).subscribe((status: any) => {
-                this.isFollowing = false;   
+          this.searchService.unfollow(this.partner._id, searchPartnerId).subscribe((status: any) => {
+                this.isFollowing = false;
             }, (error: any) => {
                 console.error('Error unfollowing:', error);
             })
-          )
 
         } else {
-          this.subscriptions.push(
-            this.searchService.follow(this.partner._id, searchPartnerId).subscribe((status: any) => {
-                this.isFollowing = true;    
+          this.searchService.follow(this.partner._id, searchPartnerId).subscribe((status: any) => {
+                this.isFollowing = true;
             }, (error: any) => {
                 console.error('Error following:', error);
             })
-          )
         }
-    } 
-
-    ngOnDestroy() {
-        // unsubscribe list
-        this.subscriptions.forEach(subscription => {
-          subscription.unsubscribe();
-        });
     }
 }
