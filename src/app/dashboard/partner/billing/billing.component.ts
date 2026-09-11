@@ -23,7 +23,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
     styleUrls: ['billing.component.scss', 'billing.mobile.scss'],
     templateUrl: 'billing.component.html',
     providers: [PaystackService],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         FormsModule,
         CommonModule,

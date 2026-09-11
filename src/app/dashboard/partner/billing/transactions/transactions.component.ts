@@ -20,7 +20,7 @@ import { PartnerInterface } from '../../../../_common/services/partner.service';
     styleUrls: ['transactions.component.scss'],
     templateUrl: 'transactions.component.html',
     providers: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         FormsModule,
         CommonModule,

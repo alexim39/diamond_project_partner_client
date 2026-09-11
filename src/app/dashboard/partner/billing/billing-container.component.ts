@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BillingComponent } from './billing.component';
 import { PaystackService, TransactionInterface } from './paystack.service';
 
@@ -20,11 +21,11 @@ import { PaystackService, TransactionInterface } from './paystack.service';
   }
   `
 })
-export class BillingContainerComponent implements OnInit, OnDestroy {
+export class BillingContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
   transactions!: TransactionInterface;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private partnerService: PartnerService,
@@ -33,35 +34,21 @@ export class BillingContainerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
       
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
-        partnerObject => {
-          this.partner = partnerObject as PartnerInterface
-          if (this.partner) {
-            // get transaction list
-            this.subscriptions.push(
-              this.paystackService.getTransactions(this.partner._id).subscribe((transactions: TransactionInterface) => {
-                //console.log('t=',transactions)
-                this.transactions = transactions;
-              })
-            )
-          }
-        },
-        
-        error => {
-          console.log(error)
-          // redirect to home page
-        }
-      )
-    )
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+    // get current signed in user, then their transactions — one stream.
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter((partner): partner is PartnerInterface => !!partner),
+      tap(partner => { this.partner = partner; }),
+      switchMap(partner => this.paystackService.getTransactions(partner._id))
+    ).subscribe({
+      next: (transactions: TransactionInterface) => {
+        //console.log('t=',transactions)
+        this.transactions = transactions;
+      },
+      error: error => {
+        console.log(error)
+        // redirect to home page
+      },
+    })
   }
 }
