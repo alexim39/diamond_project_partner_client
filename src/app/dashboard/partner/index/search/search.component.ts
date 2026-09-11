@@ -5,7 +5,8 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';  
 import { AsyncPipe, CommonModule } from '@angular/common';  
 import { map, startWith } from 'rxjs/operators';  
-import { Observable } from 'rxjs';  
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';  
 import { PartnerInterface } from '../../../../_common/services/partner.service';  
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -111,8 +112,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class IndexSearchComponent implements OnInit {
     // Define API
-    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-    //apiURL = 'http://localhost:3000';
+    apiURL = environment.apiUrl;
 
     @Input() partner!: PartnerInterface;
     @Input() partners!: Array<PartnerInterface>;
