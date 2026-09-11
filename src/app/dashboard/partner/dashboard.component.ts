@@ -55,6 +55,13 @@ mat-sidenav {
     margin-top: 12em;
     a {
       color: var(--dp-sidenav-text);
+      // MDC paints labels with theme on-surface (invisible on the ink
+      // sidenav) — force the whole label subtree to inherit the link color.
+      .mdc-list-item__primary-text,
+      .mdc-list-item__primary-text div,
+      .mdc-list-item__primary-text span {
+        color: inherit;
+      }
       div {
         display: flex;
         align-items: center;
