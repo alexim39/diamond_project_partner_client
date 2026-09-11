@@ -50,6 +50,7 @@ export const dashboardRoutes: Routes = [
             { path: 'earnings', loadChildren: () => import('../earnings/earnings.routes').then(r => r.EarningsRoutes) }, 
             { path: 'progress', loadChildren: () => import('../progress/progress.routes').then(r => r.ProgressRoutes) }, 
             { path: 'training', loadChildren: () => import('../training/training.routes').then(r => r.TrainingRoutes) }, 
+            { path: 'community', loadChildren: () => import('../community/community.routes').then(r => r.CommunityRoutes) }, 
                 
                  
             {

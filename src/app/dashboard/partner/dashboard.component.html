@@ -136,6 +136,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('communication') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="messages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Messages - Inbox and team announcements"> - Inbox & Compose</a>
+        <a mat-list-item routerLink="community" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Community - Team feed and recognition"> - Community Feed</a>
         <a mat-list-item routerLink="tools/sms/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Send new SMS"> - Send SMS</a>
         <a mat-list-item routerLink="tools/sms/messages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="SMS message logs"> - SMS Logs</a>
         <a mat-list-item routerLink="tools/email/new" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Send new email"> - Send Email</a>
