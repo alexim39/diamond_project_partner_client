@@ -49,7 +49,7 @@ import { ApiError } from '../../../core/http/api-error';
     </div>
   `,
   styles: [`
-    .bell-panel { min-width: 300px; max-width: 360px; padding: 0.75em 0.9em; }
+    .bell-panel { width: 100%; min-width: 0; max-width: 100%; padding: 0.75em 0.9em; box-sizing: border-box; overflow-x: hidden; }
     .bell-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5em; margin-bottom: 0.5em; }
     .pill { font-size: 0.75em; font-weight: 700; color: var(--dp-error); background: color-mix(in srgb, var(--dp-error) 12%, transparent); border-radius: 999px; padding: 0.15em 0.6em; }
     .bell-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
