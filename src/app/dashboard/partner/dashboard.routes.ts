@@ -48,6 +48,7 @@ export const dashboardRoutes: Routes = [
             { path: 'insights', loadChildren: () => import('../insights/insights.routes').then(r => r.InsightsRoutes) }, 
             { path: 'messages', loadChildren: () => import('../messages/messages.routes').then(r => r.MessagesRoutes) }, 
             { path: 'earnings', loadChildren: () => import('../earnings/earnings.routes').then(r => r.EarningsRoutes) }, 
+            { path: 'progress', loadChildren: () => import('../progress/progress.routes').then(r => r.ProgressRoutes) }, 
                 
                  
             {
