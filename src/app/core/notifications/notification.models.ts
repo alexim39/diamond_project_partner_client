@@ -17,3 +17,55 @@ export interface FeedItem {
 export interface FeedEnvelope extends ApiEnvelope<{ items: FeedItem[]; total: number; unreadCount: number }> {
   data: { items: FeedItem[]; total: number; unreadCount: number };
 }
+
+/** Stored (producer-written) notification — N1 center. */
+export interface StoredNotificationItem {
+  id: string;
+  origin: 'stored' | 'derived';
+  kind: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  urgency: boolean;
+  title: string;
+  body: string;
+  icon: string;
+  tag: string;
+  link: string | null;
+  at: string;
+  read: boolean;
+}
+
+export interface CenterListResponse {
+  stored: StoredNotificationItem[];
+  derived: StoredNotificationItem[];
+  hasMore: boolean;
+}
+
+export type CenterListEnvelope = ApiEnvelope<CenterListResponse>;
+
+export interface ChannelPreference {
+  inApp: boolean;
+  email: boolean;
+  sms: boolean;
+}
+
+export interface NotificationPreferences {
+  channels: Record<string, ChannelPreference>;
+  emailDigest: 'immediate' | 'daily' | 'weekly' | 'off';
+}
+
+export type PreferencesEnvelope = ApiEnvelope<NotificationPreferences>;
+
+export const CATEGORY_LABELS: Record<string, string> = {
+  prospect: 'Prospects',
+  goals: 'Goals',
+  team: 'Team',
+  commission: 'Commissions',
+  training: 'Training',
+  recognition: 'Recognition',
+  system: 'System',
+  community: 'Community',
+  promotion: 'Promotions',
+  progression: 'Progression',
+  daily: 'Daily',
+  marketing: 'Marketing',
+};
