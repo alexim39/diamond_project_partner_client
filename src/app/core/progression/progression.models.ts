@@ -32,3 +32,20 @@ export interface JourneyEnvelope extends ApiEnvelope<Journey> {
 export interface MilestonesEnvelope extends ApiEnvelope<{ milestones: Record<string, unknown> }> {
   data: { milestones: Record<string, unknown> };
 }
+
+/** Diamond ladder in rank order — mirrors backend LEVELS + LEVEL_LABELS. */
+export const LADDER: Array<{ level: string; label: string }> = [
+  { level: 'prospect', label: 'Prospect' },
+  { level: 'partner', label: 'Partner' },
+  { level: 'emerging_active', label: 'Emerging Active Partner' },
+  { level: 'qualified_active', label: 'Qualified Active Partner' },
+  { level: 'active', label: 'Active Partner' },
+  { level: 'kingsman', label: 'Kingsman' },
+  { level: 'ecl', label: 'Emerging Cell Leader' },
+  { level: 'cell_leader', label: 'Cell Leader' },
+  { level: 'g_leader', label: 'G Leader' },
+  { level: 'g8', label: 'G8 Leader' },
+];
+
+export const levelRank = (level: string | null | undefined): number =>
+  Math.max(0, LADDER.findIndex((r) => r.level === level));
