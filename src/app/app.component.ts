@@ -1,15 +1,13 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SpinnerComponent } from './_common/services/loader/spinner.component';
 import { ThemeTogglerService } from './_common/services/theme-toggler.service';
 
 
 
 @Component({
 selector: 'async-root',
-imports: [RouterOutlet, SpinnerComponent],
+imports: [RouterOutlet],
 template: `
-  <async-spinner/>
   <div id="container">
     <div class="body">
       <router-outlet/>

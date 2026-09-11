@@ -116,6 +116,10 @@
       </mat-toolbar-row>
     }
 
+    @if (progress.active()) {
+      <mat-progress-bar mode="indeterminate" class="top-progress" aria-label="Loading" />
+    }
+
     <!-- Add Content Here -->
     <router-outlet/>
 

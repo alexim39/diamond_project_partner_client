@@ -1,8 +1,13 @@
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
+import { HttpHeaders } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, filter, map, switchMap, takeUntil, timer } from 'rxjs';
+import { SILENT_LOADING_HEADER } from '../loading/progress.interceptor';
 import { NotificationService } from './notification.service';
 import { StoredNotificationItem } from './notification.models';
+
+/** Background polls never flash the top progress bar. */
+const SILENT = new HttpHeaders({ [SILENT_LOADING_HEADER]: '1' });
 
 export interface StreamSnapshot {
   unread: number;
@@ -30,7 +35,7 @@ export class PollingTransport implements NotificationTransport {
   constructor(svc: NotificationService, private readonly intervalMs = 30000) {
     this.snapshot$ = timer(0, this.intervalMs).pipe(
       takeUntil(this.stop$),
-      switchMap(() => svc.list({ limit: 10 })),
+      switchMap(() => svc.list({ limit: 10 }, SILENT)),
       map((res) => {
         const stored = res.data?.stored ?? [];
         const derived = res.data?.derived ?? [];
@@ -132,7 +137,7 @@ export class NotificationStreamService {
   /** Manual refresh (e.g. after bulk actions in the Center). */
   refresh(): void {
     this.notifications
-      .list({ limit: 10 })
+      .list({ limit: 10 }, SILENT)
       .pipe(takeUntilDestroyed())
       .subscribe({
         next: (res) => {

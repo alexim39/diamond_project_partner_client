@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { HttpHeaders } from '@angular/common/http';
 import { ApiClient } from '../http/api-client.service';
 import {
   CenterListEnvelope,
@@ -25,13 +26,16 @@ export class NotificationService {
   }
 
   /** N1: unified stored + derived list. */
-  list(params: { unread?: boolean; q?: string; limit?: number } = {}): Observable<CenterListEnvelope> {
+  list(
+    params: { unread?: boolean; q?: string; limit?: number } = {},
+    headers?: HttpHeaders,
+  ): Observable<CenterListEnvelope> {
     const qs = new URLSearchParams();
     if (params.unread) qs.set('unread', 'true');
     if (params.q?.trim()) qs.set('q', params.q.trim());
     if (params.limit) qs.set('limit', String(params.limit));
     const suffix = qs.size ? `?${qs.toString()}` : '';
-    return this.api.get<CenterListEnvelope>(`v1/notifications/list${suffix}`);
+    return this.api.get<CenterListEnvelope>(`v1/notifications/list${suffix}`, undefined, headers);
   }
 
   markStoredRead(id: string): Observable<unknown> {
