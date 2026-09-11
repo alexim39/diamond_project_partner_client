@@ -147,7 +147,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Get help', link: 'support/ticket', title: 'Ask for help' },
       { label: 'About', link: 'support/about/app', title: 'About this app' },
       { label: 'Survey', external: 'https://survey.diamondprojectonline.com/', title: 'Partners survey' },
-      { label: 'Old dashboard', link: 'classic', title: 'Old dashboard view' },
     ],
   },
 ];
@@ -176,7 +175,7 @@ styles: [`
       list-item-hover-state-layer-color: var(--dp-gold),
       list-item-hover-state-layer-opacity: 0.12,
     ));
-    width: 212px;
+    width: 240px;
     background: var(--dp-sidenav);
     color: var(--dp-sidenav-text);
   }
