@@ -346,12 +346,42 @@ mat-sidenav-content {
   opacity: 0.92;
 }
 
-/* Ambient top progress — slim, non-blocking, sits under the topbar. */
-.top-progress {
+/* Ambient top progress — slim, non-blocking, sits under the topbar.
+ * The text pill floats (no layout shift), ignores pointer events (never
+ * traps input), and fades in on a short delay so instant requests don't
+ * make it flicker. role="status" announces it to screen readers. */
+.top-loading {
   position: sticky;
   top: 0;
   z-index: 2;
+  animation: top-loading-in 0.2s ease 0.15s both;
+}
+@keyframes top-loading-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.top-progress {
   height: 3px;
+}
+.top-loading-text {
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  z-index: 50;
+  pointer-events: none;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--dp-sidenav-text);
+  background: var(--dp-sidenav);
+  border: 1px solid var(--dp-line);
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+@media (prefers-reduced-motion: reduce) {
+  .top-loading {
+    animation: none;
+  }
 }
 
 /* Mobile bottom tabs — max 5 primary destinations, thumb-friendly. */
