@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, inject, Input, OnChanges, OnInit, ChangeDetectionStrategy, SimpleChanges} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { CommonModule } from '@angular/common';
@@ -84,10 +84,10 @@ styles: [`
 }
 
 `],
-changeDetection: ChangeDetectionStrategy.Eager,
+changeDetection: ChangeDetectionStrategy.OnPush,
 imports: [MatButtonModule, CommonModule]
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnChanges {
   private api = '';
 
   constructor(
@@ -105,7 +105,17 @@ export class ProfileComponent implements OnInit {
   facebook = ''
 
   ngOnInit() {
+    this.deriveFromPartner();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // OnPush-safe: re-derive when the shell hands us a new partner object.
+    if (changes['partner']) this.deriveFromPartner();
+  }
+
+  private deriveFromPartner() {
     //console.log(this.partner)
+    if (!this.partner) return;
     if (this.partner.profileImage) {
       this.profilePictureUrl = this.api + `/uploads/${this.partner.profileImage}`;
     }

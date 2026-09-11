@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
-  CommentEnvelope, CommentsEnvelope, CreatePostPayload,
-  FeedEnvelope, PostEnvelope,
+  CommentEnvelope, CommentsEnvelope, CreatePostPayload, DirectoryEnvelope,
+  FeedEnvelope, PostEnvelope, ToggleEnvelope,
 } from './community.models';
 
 /** Community feed → backend `/v1/community/*`. Fully typed. */
@@ -20,8 +20,17 @@ export class CommunityService {
     return this.api.post<PostEnvelope>('v1/community', payload);
   }
 
-  toggleLike(postId: string): Observable<PostEnvelope> {
-    return this.api.post<PostEnvelope>(`v1/community/${postId}/like`, {});
+  toggleLike(postId: string): Observable<ToggleEnvelope> {
+    return this.api.post<ToggleEnvelope>(`v1/community/${postId}/like`, {});
+  }
+
+  toggleCommentLike(commentId: string): Observable<ToggleEnvelope> {
+    return this.api.post<ToggleEnvelope>(`v1/community/comments/${commentId}/like`, {});
+  }
+
+  directory(query: string): Observable<DirectoryEnvelope> {
+    const params = new URLSearchParams({ q: query });
+    return this.api.get<DirectoryEnvelope>(`v1/community/directory?${params.toString()}`);
   }
 
   comments(postId: string): Observable<CommentsEnvelope> {
