@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../core/progression/progression.service';
-import { Journey, MissingRequirement } from '../../core/progression/progression.models';
+import { Journey, LADDER, levelRank, MissingRequirement } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
 
 const BOOLEAN_STAMPS = new Set([
@@ -73,7 +73,7 @@ const BOOLEAN_STAMPS = new Set([
         <div class="dp-card level-card">
           <div class="level-top">
             <div>
-              <span class="muted">Current position</span>
+              <span class="muted">Current position · level {{ rank() + 1 }} of {{ ladder().length }}</span>
               <h3>{{ j.levelLabel }}</h3>
             </div>
             @if (j.nextLabel) {
@@ -88,6 +88,45 @@ const BOOLEAN_STAMPS = new Set([
           @if (j.next) {
             <mat-progress-bar mode="determinate" [value]="j.percent" />
           }
+        </div>
+
+        <div class="dp-card roadmap-card">
+          <h3>Roadmap</h3>
+          <ol class="ladder" aria-label="Diamond progression roadmap">
+            @for (rung of ladder(); track rung.level; let i = $index) {
+              <li
+                class="rung"
+                [class.rung--done]="i < rank()"
+                [class.rung--current]="i === rank()"
+                [class.rung--next]="j.next !== null && rung.level === j.next"
+                [attr.aria-current]="i === rank() ? 'step' : null"
+              >
+                <span class="rung-dot" aria-hidden="true">
+                  @if (i < rank()) {
+                    <mat-icon>check_circle</mat-icon>
+                  } @else if (i === rank()) {
+                    <mat-icon>my_location</mat-icon>
+                  } @else {
+                    <mat-icon>radio_button_unchecked</mat-icon>
+                  }
+                </span>
+                <div class="rung-body">
+                  <strong>{{ rung.label }}</strong>
+                  <span class="muted">
+                    @if (i < rank()) {
+                      Completed
+                    } @else if (i === rank()) {
+                      You are here · {{ j.percent }}% to next
+                    } @else if (j.next !== null && rung.level === j.next) {
+                      Up next
+                    } @else {
+                      Level {{ i + 1 }}
+                    }
+                  </span>
+                </div>
+              </li>
+            }
+          </ol>
         </div>
 
         <div class="req-grid">
@@ -154,6 +193,17 @@ const BOOLEAN_STAMPS = new Set([
     .level-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
     .level-top h3 { margin: 0.15em 0 0; font-size: 1.4em; }
     .next { text-align: right; display: flex; flex-direction: column; gap: 0.15em; }
+    .roadmap-card { padding: 1em; }
+    .roadmap-card h3 { margin: 0 0 0.6em; font-size: 1em; }
+    .ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .rung { display: flex; gap: 0.7em; align-items: flex-start; padding: 0.55em 0; position: relative; }
+    .rung:not(:last-child)::before { content: ''; position: absolute; left: 9px; top: 32px; bottom: -4px; width: 2px; background: var(--dp-line); }
+    .rung--done:not(:last-child)::before { background: var(--dp-success); }
+    .rung-dot mat-icon { font-size: 20px; height: 20px; width: 20px; color: var(--dp-muted); }
+    .rung--done .rung-dot mat-icon { color: var(--dp-success); }
+    .rung--current .rung-dot mat-icon { color: var(--dp-gold); }
+    .rung--current strong { color: var(--dp-gold-ink); }
+    .rung-body { display: flex; flex-direction: column; gap: 0.1em; }
     .req-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75em; }
     .req-col { padding: 1em; }
     .req-col h3 { margin: 0 0 0.6em; font-size: 1em; }
@@ -183,6 +233,10 @@ export class ProgressComponent implements OnInit {
   protected readonly journey = signal<Journey | null>(null);
   protected readonly accountsCount = signal(0);
   protected readonly showAccounts = signal(false);
+  protected readonly ladder = signal(LADDER);
+  protected rank(): number {
+    return levelRank(this.journey()?.level);
+  }
 
   ngOnInit(): void {
     this.reload();

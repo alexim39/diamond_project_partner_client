@@ -16,7 +16,7 @@ import { ProgressionService } from '../../core/progression/progression.service';
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
 import { PerformanceData } from '../../core/billing/billing.models';
 import { FeedPost } from '../../core/community/community.models';
-import { Journey } from '../../core/progression/progression.models';
+import { Journey, levelRank } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
 
 /**
@@ -57,120 +57,131 @@ import { ApiError } from '../../core/http/api-error';
       }
 
       @if (overview(); as o) {
-        <h3>What should I do today? <span class="muted">({{ o.actions.total }})</span></h3>
-        @if (topActions().length > 0) {
-          <ul class="action-list">
-            @for (action of topActions(); track action.id) {
-              <li class="dp-card action-item" [class.action-item--high]="action.priority === 'high'">
-                <div class="action-body">
-                  <strong>{{ action.title }}</strong>
-                  <span class="muted">{{ action.detail }}</span>
-                </div>
-                @if (action.link) {
-                  <a mat-button [routerLink]="action.link">Take action</a>
-                }
-              </li>
+        @if (roleFocus(); as focus) {
+          <p class="role-focus" role="note"><mat-icon>flag</mat-icon> {{ focus }}</p>
+        }
+        <div class="home-section" [style.order]="sectionOrder('actions')">
+          <h3>What should I do today? <span class="muted">({{ o.actions.total }})</span></h3>
+          @if (topActions().length > 0) {
+            <ul class="action-list">
+              @for (action of topActions(); track action.id) {
+                <li class="dp-card action-item" [class.action-item--high]="action.priority === 'high'">
+                  <div class="action-body">
+                    <strong>{{ action.title }}</strong>
+                    <span class="muted">{{ action.detail }}</span>
+                  </div>
+                  @if (action.link) {
+                    <a mat-button [routerLink]="action.link">Take action</a>
+                  }
+                </li>
+              }
+            </ul>
+            @if (o.actions.total > topActions().length) {
+              <a mat-button routerLink="insights">View all {{ o.actions.total }} actions</a>
             }
-          </ul>
-          @if (o.actions.total > topActions().length) {
-            <a mat-button routerLink="insights">View all {{ o.actions.total }} actions</a>
+          } @else {
+            <p class="empty">Nothing needs you right now. Momentum is yours to make.</p>
           }
-        } @else {
-          <p class="empty">Nothing needs you right now. Momentum is yours to make.</p>
-        }
+        </div>
 
-        <h3>What's happening</h3>
-        @if (communityPosts().length > 0) {
-          <ul class="preview-list">
-            @for (post of communityPosts(); track post.id) {
-              <li class="dp-card preview-item">
-                <div class="preview-top">
-                  <strong>{{ post.author?.name ?? 'Teammate' }}</strong>
-                  <span class="muted">{{ post.likeCount ?? 0 }} likes · {{ post.commentCount ?? 0 }} comments</span>
-                </div>
-                @if (post.title) {
-                  <strong>{{ post.title }}</strong>
-                }
-                <p class="muted">{{ previewText(post.body) }}</p>
-              </li>
-            }
-          </ul>
-          <a mat-button routerLink="community">Open community</a>
-        } @else if (!loading()) {
-          <p class="empty">Quiet here — <a routerLink="community">be the first to post</a>.</p>
-        }
+        <div class="home-section" [style.order]="sectionOrder('community')">
+          <h3>What's happening</h3>
+          @if (communityPosts().length > 0) {
+            <ul class="preview-list">
+              @for (post of communityPosts(); track post.id) {
+                <li class="dp-card preview-item">
+                  <div class="preview-top">
+                    <strong>{{ post.author?.name ?? 'Teammate' }}</strong>
+                    <span class="muted">{{ post.likeCount ?? 0 }} likes · {{ post.commentCount ?? 0 }} comments</span>
+                  </div>
+                  @if (post.title) {
+                    <strong>{{ post.title }}</strong>
+                  }
+                  <p class="muted">{{ previewText(post.body) }}</p>
+                </li>
+              }
+            </ul>
+            <a mat-button routerLink="community">Open community</a>
+          } @else if (!loading()) {
+            <p class="empty">Quiet here — <a routerLink="community">be the first to post</a>.</p>
+          }
+        </div>
 
         @if (journey(); as j) {
-          <h3>Where I stand</h3>
-          <div class="dp-card journey-strip">
-            <div class="journey-top">
-              <div>
-                <span class="muted">My level</span>
-                <strong class="journey-level">{{ j.levelLabel }}</strong>
+          <div class="home-section" [style.order]="sectionOrder('journey')">
+            <h3>Where I stand</h3>
+            <div class="dp-card journey-strip">
+              <div class="journey-top">
+                <div>
+                  <span class="muted">My level</span>
+                  <strong class="journey-level">{{ j.levelLabel }}</strong>
+                </div>
+                @if (j.nextLabel) {
+                  <span class="muted">Next: {{ j.nextLabel }} · {{ j.percent }}%</span>
+                } @else {
+                  <span class="muted">Top of the ladder</span>
+                }
               </div>
-              @if (j.nextLabel) {
-                <span class="muted">Next: {{ j.nextLabel }} · {{ j.percent }}%</span>
-              } @else {
-                <span class="muted">Top of the ladder</span>
+              @if (j.next) {
+                <mat-progress-bar mode="determinate" [value]="j.percent" />
               }
+              <a mat-button routerLink="progress">See my next steps</a>
             </div>
-            @if (j.next) {
-              <mat-progress-bar mode="determinate" [value]="j.percent" />
-            }
-            <a mat-button routerLink="progress">See my next steps</a>
           </div>
         }
 
-        <h3>Business snapshot</h3>
-        <div class="kpi-grid">
-          <mat-card class="kpi">
-            <mat-card-content>
-              <mat-icon>groups</mat-icon>
-              <span class="kpi-value">{{ o.team.downline.total | number }}</span>
-              <span class="kpi-label">Team members ({{ o.team.downline.active | number }} active)</span>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="kpi">
-            <mat-card-content>
-              <mat-icon>person_add</mat-icon>
-              <span class="kpi-value">{{ o.team.recruits.current | number }}</span>
-              <span class="kpi-label">New recruits ({{ delta(o.team.recruits.deltaPct) }})</span>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="kpi">
-            <mat-card-content>
-              <mat-icon>filter_alt</mat-icon>
-              <span class="kpi-value">@if (o.funnel.overallRate !== null) { {{ o.funnel.overallRate }}% } @else { — }</span>
-              <span class="kpi-label">Funnel conversion ({{ o.funnel.entered | number }} in)</span>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="kpi">
-            <mat-card-content>
-              <mat-icon>favorite</mat-icon>
-              <span class="kpi-value">{{ o.team.health.score ?? '—' }}</span>
-              <span class="kpi-label">Team health</span>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="kpi">
-            <mat-card-content>
-              <mat-icon>flag</mat-icon>
-              <span class="kpi-value">{{ o.goals.complete | number }}/{{ o.goals.total | number }}</span>
-              <span class="kpi-label">
-                Goals complete
-                @if (o.goals.behind > 0) { · <strong class="behind">{{ o.goals.behind }} behind</strong> }
-              </span>
-            </mat-card-content>
-          </mat-card>
-          <mat-card class="kpi">
-            <mat-card-content>
-              <mat-icon>payments</mat-icon>
-              <span class="kpi-value">{{ earnings()?.commissions?.Released | number }}</span>
-              <span class="kpi-label">
-                Released earnings
-                @if (earnings(); as e) { · {{ e.commissions.Pending | number }} pending }
-              </span>
-            </mat-card-content>
-          </mat-card>
+        <div class="home-section" [style.order]="sectionOrder('business')">
+          <h3>Business snapshot</h3>
+          <div class="kpi-grid">
+            <mat-card class="kpi">
+              <mat-card-content>
+                <mat-icon>groups</mat-icon>
+                <span class="kpi-value">{{ o.team.downline.total | number }}</span>
+                <span class="kpi-label">Team members ({{ o.team.downline.active | number }} active)</span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="kpi">
+              <mat-card-content>
+                <mat-icon>person_add</mat-icon>
+                <span class="kpi-value">{{ o.team.recruits.current | number }}</span>
+                <span class="kpi-label">New recruits ({{ delta(o.team.recruits.deltaPct) }})</span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="kpi">
+              <mat-card-content>
+                <mat-icon>filter_alt</mat-icon>
+                <span class="kpi-value">@if (o.funnel.overallRate !== null) { {{ o.funnel.overallRate }}% } @else { — }</span>
+                <span class="kpi-label">Funnel conversion ({{ o.funnel.entered | number }} in)</span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="kpi">
+              <mat-card-content>
+                <mat-icon>favorite</mat-icon>
+                <span class="kpi-value">{{ o.team.health.score ?? '—' }}</span>
+                <span class="kpi-label">Team health</span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="kpi">
+              <mat-card-content>
+                <mat-icon>flag</mat-icon>
+                <span class="kpi-value">{{ o.goals.complete | number }}/{{ o.goals.total | number }}</span>
+                <span class="kpi-label">
+                  Goals complete
+                  @if (o.goals.behind > 0) { · <strong class="behind">{{ o.goals.behind }} behind</strong> }
+                </span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="kpi">
+              <mat-card-content>
+                <mat-icon>payments</mat-icon>
+                <span class="kpi-value">{{ earnings()?.commissions?.Released | number }}</span>
+                <span class="kpi-label">
+                  Released earnings
+                  @if (earnings(); as e) { · {{ e.commissions.Pending | number }} pending }
+                </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
         </div>
 
       }
@@ -193,6 +204,9 @@ import { ApiError } from '../../core/http/api-error';
     .kpi-value { font-size: 1.5em; font-weight: 700; }
     .kpi-label { color: var(--dp-muted); font-size: 0.85em; }
     .behind { color: var(--dp-error); }
+    .role-focus { display: flex; align-items: center; gap: 0.4em; margin: 0; color: var(--dp-gold-ink); font-weight: 600; font-size: 0.9em; }
+    .role-focus mat-icon { font-size: 18px; height: 18px; width: 18px; }
+    .home-section { display: flex; flex-direction: column; gap: 0.6em; }
     .preview-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .preview-item { padding: 0.7em 1em; display: flex; flex-direction: column; gap: 0.25em; }
     .preview-item p { margin: 0; }
@@ -252,6 +266,46 @@ export class HomeComponent implements OnInit {
   protected previewText(body: string): string {
     const text = String(body ?? '').trim();
     return text.length > 140 ? `${text.slice(0, 139)}…` : text;
+  }
+
+  /** Rank 0-9 on the Diamond ladder (0 when journey not loaded yet). */
+  protected journeyRank(): number {
+    return levelRank(this.journey()?.level);
+  }
+
+  /**
+   * Role-based section order — actions always first, the rest follows
+   * what matters at this rank: early ranks learn, mid ranks build,
+   * senior ranks oversee.
+   */
+  protected sectionOrder(section: 'actions' | 'journey' | 'community' | 'business'): number {
+    if (section === 'actions') return 1;
+    const rank = this.journeyRank();
+    if (rank <= 3) {
+      // Prospect → Qualified Active: learn, convert, stay close to the team.
+      return section === 'journey' ? 2 : section === 'community' ? 3 : 4;
+    }
+    if (rank <= 5) {
+      // Active / Kingsman: build the team, numbers matter more than chat.
+      return section === 'journey' ? 2 : section === 'business' ? 3 : 4;
+    }
+    // ECL and above: oversee the business first, ladder is nearly climbed.
+    return section === 'business' ? 2 : section === 'community' ? 3 : 4;
+  }
+
+  /** One-line focus for this rank — plain words, no jargon. */
+  protected roleFocus(): string | null {
+    if (!this.journey()) return null;
+    const rank = this.journeyRank();
+    if (rank <= 0) return 'Focus: learning how the business works';
+    if (rank === 1) return 'Focus: IPO, QSG and your first recruit';
+    if (rank <= 3) return 'Focus: finishing qualification';
+    if (rank === 4) return 'Focus: prospecting and team building';
+    if (rank === 5) return 'Focus: developing leaders';
+    if (rank === 6) return 'Focus: building your cell';
+    if (rank === 7) return 'Focus: team performance';
+    if (rank === 8) return 'Focus: running your organization';
+    return 'Focus: business intelligence and oversight';
   }
 
   ngOnInit(): void {
