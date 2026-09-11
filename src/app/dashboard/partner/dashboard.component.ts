@@ -22,7 +22,8 @@ import { PartnerAuthService } from '../../auth/auth.service';
 import { PushNotificationsComponent } from './index/push-notifications/push-notifications.component';
 import { MatBadgeModule } from '@angular/material/badge';
 
-type SubmenuKey = 'actions' | 'prospects' | 'network' | 'performance' | 'goals' | 'earnings' | 'marketing' | 'reports' | 'communication' | 'more' | 'settings' | 'help';
+/** Goal-worded primary navigation (max 8 groups) — Home is a direct link. */
+type SubmenuKey = 'journey' | 'grow' | 'team' | 'performance' | 'community' | 'resources' | 'more';
 
 @Component({
 selector: 'async-dashboard',
@@ -127,6 +128,48 @@ mat-sidenav-content {
   }
 }
 
+/* Mobile bottom tabs — max 5 primary destinations, thumb-friendly. */
+.mobile-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  background: var(--dp-surface);
+  border-top: 1px solid var(--dp-line);
+  padding-bottom: env(safe-area-inset-bottom);
+  a, button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0.6em 0;
+    min-height: 60px;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--dp-muted);
+    font: inherit;
+    font-size: 0.72em;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  mat-icon {
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+  }
+  .active-tab {
+    color: var(--dp-gold-ink);
+    font-weight: 700;
+  }
+}
+.mobile-tabs-spacer {
+  height: 76px;
+}
+
 
 
 
@@ -170,18 +213,13 @@ export class DashboardComponent {
   //isLoading: boolean = false;
 
   submenus: Record<SubmenuKey, boolean> = {
-    actions: false,
-    prospects: false,
-    network: false,
+    journey: false,
+    grow: false,
+    team: false,
     performance: false,
-    goals: false,
-    earnings: false,
-    marketing: false,
-    reports: false,
-    communication: false,
+    community: false,
+    resources: false,
     more: false,
-    settings: false,
-    help: false,
   };
 
   subSubmenus: Record<string, boolean> = {};

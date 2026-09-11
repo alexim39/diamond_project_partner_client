@@ -7,20 +7,24 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { BillingService } from '../../core/billing/billing.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { CommunityService } from '../../core/community/community.service';
+import { ProgressionService } from '../../core/progression/progression.service';
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
 import { PerformanceData } from '../../core/billing/billing.models';
+import { FeedPost } from '../../core/community/community.models';
+import { Journey } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
 
 /**
- * @title Home — business command center.
+ * @title Home — daily operating center.
  *
- * One round trip (`v1/dashboard/overview`) plus earnings: today's actions
- * first, then KPI snapshots for business, growth, network and earnings.
- * Every card answers one of the six UX questions and links to action.
+ * Priority order: what to do today, what's happening, where I stand on
+ * the ladder, then business numbers. Journey + community ride along with
+ * the overview call but fail soft so the page never blanks on them.
  * OnPush + signals, fully typed.
  */
 @Component({
@@ -53,7 +57,7 @@ import { ApiError } from '../../core/http/api-error';
       }
 
       @if (overview(); as o) {
-        <h3>Today's actions <span class="muted">({{ o.actions.total }})</span></h3>
+        <h3>What should I do today? <span class="muted">({{ o.actions.total }})</span></h3>
         @if (topActions().length > 0) {
           <ul class="action-list">
             @for (action of topActions(); track action.id) {
@@ -73,6 +77,48 @@ import { ApiError } from '../../core/http/api-error';
           }
         } @else {
           <p class="empty">Nothing needs you right now. Momentum is yours to make.</p>
+        }
+
+        <h3>What's happening</h3>
+        @if (communityPosts().length > 0) {
+          <ul class="preview-list">
+            @for (post of communityPosts(); track post.id) {
+              <li class="dp-card preview-item">
+                <div class="preview-top">
+                  <strong>{{ post.author?.name ?? 'Teammate' }}</strong>
+                  <span class="muted">{{ post.likeCount ?? 0 }} likes · {{ post.commentCount ?? 0 }} comments</span>
+                </div>
+                @if (post.title) {
+                  <strong>{{ post.title }}</strong>
+                }
+                <p class="muted">{{ previewText(post.body) }}</p>
+              </li>
+            }
+          </ul>
+          <a mat-button routerLink="community">Open community</a>
+        } @else if (!loading()) {
+          <p class="empty">Quiet here — <a routerLink="community">be the first to post</a>.</p>
+        }
+
+        @if (journey(); as j) {
+          <h3>Where I stand</h3>
+          <div class="dp-card journey-strip">
+            <div class="journey-top">
+              <div>
+                <span class="muted">My level</span>
+                <strong class="journey-level">{{ j.levelLabel }}</strong>
+              </div>
+              @if (j.nextLabel) {
+                <span class="muted">Next: {{ j.nextLabel }} · {{ j.percent }}%</span>
+              } @else {
+                <span class="muted">Top of the ladder</span>
+              }
+            </div>
+            @if (j.next) {
+              <mat-progress-bar mode="determinate" [value]="j.percent" />
+            }
+            <a mat-button routerLink="progress">See my next steps</a>
+          </div>
         }
 
         <h3>Business snapshot</h3>
@@ -127,14 +173,6 @@ import { ApiError } from '../../core/http/api-error';
           </mat-card>
         </div>
 
-        <div class="home-links">
-          <a mat-button routerLink="prospects/pipeline">Pipeline</a>
-          <a mat-button routerLink="network/tree">Network tree</a>
-          <a mat-button routerLink="goals">Goals</a>
-          <a mat-button routerLink="insights/team-reports">Team reports</a>
-          <a mat-button routerLink="messages">Messages @if (o.notifications.unreadCount > 0) { ({{ o.notifications.unreadCount }}) }</a>
-          <a mat-button routerLink="classic">Classic view</a>
-        </div>
       }
     </section>
   `,
@@ -155,7 +193,13 @@ import { ApiError } from '../../core/http/api-error';
     .kpi-value { font-size: 1.5em; font-weight: 700; }
     .kpi-label { color: var(--dp-muted); font-size: 0.85em; }
     .behind { color: var(--dp-error); }
-    .home-links { display: flex; gap: 0.25em; flex-wrap: wrap; }
+    .preview-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
+    .preview-item { padding: 0.7em 1em; display: flex; flex-direction: column; gap: 0.25em; }
+    .preview-item p { margin: 0; }
+    .preview-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+    .journey-strip { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .journey-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
+    .journey-level { display: block; font-size: 1.3em; margin-top: 0.15em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
@@ -165,12 +209,16 @@ export class HomeComponent implements OnInit {
   private readonly analytics = inject(AnalyticsService);
   private readonly billing = inject(BillingService);
   private readonly auth = inject(AuthService);
+  private readonly progress = inject(ProgressionService);
+  private readonly community = inject(CommunityService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly overview = signal<DashboardOverview | null>(null);
   protected readonly earnings = signal<PerformanceData | null>(null);
+  protected readonly journey = signal<Journey | null>(null);
+  protected readonly communityPosts = signal<FeedPost[]>([]);
   protected readonly today = new Date();
 
   protected greeting(): string {
@@ -201,6 +249,11 @@ export class HomeComponent implements OnInit {
     return `${pct > 0 ? '+' : ''}${pct}% vs prior`;
   }
 
+  protected previewText(body: string): string {
+    const text = String(body ?? '').trim();
+    return text.length > 140 ? `${text.slice(0, 139)}…` : text;
+  }
+
   ngOnInit(): void {
     this.reload();
   }
@@ -208,12 +261,20 @@ export class HomeComponent implements OnInit {
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
-    forkJoin({ overview: this.analytics.overview(30), perf: this.billing.performance() })
+    // Journey + community fail soft — the page must never blank on them.
+    forkJoin({
+      overview: this.analytics.overview(30),
+      perf: this.billing.performance(),
+      journey: this.progress.mine().pipe(catchError(() => of(null))),
+      feed: this.community.feed(undefined, 5).pipe(catchError(() => of(null))),
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ overview, perf }) => {
+        next: ({ overview, perf, journey, feed }) => {
           this.overview.set(overview.data ?? null);
           this.earnings.set(perf.data ?? null);
+          this.journey.set(journey?.data ?? null);
+          this.communityPosts.set(feed?.data?.items?.slice(0, 3) ?? []);
           this.loading.set(false);
         },
         error: (err: ApiError) => {
