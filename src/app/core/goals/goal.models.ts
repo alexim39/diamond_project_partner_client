@@ -9,6 +9,15 @@ export const GOAL_KIND_LABELS: Record<GoalKind, string> = {
   conversion: 'Conversions',
 };
 
+export interface GoalForecast {
+  dailyRate: number;
+  projected: number;
+  willHit: boolean;
+  etaDate: string | null;
+  requiredDaily: number | null;
+  shortfall: number;
+}
+
 export interface GoalProgress {
   current: number;
   percent: number;
@@ -17,6 +26,7 @@ export interface GoalProgress {
   daysTotal: number;
   onTrack: boolean;
   complete: boolean;
+  forecast: GoalForecast;
 }
 
 export interface Goal {

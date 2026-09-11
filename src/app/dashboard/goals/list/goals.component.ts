@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -37,7 +37,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   selector: 'async-goals',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
+    DatePipe, DecimalPipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
     MatProgressBarModule, MatSelectModule, NgxEchartsDirective, ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -134,6 +134,15 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
               <div class="goal-meta">
                 <span>{{ goal.progress.current | number }} / {{ goal.target | number }} {{ unit(goal.kind) }}</span>
                 <span class="muted">{{ goal.progress.daysLeft }} days left</span>
+                @if (!goal.progress.complete) {
+                  @if (goal.progress.forecast.willHit && goal.progress.forecast.etaDate) {
+                    <span class="forecast-ok">On pace · ~{{ goal.progress.forecast.projected | number }} by {{ goal.progress.forecast.etaDate | date:'mediumDate' }}</span>
+                  } @else if (goal.progress.forecast.requiredDaily !== null) {
+                    <span class="forecast-warn">Needs {{ goal.progress.forecast.requiredDaily | number }}/day · short {{ goal.progress.forecast.shortfall | number }}</span>
+                  } @else {
+                    <span class="forecast-warn">Out of time · short {{ goal.progress.forecast.shortfall | number }}</span>
+                  }
+                }
                 <button
                   mat-button
                   color="warn"
@@ -174,6 +183,8 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .goal-meta { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; font-size: 0.9em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .forecast-ok { color: var(--dp-success); font-size: 0.85em; font-weight: 600; }
+    .forecast-warn { color: var(--dp-error); font-size: 0.85em; font-weight: 600; }
     .error { color: var(--dp-error); }
     .empty { color: var(--dp-muted); }
     .trends { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; }
