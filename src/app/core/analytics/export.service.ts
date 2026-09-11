@@ -3,13 +3,14 @@ import { Observable, map, tap } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 
 export type ExportKind = 'team' | 'pipeline' | 'commissions' | 'reports-mine' | 'reports-team';
+export type ExportFormat = 'csv' | 'xlsx';
 
 const ENDPOINTS: Record<ExportKind, string> = {
-  team: 'v1/exports/team.csv',
-  pipeline: 'v1/exports/pipeline.csv',
-  commissions: 'v1/exports/commissions.csv',
-  'reports-mine': 'v1/exports/reports.csv?scope=mine',
-  'reports-team': 'v1/exports/reports.csv?scope=team',
+  team: 'v1/exports/team',
+  pipeline: 'v1/exports/pipeline',
+  commissions: 'v1/exports/commissions',
+  'reports-mine': 'v1/exports/reports?scope=mine',
+  'reports-team': 'v1/exports/reports?scope=team',
 };
 
 const triggerSave = (blob: Blob, filename: string): void => {
@@ -23,14 +24,16 @@ const triggerSave = (blob: Blob, filename: string): void => {
   URL.revokeObjectURL(url);
 };
 
-/** CSV downloads → backend `/v1/exports/*`. Cookie session preserved. */
+/** CSV + XLSX downloads → backend `/v1/exports/*`. Cookie session preserved. */
 @Injectable({ providedIn: 'root' })
 export class ExportService {
   private readonly api = inject(ApiClient);
 
-  download(kind: ExportKind): Observable<void> {
-    const filename = `${kind}-${new Date().toISOString().slice(0, 10)}.csv`;
-    return this.api.download(ENDPOINTS[kind]).pipe(
+  download(kind: ExportKind, format: ExportFormat = 'csv'): Observable<void> {
+    const [path, query] = ENDPOINTS[kind].split('?');
+    const endpoint = `${path}.${format}${query ? `?${query}` : ''}`;
+    const filename = `${kind}-${new Date().toISOString().slice(0, 10)}.${format}`;
+    return this.api.download(endpoint).pipe(
       tap((blob) => triggerSave(blob, filename)),
       map(() => undefined),
     );

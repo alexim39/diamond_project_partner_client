@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
-import { ExportKind, ExportService } from '../../../core/analytics/export.service';
+import { ExportFormat, ExportKind, ExportService } from '../../../core/analytics/export.service';
 import { ChartThemeService } from '../../../core/charts/chart-theme.service';
 import type { EChartsCoreOption } from '../../../core/charts/echarts-setup';
 import { ActionPriority, DailyAction, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
@@ -179,6 +179,8 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
 
       <h3>Take your data</h3>
       <div class="exports">
+        <button mat-button [color]="exportFormat() === 'csv' ? 'primary' : undefined" (click)="exportFormat.set('csv')">CSV</button>
+        <button mat-button [color]="exportFormat() === 'xlsx' ? 'primary' : undefined" (click)="exportFormat.set('xlsx')">Excel</button>
         @for (item of exportKinds; track item.kind) {
           <button
             mat-button
@@ -186,7 +188,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
             [disabled]="downloading() !== null"
           >
             <mat-icon>download</mat-icon>
-            {{ downloading() === item.kind ? 'Preparing…' : item.label }}
+            {{ downloading() === downloadKey(item.kind) ? 'Preparing…' : item.label }}
           </button>
         }
         <button mat-button (click)="print()">
@@ -241,7 +243,8 @@ export class InsightsOverviewComponent implements OnInit {
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly downloading = signal<ExportKind | null>(null);
+  protected readonly downloading = signal<string | null>(null);
+  protected readonly exportFormat = signal<ExportFormat>('csv');
   protected readonly exportError = signal<string | null>(null);
   protected readonly days = signal(30);
   protected readonly actions = signal<DailyAction[]>([]);
@@ -362,11 +365,15 @@ export class InsightsOverviewComponent implements OnInit {
     { kind: 'reports-team', label: 'Team reports' },
   ];
 
+  protected downloadKey(kind: ExportKind): string {
+    return `${kind}.${this.exportFormat()}`;
+  }
+
   protected export(kind: ExportKind): void {
-    this.downloading.set(kind);
+    this.downloading.set(this.downloadKey(kind));
     this.exportError.set(null);
     this.exporter
-      .download(kind)
+      .download(kind, this.exportFormat())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.downloading.set(null),
