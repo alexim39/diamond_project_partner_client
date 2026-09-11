@@ -16,6 +16,16 @@ export interface DirectoryLabel {
   name: string;
 }
 
+export interface PostAttachment {
+  url: string;
+  mime: string;
+  size: number;
+}
+
+export interface AttachmentEnvelope extends ApiEnvelope<PostAttachment> {
+  data: PostAttachment;
+}
+
 export interface FeedPost {
   id: string;
   authorId: string;
@@ -28,6 +38,7 @@ export interface FeedPost {
   auto: boolean;
   createdAt: string;
   mentions?: string[];
+  attachments?: PostAttachment[];
   author: DirectoryLabel | null;
   likeCount: number;
   commentCount: number;
@@ -84,4 +95,5 @@ export interface CreatePostPayload {
   body: string;
   link?: string;
   scope: AudienceScope;
+  attachments?: PostAttachment[];
 }

@@ -10,8 +10,20 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { CommunityService } from '../../../core/community/community.service';
-import { AudienceScope, DirectoryEntry, FeedComment, FeedPost, POST_KIND_LABELS, PostKind } from '../../../core/community/community.models';
+import { API_BASE_URL } from '../../../core/config/api-tokens';
+import { AudienceScope, DirectoryEntry, FeedComment, FeedPost, POST_KIND_LABELS, PostAttachment, PostKind } from '../../../core/community/community.models';
 import { ApiError } from '../../../core/http/api-error';
+
+const MAX_PHOTOS = 4;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
+interface StagedPhoto {
+  key: string;
+  previewUrl: string;
+  attachment: PostAttachment | null;
+  uploading: boolean;
+  error: string | null;
+}
 
 const KIND_STYLES: Record<PostKind, string> = {
   standard: 'dp-status--info',
@@ -104,8 +116,42 @@ const KIND_STYLES: Record<PostKind, string> = {
             <mat-label>Link (optional)</mat-label>
             <input matInput formControlName="link" maxlength="500" placeholder="https://…" />
           </mat-form-field>
+          <div class="photo-row">
+            <label class="photo-pick">
+              <mat-icon>photo_camera</mat-icon>
+              <span>Add photos ({{ staged().length }}/{{ maxPhotos() }})</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                (change)="onFiles($any($event.target).files); $any($event.target).value = ''"
+              />
+            </label>
+            @if (uploadError(); as err) {
+              <span class="error" role="alert">{{ err }}</span>
+            }
+          </div>
+          @if (staged().length > 0) {
+            <div class="staged-grid">
+              @for (s of staged(); track s.key) {
+                <div class="staged">
+                  <img [src]="s.previewUrl" alt="Photo to post" />
+                  @if (s.uploading) {
+                    <mat-progress-bar mode="indeterminate" />
+                  }
+                  @if (s.error) {
+                    <span class="error">{{ s.error }}</span>
+                  }
+                  <button type="button" mat-icon-button (click)="removeStaged(s.key)" aria-label="Remove photo">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
           <div class="form-actions">
-            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || publishing()">
+            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || publishing() || uploadingCount() > 0">
               {{ publishing() ? 'Posting…' : 'Post' }}
             </button>
             @if (publishError(); as err) {
@@ -137,6 +183,15 @@ const KIND_STYLES: Record<PostKind, string> = {
                 <a class="link-row" [href]="post.link" target="_blank" rel="noopener">
                   <mat-icon>link</mat-icon><span>{{ post.link }}</span>
                 </a>
+              }
+              @if (post.attachments?.length) {
+                <div class="attach-grid">
+                  @for (img of post.attachments; track img.url) {
+                    <a [href]="resolveImage(img.url)" target="_blank" rel="noopener" [title]="'Open full image'">
+                      <img [src]="resolveImage(img.url)" alt="Post image" loading="lazy" />
+                    </a>
+                  }
+                </div>
               }
               <div class="post-actions">
                 <button mat-button (click)="toggleLike(post)" [disabled]="actingId() === post.id" [color]="post.likedByMe ? 'primary' : undefined" [title]="post.likedByMe ? 'Unlike' : 'Like'">
@@ -229,6 +284,16 @@ const KIND_STYLES: Record<PostKind, string> = {
     .link-row { display: inline-flex; align-items: center; gap: 0.4em; color: var(--dp-gold-ink); font-size: 0.85em; word-break: break-all; }
     .link-row mat-icon { font-size: 16px; height: 16px; width: 16px; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 0.25em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.4em; }
+    .photo-row { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+    .photo-pick { display: inline-flex; align-items: center; gap: 0.4em; min-height: 44px; cursor: pointer; color: var(--dp-gold-ink); font-weight: 600; font-size: 0.9em; }
+    .staged-grid { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .staged { position: relative; width: 96px; }
+    .staged img { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; border: 1px solid var(--dp-line); display: block; }
+    .staged button { position: absolute; top: -8px; right: -8px; background: var(--dp-surface); }
+    .staged .error { font-size: 0.75em; }
+    .attach-grid { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .attach-grid a { display: block; line-height: 0; }
+    .attach-grid img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; border: 1px solid var(--dp-line); }
     .post-actions { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; }
     .post-actions .spacer { flex: 1; }
     .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--dp-line); padding-top: 0.75em; }
@@ -252,6 +317,8 @@ export class CommunityFeedComponent implements OnInit {
   private readonly community = inject(CommunityService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly apiBase = inject(API_BASE_URL);
+  private stagedSeq = 0;
 
   protected readonly loading = signal(true);
   protected readonly loadingMore = signal(false);
@@ -272,6 +339,8 @@ export class CommunityFeedComponent implements OnInit {
   protected readonly mentionSuggestions = signal<DirectoryEntry[]>([]);
   protected readonly mentionTarget = signal<'post' | 'comment' | null>(null);
   private lastMentionQuery = '';
+  protected readonly staged = signal<StagedPhoto[]>([]);
+  protected readonly uploadError = signal<string | null>(null);
 
   protected readonly kinds: PostKind[] = ['standard', 'announcement', 'recognition', 'training', 'event'];
 
@@ -401,19 +470,91 @@ export class CommunityFeedComponent implements OnInit {
     this.publishError.set(null);
   }
 
+  protected maxPhotos(): number {
+    return MAX_PHOTOS;
+  }
+
+  protected uploadingCount(): number {
+    return this.staged().filter((s) => s.uploading).length;
+  }
+
+  /** Relative upload paths resolve against the API origin. */
+  protected resolveImage(url: string): string {
+    const u = String(url ?? '');
+    if (/^https?:\/\//i.test(u)) return u;
+    return `${this.apiBase}${u.startsWith('/') ? '' : '/'}${u}`;
+  }
+
+  protected onFiles(files: FileList | null): void {
+    if (!files || files.length === 0) return;
+    this.uploadError.set(null);
+    const room = MAX_PHOTOS - this.staged().length;
+    if (room <= 0) {
+      this.uploadError.set(`At most ${MAX_PHOTOS} photos per post.`);
+      return;
+    }
+    [...files].slice(0, room).forEach((file) => {
+      if (!file.type.startsWith('image/')) {
+        this.uploadError.set(`${file.name} is not an image.`);
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        this.uploadError.set(`${file.name} is too large (max 5MB).`);
+        return;
+      }
+      const key = `staged-${++this.stagedSeq}`;
+      const previewUrl = URL.createObjectURL(file);
+      this.staged.set([...this.staged(), { key, previewUrl, attachment: null, uploading: true, error: null }]);
+      this.community
+        .uploadImage(file)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            this.staged.set(this.staged().map((s) =>
+              s.key === key ? { ...s, attachment: res.data ?? null, uploading: false } : s,
+            ));
+          },
+          error: (err: ApiError) => {
+            this.staged.set(this.staged().map((s) =>
+              s.key === key ? { ...s, uploading: false, error: err.message } : s,
+            ));
+          },
+        });
+    });
+    if (files.length > room) {
+      this.uploadError.set(`At most ${MAX_PHOTOS} photos per post.`);
+    }
+  }
+
+  protected removeStaged(key: string): void {
+    const found = this.staged().find((s) => s.key === key);
+    if (found) URL.revokeObjectURL(found.previewUrl);
+    this.staged.set(this.staged().filter((s) => s.key !== key));
+  }
+
+  private clearStaged(): void {
+    for (const s of this.staged()) URL.revokeObjectURL(s.previewUrl);
+    this.staged.set([]);
+    this.uploadError.set(null);
+  }
+
   protected publish(): void {
     if (this.form.invalid) return;
     this.publishing.set(true);
     this.publishError.set(null);
     const v = this.form.getRawValue();
+    const attachments = this.staged()
+      .filter((s) => s.attachment !== null)
+      .map((s) => s.attachment as PostAttachment);
     this.community
-      .create({ kind: v.kind, title: v.title.trim(), body: v.body.trim(), link: v.link.trim(), scope: v.scope })
+      .create({ kind: v.kind, title: v.title.trim(), body: v.body.trim(), link: v.link.trim(), scope: v.scope, attachments })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.publishing.set(false);
           this.showCompose.set(false);
           this.form.reset({ kind: 'standard', scope: 'global', title: '', body: '', link: '' });
+          this.clearStaged();
           this.mentionSuggestions.set([]);
           this.mentionTarget.set(null);
           this.lastMentionQuery = '';
