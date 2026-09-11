@@ -213,7 +213,7 @@ import { forkJoin } from 'rxjs';
     .name-cell { font-weight: 600; text-transform: capitalize; }
     .name-link { text-decoration: none; color: inherit; }
     .name-link:hover { color: var(--dp-gold-ink); }
-    .stuck-badge { color: var(--dp-error); font-size: 0.78em; font-weight: 600; margin-top: 0.25em; }
+    .stuck-badge { color: var(--dp-error); font-size: 0.85em; font-weight: 600; margin-top: 0.25em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }

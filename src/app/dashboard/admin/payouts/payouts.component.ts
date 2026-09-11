@@ -114,14 +114,14 @@ const naira = (n: number): string =>
     .breadcrumb a { text-decoration: none; }
     .queue-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .notice { display: flex; align-items: center; gap: 0.5em; color: #1b5e20; background: #e8f5e9; border-radius: 8px; padding: 0.6em 1em; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .amount { font-weight: 600; white-space: nowrap; }
-    .muted { color: #777; font-size: 0.85em; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .empty { color: var(--dp-muted); }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],
 })
