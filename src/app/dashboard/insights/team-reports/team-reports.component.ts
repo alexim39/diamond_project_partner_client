@@ -47,6 +47,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
         <div class="head-actions">
           <button mat-button (click)="toggleSubmit()">{{ showSubmit() ? 'Cancel' : 'Write report' }}</button>
           <button mat-button (click)="toggleRequest()">{{ showRequest() ? 'Cancel' : 'Request report' }}</button>
+          <button mat-button (click)="print()">Print / PDF</button>
         </div>
       </div>
 
@@ -270,6 +271,10 @@ export class TeamReportsComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+  }
+
+  protected print(): void {
+    window.print();
   }
 
   protected reload(): void {
