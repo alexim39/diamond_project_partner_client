@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
-  CommentEnvelope, CommentsEnvelope, CreatePostPayload, DirectoryEnvelope,
+  AttachmentEnvelope, CommentEnvelope, CommentsEnvelope, CreatePostPayload, DirectoryEnvelope,
   FeedEnvelope, PostEnvelope, ToggleEnvelope,
 } from './community.models';
 
@@ -18,6 +18,13 @@ export class CommunityService {
 
   create(payload: CreatePostPayload): Observable<PostEnvelope> {
     return this.api.post<PostEnvelope>('v1/community', payload);
+  }
+
+  /** Upload one image; returns the attachment ref for the composer. */
+  uploadImage(file: File): Observable<AttachmentEnvelope> {
+    const form = new FormData();
+    form.append('image', file, file.name);
+    return this.api.upload<AttachmentEnvelope>('v1/community/attachments', form);
   }
 
   toggleLike(postId: string): Observable<ToggleEnvelope> {

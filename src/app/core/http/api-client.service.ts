@@ -43,4 +43,9 @@ export class ApiClient {
   download(endpoint: string): Observable<Blob> {
     return this.http.get(this.url(endpoint), { withCredentials: true, responseType: 'blob' });
   }
+
+  /** Multipart uploads — cookie session preserved, browser sets the boundary. */
+  upload<T>(endpoint: string, form: FormData): Observable<T> {
+    return this.http.post<T>(this.url(endpoint), form, { withCredentials: true });
+  }
 }
