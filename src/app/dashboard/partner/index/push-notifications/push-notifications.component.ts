@@ -1,9 +1,8 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { PartnerInterface } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
 import { PushNotificationInterface, PushNotificationService } from './push-notifications.service';
 import { Router } from '@angular/router';
 
@@ -166,11 +165,10 @@ import { Router } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.Eager,
   providers: [PushNotificationService]
 })
-export class PushNotificationsComponent implements OnInit, OnDestroy {
+export class PushNotificationsComponent implements OnInit {
   notifications: Array<PushNotificationInterface> = [];
 
   @Input() partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
   noNotifications = false;
 
   @Output() notificationCountChange = new EventEmitter<number>(); // EventEmitter to send data to parent
@@ -182,23 +180,18 @@ export class PushNotificationsComponent implements OnInit, OnDestroy {
     ) { }
 
   ngOnInit(): void {
-    this.subscriptions.push(
-      this.notifier.getNotifications(this.partner._id).subscribe({
+    // One-shot HTTP — self-completes, no tracking needed.
+    this.notifier.getNotifications(this.partner._id).subscribe({
           next: (response) => {
             //console.log(response)
           if (response.success) {
             this.notifications = response.data;
             this.notifyParent();
 
-          }   
+          }
         }
       })
-    )
 
-  }
-
-   ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   private notifyParent() {

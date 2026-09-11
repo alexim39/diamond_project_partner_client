@@ -1,11 +1,12 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import { ManageContactsDetailComponent } from './manage-contacts-detail.component';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
-import { Subscription } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
 selector: 'async-manage-contacts-detail-container',
@@ -40,42 +41,40 @@ styles: `
    
 `
 })
-export class ManageContactsDetailContainerComponent implements OnInit, OnDestroy {
+export class ManageContactsDetailContainerComponent implements OnInit {
 
   prospect!: ContactsInterface;
   prospectId!: string | null;
   isEmptyRecord = false;
-  subscriptions: Subscription[] = [];
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private route: ActivatedRoute,
     private contactsService: ContactsService
   ) { }
 
   back(): void {
     //this.router.navigateByUrl('dashboard/tools/contacts/list');
-    window.history.back(); 
+    window.history.back();
   }
 
   ngOnInit(): void {
-      this.route.paramMap.subscribe(params => {
-        this.prospectId = params.get('id');
-        if (this.prospectId) {
-          // Fetch prospect details using the ID
-          this.subscriptions.push(
-            this.contactsService.getProspectById(this.prospectId).subscribe({
-              next: (prospect) => {
-                this.prospect = prospect.data;
-              }
-            })
-          )
-        }
-      });
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    // Route params are infinite; the lookup is one-shot — switchMap
+    // cancels the in-flight fetch on re-navigation instead of stacking.
+    this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      map(params => params.get('id')),
+      filter((id): id is string => id !== null),
+      switchMap(id => {
+        this.prospectId = id;
+        // Fetch prospect details using the ID
+        return this.contactsService.getProspectById(id);
+      })
+    ).subscribe({
+      next: (prospect) => {
+        this.prospect = prospect.data;
+      }
+    });
   }
 }

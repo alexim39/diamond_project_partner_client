@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EmailInterface, EmailService } from '../email.service';
 import { EmailLogComponent } from './email-log.component';
 import { Router } from '@angular/router';
@@ -25,13 +26,13 @@ template: `
  `,
    
 })
-export class EmailLogContainerComponent implements OnInit, OnDestroy {
+export class EmailLogContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
   emails!: any;
   isEmptyRecord = false;
   serverErrorMessage = '';
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private partnerService: PartnerService,
@@ -40,44 +41,32 @@ export class EmailLogContainerComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({    
-        next: (partner: PartnerInterface) => {
-          this.partner = partner;
-          if (this.partner) {
-            //console.log('=',this.partner)
-            this.subscriptions.push(
-              this.email.getEmailsCreatedBy(this.partner._id).subscribe({
-                next: (response) => {
-                  if (response.success) {
-                    this.emails = response.data;
-                  }
-                },
-                error: () => {
-                  this.emails = [];
-                }
-              })
-            )
+
+    // get current signed in user, then their emails — one stream.
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter((partner): partner is PartnerInterface => !!partner),
+      tap(partner => { this.partner = partner; }),
+      switchMap(partner => this.email.getEmailsCreatedBy(partner._id))
+    ).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.emails = response.data;
           }
+        },
+        error: () => {
+          this.emails = [];
         }
       })
-    )
-  }  
+  }
 
   back(): void {
     if (window.history.length > 1) {
-        //window.history  
-        window.history.back();  
-    } else {  
-      // Redirect to a default route if there's no history  
+        //window.history
+        window.history.back();
+    } else {
+      // Redirect to a default route if there's no history
       this.router.navigateByUrl('dashboard/tools/email/new');
-    }  
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    }
   }
 }

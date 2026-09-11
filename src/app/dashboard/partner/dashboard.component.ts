@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -6,8 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LogoComponent } from '../../_common/logo.component';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -142,10 +143,10 @@ animations: [
   ])
 ]
 })
-export class DashboardComponent implements OnDestroy {
+export class DashboardComponent {
   private breakpointObserver = inject(BreakpointObserver);
+  private readonly destroyRef = inject(DestroyRef);
   isHandset: boolean = false;
-  subscriptions: Subscription[] = [];
 
   isMobile!: boolean;
   isTablet!: boolean;
@@ -194,11 +195,11 @@ export class DashboardComponent implements OnDestroy {
     private partnerService: PartnerService,
   ) {
 
-    this.subscriptions.push(
-      this.breakpointObserver.observe([Breakpoints.Handset]).subscribe(result => {
+    this.breakpointObserver.observe([Breakpoints.Handset])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
         this.isHandset = result.matches;
-      })
-    )
+      });
   }
 
   ngOnInit(): void {
@@ -206,20 +207,19 @@ export class DashboardComponent implements OnDestroy {
     this.isTablet = this.deviceService.isTablet();
     this.isDesktop = this.deviceService.isDesktop();
 
-    this.subscriptions.push(
-      this.partnerService.getPartner().subscribe({
-        next: (response) => {
-          if (response.success) {
-            //console.log(response)
-            this.partner = response.data as PartnerInterface ;
-            this.partnerService.updatePartnerService(this.partner);
-          }
-        },
-        error: () => {
-          this.router.navigate(['/']);
+    // One-shot session fetch — self-completes, no tracking needed.
+    this.partnerService.getPartner().subscribe({
+      next: (response) => {
+        if (response.success) {
+          //console.log(response)
+          this.partner = response.data as PartnerInterface ;
+          this.partnerService.updatePartnerService(this.partner);
         }
-      })
-    );
+      },
+      error: () => {
+        this.router.navigate(['/']);
+      }
+    });
   }
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
@@ -237,27 +237,20 @@ export class DashboardComponent implements OnDestroy {
     localStorage.clear();
     sessionStorage.clear();
   
-    // Call backend signOut API
-    this.subscriptions.push(
-      this.partnerAuthService.signOut({}).subscribe({
-        next: () => {
-          localStorage.removeItem('authToken'); // Remove token from localStorage
-          // Navigate to the login page
-          this.router.navigate(['/'], { replaceUrl: true });
-        },
-        error: () => {
-          //console.error('Error during sign out:', error);
-          this.router.navigate(['/'], { replaceUrl: true });
-        }
-      })
-    );
-  
-    this.scrollToTop();
-  }
-  
+    // Call backend signOut API (one-shot — self-completes).
+    this.partnerAuthService.signOut({}).subscribe({
+      next: () => {
+        localStorage.removeItem('authToken'); // Remove token from localStorage
+        // Navigate to the login page
+        this.router.navigate(['/'], { replaceUrl: true });
+      },
+      error: () => {
+        //console.error('Error during sign out:', error);
+        this.router.navigate(['/'], { replaceUrl: true });
+      }
+    });
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    this.scrollToTop();
   }
 
   toggleSubmenu(menu: SubmenuKey) {

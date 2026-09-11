@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookSessionComponent } from './book-session.component';
 import { ContactsInterface, ContactsService } from '../contacts.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,15 +22,15 @@ import { ActivatedRoute, Router } from '@angular/router';
   }
   `
 })
-export class BookSessionContainerComponent implements OnInit, OnDestroy {
+export class BookSessionContainerComponent implements OnInit {
 
   prospect!: ContactsInterface;
   prospectId!: string | null;
-  subscriptions: Subscription[] = [];
   partner!: PartnerInterface;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private route: ActivatedRoute,
     private contactsService: ContactsService,
     private partnerService: PartnerService,
@@ -37,34 +38,29 @@ export class BookSessionContainerComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.prospectId = params.get('id');
-      if (this.prospectId) {
+    // Route params are infinite; the lookup is one-shot — switchMap
+    // cancels the in-flight fetch on re-navigation instead of stacking.
+    this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter(params => params.get('id') !== null),
+      switchMap(params => {
+        this.prospectId = params.get('id');
         // Fetch prospect details using the ID
-        this.subscriptions.push(
-          this.contactsService.getProspectById(this.prospectId).subscribe({
-            next: (response) => {
-              this.prospect = response.data;
-            }
-            
-          })
-        )
+        return this.contactsService.getProspectById(this.prospectId as string);
+      })
+    ).subscribe({
+      next: (response) => {
+        this.prospect = response.data;
       }
     });
 
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
-        next: (partner: PartnerInterface) => {
-          this.partner = partner;
-        }
-      })
-    )
+    // get current signed in user (shared subject — tracked)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (partner: PartnerInterface) => {
+        this.partner = partner;
+      }
+    })
   }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-
 }
