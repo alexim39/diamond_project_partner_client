@@ -14,6 +14,7 @@ const KIND_META: Record<FeedKind, { label: string; color: string; text: string }
   inactive: { label: 'Inactive', color: '#ffecb3', text: '#7a5c00' },
   conversion: { label: 'Conversion', color: '#c8e6c9', text: '#1b5e20' },
   release: { label: 'Payout', color: '#e1bee7', text: '#4a148c' },
+  mention: { label: 'Mention', color: '#ffe0b2', text: '#7a4a00' },
 };
 
 /**
@@ -147,6 +148,7 @@ export class NotificationsCenterComponent implements OnInit {
     { label: 'Inactive', value: 'inactive' },
     { label: 'Conversions', value: 'conversion' },
     { label: 'Payouts', value: 'release' },
+    { label: 'Mentions', value: 'mention' },
   ];
 
   protected readonly filtered = computed(() => {

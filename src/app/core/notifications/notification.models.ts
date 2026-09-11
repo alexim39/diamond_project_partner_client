@@ -1,6 +1,6 @@
 import { ApiEnvelope } from '../../core/auth/auth.models';
 
-export type FeedKind = 'followup' | 'inactive' | 'conversion' | 'release';
+export type FeedKind = 'followup' | 'inactive' | 'conversion' | 'release' | 'mention';
 
 export interface FeedItem {
   id: string;
