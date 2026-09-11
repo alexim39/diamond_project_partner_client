@@ -224,6 +224,9 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .report-form { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
     .report-form h3 { margin: 0; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
+    @media only screen and (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); }
