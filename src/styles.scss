@@ -99,6 +99,11 @@ mat-sidenav-content > router-outlet + * {
   mat-sidenav-content > router-outlet + * {
     padding: 0 0.75em 2em;
   }
+  /* Denser data tables on small screens (new + legacy). */
+  .mat-mdc-table .mdc-data-table__header-cell,
+  .mat-mdc-table .mdc-data-table__cell {
+    padding: 0 8px;
+  }
 }
 
 /* Visible keyboard focus everywhere (WCAG 2.4.7). */

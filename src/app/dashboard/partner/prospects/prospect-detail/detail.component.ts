@@ -199,6 +199,9 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .detail-actions { display: flex; gap: 0.4em; flex-wrap: wrap; align-items: center; }
     .log-form { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
+    @media only screen and (max-width: 600px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
     .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .timeline-item { display: flex; gap: 0.8em; padding: 0.8em 1em; }
