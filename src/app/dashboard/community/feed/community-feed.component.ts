@@ -10,7 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { CommunityService } from '../../../core/community/community.service';
-import { AudienceScope, FeedComment, FeedPost, POST_KIND_LABELS, PostKind } from '../../../core/community/community.models';
+import { AudienceScope, DirectoryEntry, FeedComment, FeedPost, POST_KIND_LABELS, PostKind } from '../../../core/community/community.models';
 import { ApiError } from '../../../core/http/api-error';
 
 const KIND_STYLES: Record<PostKind, string> = {
@@ -88,8 +88,21 @@ const KIND_STYLES: Record<PostKind, string> = {
             <input matInput formControlName="title" maxlength="120" />
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>What is happening?</mat-label>
-            <textarea matInput rows="3" formControlName="body" maxlength="2000"></textarea>
+            <mat-label>What is happening? (type @ to mention)</mat-label>
+            <textarea matInput rows="3" formControlName="body" maxlength="2000" (input)="onComposerBodyInput($any($event.target).value)"></textarea>
+          </mat-form-field>
+          @if (mentionTarget() === 'post' && mentionSuggestions().length > 0) {
+            <div class="suggestions" role="listbox" aria-label="Mention suggestions">
+              @for (u of mentionSuggestions(); track u.username) {
+                <button type="button" mat-button (click)="insertMention(u.username)">
+                  <strong>{{ '@' + u.username }}</strong>&nbsp;<span class="muted">{{ u.name }}</span>
+                </button>
+              }
+            </div>
+          }
+          <mat-form-field appearance="outline">
+            <mat-label>Link (optional)</mat-label>
+            <input matInput formControlName="link" maxlength="500" placeholder="https://…" />
           </mat-form-field>
           <div class="form-actions">
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || publishing()">
@@ -119,7 +132,12 @@ const KIND_STYLES: Record<PostKind, string> = {
               @if (post.title) {
                 <strong>{{ post.title }}</strong>
               }
-              <p class="post-body">{{ post.body }}</p>
+              <div class="post-body">@for (seg of segments(post.body); track $index) {<span [class.mention]="seg.mention">{{ seg.text }}</span>}</div>
+              @if (post.link) {
+                <a class="link-row" [href]="post.link" target="_blank" rel="noopener">
+                  <mat-icon>link</mat-icon><span>{{ post.link }}</span>
+                </a>
+              }
               <div class="post-actions">
                 <button mat-button (click)="toggleLike(post)" [disabled]="actingId() === post.id" [color]="post.likedByMe ? 'primary' : undefined">
                   <mat-icon>{{ post.likedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
@@ -143,9 +161,13 @@ const KIND_STYLES: Record<PostKind, string> = {
                   @for (comment of comments(); track comment.id) {
                     <div class="comment" [class.comment--reply]="!!comment.parentId">
                       <strong>{{ comment.author?.name ?? 'Teammate' }}</strong>
-                      <p>{{ comment.body }}</p>
+                      <div class="comment-body">@for (seg of segments(comment.body); track $index) {<span [class.mention]="seg.mention">{{ seg.text }}</span>}</div>
                       <div class="comment-foot">
                         <span class="muted">{{ comment.createdAt | date:'short' }}</span>
+                        <button mat-button (click)="toggleCommentLike(comment)" [disabled]="actingId() === comment.id" [color]="comment.likedByMe ? 'primary' : undefined" [title]="comment.likedByMe ? 'Unlike' : 'Like'">
+                          <mat-icon>{{ comment.likedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
+                          {{ comment.likeCount }}
+                        </button>
                         <button mat-button (click)="replyTo.set({ postId: post.id, parentId: comment.parentId ?? comment.id, name: comment.author?.name ?? 'teammate' })">Reply</button>
                       </div>
                     </div>
@@ -155,11 +177,20 @@ const KIND_STYLES: Record<PostKind, string> = {
                   }
                   <div class="comment-box">
                     <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                      <mat-label>Write a comment…</mat-label>
-                      <input matInput [value]="draft()" (input)="draft.set($any($event.target).value)" maxlength="1000" (keydown.enter)="sendComment(post)" />
+                      <mat-label>Write a comment… (@ to mention)</mat-label>
+                      <input matInput [value]="draft()" (input)="onDraftInput($any($event.target).value)" maxlength="1000" (keydown.enter)="sendComment(post)" />
                     </mat-form-field>
                     <button mat-button (click)="sendComment(post)" [disabled]="!draft().trim() || sendingComment()">Send</button>
                   </div>
+                  @if (mentionTarget() === 'comment' && mentionSuggestions().length > 0 && openThread() === post.id) {
+                    <div class="suggestions" role="listbox" aria-label="Mention suggestions">
+                      @for (u of mentionSuggestions(); track u.username) {
+                        <button type="button" mat-button (click)="insertMention(u.username)">
+                          <strong>{{ '@' + u.username }}</strong>&nbsp;<span class="muted">{{ u.name }}</span>
+                        </button>
+                      }
+                    </div>
+                  }
                   @if (commentError(); as err) {
                     <span class="error" role="alert">{{ err }}</span>
                   }
@@ -193,6 +224,10 @@ const KIND_STYLES: Record<PostKind, string> = {
     .post-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .post-top mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-gold); }
     .post-body { white-space: pre-wrap; line-height: 1.6; }
+    .mention { color: var(--dp-gold-ink); font-weight: 700; }
+    .link-row { display: inline-flex; align-items: center; gap: 0.4em; color: var(--dp-gold-ink); font-size: 0.85em; word-break: break-all; }
+    .link-row mat-icon { font-size: 16px; height: 16px; width: 16px; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 0.25em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.4em; }
     .post-actions { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; }
     .post-actions .spacer { flex: 1; }
     .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--dp-line); padding-top: 0.75em; }
@@ -233,6 +268,9 @@ export class CommunityFeedComponent implements OnInit {
   protected readonly comments = signal<FeedComment[]>([]);
   protected readonly draft = signal('');
   protected readonly replyTo = signal<{ postId: string; parentId: string; name: string } | null>(null);
+  protected readonly mentionSuggestions = signal<DirectoryEntry[]>([]);
+  protected readonly mentionTarget = signal<'post' | 'comment' | null>(null);
+  private lastMentionQuery = '';
 
   protected readonly kinds: PostKind[] = ['standard', 'announcement', 'recognition', 'training', 'event'];
 
@@ -241,6 +279,7 @@ export class CommunityFeedComponent implements OnInit {
     scope: ['global' as AudienceScope, Validators.required],
     title: ['', Validators.maxLength(120)],
     body: ['', [Validators.required, Validators.maxLength(2000)]],
+    link: ['', Validators.maxLength(500)],
   });
 
   ngOnInit(): void {
@@ -253,6 +292,63 @@ export class CommunityFeedComponent implements OnInit {
 
   protected kindStyle(kind: PostKind): string {
     return KIND_STYLES[kind] ?? 'dp-status--info';
+  }
+
+  /** Split body into plain/mention runs for highlighted rendering. */
+  protected segments(text: string): Array<{ text: string; mention: boolean }> {
+    const parts = String(text ?? '').split(/(@[A-Za-z0-9_.]{2,40})/g);
+    return parts
+      .filter((p) => p.length > 0)
+      .map((p) => ({ text: p, mention: /^@[A-Za-z0-9_.]{2,40}$/.test(p) }));
+  }
+
+  protected onComposerBodyInput(value: string): void {
+    this.lookupMentions(value, 'post');
+  }
+
+  protected onDraftInput(value: string): void {
+    this.draft.set(value);
+    this.lookupMentions(value, 'comment');
+  }
+
+  /** Trailing @query → directory lookup (2+ chars, deduped). */
+  private lookupMentions(value: string, target: 'post' | 'comment'): void {
+    const m = String(value ?? '').match(/@([A-Za-z0-9_.]{2,40})$/);
+    const query = m ? m[1] : '';
+    if (!query || query === this.lastMentionQuery) {
+      if (!query) {
+        this.mentionSuggestions.set([]);
+        this.mentionTarget.set(null);
+      }
+      return;
+    }
+    this.lastMentionQuery = query;
+    this.community
+      .directory(query)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.mentionSuggestions.set(res.data ?? []);
+          this.mentionTarget.set(target);
+        },
+        error: () => {
+          this.mentionSuggestions.set([]);
+          this.mentionTarget.set(null);
+        },
+      });
+  }
+
+  protected insertMention(username: string): void {
+    const target = this.mentionTarget();
+    if (target === 'post') {
+      const current = this.form.getRawValue().body ?? '';
+      this.form.patchValue({ body: current.replace(/@[A-Za-z0-9_.]{2,40}$/, `@${username} `) });
+    } else if (target === 'comment') {
+      this.draft.set(this.draft().replace(/@[A-Za-z0-9_.]{2,40}$/, `@${username} `));
+    }
+    this.lastMentionQuery = '';
+    this.mentionSuggestions.set([]);
+    this.mentionTarget.set(null);
   }
 
   protected replyingToPost(): string | null {
@@ -310,13 +406,16 @@ export class CommunityFeedComponent implements OnInit {
     this.publishError.set(null);
     const v = this.form.getRawValue();
     this.community
-      .create({ kind: v.kind, title: v.title.trim(), body: v.body.trim(), scope: v.scope })
+      .create({ kind: v.kind, title: v.title.trim(), body: v.body.trim(), link: v.link.trim(), scope: v.scope })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.publishing.set(false);
           this.showCompose.set(false);
-          this.form.reset({ kind: 'standard', scope: 'global', title: '', body: '' });
+          this.form.reset({ kind: 'standard', scope: 'global', title: '', body: '', link: '' });
+          this.mentionSuggestions.set([]);
+          this.mentionTarget.set(null);
+          this.lastMentionQuery = '';
           // POST returns the raw row — normalize enrichment fields locally.
           if (res.data) {
             const fresh: FeedPost = {
@@ -348,6 +447,25 @@ export class CommunityFeedComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.error.set(err.message);
+        },
+      });
+  }
+
+  protected toggleCommentLike(comment: FeedComment): void {
+    this.actingId.set(comment.id);
+    this.community
+      .toggleCommentLike(comment.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.actingId.set(null);
+          this.comments.set(this.comments().map((c) => c.id === comment.id
+            ? { ...c, likedByMe: !c.likedByMe, likeCount: c.likeCount + (c.likedByMe ? -1 : 1) }
+            : c));
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.commentError.set(err.message);
         },
       });
   }
@@ -395,6 +513,9 @@ export class CommunityFeedComponent implements OnInit {
     this.replyTo.set(null);
     this.draft.set('');
     this.commentError.set(null);
+    this.mentionSuggestions.set([]);
+    this.mentionTarget.set(null);
+    this.lastMentionQuery = '';
     this.loadingComments.set(true);
     this.community
       .comments(post.id)
@@ -425,6 +546,9 @@ export class CommunityFeedComponent implements OnInit {
           this.sendingComment.set(false);
           this.draft.set('');
           this.replyTo.set(null);
+          this.mentionSuggestions.set([]);
+          this.mentionTarget.set(null);
+          this.lastMentionQuery = '';
           if (res.data) this.comments.set([...this.comments(), res.data as FeedComment]);
           this.posts.set(this.posts().map((p) => p.id === post.id ? { ...p, commentCount: p.commentCount + 1 } : p));
         },

@@ -27,6 +27,7 @@ export interface FeedPost {
   pinned: boolean;
   auto: boolean;
   createdAt: string;
+  mentions?: string[];
   author: DirectoryLabel | null;
   likeCount: number;
   commentCount: number;
@@ -41,9 +42,23 @@ export interface FeedComment {
   body: string;
   parentId: string | null;
   createdAt: string;
+  mentions?: string[];
   author: DirectoryLabel | null;
   likeCount: number;
   likedByMe: boolean;
+}
+
+export interface DirectoryEntry {
+  username: string;
+  name: string;
+}
+
+export interface DirectoryEnvelope extends ApiEnvelope<DirectoryEntry[]> {
+  data: DirectoryEntry[];
+}
+
+export interface ToggleEnvelope extends ApiEnvelope<{ liked: boolean; saved?: boolean }> {
+  data: { liked: boolean; saved?: boolean };
 }
 
 export interface FeedEnvelope extends ApiEnvelope<{ items: FeedPost[]; nextCursor: string | null; viewerLevel: string | null }> {

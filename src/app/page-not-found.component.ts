@@ -76,7 +76,7 @@ styles: [`
 }
 
 `],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
 <section class="page_404">
     <div class="four_zero_four_bg">

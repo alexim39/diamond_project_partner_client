@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
       </div>
     }
     `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     .overlay {
       position: fixed;

@@ -10,7 +10,7 @@ import { RouterModule } from '@angular/router';
       <img src="./img/plogo.png">
     </a>
   `,
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [`
     a {
       text-decoration: none;

@@ -23,7 +23,7 @@ import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, Ma
 </mat-dialog-actions>
 
   `,
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [MatDialogModule, MatButtonModule, MatDialogContent, MatDialogActions]
 })
 export class HelpDialogComponent {
