@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
 selector: 'async-profile-picture-upload',
@@ -53,8 +54,7 @@ styles: `
 })
 export class ProfilePictureUploadComponent {
     // Define API
-    apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run';
-    //apiURL = 'http://localhost:8080';
+    apiURL = environment.apiUrl;
 
   selectedFile: File | null = null;
   profilePictureUrl: string | ArrayBuffer | null = null;

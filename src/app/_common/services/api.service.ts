@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, Observable, retry, throwError } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  //public readonly baseUrl = 'https://diamondprojectapi-y6u04o8b.b4a.run';
-  public readonly baseUrl = 'http://localhost:3000'; // For local testing
+  /** Base URL comes from the Angular environment (dev/prod swapped at build). */
+  public readonly baseUrl = environment.apiUrl;
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('Service: An error occurred:', error);

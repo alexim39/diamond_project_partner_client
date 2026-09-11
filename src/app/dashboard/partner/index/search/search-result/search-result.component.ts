@@ -6,6 +6,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CommonModule } from '@angular/common';  
 import { Subscription } from 'rxjs';  
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
+import { environment } from '../../../../../../environments/environment';
 import { SearchService } from '../search.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,8 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
 })  
 export class SearchResultComponent implements OnInit, OnDestroy, OnChanges  {
   // Define API
-  //apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  apiURL = 'http://localhost:3000';
+  apiURL = environment.apiUrl;
 
     @Input() searchPartners!: PartnerInterface[];
     searchPartnersSimulate!: PartnerInterface[];

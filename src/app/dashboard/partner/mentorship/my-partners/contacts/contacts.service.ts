@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { environment } from '../../../../../../environments/environment';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { FormGroup } from '@angular/forms';
 
@@ -30,8 +31,8 @@ export interface codeData {
 @Injectable()
 export class ContactsService {
   // Define API
-  apiURL = 'https://diamondprojectapi-y6u04o8b.b4a.run/';
-  //apiURL = 'http://localhost:3000';
+  /** Base URL comes from the Angular environment (dev/prod swapped at build). */
+  apiURL = environment.apiUrl;
 
   
   constructor(private http: HttpClient) {}
