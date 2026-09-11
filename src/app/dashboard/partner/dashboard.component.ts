@@ -22,6 +22,8 @@ import { PartnerAuthService } from '../../auth/auth.service';
 import { NotificationBellComponent } from '../notifications/bell/notification-bell.component';
 import { NotificationStreamService } from '../../core/notifications/notification-stream.service';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TopProgressService } from '../../core/loading/top-progress.service';
 import type { MatDrawer } from '@angular/material/sidenav';
 
 /** Data-driven sidenav: groups → children → (optional) grandchildren. */
@@ -344,6 +346,14 @@ mat-sidenav-content {
   opacity: 0.92;
 }
 
+/* Ambient top progress — slim, non-blocking, sits under the topbar. */
+.top-progress {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 3px;
+}
+
 /* Mobile bottom tabs — max 5 primary destinations, thumb-friendly. */
 .mobile-tabs {
   position: fixed;
@@ -395,7 +405,7 @@ providers: [PartnerService, PartnerAuthService],
 imports: [
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule,
     MatListModule, MatIconModule, AsyncPipe, RouterModule, NotificationBellComponent,
-    CommonModule, LogoComponent, MatBadgeModule
+    CommonModule, LogoComponent, MatBadgeModule, MatProgressBarModule
     
 ],
 changeDetection: ChangeDetectionStrategy.Eager,
@@ -436,6 +446,8 @@ export class DashboardComponent {
 
   /** Live badge count — polling today, socket transport later. */
   protected readonly stream = inject(NotificationStreamService);
+  /** Ambient top progress bar — non-blocking, ref-counted. */
+  protected readonly progress = inject(TopProgressService);
 
   private readonly themes = inject(ThemeTogglerService);
   readonly theme = this.themes.theme;
