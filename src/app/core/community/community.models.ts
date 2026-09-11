@@ -33,6 +33,7 @@ export interface FeedPost {
   commentCount: number;
   likedByMe: boolean;
   savedByMe: boolean;
+  saveCount: number;
 }
 
 export interface FeedComment {
