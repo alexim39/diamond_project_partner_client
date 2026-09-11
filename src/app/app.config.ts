@@ -7,11 +7,15 @@ import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/ht
 import { loadingInterceptor } from './_common/services/loader/spinner-interceptor.service';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
+import { provideEchartsCore } from 'ngx-echarts';
+import { echarts } from './core/charts/echarts-setup';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideAnimationsAsync(),
     // Single HttpClient: cookie transport + spinner + normalized errors.
     provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, loadingInterceptor, apiErrorInterceptor])),
+    // ECharts core once (treeshaken); chart components use NgxEchartsDirective.
+    provideEchartsCore({ echarts }),
   ]
 };
