@@ -112,21 +112,21 @@ const KIND_META: Record<FeedKind, { label: string; color: string; text: string }
     .center-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
-    .urgent { color: #d32f2f; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .urgent { color: var(--dp-error); }
     .filters { display: flex; gap: 0.25em; flex-wrap: wrap; }
     .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
-    .feed-item { display: flex; gap: 0.9em; align-items: flex-start; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.9em 1em; }
-    .feed-item--urgent { border-left: 4px solid #d32f2f; }
+    .feed-item { display: flex; gap: 0.9em; align-items: flex-start; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; }
+    .feed-item--urgent { border-left: 4px solid var(--dp-error); }
     .feed-item mat-icon { margin-top: 0.1em; }
-    .feed-item mat-icon.warn { color: #d32f2f; }
+    .feed-item mat-icon.warn { color: var(--dp-error); }
     .feed-body { flex: 1; display: flex; flex-direction: column; gap: 0.3em; }
     .feed-body p { margin: 0; }
     .feed-title-row { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .feed-actions { display: flex; gap: 0.25em; }
-    .muted { color: #777; font-size: 0.85em; }
-    .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
+    .empty { color: var(--dp-muted); }
   `],
 })
 export class NotificationsCenterComponent implements OnInit {

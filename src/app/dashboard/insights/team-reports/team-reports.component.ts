@@ -215,19 +215,19 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .reports-page h3 { margin: 0.5em 0 0; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .head-actions { display: flex; gap: 0.25em; }
     .card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
-    .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.35em; }
+    .card { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.35em; }
     .card p { margin: 0; }
     .card-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
-    .report-form { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
+    .report-form { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
     .report-form h3 { margin: 0; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
-    .muted { color: #777; font-size: 0.85em; }
-    .error { color: #d32f2f; }
-    .empty { color: #666; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .error { color: var(--dp-error); }
+    .empty { color: var(--dp-muted); }
   `],
 })
 export class TeamReportsComponent implements OnInit {

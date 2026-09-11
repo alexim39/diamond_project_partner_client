@@ -202,11 +202,11 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .insights-page h3 { margin: 0.5em 0 0; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .window-field { width: 180px; }
     .action-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
-    .action-item { display: flex; gap: 0.9em; align-items: center; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.7em 1em; }
-    .action-item--high { border-left: 4px solid #d32f2f; }
+    .action-item { display: flex; gap: 0.9em; align-items: center; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.7em 1em; }
+    .action-item--high { border-left: 4px solid var(--dp-error); }
     .action-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; }
     .chart { width: 100%; }
     .chart--funnel { height: 320px; }
@@ -215,18 +215,18 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75em; }
     .stat-grid mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
     .stat-value { font-size: 1.5em; font-weight: 700; }
-    .stat-label { color: #666; font-size: 0.85em; }
+    .stat-label { color: var(--dp-muted); font-size: 0.85em; }
     .reco-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4em; }
-    .reco-list li { display: flex; gap: 0.5em; align-items: flex-start; color: #555; }
-    .reco-list mat-icon { color: #f9a825; font-size: 20px; height: 20px; width: 20px; }
-    .muted { color: #777; font-size: 0.85em; }
+    .reco-list li { display: flex; gap: 0.5em; align-items: flex-start; color: var(--dp-text); }
+    .reco-list mat-icon { color: var(--dp-gold); font-size: 20px; height: 20px; width: 20px; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
     .source-note { margin: -0.5em 0 0; }
     .exports { display: flex; gap: 0.25em; flex-wrap: wrap; align-items: center; }
     .goals-strip { margin: 0; }
     .goals-strip a { text-decoration: none; font-weight: 600; }
-    .behind { color: #d32f2f; }
-    .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .behind { color: var(--dp-error); }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
+    .empty { color: var(--dp-muted); }
   `],
 })
 export class InsightsOverviewComponent implements OnInit {

@@ -189,12 +189,12 @@ import { forkJoin } from 'rxjs';
     .pipeline-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .code-banner {
       display: flex; align-items: center; gap: 0.75em;
-      background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 0.75em 1em;
+      background: var(--dp-success-bg); border: 1px solid var(--dp-success); border-radius: 8px; padding: 0.75em 1em;
     }
-    .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: #fff; padding: 0.1em 0.5em; border-radius: 4px; }
+    .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: var(--dp-surface); padding: 0.1em 0.5em; border-radius: 4px; }
     .code-banner div { flex: 1; }
     .stage-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75em; }
     .stage-card {
@@ -213,11 +213,11 @@ import { forkJoin } from 'rxjs';
     .name-cell { font-weight: 600; text-transform: capitalize; }
     .name-link { text-decoration: none; color: inherit; }
     .name-link:hover { color: var(--dp-gold-ink); }
-    .stuck-badge { color: #b71c1c; font-size: 0.78em; font-weight: 600; margin-top: 0.25em; }
-    .muted { color: #777; font-size: 0.85em; }
+    .stuck-badge { color: var(--dp-error); font-size: 0.78em; font-weight: 600; margin-top: 0.25em; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }
-    .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
+    .empty { color: var(--dp-muted); }
     .total { margin: 0; }
   `],
 })
