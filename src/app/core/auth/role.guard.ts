@@ -1,7 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { of, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ProgressionService } from '../progression/progression.service';
 import { UserRole } from './auth.models';
 
 /**
@@ -24,3 +25,24 @@ export function requireRoleGuard(...roles: UserRole[]): CanActivateFn {
 
 /** Shorthand for the admin console. */
 export const adminGuard: CanActivateFn = requireRoleGuard('admin');
+
+/**
+ * Ladder-aware gate for G8 oversight. Admins pass on role; everyone else
+ * must hold ladder level `g8` (G8 is a journey level, not a user role).
+ * Fails closed to `/dashboard`.
+ */
+export const g8Guard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const progress = inject(ProgressionService);
+  const router = inject(Router);
+  return auth.resolve().pipe(
+    switchMap((ok) => {
+      if (!ok) return of(router.createUrlTree(['/']));
+      if (auth.isAdmin()) return of(true);
+      return progress.mine().pipe(
+        map((res) => (res.data?.level === 'g8' ? true : router.createUrlTree(['/dashboard']))),
+        catchError(() => of(router.createUrlTree(['/dashboard']))),
+      );
+    }),
+  );
+};
