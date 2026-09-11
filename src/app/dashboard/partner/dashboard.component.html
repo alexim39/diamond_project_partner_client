@@ -117,7 +117,10 @@
     }
 
     @if (progress.active()) {
-      <mat-progress-bar mode="indeterminate" class="top-progress" aria-label="Loading" />
+      <div class="top-loading" role="status" aria-live="polite">
+        <mat-progress-bar mode="indeterminate" class="top-progress" aria-hidden="true" />
+        <span class="top-loading-text">Loading…</span>
+      </div>
     }
 
     <!-- Add Content Here -->
