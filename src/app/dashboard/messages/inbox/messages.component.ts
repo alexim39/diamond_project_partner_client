@@ -171,20 +171,20 @@ type ComposeKind = 'direct' | 'announcement';
     .messages-page h3 { margin: 0.5em 0 0; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
-    .unread-count { color: #d32f2f; }
-    .compose-form { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .unread-count { color: var(--dp-error); }
+    .compose-form { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
     .message-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
-    .message-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.35em; }
-    .message-card--unread { border-left: 4px solid #3f51b5; }
+    .message-card { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.35em; }
+    .message-card--unread { border-left: 4px solid var(--dp-gold); }
     .message-card p { margin: 0; white-space: pre-wrap; }
     .message-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .message-actions { display: flex; gap: 0.25em; }
-    .muted { color: #777; font-size: 0.85em; }
-    .error { color: #d32f2f; }
-    .notice { color: #1b5e20; }
-    .empty { color: #666; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .error { color: var(--dp-error); }
+    .notice { color: var(--dp-success); }
+    .empty { color: var(--dp-muted); }
   `],
 })
 export class MessagesComponent implements OnInit {

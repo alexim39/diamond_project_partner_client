@@ -163,19 +163,19 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .goals-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
-    .done { color: #1b5e20; }
-    .behind { color: #d32f2f; }
-    .goal-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75em; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1em; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .done { color: var(--dp-success); }
+    .behind { color: var(--dp-error); }
+    .goal-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75em; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; grid-column: 1 / -1; }
     .goal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
-    .goal-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
-    .goal-card--complete { border-left: 4px solid #2e7d32; }
+    .goal-card { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .goal-card--complete { border-left: 4px solid var(--dp-success); }
     .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .goal-meta { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; font-size: 0.9em; }
-    .muted { color: #777; font-size: 0.85em; }
-    .error { color: #d32f2f; }
-    .empty { color: #666; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .error { color: var(--dp-error); }
+    .empty { color: var(--dp-muted); }
     .trends { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; }
     .trends h3 { margin: 0 0 0.75em; font-size: 1em; }
     .chart { height: 260px; width: 100%; }

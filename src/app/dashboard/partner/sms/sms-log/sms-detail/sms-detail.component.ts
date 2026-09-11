@@ -8,7 +8,6 @@ import { MatListModule } from '@angular/material/list';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { SMSService } from '../../sms.service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 /**
  * @title SMS Details Dialog
@@ -61,16 +60,16 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
     subscriptions: Array<Subscription> = [];
     readonly dialogRef = inject(MatDialogRef<SMSDetailDialogComponent>);
 
-    safeHtmlSmsBody!: SafeHtml;
+    // Angular sanitizes [innerHTML] by default — no bypass (stored-XSS safe).
+    safeHtmlSmsBody = '';
 
     constructor(
-        private sms: SMSService,
-        private sanitizer: DomSanitizer
+        private sms: SMSService
     ) { }
 
     ngOnInit(): void {
         //console.log(this.data)
-        this.safeHtmlSmsBody = this.sanitizer.bypassSecurityTrustHtml(this.data.smsBody);
+        this.safeHtmlSmsBody = String(this.data?.smsBody ?? '');
     }
 
     close(): void {

@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { EmailService } from '../../email.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -62,16 +61,16 @@ export class EmailDetailDialogComponent implements OnDestroy, OnInit {
     subscriptions: Array<Subscription> = [];
     readonly dialogRef = inject(MatDialogRef<EmailDetailDialogComponent>);
 
-    safeHtmlEmailBody!: SafeHtml;
+    // Angular sanitizes [innerHTML] by default — no bypass (stored-XSS safe).
+    safeHtmlEmailBody = '';
 
     constructor(
-        private email: EmailService,
-        private sanitizer: DomSanitizer
+        private email: EmailService
     ) { }
 
     ngOnInit(): void {
         //console.log(this.data)
-        this.safeHtmlEmailBody = this.sanitizer.bypassSecurityTrustHtml(this.data.emailBody);
+        this.safeHtmlEmailBody = String(this.data?.emailBody ?? '');
     }
 
     close(): void {
