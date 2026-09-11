@@ -1,8 +1,6 @@
 import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
-import { DashboardIndexComponent } from "./index/index.component";
 import { HomeComponent } from "../home/home.component";
-import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
 import { authGuard } from "../../core/auth/auth.guard";
 
 
@@ -21,18 +19,11 @@ export const dashboardRoutes: Routes = [
                 component: HomeComponent,
                 title: "Dashboard - Your business command center",
             },
-            {
-                path: 'classic',
-                component: DashboardIndexComponent,
-                children: [
-                    {   path: 'search',
-                        component: SearchResultContainerComponent,
-                        title: "Partners Search - Partners result details"
-                    },
-                ]
-            },
-            // Legacy absolute navigations to `dashboard/search` keep working.
-            { path: 'search', redirectTo: 'classic/search', pathMatch: 'full' },
+            // Classic dashboard retired (mock announcements, all-users
+            // preload search, static banner). Global find-anyone lives in
+            // the team Directory now — legacy search links land there.
+            { path: 'classic', redirectTo: '/dashboard/mentorship/partners/my-partners', pathMatch: 'full' },
+            { path: 'search', redirectTo: '/dashboard/mentorship/partners/my-partners', pathMatch: 'full' },
 
             { path: 'settings', loadChildren: () => import('./settings/settings.routes').then(r => r.SettingsRoutes) }, 
             { path: 'resources', loadChildren: () => import('./resources/resources.routes').then(r => r.RourcesRoutes) }, 
