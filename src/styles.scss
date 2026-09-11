@@ -47,6 +47,7 @@ $dp-dark-theme: mat.define-theme(
   --dp-line: #e4ddcd;
   --dp-sidenav: #111111;
   --dp-sidenav-text: #f3ecdd;
+  --dp-nav-icon: #d9b36a;
   --dp-success: #1b5e20;
   --dp-success-bg: #c8e6c9;
   --dp-warning: #7a5c00;
@@ -71,6 +72,7 @@ html[data-theme="dark"] {
   --dp-line: #38342c;
   --dp-sidenav: #0b0a09;
   --dp-sidenav-text: #f3ecdd;
+  --dp-nav-icon: #d9b36a;
   --dp-gold-soft: #2c2417;
   --dp-gold-ink: #d9b36a;
   --dp-success-bg: #1d3a24;
@@ -127,6 +129,34 @@ body {
     width: 44px;
     height: 44px;
   }
+}
+
+/* Sidenav profile block sits on the ink sidenav in both themes, but the
+ * legacy profile component paints theme on-surface text — force the whole
+ * subtree to sidenav-text so names/roles are never invisible. */
+.sidenav-profile,
+.sidenav-profile p,
+.sidenav-profile span,
+.sidenav-profile div,
+.sidenav-profile h1,
+.sidenav-profile h2,
+.sidenav-profile h3,
+.sidenav-profile h4,
+.sidenav-profile small,
+.sidenav-profile a {
+  color: var(--dp-sidenav-text) !important;
+}
+
+/* Notification dropdown: MDC caps menu panels at 280px, which cut our
+ * 300px+ panel and forced a horizontal scrollbar. Widen the panel and
+ * lock horizontal overflow — content wraps instead of hiding. */
+.notif-menu-panel {
+  max-width: min(94vw, 400px) !important;
+}
+.notif-menu-panel .mat-mdc-menu-content {
+  max-width: 100%;
+  overflow-x: hidden !important;
+  padding: 0 !important;
 }
 
 /* Brand utilities for feature pages (both themes). */
