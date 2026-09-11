@@ -139,16 +139,17 @@ const KIND_STYLES: Record<PostKind, string> = {
                 </a>
               }
               <div class="post-actions">
-                <button mat-button (click)="toggleLike(post)" [disabled]="actingId() === post.id" [color]="post.likedByMe ? 'primary' : undefined">
+                <button mat-button (click)="toggleLike(post)" [disabled]="actingId() === post.id" [color]="post.likedByMe ? 'primary' : undefined" [title]="post.likedByMe ? 'Unlike' : 'Like'">
                   <mat-icon>{{ post.likedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
-                  {{ post.likeCount }}
+                  {{ post.likeCount ?? 0 }}
                 </button>
-                <button mat-button (click)="toggleComments(post)">
+                <button mat-button (click)="toggleComments(post)" title="Comments">
                   <mat-icon>comment</mat-icon>
-                  {{ post.commentCount }}
+                  {{ post.commentCount ?? 0 }}
                 </button>
-                <button mat-button (click)="toggleSave(post)" [disabled]="actingId() === post.id">
+                <button mat-button (click)="toggleSave(post)" [disabled]="actingId() === post.id" [title]="post.savedByMe ? 'Unsave' : 'Save'">
                   <mat-icon>{{ post.savedByMe ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+                  {{ post.saveCount ?? 0 }}
                 </button>
                 <span class="spacer"></span>
                 <button mat-button (click)="report(post)" [disabled]="actingId() === post.id" title="Hide this post">Hide</button>
@@ -166,7 +167,7 @@ const KIND_STYLES: Record<PostKind, string> = {
                         <span class="muted">{{ comment.createdAt | date:'short' }}</span>
                         <button mat-button (click)="toggleCommentLike(comment)" [disabled]="actingId() === comment.id" [color]="comment.likedByMe ? 'primary' : undefined" [title]="comment.likedByMe ? 'Unlike' : 'Like'">
                           <mat-icon>{{ comment.likedByMe ? 'favorite' : 'favorite_border' }}</mat-icon>
-                          {{ comment.likeCount }}
+                          {{ comment.likeCount ?? 0 }}
                         </button>
                         <button mat-button (click)="replyTo.set({ postId: post.id, parentId: comment.parentId ?? comment.id, name: comment.author?.name ?? 'teammate' })">Reply</button>
                       </div>
@@ -420,7 +421,7 @@ export class CommunityFeedComponent implements OnInit {
           if (res.data) {
             const fresh: FeedPost = {
               ...(res.data as object) as FeedPost,
-              author: null, likeCount: 0, commentCount: 0, likedByMe: false, savedByMe: false,
+              author: null, likeCount: 0, commentCount: 0, likedByMe: false, savedByMe: false, saveCount: 0,
             };
             this.posts.set([fresh, ...this.posts()]);
           }
@@ -441,7 +442,7 @@ export class CommunityFeedComponent implements OnInit {
         next: () => {
           this.actingId.set(null);
           this.posts.set(this.posts().map((p) => p.id === post.id
-            ? { ...p, likedByMe: !p.likedByMe, likeCount: p.likeCount + (p.likedByMe ? -1 : 1) }
+            ? { ...p, likedByMe: !p.likedByMe, likeCount: (p.likeCount ?? 0) + (p.likedByMe ? -1 : 1) }
             : p));
         },
         error: (err: ApiError) => {
@@ -460,7 +461,7 @@ export class CommunityFeedComponent implements OnInit {
         next: () => {
           this.actingId.set(null);
           this.comments.set(this.comments().map((c) => c.id === comment.id
-            ? { ...c, likedByMe: !c.likedByMe, likeCount: c.likeCount + (c.likedByMe ? -1 : 1) }
+            ? { ...c, likedByMe: !c.likedByMe, likeCount: (c.likeCount ?? 0) + (c.likedByMe ? -1 : 1) }
             : c));
         },
         error: (err: ApiError) => {
@@ -478,7 +479,9 @@ export class CommunityFeedComponent implements OnInit {
       .subscribe({
         next: () => {
           this.actingId.set(null);
-          this.posts.set(this.posts().map((p) => p.id === post.id ? { ...p, savedByMe: !p.savedByMe } : p));
+          this.posts.set(this.posts().map((p) => p.id === post.id
+            ? { ...p, savedByMe: !p.savedByMe, saveCount: (p.saveCount ?? 0) + (p.savedByMe ? -1 : 1) }
+            : p));
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
