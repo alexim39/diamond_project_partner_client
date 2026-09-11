@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { NotificationService } from '../../../core/notifications/notification.service';
 import {
@@ -54,12 +54,13 @@ const GROUP_LABELS: Record<GroupKey, string> = {
 interface DayBucket { label: string; items: StoredNotificationItem[]; }
 
 /**
- * @title Notifications center — unified stored + derived list.
+ * @title Notification Center — the single standard surface.
  *
- * Stored announcements (goals, training, promotions, system…) and derived
- * action items (follow-ups, payouts, conversions, mentions) in one list:
- * urgent first, then newest-first day buckets. Read / archive / delete /
- * mute-category, unread toggle, search, group filters. OnPush + signals.
+ * Urgent-first hero, sticky filter/search toolbar, newest-first day
+ * buckets with cursor pagination ("Load more" = history), inline detail
+ * panel with contextual actions (open / archive / delete / mute / mark
+ * unread), bulk read/archive/delete, click beacon for engagement
+ * analytics, and touch-swipe quick actions. OnPush + signals.
  */
 @Component({
   selector: 'async-notifications-center',
@@ -74,31 +75,43 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
     </section>
 
     <section class="center-page">
-      <div class="page-head">
-        <div>
+      <header class="hero">
+        <div class="hero-text">
           <h2>Notifications</h2>
           <p class="subtitle">
             @if (urgent().length > 0) {
               <strong class="urgent">{{ urgent().length }} need action now.</strong>
+              <span class="next-step">Start at the top — each one tells you what to do next.</span>
             } @else {
               You're all caught up on urgent items.
             }
           </p>
+          @if (statsLine(); as stats) {
+            <p class="stats-line">{{ stats }}</p>
+          }
         </div>
-        <div class="head-actions">
+        <div class="hero-actions">
           @if (all().length > 0) {
             <button mat-button (click)="markAllRead()" [disabled]="markingAll() || loading()">
-              Mark all as read
+              Mark all read
             </button>
             <button mat-button (click)="archiveAll()" [disabled]="markingAll() || loading()">
               Archive all
             </button>
+            @if (confirmBulkDelete()) {
+              <button mat-button color="warn" (click)="deleteAll()" [disabled]="markingAll() || loading()">
+                Confirm delete all
+              </button>
+              <button mat-button (click)="confirmBulkDelete.set(false)">Cancel</button>
+            } @else {
+              <button mat-button (click)="confirmBulkDelete.set(true)">Delete all</button>
+            }
           }
-          <a mat-button routerLink="/dashboard/notifications/preferences">Notification settings</a>
+          <a mat-button routerLink="/dashboard/notifications/preferences">Settings</a>
         </div>
-      </div>
+      </header>
 
-      <div class="controls">
+      <div class="toolbar">
         <input
           type="search"
           class="search"
@@ -114,15 +127,16 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
           [attr.aria-pressed]="unreadOnly()"
           (click)="toggleUnread()"
         >{{ unreadOnly() ? 'Unread ✓' : 'Unread' }}</button>
-      </div>
-
-      <div class="filters" role="group" aria-label="Filter by group">
-        <button mat-button [color]="!groupFilter() ? 'primary' : undefined" (click)="setGroup(null)">All</button>
-        @for (g of groupKeys; track g) {
-          <button mat-button [color]="groupFilter() === g ? 'primary' : undefined" (click)="setGroup(g)">
-            {{ groupLabel(g) }}
+        <div class="filters" role="group" aria-label="Filter by group">
+          <button mat-button [color]="!groupFilter() ? 'primary' : undefined" (click)="setGroup(null)">
+            All @if (all().length > 0) { ({{ all().length }}) }
           </button>
-        }
+          @for (g of groupKeys; track g) {
+            <button mat-button [color]="groupFilter() === g ? 'primary' : undefined" (click)="setGroup(g)">
+              {{ groupLabel(g) }} ({{ groupCount()(g) }})
+            </button>
+          }
+        </div>
       </div>
 
       @if (loading()) {
@@ -141,10 +155,17 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
       }
 
       @if (urgent().length > 0) {
-        <h3 class="group-head">Needs action now</h3>
+        <h3 class="group-head">Needs action now <span class="count">{{ urgent().length }}</span></h3>
         <ul class="feed">
           @for (item of urgent(); track item.id) {
-            <li class="feed-item feed-item--urgent" [class.feed-item--read]="item.read">
+            <li
+              class="feed-item feed-item--urgent"
+              [class.feed-item--read]="item.read"
+              [class.feed-item--swiped]="swipedId() === item.id"
+              (touchstart)="onTouchStart($event)"
+              (touchend)="onTouchEnd($event, item)"
+            >
+              @if (!item.read) { <span class="unread-dot" aria-hidden="true"></span> }
               <mat-icon class="warn">{{ item.icon }}</mat-icon>
               <div class="feed-body">
                 <div class="feed-title-row">
@@ -156,10 +177,14 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                     <mat-chip class="prio" highlighted>{{ item.priority }}</mat-chip>
                   }
                 </div>
-                <p class="muted">{{ item.body }} · {{ item.tag }}</p>
+                <p class="muted">{{ item.body }} · {{ item.tag }} · {{ timeAgo(item.at) }}</p>
                 <div class="feed-actions">
                   @if (item.link) {
-                    <a mat-button [routerLink]="item.link">Open</a>
+                    @if (item.origin === 'stored') {
+                      <button mat-button (click)="openStored(item)">Open</button>
+                    } @else {
+                      <a mat-button [routerLink]="item.link">Open</a>
+                    }
                   }
                   <button mat-button (click)="toggleDetail(item.id)">
                     {{ expandedId() === item.id ? 'Hide details' : 'Details' }}
@@ -176,6 +201,9 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                     <p class="muted">{{ categoryLabel(item.kind) }} · {{ item.at }}</p>
                     @if (item.origin === 'stored') {
                       <div class="feed-actions">
+                        <button mat-button (click)="markUnread(item)" [disabled]="busyId() === item.id">
+                          Mark unread
+                        </button>
                         <button mat-button (click)="muteCategory(item)" [disabled]="busyId() === item.id">
                           Mute these
                         </button>
@@ -192,6 +220,14 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                   </div>
                 }
               </div>
+              <div class="swipe-actions" aria-hidden="true">
+                @if (item.origin === 'stored') {
+                  <button mat-button (click)="archiveStored(item.id)">Archive</button>
+                  <button mat-button color="warn" (click)="deleteStored(item.id)">Delete</button>
+                } @else {
+                  <button mat-button (click)="dismiss(item.id)">Dismiss</button>
+                }
+              </div>
             </li>
           }
         </ul>
@@ -199,10 +235,18 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
 
       @if (buckets().length > 0) {
         @for (bucket of buckets(); track bucket.label) {
-          <h3 class="group-head">{{ bucket.label }}</h3>
+          <h3 class="group-head">{{ bucket.label }} <span class="count">{{ bucket.items.length }}</span></h3>
           <ul class="feed">
             @for (item of bucket.items; track item.id) {
-              <li class="feed-item" [class.feed-item--urgent]="item.urgency && !item.read" [class.feed-item--read]="item.read">
+              <li
+                class="feed-item"
+                [class.feed-item--urgent]="item.urgency && !item.read"
+                [class.feed-item--read]="item.read"
+                [class.feed-item--swiped]="swipedId() === item.id"
+                (touchstart)="onTouchStart($event)"
+                (touchend)="onTouchEnd($event, item)"
+              >
+                @if (!item.read) { <span class="unread-dot" aria-hidden="true"></span> }
                 <mat-icon [class.warn]="item.urgency && !item.read">{{ item.icon }}</mat-icon>
                 <div class="feed-body">
                   <div class="feed-title-row">
@@ -211,10 +255,14 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                       {{ chip(item.kind).label }}
                     </mat-chip>
                   </div>
-                  <p class="muted">{{ item.body }} · {{ item.tag }}</p>
+                  <p class="muted">{{ item.body }} · {{ item.tag }} · {{ timeAgo(item.at) }}</p>
                   <div class="feed-actions">
                     @if (item.link) {
-                      <a mat-button [routerLink]="item.link">Open</a>
+                      @if (item.origin === 'stored') {
+                        <button mat-button (click)="openStored(item)">Open</button>
+                      } @else {
+                        <a mat-button [routerLink]="item.link">Open</a>
+                      }
                     }
                     <button mat-button (click)="toggleDetail(item.id)">
                       {{ expandedId() === item.id ? 'Hide details' : 'Details' }}
@@ -231,6 +279,9 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                       <p class="muted">{{ categoryLabel(item.kind) }} · {{ item.at }}</p>
                       @if (item.origin === 'stored') {
                         <div class="feed-actions">
+                          <button mat-button (click)="markUnread(item)" [disabled]="busyId() === item.id">
+                            Mark unread
+                          </button>
                           <button mat-button (click)="muteCategory(item)" [disabled]="busyId() === item.id">
                             Mute these
                           </button>
@@ -245,76 +296,133 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                         </div>
                       }
                     </div>
-                    }
-                  </div>
-                </li>
-              }
-            </ul>
-          }
-          @if (hasMore()) {
-            <p class="muted">Showing the first 50 — search or filter to narrow down.</p>
-          }
-          <p class="muted">{{ all().length }} notifications</p>
-        } @else if (!loading() && !error()) {
-          <p class="empty">
+                  }
+                </div>
+                <div class="swipe-actions" aria-hidden="true">
+                  @if (item.origin === 'stored') {
+                    <button mat-button (click)="archiveStored(item.id)">Archive</button>
+                    <button mat-button color="warn" (click)="deleteStored(item.id)">Delete</button>
+                  } @else {
+                    <button mat-button (click)="dismiss(item.id)">Dismiss</button>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+        @if (hasMore()) {
+          <button mat-button class="load-more" (click)="loadMore()" [disabled]="loadingMore() || loading()">
+            {{ loadingMore() ? 'Loading…' : 'Load older notifications' }}
+          </button>
+        }
+        <p class="muted">Showing {{ all().length }} notifications</p>
+      } @else if (!loading() && !error()) {
+        <div class="empty-card">
+          <mat-icon>inbox</mat-icon>
+          <p>
             @if (unreadOnly()) {
               You're all caught up — nothing unread.
             } @else {
-              Nothing here — follow-ups, payouts, goals and team news will land in this feed.
+              Nothing here yet — follow-ups, payouts, goals and team news will land in this feed.
             }
           </p>
-        }
-      </section>
+          <a mat-button routerLink="/dashboard">Back to dashboard</a>
+        </div>
+      }
+    </section>
   `,
   styles: [`
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
     .center-page { display: flex; flex-direction: column; gap: 1.25em; }
-    .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
-    .page-head h2 { margin: 0; }
-    .head-actions { display: flex; gap: 0.25em; flex-wrap: wrap; align-items: center; }
-    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .hero {
+      display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1em;
+      background: linear-gradient(135deg, var(--dp-surface) 0%, var(--dp-surface) 70%, color-mix(in srgb, var(--dp-gold, #a97f2c) 12%, var(--dp-surface)) 100%);
+      border: 1px solid var(--dp-line); border-radius: 14px; padding: 1.1em 1.25em;
+    }
+    .hero h2 { margin: 0; font-size: 1.4em; letter-spacing: 0.01em; }
+    .subtitle { margin: 0.3em 0 0; color: var(--dp-muted); }
+    .next-step { display: block; margin-top: 0.2em; font-size: 0.9em; }
     .urgent { color: var(--dp-error); }
-    .controls { display: flex; gap: 0.5em; flex-wrap: wrap; align-items: center; }
+    .stats-line { margin: 0.4em 0 0; font-size: 0.85em; color: var(--dp-muted); }
+    .hero-actions { display: flex; gap: 0.25em; flex-wrap: wrap; align-items: center; }
+    .hero-actions button, .hero-actions a { min-height: 44px; }
+    .toolbar {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; gap: 0.5em; flex-wrap: wrap; align-items: center;
+      background: var(--dp-paper); padding: 0.6em 0;
+    }
     .search { flex: 1 1 220px; min-height: 44px; padding: 0 0.9em; border-radius: 8px; border: 1px solid var(--dp-line); background: var(--dp-surface); color: inherit; font: inherit; }
     .filters { display: flex; gap: 0.25em; flex-wrap: wrap; }
-    .group-head { margin: 0.5em 0 0; font-size: 1em; }
+    .filters button { min-height: 44px; }
+    .group-head { margin: 0.5em 0 0; font-size: 1em; display: flex; align-items: center; gap: 0.5em; }
+    .count { font-size: 0.75em; font-weight: 600; color: var(--dp-muted); background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 999px; padding: 0.1em 0.6em; }
     .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
-    .feed-item { display: flex; gap: 0.9em; align-items: flex-start; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; }
+    .feed-item {
+      position: relative; display: flex; gap: 0.9em; align-items: flex-start; overflow: hidden;
+      background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 12px; padding: 0.9em 1em;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .feed-item:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
     .feed-item--urgent { border-left: 4px solid var(--dp-error); }
-    .feed-item--read { opacity: 0.65; }
+    .feed-item--read { opacity: 0.68; }
     .feed-item mat-icon { margin-top: 0.1em; }
     .feed-item mat-icon.warn { color: var(--dp-error); }
+    .unread-dot { flex: none; width: 9px; height: 9px; margin-top: 0.55em; border-radius: 50%; background: var(--dp-gold, #a97f2c); }
     .feed-body { flex: 1; display: flex; flex-direction: column; gap: 0.3em; min-width: 0; }
     .feed-body p { margin: 0; }
     .feed-title-row { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .prio { text-transform: capitalize; }
     .feed-actions { display: flex; gap: 0.25em; flex-wrap: wrap; }
+    .feed-actions button, .feed-actions a { min-height: 44px; }
     .detail { border-top: 1px dashed var(--dp-line); padding-top: 0.6em; display: flex; flex-direction: column; gap: 0.4em; }
+    .swipe-actions { display: none; position: absolute; right: 0; top: 0; bottom: 0; align-items: stretch; background: var(--dp-surface); border-left: 1px solid var(--dp-line); }
+    .swipe-actions button { min-width: 76px; min-height: 100%; border-radius: 0; }
+    .feed-item--swiped .swipe-actions { display: flex; }
+    .load-more { align-self: center; min-height: 44px; margin-top: 0.5em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .notice { color: var(--dp-success, #2e7d32); display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: var(--dp-muted); }
+    .empty-card {
+      display: flex; flex-direction: column; align-items: center; gap: 0.6em; text-align: center;
+      background: var(--dp-surface); border: 1px dashed var(--dp-line); border-radius: 14px; padding: 2.5em 1.5em;
+      color: var(--dp-muted);
+    }
+    .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
+    .empty-card p { margin: 0; max-width: 34em; }
+    @media (max-width: 640px) {
+      .hero { padding: 0.9em 1em; }
+      .feed-item { padding: 0.8em 0.9em; }
+      .feed-actions button, .feed-actions a { min-height: 48px; }
+    }
   `],
 })
 export class NotificationsCenterComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
+  protected readonly loadingMore = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly stored = signal<StoredNotificationItem[]>([]);
   protected readonly derived = signal<StoredNotificationItem[]>([]);
   protected readonly hasMore = signal(false);
+  protected readonly cursor = signal<string | null>(null);
   protected readonly prefs = signal<NotificationPreferences | null>(null);
+  protected readonly statsLine = signal<string | null>(null);
   protected readonly unreadOnly = signal(false);
   protected readonly groupFilter = signal<GroupKey | null>(null);
   protected readonly search = signal('');
   protected readonly expandedId = signal<string | null>(null);
+  protected readonly swipedId = signal<string | null>(null);
   protected readonly busyId = signal<string | null>(null);
   protected readonly confirmDeleteId = signal<string | null>(null);
+  protected readonly confirmBulkDelete = signal(false);
   protected readonly markingAll = signal(false);
+
+  private touchStartX: number | null = null;
 
   protected readonly groupKeys: GroupKey[] = ['prospects', 'community', 'training', 'goals', 'team', 'commissions', 'system'];
 
@@ -324,6 +432,16 @@ export class NotificationsCenterComponent implements OnInit {
       .filter((i) => !group || GROUP_OF[i.kind] === group)
       .sort((a, b) => +new Date(b.at) - +new Date(a.at));
     return both;
+  });
+
+  protected readonly groupCount = computed(() => {
+    const counts = {} as Record<GroupKey, number>;
+    for (const g of this.groupKeys) counts[g] = 0;
+    for (const i of [...this.stored(), ...this.derived()]) {
+      const g = GROUP_OF[i.kind];
+      if (g) counts[g] += 1;
+    }
+    return (g: GroupKey) => counts[g] ?? 0;
   });
 
   protected readonly urgent = computed(() => this.all().filter((i) => i.urgency && !i.read));
@@ -353,6 +471,18 @@ export class NotificationsCenterComponent implements OnInit {
     this.reload();
   }
 
+  protected timeAgo(iso: string): string {
+    const mins = Math.max(0, Math.round((Date.now() - +new Date(iso)) / 60000));
+    if (!Number.isFinite(mins)) return '';
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(iso).toLocaleDateString();
+  }
+
   protected onSearch(event: Event): void {
     this.search.set((event.target as HTMLInputElement).value);
   }
@@ -375,12 +505,26 @@ export class NotificationsCenterComponent implements OnInit {
   }
 
   protected toggleDetail(id: string): void {
+    this.swipedId.set(null);
     this.expandedId.update((cur) => (cur === id ? null : id));
+  }
+
+  protected onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0]?.clientX ?? null;
+  }
+
+  protected onTouchEnd(event: TouchEvent, item: StoredNotificationItem): void {
+    if (this.touchStartX === null) return;
+    const dx = (event.changedTouches[0]?.clientX ?? this.touchStartX) - this.touchStartX;
+    this.touchStartX = null;
+    if (dx <= -60) this.swipedId.set(item.id);
+    else if (dx >= 24) this.swipedId.set(null);
   }
 
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.cursor.set(null);
     const params: { unread?: boolean; q?: string; limit?: number } = { limit: 50 };
     if (this.unreadOnly()) params.unread = true;
     if (this.search().trim()) params.q = this.search().trim();
@@ -388,9 +532,11 @@ export class NotificationsCenterComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ list, prefs }) => {
-          this.stored.set(list.data?.stored ?? []);
+          const stored = list.data?.stored ?? [];
+          this.stored.set(stored);
           this.derived.set(list.data?.derived ?? []);
           this.hasMore.set(list.data?.hasMore ?? false);
+          this.cursor.set(stored.length > 0 ? stored[stored.length - 1].id : null);
           this.prefs.set(prefs.data ?? null);
           this.loading.set(false);
         },
@@ -399,10 +545,67 @@ export class NotificationsCenterComponent implements OnInit {
           this.loading.set(false);
         },
       });
+    this.notifications
+      .stats(30)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const t = res.data?.totals;
+          if (t && t.sent > 0) {
+            this.statsLine.set(`Last 30 days: ${t.readRate}% read · ${t.clickRate}% clicked across ${t.sent} updates.`);
+          }
+        },
+        error: () => { /* stats never block the feed */ },
+      });
+  }
+
+  protected loadMore(): void {
+    const cursor = this.cursor();
+    if (!cursor || this.loadingMore() || this.loading()) return;
+    this.loadingMore.set(true);
+    this.error.set(null);
+    const params: { unread?: boolean; q?: string; cursor?: string; limit?: number } = { limit: 50, cursor };
+    if (this.unreadOnly()) params.unread = true;
+    if (this.search().trim()) params.q = this.search().trim();
+    this.notifications
+      .list(params)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const page = res.data?.stored ?? [];
+          const next = [...this.stored(), ...page.filter((p) => !this.stored().some((s) => s.id === p.id))];
+          this.stored.set(next);
+          this.hasMore.set(res.data?.hasMore ?? false);
+          this.cursor.set(next.length > 0 ? next[next.length - 1].id : null);
+          this.loadingMore.set(false);
+        },
+        error: (err: ApiError) => {
+          this.error.set(err.message);
+          this.loadingMore.set(false);
+        },
+      });
   }
 
   protected chip(kind: string): { label: string; color: string; text: string } {
     return KIND_META[kind] ?? { label: kind, color: '#e0e0e0', text: '#424242' };
+  }
+
+  /** Stored open: click beacon first (engagement analytics), then navigate. */
+  protected openStored(item: StoredNotificationItem): void {
+    if (!item.link) return;
+    const link = item.link;
+    this.notifications
+      .recordOpen(item.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.stored.set(this.stored().map((s) => (s.id === item.id ? { ...s, read: true } : s)));
+          void this.router.navigateByUrl(link);
+        },
+        error: () => {
+          void this.router.navigateByUrl(link);
+        },
+      });
   }
 
   /** Derived (computed) items dismiss through the legacy read endpoint. */
@@ -414,6 +617,7 @@ export class NotificationsCenterComponent implements OnInit {
       .subscribe({
         next: () => {
           this.busyId.set(null);
+          this.swipedId.set(null);
           this.derived.set(this.derived().filter((i) => i.id !== id));
         },
         error: (err: ApiError) => {
@@ -476,6 +680,25 @@ export class NotificationsCenterComponent implements OnInit {
       });
   }
 
+  protected deleteAll(): void {
+    if (this.all().length === 0) return;
+    this.markingAll.set(true);
+    this.notifications
+      .bulk('delete-all')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.markingAll.set(false);
+          this.confirmBulkDelete.set(false);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.markingAll.set(false);
+          this.error.set(err.message);
+        },
+      });
+  }
+
   protected archiveStored(id: string): void {
     this.busyId.set(id);
     this.notifications
@@ -484,7 +707,25 @@ export class NotificationsCenterComponent implements OnInit {
       .subscribe({
         next: () => {
           this.busyId.set(null);
+          this.swipedId.set(null);
           this.stored.set(this.stored().filter((i) => i.id !== id));
+        },
+        error: (err: ApiError) => {
+          this.busyId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected markUnread(item: StoredNotificationItem): void {
+    this.busyId.set(item.id);
+    this.notifications
+      .markStoredUnread(item.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.busyId.set(null);
+          this.stored.set(this.stored().map((s) => (s.id === item.id ? { ...s, read: false } : s)));
         },
         error: (err: ApiError) => {
           this.busyId.set(null);
@@ -502,6 +743,7 @@ export class NotificationsCenterComponent implements OnInit {
         next: () => {
           this.busyId.set(null);
           this.confirmDeleteId.set(null);
+          this.swipedId.set(null);
           this.stored.set(this.stored().filter((i) => i.id !== id));
         },
         error: (err: ApiError) => {
@@ -521,7 +763,7 @@ export class NotificationsCenterComponent implements OnInit {
     this.busyId.set(item.id);
     const channels = {
       ...current.channels,
-      [item.kind]: { inApp: false, email: false, sms: false },
+      [item.kind]: { inApp: false, email: false, sms: false, push: false },
     };
     this.notifications
       .updatePreferences({ channels, emailDigest: current.emailDigest })
