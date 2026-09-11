@@ -28,11 +28,26 @@ type SubmenuKey = 'actions' | 'prospects' | 'network' | 'performance' | 'goals' 
 selector: 'async-dashboard',
 templateUrl: './dashboard.component.html',
 styles: [`
+@use "@angular/material" as mat;
 
 .sidenav-container {
   background: var(--dp-paper);
   height: 100%;
   .sidenav {
+    // Sanctioned token overrides — custom properties resolve at the
+    // element, so these beat theme specificity battles by construction.
+    @include mat.sidenav-overrides((
+      container-background-color: var(--dp-sidenav),
+      container-text-color: var(--dp-sidenav-text),
+    ));
+    @include mat.list-overrides((
+      list-item-label-text-color: var(--dp-sidenav-text),
+      list-item-leading-icon-color: var(--dp-gold),
+      list-item-hover-label-text-color: var(--dp-gold),
+      list-item-focus-label-text-color: var(--dp-gold),
+      list-item-hover-state-layer-color: var(--dp-gold),
+      list-item-hover-state-layer-opacity: 0.12,
+    ));
     width: 212px;
     background: var(--dp-sidenav);
     color: var(--dp-sidenav-text);
