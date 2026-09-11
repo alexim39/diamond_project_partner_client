@@ -29,6 +29,33 @@ export interface JourneyEnvelope extends ApiEnvelope<Journey> {
   data: Journey;
 }
 
+export interface PendingNomination {
+  partnerId: string;
+  level: string | null;
+  note: string;
+  requestedAt: string | null;
+  member: { username: string; name: string } | null;
+}
+
+export interface Oversight {
+  level: string;
+  isAdmin: boolean;
+  total: number;
+  capped: boolean;
+  distribution: Record<string, number>;
+  leaders: number;
+  pendingNominations: PendingNomination[];
+  pendingCount: number;
+}
+
+export interface PendingEnvelope extends ApiEnvelope<{ items: PendingNomination[]; total: number }> {
+  data: { items: PendingNomination[]; total: number };
+}
+
+export interface OversightEnvelope extends ApiEnvelope<Oversight> {
+  data: Oversight;
+}
+
 export interface MilestonesEnvelope extends ApiEnvelope<{ milestones: Record<string, unknown> }> {
   data: { milestones: Record<string, unknown> };
 }

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { JourneyEnvelope, MilestonesEnvelope } from './progression.models';
+import { JourneyEnvelope, MilestonesEnvelope, OversightEnvelope, PendingEnvelope } from './progression.models';
 
 /** Diamond journey ladder → backend `/v1/progression/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -18,5 +18,17 @@ export class ProgressionService {
 
   requestNomination(note = ''): Observable<unknown> {
     return this.api.post('v1/progression/mine/nomination', { note });
+  }
+
+  pendingNominations(): Observable<PendingEnvelope> {
+    return this.api.get<PendingEnvelope>('v1/progression/nominations/pending');
+  }
+
+  decideNomination(partnerId: string, approved: boolean): Observable<unknown> {
+    return this.api.post('v1/progression/nominations/decision', { partnerId, approved });
+  }
+
+  oversight(): Observable<OversightEnvelope> {
+    return this.api.get<OversightEnvelope>('v1/progression/oversight');
   }
 }
