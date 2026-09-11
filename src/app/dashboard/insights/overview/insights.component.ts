@@ -363,6 +363,7 @@ export class InsightsOverviewComponent implements OnInit {
     { kind: 'commissions', label: 'Commissions' },
     { kind: 'reports-mine', label: 'My reports' },
     { kind: 'reports-team', label: 'Team reports' },
+    { kind: 'community', label: 'Community stats' },
   ];
 
   protected downloadKey(kind: ExportKind): string {

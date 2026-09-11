@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 
-export type ExportKind = 'team' | 'pipeline' | 'commissions' | 'reports-mine' | 'reports-team';
+export type ExportKind = 'team' | 'pipeline' | 'commissions' | 'reports-mine' | 'reports-team' | 'community';
 export type ExportFormat = 'csv' | 'xlsx';
 
 const ENDPOINTS: Record<ExportKind, string> = {
@@ -11,6 +11,7 @@ const ENDPOINTS: Record<ExportKind, string> = {
   commissions: 'v1/exports/commissions',
   'reports-mine': 'v1/exports/reports?scope=mine',
   'reports-team': 'v1/exports/reports?scope=team',
+  community: 'v1/exports/community',
 };
 
 const triggerSave = (blob: Blob, filename: string): void => {
