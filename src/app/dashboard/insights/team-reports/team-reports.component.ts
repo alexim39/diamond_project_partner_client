@@ -4,6 +4,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -26,8 +28,9 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   selector: 'async-team-reports',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+    DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatNativeDateModule,
+    MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
+    ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -94,11 +97,20 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           <div class="two-col">
             <mat-form-field appearance="outline">
               <mat-label>Period start</mat-label>
-              <input matInput type="date" formControlName="periodStart" />
+              <input matInput [matDatepicker]="submitStartPicker" formControlName="periodStart" />
+              <mat-datepicker-toggle matSuffix [for]="submitStartPicker" />
+              <mat-datepicker #submitStartPicker />
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Period end</mat-label>
-              <input matInput type="date" formControlName="periodEnd" />
+              <input
+                matInput
+                [matDatepicker]="submitEndPicker"
+                formControlName="periodEnd"
+                [min]="submitForm.controls.periodStart.value"
+              />
+              <mat-datepicker-toggle matSuffix [for]="submitEndPicker" />
+              <mat-datepicker #submitEndPicker />
             </mat-form-field>
           </div>
           <mat-form-field appearance="outline">
@@ -138,11 +150,20 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           <div class="two-col">
             <mat-form-field appearance="outline">
               <mat-label>Period start</mat-label>
-              <input matInput type="date" formControlName="periodStart" />
+              <input matInput [matDatepicker]="requestStartPicker" formControlName="periodStart" />
+              <mat-datepicker-toggle matSuffix [for]="requestStartPicker" />
+              <mat-datepicker #requestStartPicker />
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Period end</mat-label>
-              <input matInput type="date" formControlName="periodEnd" />
+              <input
+                matInput
+                [matDatepicker]="requestEndPicker"
+                formControlName="periodEnd"
+                [min]="requestForm.controls.periodStart.value"
+              />
+              <mat-datepicker-toggle matSuffix [for]="requestEndPicker" />
+              <mat-datepicker #requestEndPicker />
             </mat-form-field>
           </div>
           <mat-form-field appearance="outline">
@@ -255,8 +276,8 @@ export class TeamReportsComponent implements OnInit {
 
   protected readonly submitForm = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
-    periodStart: [toInputDate(new Date(Date.now() - 6 * 86400000)), Validators.required],
-    periodEnd: [toInputDate(new Date()), Validators.required],
+    periodStart: [new Date(Date.now() - 6 * 86400000), Validators.required],
+    periodEnd: [new Date(), Validators.required],
     highlights: ['', [Validators.required, Validators.maxLength(5000)]],
     blockers: [''],
     plans: [''],
@@ -264,8 +285,8 @@ export class TeamReportsComponent implements OnInit {
 
   protected readonly requestForm = this.fb.nonNullable.group({
     downlineId: ['', Validators.required],
-    periodStart: [toInputDate(new Date(Date.now() - 6 * 86400000)), Validators.required],
-    periodEnd: [toInputDate(new Date()), Validators.required],
+    periodStart: [new Date(Date.now() - 6 * 86400000), Validators.required],
+    periodEnd: [new Date(), Validators.required],
     note: ['', Validators.maxLength(500)],
   });
 
@@ -316,8 +337,8 @@ export class TeamReportsComponent implements OnInit {
   protected answer(req: ReportRequest): void {
     this.answering.set(req);
     this.submitForm.patchValue({
-      periodStart: req.periodStart.slice(0, 10),
-      periodEnd: req.periodEnd.slice(0, 10),
+      periodStart: new Date(req.periodStart),
+      periodEnd: new Date(req.periodEnd),
     });
     this.showSubmit.set(true);
     this.submitError.set(null);
@@ -332,8 +353,8 @@ export class TeamReportsComponent implements OnInit {
     this.reports
       .submit({
         title: v.title.trim(),
-        periodStart: v.periodStart,
-        periodEnd: v.periodEnd,
+        periodStart: toInputDate(v.periodStart),
+        periodEnd: toInputDate(v.periodEnd),
         highlights: v.highlights.trim(),
         blockers: v.blockers.trim(),
         plans: v.plans.trim(),
@@ -347,8 +368,8 @@ export class TeamReportsComponent implements OnInit {
           this.answering.set(null);
           this.submitForm.reset({
             title: '',
-            periodStart: toInputDate(new Date(Date.now() - 6 * 86400000)),
-            periodEnd: toInputDate(new Date()),
+            periodStart: new Date(Date.now() - 6 * 86400000),
+            periodEnd: new Date(),
             highlights: '',
             blockers: '',
             plans: '',
@@ -368,7 +389,7 @@ export class TeamReportsComponent implements OnInit {
     this.requestError.set(null);
     const v = this.requestForm.getRawValue();
     this.reports
-      .request(v.downlineId, v.periodStart, v.periodEnd, v.note.trim())
+      .request(v.downlineId, toInputDate(v.periodStart), toInputDate(v.periodEnd), v.note.trim())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
