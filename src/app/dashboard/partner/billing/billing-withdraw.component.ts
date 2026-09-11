@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -8,8 +9,7 @@ import { PartnerInterface } from '../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { PaystackService } from './paystack.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
@@ -167,16 +167,16 @@ button[disabled] {
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, MatFormFieldModule, MatProgressBarModule, CommonModule, ReactiveFormsModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
-export class BillingWithdrawComponent implements OnInit, OnDestroy {
+export class BillingWithdrawComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<BillingWithdrawComponent>);
   readonly partner = inject<PartnerInterface>(MAT_DIALOG_DATA);
- 
+  private readonly destroyRef = inject(DestroyRef);
+
 
   withdrawForm: FormGroup;
   banks: any[] = [];
   loading: boolean = false;
   selectedBankName: string = '';
-  subscriptions: Array<Subscription> = [];
 
   constructor(
     private fb: FormBuilder, 
@@ -198,7 +198,7 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
     this.getBanks();
   }
 
-  // Fetch list of banks using Paystack API or any other provider
+  // Fetch list of banks (public Paystack directory — no secret required).
   getBanks() {
     this.http.get('https://api.paystack.co/bank').subscribe((response: any) => {
       this.banks = response.data; // Paystack API response for banks
@@ -208,36 +208,28 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
   resolveAccountName() {
     const accountNumber = this.withdrawForm.get('accountNumber')?.value;
     const bankCode = this.withdrawForm.get('bank')?.value;
-  
+
     if (accountNumber && bankCode) {
       this.loading = true;
-      
-      const headers = new HttpHeaders({
-        'Authorization': 'Bearer sk_test_2b176cfecf4bf2bf8ed1de53b55f868dc4ed9127'  // Replace with your Paystack secret key
-      });
-  
-      const url = `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`;
 
-      this.subscriptions.push(
-
-        this.http.get(url, { headers }).subscribe((response: any) => {
-          if (response.status) {
+      // Resolved through the backend proxy — the Paystack secret key
+      // must never ship to clients (see PaystackService.resolveAccount).
+      this.paymentService.resolveAccount(accountNumber, bankCode)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
             // Populate the account name field
             this.withdrawForm.patchValue({
-              accountName: response.data.account_name
+              accountName: response.accountName
             });
-          } else {
-            //alert('Account not found');
+            this.loading = false;
+          },
+          error: (error) => {
+            console.log(error)
             this.snackBar.open('Account not found', 'Ok', {duration: 3000});
-          }
-          this.loading = false;
-        }, (error) => {
-          console.log(error)
-          //alert('Error resolving account name');
-          this.loading = false;
+            this.loading = false;
+          },
         })
-
-      )
     }
   }
   
@@ -255,8 +247,10 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
       //console.log('Withdrawal request:', formData);
 
 
-      this.subscriptions.push(
-        this.paymentService.withdrawRequest(formData).subscribe(res => {
+      this.paymentService.withdrawRequest(formData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: res => {
           //console.log('Payment successful and balance updated!',res);
 
            Swal.fire({
@@ -274,30 +268,31 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
           });
            this.loading = false;
            this.close();
-  
-        }, (error) => {
-          console.error('Error confirming payment:', error);
-          if (error.code == 401) {
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Your balance is insufficient for this request',
-              showConfirmButton: false,
-              timer: 4000
-            });
-          } else {
+
+          },
+          error: (error) => {
+            console.error('Error confirming payment:', error);
+            if (error.code == 401) {
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Your balance is insufficient for this request',
+                showConfirmButton: false,
+                timer: 4000
+              });
+            } else {
+              this.loading = false;
+              Swal.fire({
+                position: "bottom",
+                icon: 'info',
+                text: 'Server error occured, please try again',
+                showConfirmButton: false,
+                timer: 4000
+              })
+            }
             this.loading = false;
-            Swal.fire({
-              position: "bottom",
-              icon: 'info',
-              text: 'Server error occured, please try again',
-              showConfirmButton: false,
-              timer: 4000
-            })
-          }          
-          this.loading = false;
-        })
-      )
+          },
+        });
     }
   }
 
@@ -323,12 +318,5 @@ export class BillingWithdrawComponent implements OnInit, OnDestroy {
   close(): void {
     this.dialogRef.close();
   }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
-  }
-
 
 }

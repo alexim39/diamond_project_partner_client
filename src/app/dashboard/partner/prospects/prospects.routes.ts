@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { GeneralProspectListContainerComponent } from './general-prospect-list/general-prospect-list-container.component';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { EmailListContainerComponent } from './email-list/email-list-container.component';
-import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
 import { ProspectDetailComponent } from './prospect-detail/detail.component';
@@ -34,9 +33,11 @@ export const ProspectsRoutes: Routes = [
             title: "General Prospects Email List - View all email list",
         }, 
         {
+            // Consolidated into the pipeline table (same mine-scoped data
+            // over the validated v1 API). Component file kept for rollback.
             path: 'personal-list',
-            component: MyProspectListContainerComponent,
-            title: "My Prospects List - View all my prospects",
+            redirectTo: 'pipeline',
+            pathMatch: 'full',
         },
         {
             path: 'pipeline',

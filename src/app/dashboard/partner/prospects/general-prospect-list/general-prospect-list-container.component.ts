@@ -1,7 +1,8 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GeneralProspectListComponent } from './general-prospect-list.component';
 import { ProspectService, ProspectListInterface } from '../prospects.service';
 
@@ -20,11 +21,11 @@ import { ProspectService, ProspectListInterface } from '../prospects.service';
   }
   `
 })
-export class GeneralProspectListContainerComponent implements OnInit, OnDestroy {
+export class GeneralProspectListContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
   prospectList!: ProspectListInterface[];
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private partnerService: PartnerService,
@@ -32,31 +33,21 @@ export class GeneralProspectListContainerComponent implements OnInit, OnDestroy 
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
-        next:  (partner: PartnerInterface) => {
-          this.partner = partner;
-          if (this.partner) {
-           this.subscriptions.push(
-             this.prospectListService.getAllProspect().subscribe({
-                next: (response) => {
-                  this.prospectList = response.data;
-                },
-                error: () => {
-                  this.prospectList = [];
-                }
-              })
-           )
-          }
-        }
-      })
-    )
-  }
 
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+    // get current signed in user, then the org-wide list — one stream.
+    // (Org scope is why this page stays: the pipeline table is mine-only.)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      filter((partner): partner is PartnerInterface => !!partner),
+      tap(partner => { this.partner = partner; }),
+      switchMap(() => this.prospectListService.getAllProspect())
+    ).subscribe({
+      next: (response) => {
+        this.prospectList = response.data;
+      },
+      error: () => {
+        this.prospectList = [];
+      },
+    })
   }
 }

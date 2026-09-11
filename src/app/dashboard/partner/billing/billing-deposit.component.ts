@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { PaystackService } from './paystack.service';
 import { HttpClient } from '@angular/common/http';
-import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
 /**
@@ -39,12 +38,11 @@ import Swal from 'sweetalert2';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, MatFormFieldModule, CommonModule, MatIconModule, MatButtonModule, MatInputModule, MatDialogModule]
 })
-export class BillingDepositComponent implements OnInit, OnDestroy {
+export class BillingDepositComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<BillingDepositComponent>);
   readonly partner = inject<PartnerInterface>(MAT_DIALOG_DATA);
   amount!: number;
   currentBalance = 0;
-  subscriptions: Array<Subscription> = [];
   isSpinning = false;
 
   constructor(
@@ -74,45 +72,18 @@ export class BillingDepositComponent implements OnInit, OnDestroy {
   }
 
   confirmPayment(reference: string) {
-    this.subscriptions.push(
-      this.paystackService.confirmPayment(reference, this.partner._id).subscribe(res => {
+    // One-shot HTTP — self-completes, no tracking needed.
+    this.paystackService.confirmPayment(reference, this.partner._id).subscribe({
+      next: (res) => {
         this.currentBalance = res.partner.balance;
         //console.log('Payment successful and balance updated!',res);
         // reload the page.
         location.reload();
-
-        /*  Swal.fire({
-             position: "bottom",
-             icon: 'success',
-             text: 'Thank you for creating your ad campaign. We will publish this campaign on Facebook soon',
-             showConfirmButton: true,
-             confirmButtonColor: "#ffab40",
-             timer: 15000,
-         })
-         this.isSpinning = false; */
-
-      }, (error) => {
+      },
+      error: (error) => {
         console.error('Error confirming payment:', error);
-
-        /*  this.isSpinning = false;
-         Swal.fire({
-           position: "bottom",
-           icon: 'info',
-           text: 'Server error occured, please try again',
-           showConfirmButton: false,
-           timer: 4000
-         }) */
-
-      })
-    )
-  }
-
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
+      },
+    })
   }
 
 }

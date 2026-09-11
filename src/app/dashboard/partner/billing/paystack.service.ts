@@ -74,6 +74,20 @@ export class PaystackService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
+  /**
+   * Resolve a bank account holder — proxied through the backend
+   * (`GET /v1/billing/resolve-account`) so the Paystack secret key
+   * never ships to clients. Replaces direct api.paystack.co calls.
+   */
+  resolveAccount(accountNumber: string, bankCode: string): Observable<{ accountName: string; accountNumber: string }> {
+    return this.http
+      .get<{ accountName: string; accountNumber: string }>(
+        this.apiURL + `/v1/billing/resolve-account?accountNumber=${encodeURIComponent(accountNumber)}&bankCode=${encodeURIComponent(bankCode)}`,
+        { withCredentials: true },
+      )
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
   // Initialize Paystack payment
   payWithPaystack(email: string, amount: number, callback: (response: any) => void): void {
     const handler = (window as any).PaystackPop.setup({
