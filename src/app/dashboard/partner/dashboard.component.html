@@ -90,6 +90,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('community') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="community" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="What everyone is sharing"> - Team talk</a>
+        <a mat-list-item routerLink="community/events" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Gatherings and RSVP"> - Events</a>
         <a mat-list-item routerLink="messages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Private messages"> - My messages</a>
         <a mat-list-item routerLink="notifications/center" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Things needing your attention"> - Alerts</a>
       </div>
