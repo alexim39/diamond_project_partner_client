@@ -8,6 +8,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
+import { NgxEchartsDirective } from 'ngx-echarts';
+import { ChartThemeService } from '../../../core/charts/chart-theme.service';
+import type { EChartsCoreOption } from '../../../core/charts/echarts-setup';
 import { forkJoin } from 'rxjs';
 import { BillingService } from '../../../core/billing/billing.service';
 import { CommissionEntry, CommissionStatus, CommissionSums, EarningsTrendBucket } from '../../../core/billing/billing.models';
@@ -32,7 +35,7 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule,
-    MatIconModule, MatProgressBarModule, MatTableModule, RouterModule,
+    MatIconModule, MatProgressBarModule, MatTableModule, NgxEchartsDirective, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -88,20 +91,10 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
         </div>
       }
 
-      @if (trend().length > 0) {
+      @if (earningsChart(); as chart) {
         <div class="dp-card trends">
           <h3>Released — last {{ trend().length }} months</h3>
-          <div class="bars" role="img" aria-label="Monthly released earnings">
-            @for (b of trend(); track b.label) {
-              <div class="bar-col">
-                <div class="bar-track">
-                  <div class="bar-fill" [style.height.%]="barHeight(b)"></div>
-                </div>
-                <span class="bar-label">{{ b.label }}</span>
-                <span class="bar-value">{{ b.total | number }}</span>
-              </div>
-            }
-          </div>
+          <div echarts [options]="chart" class="chart" role="img" aria-label="Monthly released earnings chart"></div>
         </div>
       }
 
@@ -163,12 +156,7 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
     .stat-label { color: var(--dp-muted); font-size: 0.85em; }
     .trends { padding: 1em; }
     .trends h3 { margin: 0 0 0.75em; font-size: 1em; }
-    .bars { display: flex; gap: 1em; }
-    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25em; }
-    .bar-track { height: 120px; width: 100%; max-width: 64px; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
-    .bar-fill { width: 100%; background: var(--dp-gold); border-radius: 6px 6px 0 0; min-height: 2px; }
-    .bar-label { font-size: 0.8em; color: var(--dp-muted); }
-    .bar-value { font-size: 0.8em; font-weight: 600; }
+    .chart { height: 260px; width: 100%; }
     .filters { display: flex; gap: 0.25em; flex-wrap: wrap; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
@@ -180,21 +168,43 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
 })
 export class EarningsComponent implements OnInit {
   private readonly billing = inject(BillingService);
+  private readonly charts = inject(ChartThemeService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly loadingMore = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly sums = signal<CommissionSums | null>(null);
-  protected readonly trend = signal<EarningsTrendBucket[]>([]);
-  protected readonly entries = signal<CommissionEntry[]>([]);
+  protected readonly trend = signal<EarningsTrendBucket[]>([]);  protected readonly entries = signal<CommissionEntry[]>([]);
   protected readonly total = signal(0);
   protected readonly statusFilter = signal<CommissionStatus | null>(null);
 
   protected readonly displayedColumns = ['amount', 'status', 'released', 'recorded'];
   protected readonly statusFilters = STATUS_FILTERS;
-  protected readonly maxTrend = computed(() => Math.max(1, ...this.trend().map((b) => b.total)));
   protected readonly thisMonth = computed(() => this.trend()[this.trend().length - 1]?.total ?? 0);
+
+  /** Released-earnings chart — rebuilt on data or light/dark toggle. */
+  protected readonly earningsChart = computed<EChartsCoreOption | null>(() => {
+    const buckets = this.trend();
+    if (buckets.length === 0) return null;
+    const p = this.charts.palette();
+    const ax = this.charts.axis();
+    return {
+      ...this.charts.base(),
+      tooltip: { trigger: 'axis', valueFormatter: (v: number | string) => `${v}` },
+      grid: { left: 56, right: 12, top: 24, bottom: 28 },
+      xAxis: { type: 'category', data: buckets.map((b) => b.label), ...ax },
+      yAxis: { type: 'value', ...ax },
+      series: [
+        {
+          type: 'bar',
+          data: buckets.map((b) => b.total),
+          itemStyle: { color: p.success, borderRadius: [6, 6, 0, 0] },
+          emphasis: { itemStyle: { color: p.gold } },
+        },
+      ],
+    };
+  });
 
   ngOnInit(): void {
     this.reload();
@@ -256,9 +266,5 @@ export class EarningsComponent implements OnInit {
           this.error.set(err.message);
         },
       });
-  }
-
-  protected barHeight(bucket: EarningsTrendBucket): number {
-    return Math.max(2, Math.round((bucket.total / this.maxTrend()) * 100));
   }
 }

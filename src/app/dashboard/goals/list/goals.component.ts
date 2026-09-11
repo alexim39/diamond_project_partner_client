@@ -9,6 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { NgxEchartsDirective } from 'ngx-echarts';
+import { ChartThemeService } from '../../../core/charts/chart-theme.service';
+import type { EChartsCoreOption } from '../../../core/charts/echarts-setup';
 import { forkJoin } from 'rxjs';
 import { GoalService } from '../../../core/goals/goal.service';
 import { GOAL_KIND_LABELS, Goal, GoalKind, TrendBucket } from '../../../core/goals/goal.models';
@@ -35,7 +38,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+    MatProgressBarModule, MatSelectModule, NgxEchartsDirective, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -146,20 +149,10 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
         <p class="empty">No goals yet — create your first one above.</p>
       }
 
-      @if (trends().length > 0) {
+      @if (trendsChart(); as chart) {
         <div class="trends">
           <h3>Sales trend — last {{ trends().length }} months</h3>
-          <div class="bars" role="img" aria-label="Monthly personal sales volume">
-            @for (b of trends(); track b.label) {
-              <div class="bar-col">
-                <div class="bar-track">
-                  <div class="bar-fill" [style.height.%]="barHeight(b)"></div>
-                </div>
-                <span class="bar-label">{{ b.label }}</span>
-                <span class="bar-value">{{ b.total | number }}</span>
-              </div>
-            }
-          </div>
+          <div echarts [options]="chart" class="chart" role="img" aria-label="Monthly personal sales volume chart"></div>
         </div>
       }
     </section>
@@ -183,18 +176,14 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .muted { color: #777; font-size: 0.85em; }
     .error { color: #d32f2f; }
     .empty { color: #666; }
-    .trends { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1em; }
+    .trends { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; }
     .trends h3 { margin: 0 0 0.75em; font-size: 1em; }
-    .bars { display: flex; gap: 1em; align-items: stretch; }
-    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25em; }
-    .bar-track { height: 120px; width: 100%; max-width: 64px; background: #f1f3f4; border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
-    .bar-fill { width: 100%; background: #3f51b5; border-radius: 6px 6px 0 0; min-height: 2px; }
-    .bar-label { font-size: 0.8em; color: #555; }
-    .bar-value { font-size: 0.8em; font-weight: 600; }
+    .chart { height: 260px; width: 100%; }
   `],
 })
 export class GoalsComponent implements OnInit {
   private readonly goalsApi = inject(GoalService);
+  private readonly charts = inject(ChartThemeService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -213,7 +202,29 @@ export class GoalsComponent implements OnInit {
   protected readonly behindCount = computed(
     () => this.goals().filter((g) => !g.progress.complete && !g.progress.onTrack).length,
   );
-  protected readonly maxTrend = computed(() => Math.max(1, ...this.trends().map((b) => b.total)));
+
+  /** Sales trend chart — rebuilt on data or light/dark toggle. */
+  protected readonly trendsChart = computed<EChartsCoreOption | null>(() => {
+    const buckets = this.trends();
+    if (buckets.length === 0) return null;
+    const p = this.charts.palette();
+    const ax = this.charts.axis();
+    return {
+      ...this.charts.base(),
+      tooltip: { trigger: 'axis', valueFormatter: (v: number | string) => `${v}` },
+      grid: { left: 48, right: 12, top: 24, bottom: 28 },
+      xAxis: { type: 'category', data: buckets.map((b) => b.label), ...ax },
+      yAxis: { type: 'value', ...ax },
+      series: [
+        {
+          type: 'bar',
+          data: buckets.map((b) => b.total),
+          itemStyle: { color: p.gold, borderRadius: [6, 6, 0, 0] },
+          emphasis: { itemStyle: { color: p.info } },
+        },
+      ],
+    };
+  });
 
   protected readonly form = this.fb.nonNullable.group({
     title: [''],
@@ -302,9 +313,5 @@ export class GoalsComponent implements OnInit {
     return goal.progress.onTrack
       ? { label: 'On track', color: '#bbdefb', text: '#0d47a1' }
       : { label: 'Behind pace', color: '#ffcdd2', text: '#b71c1c' };
-  }
-
-  protected barHeight(bucket: TrendBucket): number {
-    return Math.max(2, Math.round((bucket.total / this.maxTrend()) * 100));
   }
 }

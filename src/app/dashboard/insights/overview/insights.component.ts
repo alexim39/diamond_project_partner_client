@@ -8,8 +8,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
+import { NgxEchartsDirective } from 'ngx-echarts';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { ExportKind, ExportService } from '../../../core/analytics/export.service';
+import { ChartThemeService } from '../../../core/charts/chart-theme.service';
+import type { EChartsCoreOption } from '../../../core/charts/echarts-setup';
 import { ActionPriority, DailyAction, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -31,7 +34,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule,
-    MatProgressBarModule, MatSelectModule, RouterModule,
+    MatProgressBarModule, MatSelectModule, NgxEchartsDirective, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -103,23 +106,12 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
       }
 
       <h3>Recruitment funnel <span class="muted">({{ funnel()?.days }}-day cohort)</span></h3>      @if (funnel(); as f) {
-        <div class="funnel">
-          @for (step of f.steps; track step.stage) {
-            <div class="funnel-row">
-              <span class="funnel-stage">{{ step.stage }}</span>
-              <div class="funnel-track">
-                <div class="funnel-fill" [style.width.%]="funnelWidth(step.count)"></div>
-              </div>
-              <span class="funnel-num">{{ step.count | number }}</span>
-              <span class="muted funnel-rate">
-                @if (step.stepRate !== null) {
-                  {{ step.stepRate }}%@if (step.dropoff > 0) { · −{{ step.dropoff | number }} }
-                } @else {
-                  —
-                }
-              </span>
-            </div>
-          }
+        @if (f.entered > 0 && funnelChart(); as chart) {
+          <div echarts [options]="chart" class="chart chart--funnel" role="img" aria-label="Recruitment funnel chart"></div>
+        } @else if (f.entered === 0) {
+          <p class="empty">No prospects entered in this window — widen the range or go prospecting.</p>
+        }
+        <div class="funnel-summary">
           <p class="muted">
             {{ f.entered | number }} entered · {{ f.converted | number }} converted ·
             @if (f.overallRate !== null) { {{ f.overallRate }}% overall · }
@@ -135,6 +127,9 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
         </p>
       }
       @if (team(); as t) {
+        @if (healthGauge(); as gauge) {
+          <div echarts [options]="gauge" class="chart chart--gauge" role="img" aria-label="Team health score gauge"></div>
+        }
         <div class="stat-grid">
           <mat-card>
             <mat-card-content>
@@ -213,14 +208,10 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .action-item { display: flex; gap: 0.9em; align-items: center; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.7em 1em; }
     .action-item--high { border-left: 4px solid #d32f2f; }
     .action-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; }
-    .funnel { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
-    .funnel p { margin: 0.25em 0 0; }
-    .funnel-row { display: grid; grid-template-columns: 130px 1fr 60px 130px; gap: 0.75em; align-items: center; }
-    .funnel-stage { font-weight: 600; font-size: 0.9em; }
-    .funnel-track { height: 18px; background: #f1f3f4; border-radius: 5px; overflow: hidden; }
-    .funnel-fill { height: 100%; background: #3f51b5; border-radius: 5px; min-width: 2px; }
-    .funnel-num { text-align: right; font-weight: 600; }
-    .funnel-rate { font-size: 0.8em; }
+    .chart { width: 100%; }
+    .chart--funnel { height: 320px; }
+    .chart--gauge { height: 220px; }
+    .funnel-summary p { margin: 0.25em 0 0; }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75em; }
     .stat-grid mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
     .stat-value { font-size: 1.5em; font-weight: 700; }
@@ -241,6 +232,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
 export class InsightsOverviewComponent implements OnInit {
   private readonly analytics = inject(AnalyticsService);
   private readonly exporter = inject(ExportService);
+  private readonly charts = inject(ChartThemeService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -253,9 +245,70 @@ export class InsightsOverviewComponent implements OnInit {
   protected readonly team = signal<TeamAnalytics | null>(null);
   protected readonly goalSummary = signal<{ total: number; complete: number; behind: number } | null>(null);
 
-  protected readonly funnelMax = computed(() =>
-    Math.max(1, ...(this.funnel()?.steps.map((s) => s.count) ?? [1])),
-  );
+  /** Funnel chart — rebuilt on data or light/dark toggle. */
+  protected readonly funnelChart = computed<EChartsCoreOption | null>(() => {
+    const f = this.funnel();
+    if (!f || f.entered <= 0) return null;
+    const p = this.charts.palette();
+    return {
+      ...this.charts.base(),
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: { name: string; value: number | string }) => {
+          const step = f.steps.find((s) => s.stage === params.name);
+          const rate = step?.cumulativeRate;
+          return `${params.name}: ${params.value}${rate !== null && rate !== undefined ? ` (${rate}%)` : ''}`;
+        },
+      },
+      series: [
+        {
+          type: 'funnel',
+          left: '8%',
+          width: '84%',
+          label: { show: true, position: 'inside', formatter: '{b}\n{c}', color: '#fff' },
+          itemStyle: { borderColor: p.line, borderWidth: 1 },
+          emphasis: { label: { fontSize: 14 } },
+          data: f.steps.map((s, i) => ({
+            name: s.stage,
+            value: s.count,
+            itemStyle: { color: p.ramp[i % p.ramp.length] },
+          })),
+        },
+      ],
+    };
+  });
+
+  /** Health gauge — null when there is nothing to score yet. */
+  protected readonly healthGauge = computed<EChartsCoreOption | null>(() => {
+    const score = this.team()?.health.score;
+    if (score === null || score === undefined) return null;
+    const p = this.charts.palette();
+    const color = score >= 70 ? p.success : score >= 40 ? p.gold : p.error;
+    return {
+      ...this.charts.base(),
+      series: [
+        {
+          type: 'gauge',
+          startAngle: 180,
+          endAngle: 0,
+          min: 0,
+          max: 100,
+          radius: '100%',
+          center: ['50%', '85%'],
+          progress: { show: true, width: 14, itemStyle: { color } },
+          axisLine: { lineStyle: { width: 14, color: [[1, p.line]] } },
+          axisTick: { show: false },
+          splitLine: { show: false },
+          axisLabel: { show: false },
+          pointer: { show: false },
+          anchor: { show: false },
+          title: { show: true, offsetCenter: [0, '18%'], color: p.muted, fontSize: 12 },
+          detail: { valueAnimation: true, offsetCenter: [0, '-12%'], color: p.text, fontSize: 30, fontWeight: 700, formatter: '{value}' },
+          data: [{ value: score, name: 'Team health' }],
+        },
+      ],
+    };
+  });
 
   ngOnInit(): void {
     this.reload();
@@ -291,10 +344,6 @@ export class InsightsOverviewComponent implements OnInit {
 
   protected priority(p: ActionPriority): { label: string; color: string; text: string } {
     return PRIORITY_META[p] ?? PRIORITY_META['low'];
-  }
-
-  protected funnelWidth(count: number): number {
-    return Math.max(1, Math.round((count / this.funnelMax()) * 100));
   }
 
   protected delta(pct: number): string {
