@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ThemeTogglerService } from '../../../_common/services/theme-toggler.service';
 import { ApiError } from '../../../core/http/api-error';
 import { NetworkService } from './network.service';
 import { NetworkNode, NetworkTreeMeta, PositionedNode } from './network.models';
@@ -18,11 +19,14 @@ const NODE_W = 168;
 const NODE_H = 62;
 const X_GAP = 196;
 const Y_GAP = 118;
+const ZOOM_MIN = 0.4;
+const ZOOM_MAX = 2.5;
+const ZOOM_STEP = 0.25;
 
-const ROLE_FILL: Record<string, string> = {
-  admin: '#ffccbc',
-  leader: '#bbdefb',
-  user: '#e8eaf6',
+/** Node fills per theme — readable on light paper and dark surfaces. */
+const ROLE_FILL: Record<string, Record<string, string>> = {
+  light: { admin: '#ffccbc', leader: '#bbdefb', user: '#e8eaf6' },
+  dark: { admin: '#5d2f22', leader: '#274b6b', user: '#2c3140' },
 };
 
 /**
@@ -43,7 +47,7 @@ const ROLE_FILL: Record<string, string> = {
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
-        <a>Mentorship</a> &gt;
+        <a>Network</a> &gt;
         <span>Network Tree</span>
       </div>
     </section>
@@ -78,9 +82,20 @@ const ROLE_FILL: Record<string, string> = {
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Search network</mat-label>
-          <input matInput type="search" placeholder="Username or name" (input)="search.set($any($event.target).value)" />
+          <input matInput type="search" placeholder="Username or name" (input)="onSearch($any($event.target).value)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
+        @if (searching()) {
+          <div class="match-nav" role="group" aria-label="Search results">
+            <span class="muted">{{ matches().length }} found</span>
+            <button mat-icon-button (click)="stepMatch(-1)" [disabled]="matches().length === 0" title="Previous match" aria-label="Previous match">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button (click)="stepMatch(1)" [disabled]="matches().length === 0" title="Next match" aria-label="Next match">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        }
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="depth-field">
           <mat-label>Depth</mat-label>
           <mat-select [value]="depth()" (selectionChange)="depth.set($event.value); reload()">
@@ -89,6 +104,27 @@ const ROLE_FILL: Record<string, string> = {
             }
           </mat-select>
         </mat-form-field>
+        <div class="zoom-group" role="group" aria-label="Zoom and layout">
+          <button mat-icon-button (click)="zoomOut()" [disabled]="zoom() <= ZOOM_MIN" title="Zoom out" aria-label="Zoom out">
+            <mat-icon>zoom_out</mat-icon>
+          </button>
+          <span class="muted zoom-label">{{ zoomLabel() }}</span>
+          <button mat-icon-button (click)="zoomIn()" [disabled]="zoom() >= ZOOM_MAX" title="Zoom in" aria-label="Zoom in">
+            <mat-icon>zoom_in</mat-icon>
+          </button>
+          <button mat-icon-button (click)="fit()" title="Fit to width" aria-label="Fit to width">
+            <mat-icon>fit_screen</mat-icon>
+          </button>
+          <button mat-icon-button (click)="resetView()" title="Reset view" aria-label="Reset view">
+            <mat-icon>restart_alt</mat-icon>
+          </button>
+          <button mat-icon-button (click)="expandAll()" title="Expand all" aria-label="Expand all">
+            <mat-icon>unfold_more</mat-icon>
+          </button>
+          <button mat-icon-button (click)="collapseAll()" title="Collapse all" aria-label="Collapse all">
+            <mat-icon>unfold_less</mat-icon>
+          </button>
+        </div>
         @if (loading()) {
           <mat-progress-bar mode="indeterminate" class="loader" />
         }
@@ -112,14 +148,15 @@ const ROLE_FILL: Record<string, string> = {
       }
 
       @if (layout(); as layout) {
-        <div class="canvas-wrap">
+        <div class="canvas-wrap" #canvasWrap tabindex="0" (keydown)="onCanvasKey($event)" aria-label="Tree canvas. Plus and minus zoom, zero resets.">
           <svg
             [attr.viewBox]="'0 0 ' + layout.width + ' ' + layout.height"
-            [attr.width]="layout.width"
-            [attr.height]="layout.height"
+            [attr.width]="layout.width * zoom()"
+            [attr.height]="layout.height * zoom()"
             role="img"
             aria-label="Downline network tree"
           >
+            <g [attr.transform]="'translate(' + panX() + ' ' + panY() + ') scale(' + zoom() + ')'">
             @for (edge of layout.edges; track $index) {
               <path [attr.d]="edge.d" class="edge" />
             }
@@ -129,6 +166,8 @@ const ROLE_FILL: Record<string, string> = {
                 [class.selected]="selectedId() === node.id"
                 [class.match]="isMatch(node)"
                 (click)="toggle(node)"
+                (keydown.enter)="toggle(node)"
+                (keydown.space)="toggle(node); $event.preventDefault()"
                 tabindex="0"
                 role="button"
                 [attr.aria-label]="names(node)"
@@ -163,6 +202,7 @@ const ROLE_FILL: Record<string, string> = {
                 }
               </g>
             }
+            </g>
           </svg>
         </div>
 
@@ -188,37 +228,43 @@ const ROLE_FILL: Record<string, string> = {
     .tree-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
-    .upline { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; background: #f5f5f5; border-radius: 8px; padding: 0.4em 0.8em; }
-    .upline .sep { color: #999; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .upline { display: flex; align-items: center; gap: 0.25em; flex-wrap: wrap; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.4em 0.8em; }
+    .upline .sep { color: var(--dp-muted); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 200px; }
     .depth-field { max-width: 150px; }
     .loader { flex: 2; min-width: 120px; }
+    .match-nav { display: flex; align-items: center; gap: 0.1em; }
+    .zoom-group { display: flex; align-items: center; gap: 0.1em; }
+    .zoom-label { min-width: 3.2em; text-align: center; }
     .stats { display: flex; gap: 1.5em; align-items: center; flex-wrap: wrap; }
-    .warn { color: #e65100; }
-    .canvas-wrap { overflow: auto; border: 1px solid #e0e0e0; border-radius: 10px; background: #fafafa; }
+    .warn { color: var(--dp-warning); }
+    .canvas-wrap { overflow: auto; border: 1px solid var(--dp-line); border-radius: 10px; background: var(--dp-paper); max-height: 70vh; }
+    .canvas-wrap:focus-visible { outline: 2px solid var(--dp-gold); outline-offset: -2px; }
     svg { display: block; }
-    .edge { fill: none; stroke: #b0bec5; stroke-width: 2; }
+    .edge { fill: none; stroke: var(--dp-muted); stroke-width: 2; opacity: 0.6; }
     .node { cursor: pointer; }
-    .node rect { stroke: #90a4ae; stroke-width: 1.5; }
-    .node.selected rect { stroke: #1565c0; stroke-width: 3; }
-    .node.match rect { stroke: #2e7d32; stroke-width: 3; stroke-dasharray: 5 3; }
-    .t-name { font-size: 13px; font-weight: 600; fill: #212121; }
-    .t-sub { font-size: 11px; fill: #616161; }
-    .toggle { fill: #fff; stroke: #78909c; stroke-width: 2; }
-    .t-toggle { font-size: 12px; font-weight: 700; fill: #37474f; pointer-events: none; }
-    .details { display: flex; align-items: center; gap: 1em; background: #e3f2fd; border-radius: 8px; padding: 0.75em 1em; flex-wrap: wrap; }
+    .node rect { stroke: var(--dp-muted); stroke-width: 1.5; }
+    .node.selected rect { stroke: var(--dp-gold); stroke-width: 3; }
+    .node.match rect { stroke: var(--dp-success); stroke-width: 3; stroke-dasharray: 5 3; }
+    .t-name { font-size: 13px; font-weight: 600; fill: var(--dp-text); }
+    .t-sub { font-size: 11px; fill: var(--dp-muted); }
+    .toggle { fill: var(--dp-surface); stroke: var(--dp-muted); stroke-width: 2; }
+    .t-toggle { font-size: 12px; font-weight: 700; fill: var(--dp-text); pointer-events: none; }
+    .details { display: flex; align-items: center; gap: 1em; background: var(--dp-info-bg); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.75em 1em; flex-wrap: wrap; }
     .details .spacer { flex: 1; }
-    .muted { color: #777; font-size: 0.85em; }
-    .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
+    .empty { color: var(--dp-muted); }
   `],
 })
 export class NetworkTreeComponent implements OnInit {
   private readonly network = inject(NetworkService);
   private readonly auth = inject(AuthService);
+  private readonly themes = inject(ThemeTogglerService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly canvasWrap = viewChild<ElementRef<HTMLDivElement>>('canvasWrap');
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -230,6 +276,13 @@ export class NetworkTreeComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly collapsed = signal<ReadonlySet<string>>(new Set());
   protected readonly selectedId = signal<string | null>(null);
+  protected readonly zoom = signal(1);
+  protected readonly panX = signal(0);
+  protected readonly panY = signal(0);
+  protected readonly matchIdx = signal(0);
+
+  protected readonly ZOOM_MIN = ZOOM_MIN;
+  protected readonly ZOOM_MAX = ZOOM_MAX;
 
   protected readonly depthOptions = [2, 3, 4, 5, 6, 8, 10];
   protected readonly nodeWidth = NODE_W;
@@ -278,6 +331,13 @@ export class NetworkTreeComponent implements OnInit {
     return this.layout()?.nodes.find((n) => n.id === id) ?? null;
   });
 
+  protected readonly matches = computed(() => {
+    if (!this.searching()) return [];
+    return (this.layout()?.nodes ?? []).filter((n) => this.isMatch(n));
+  });
+
+  protected readonly zoomLabel = computed(() => `${Math.round(this.zoom() * 100)}%`);
+
   protected rootLabel(): NetworkNode {
     return this.tree() ?? ({ id: '', username: '', name: '', surname: '' }) as NetworkNode;
   }
@@ -307,6 +367,8 @@ export class NetworkTreeComponent implements OnInit {
           this.meta.set(res.data.meta);
           this.collapsed.set(new Set());
           this.selectedId.set(null);
+          this.matchIdx.set(0);
+          this.resetView();
           this.loading.set(false);
         },
         error: (err: ApiError) => {
@@ -326,6 +388,8 @@ export class NetworkTreeComponent implements OnInit {
   protected focus(partnerId: string): void {
     this.rootId.set(partnerId);
     this.search.set('');
+    this.matchIdx.set(0);
+    this.resetView();
     this.reload();
   }
 
@@ -351,6 +415,90 @@ export class NetworkTreeComponent implements OnInit {
     return `${node.username} ${node.name} ${node.surname}`.toLowerCase().includes(q);
   }
 
+  protected onSearch(value: string): void {
+    this.search.set(value);
+    this.matchIdx.set(0);
+  }
+
+  protected zoomIn(): void {
+    this.zoom.set(Math.min(ZOOM_MAX, Math.round((this.zoom() + ZOOM_STEP) * 100) / 100));
+  }
+
+  protected zoomOut(): void {
+    this.zoom.set(Math.max(ZOOM_MIN, Math.round((this.zoom() - ZOOM_STEP) * 100) / 100));
+  }
+
+  protected resetView(): void {
+    this.zoom.set(1);
+    this.panX.set(0);
+    this.panY.set(0);
+  }
+
+  /** Scale the tree to the visible width. */
+  protected fit(): void {
+    const el = this.canvasWrap()?.nativeElement;
+    const layout = this.layout();
+    if (!el || !layout || layout.width <= 0) return;
+    this.zoom.set(Math.min(1.5, Math.max(ZOOM_MIN, el.clientWidth / layout.width)));
+    this.panX.set(0);
+    this.panY.set(0);
+  }
+
+  /** Center a node in the viewport (transform is translate then scale). */
+  protected centerOn(node: PositionedNode): void {
+    const el = this.canvasWrap()?.nativeElement;
+    if (!el) return;
+    const z = Math.max(this.zoom(), 1);
+    this.zoom.set(z);
+    this.selectedId.set(node.id);
+    this.panX.set(el.clientWidth / 2 / z - (node.x + NODE_W / 2));
+    this.panY.set(Math.max(0, el.clientHeight / 2 / z - (node.y + NODE_H / 2)));
+    el.focus({ preventScroll: true });
+  }
+
+  protected stepMatch(dir: 1 | -1): void {
+    const list = this.matches();
+    if (list.length === 0) return;
+    const next = (this.matchIdx() + dir + list.length) % list.length;
+    this.matchIdx.set(next);
+    const node = list[next];
+    if (node) this.centerOn(node);
+  }
+
+  protected expandAll(): void {
+    this.collapsed.set(new Set());
+  }
+
+  protected collapseAll(): void {
+    const root = this.tree();
+    if (!root) return;
+    const ids = new Set<string>();
+    const walk = (node: NetworkNode): void => {
+      if ((node.children ?? []).length > 0) {
+        ids.add(node.id);
+        node.children.forEach(walk);
+      }
+    };
+    walk(root);
+    this.collapsed.set(ids);
+    this.selectedId.set(root.id);
+  }
+
+  protected onCanvasKey(event: KeyboardEvent): void {
+    if (event.key === '+' || event.key === '=') {
+      this.zoomIn();
+      event.preventDefault();
+    } else if (event.key === '-' || event.key === '_') {
+      this.zoomOut();
+      event.preventDefault();
+    } else if (event.key === '0') {
+      this.resetView();
+      event.preventDefault();
+    } else if (event.key === 'Escape') {
+      this.selectedId.set(null);
+    }
+  }
+
   protected names(node: { name: string; surname: string; username: string }): string {
     return this.network.displayName(node);
   }
@@ -361,6 +509,7 @@ export class NetworkTreeComponent implements OnInit {
   }
 
   protected fill(node: PositionedNode): string {
-    return ROLE_FILL[node.role] ?? ROLE_FILL['user'] ?? '#e8eaf6';
+    const palette = ROLE_FILL[this.themes.theme()] ?? ROLE_FILL['light'] ?? {};
+    return palette[node.role] ?? palette['user'] ?? '#e8eaf6';
   }
 }
