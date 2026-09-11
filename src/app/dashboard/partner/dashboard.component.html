@@ -56,6 +56,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('network') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="network/tree" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Visualize your network tree"> - Network Tree</a>
+        <a mat-list-item routerLink="network/org" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Org chart - Levels and span of control"> - Org Chart</a>
         <a mat-list-item routerLink="mentorship/team/members" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Manage team members"> - My Team</a>
         <a mat-list-item routerLink="mentorship/partners/my-partners" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Member directory"> - Member Directory</a>
       </div>
