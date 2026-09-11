@@ -189,6 +189,10 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
             {{ downloading() === item.kind ? 'Preparing…' : item.label }}
           </button>
         }
+        <button mat-button (click)="print()">
+          <mat-icon>print</mat-icon>
+          Print / PDF
+        </button>
         @if (exportError(); as err) {
           <span class="error" role="alert">{{ err }}</span>
         }
@@ -371,5 +375,9 @@ export class InsightsOverviewComponent implements OnInit {
           this.exportError.set(err.message);
         },
       });
+  }
+
+  protected print(): void {
+    window.print();
   }
 }

@@ -51,7 +51,10 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
           <h2>My Earnings</h2>
           <p class="subtitle">Released, pending and every ledger entry behind them.</p>
         </div>
-        <a mat-button routerLink="/dashboard/insights">Exports</a>
+        <div class="head-actions">
+          <a mat-button routerLink="/dashboard/insights">Exports</a>
+          <button mat-button (click)="print()">Print / PDF</button>
+        </div>
       </div>
 
       @if (loading()) {
@@ -148,6 +151,7 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
     .earnings-page h3 { margin: 0.5em 0 0; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
+    .head-actions { display: flex; gap: 0.25em; flex-wrap: wrap; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75em; }
     .stat-grid mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
@@ -208,6 +212,10 @@ export class EarningsComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+  }
+
+  protected print(): void {
+    window.print();
   }
 
   protected reload(): void {

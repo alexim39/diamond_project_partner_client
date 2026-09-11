@@ -160,3 +160,74 @@ html[data-theme="dark"] .dp-status--info { color: #90caf9; }
     }
   }
 }
+
+/* Print → PDF: paper-friendly report of the current data page.
+ * Chrome/Edge "Save as PDF" picks this up via window.print(). */
+@page {
+  margin: 12mm;
+}
+@media print {
+  mat-sidenav,
+  mat-toolbar-row,
+  .breadcrumb-wrapper,
+  .toolbar,
+  .filters,
+  .head-actions,
+  .head-links,
+  .home-links,
+  .exports,
+  .form-actions,
+  form.compose-form,
+  form.report-form,
+  form.goal-form,
+  form.log-form,
+  .comment-box,
+  .message-actions,
+  .feed-actions,
+  .action-item a,
+  mat-progress-bar,
+  button,
+  [mat-button],
+  [mat-flat-button],
+  [mat-raised-button],
+  [mat-stroked-button],
+  [mat-icon-button] {
+    display: none !important;
+  }
+  mat-sidenav-container,
+  mat-sidenav-content {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  mat-sidenav-content {
+    margin-left: 0 !important;
+  }
+  mat-sidenav-content > router-outlet + * {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .dp-card,
+  mat-card,
+  .goal-card,
+  .action-item,
+  .feed-item,
+  .message-card,
+  .post,
+  .level,
+  .trends {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+  }
+  .chart {
+    break-inside: avoid;
+  }
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+}
