@@ -2,10 +2,7 @@ import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardIndexComponent } from "./index/index.component";
 import { HomeComponent } from "../home/home.component";
-import { CellMettingContainerComponent } from "./mentorship/cell-meeting/cell-meeting-container.component";
 import { SearchResultContainerComponent } from "./index/search/search-result/search-result-container.component";
-import { CheckoutComponent } from "./products/checkout/checkout.component";
-import { ManageContactsAnalyticsComponent } from "./contacts/manage/analytics/manage-contacts-analytics.component";
 import { authGuard } from "../../core/auth/auth.guard";
 
 
@@ -55,22 +52,22 @@ export const dashboardRoutes: Routes = [
                  
             {
                 path: 'cell-meeting',
-                component: CellMettingContainerComponent,
+                loadComponent: () => import('./mentorship/cell-meeting/cell-meeting-container.component').then(r => r.CellMettingContainerComponent),
                 title: "Cell Meetings Mentorship",
-            },        
-                       
-            
-            { path: 'checkout', 
-                component: CheckoutComponent,
+            },
+
+
+            { path: 'checkout',
+                loadComponent: () => import('./products/checkout/checkout.component').then(r => r.CheckoutComponent),
                 title: "Monthly Purchase - Checkout summary",
-            },     
-              
-               
+            },
+
+
             {
                 path: 'contact-analytics',
-                component: ManageContactsAnalyticsComponent,
+                loadComponent: () => import('./contacts/manage/analytics/manage-contacts-analytics.component').then(r => r.ManageContactsAnalyticsComponent),
                 title: "Contact Summary & Analytics",
-            },  
+            },
         ]
     },
 ]

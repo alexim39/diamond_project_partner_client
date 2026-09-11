@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ProductInterface, ProductService } from '../monthly-purchase.service';
-import { Subscription } from 'rxjs';
+import { concatMap, catchError, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,11 +22,11 @@ import { BillingService } from '../../../../core/billing/billing.service';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [MatIconModule, CommonModule, RouterModule, TruncatePipe, MatButtonModule, FormsModule, MatButtonModule]
 })
-export class CheckoutComponent implements OnInit, OnDestroy  {
+export class CheckoutComponent implements OnInit  {
     cart: ProductInterface[] = [];
-    subscriptions: Subscription[] = [];
     currentCost: number = 0;
     partner!: PartnerInterface;
+    private readonly destroyRef = inject(DestroyRef);
     
     constructor(
         private productService: ProductService,
@@ -36,25 +37,25 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
     ) {}
   
     ngOnInit(): void {
-      this.subscriptions.push(
-          this.getProductService.cart$.subscribe((cart) => {
-              this.cart = cart;
-              this.updateCurrentCost(); // Recalculate the cost whenever the cart is updated
-          })
-      );
+      this.getProductService.cart$.pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe((cart) => {
+          this.cart = cart;
+          this.updateCurrentCost(); // Recalculate the cost whenever the cart is updated
+      });
 
-      // get current signed in user
-      this.subscriptions.push(
-        this.partnerService.getSharedPartnerData$.subscribe(
-          partnerObject => {
-            this.partner = partnerObject as PartnerInterface
-            //console.log(this.partner)
-          },
-          error => {
-            console.log(error)
-            // redirect to home page
-          }
-        )
+      // get current signed in user (shared subject — tracked)
+      this.partnerService.getSharedPartnerData$.pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe(
+        partnerObject => {
+          this.partner = partnerObject as PartnerInterface
+          //console.log(this.partner)
+        },
+        error => {
+          console.log(error)
+          // redirect to home page
+        }
       )
     }
 
@@ -68,7 +69,6 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
     }
 
     ngOnDestroy() {
-        this.subscriptions.forEach(subscription => subscription.unsubscribe());
         this.getProductService.clearCart();
     }
 
@@ -111,48 +111,49 @@ export class CheckoutComponent implements OnInit, OnDestroy  {
         totalCost: this.updateCurrentCost(),
         partnerId: this.partner._id
       }
-      this.subscriptions.push(
-        this.productService.checkout(cartObject).subscribe({
+      // One stream: checkout, then accrue upline commissions (idempotent —
+      // safe to retry; accrual failures only log since entries can be
+      // accrued later). Both calls are one-shot and self-complete.
+      this.productService.checkout(cartObject).pipe(
+        concatMap((response) => {
+          //clear cart
+          this.clearCart();
 
-          next: (response) => {
-            //clear cart
-            this.clearCart();
+          const cartId: string | undefined = (response as { data?: { cartId?: string } })?.data?.cartId;
+          const accrue$ = cartId
+            ? this.billingService.accrue(cartId).pipe(
+              catchError((accrueError: unknown) => {
+                console.error('Commission accrual failed:', accrueError);
+                return of(null);
+              })
+            )
+            : of(null);
 
-            // Phase D glue: accrue upline commissions (idempotent — safe to
-            // retry; failures only log since entries can be accrued later).
-            const cartId: string | undefined = (response as { data?: { cartId?: string } })?.data?.cartId;
-            if (cartId) {
-              this.subscriptions.push(
-                this.billingService.accrue(cartId).subscribe({
-                  error: (accrueError: unknown) => console.error('Commission accrual failed:', accrueError),
-                })
-              );
+          Swal.fire({
+            position: 'bottom',
+            icon: 'success',
+            text: (response as { message?: string })?.message,
+            showConfirmButton: true,
+            timer: 5000,
+            confirmButtonColor: '#ffab40',
+          });
+          return accrue$;
+        })
+      ).subscribe({
+        error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Server error occurred, please try again.';
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message;
             }
-
             Swal.fire({
               position: 'bottom',
-              icon: 'success',
-              text: response.message,
-              showConfirmButton: true,
-              timer: 5000,
-              confirmButtonColor: '#ffab40',
+              icon: 'error',
+              text: errorMessage,
+              showConfirmButton: false,
+              timer: 4000,
             });
-          },
-         error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.';
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message;
-              }
-              Swal.fire({
-                position: 'bottom',
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000,
-              });
-            }
-        })
-      )
+          }
+      });
   }
 
   // Clear the cart

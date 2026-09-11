@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeTogglerService } from '../../../_common/services/theme-toggler.service';
@@ -41,7 +40,7 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatProgressBarModule, MatSelectModule, MatTooltipModule, RouterModule,
+    MatInputModule, MatProgressBarModule, MatSelectModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
