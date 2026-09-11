@@ -58,7 +58,10 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
           <p class="subtitle">Your full downline, live from the referral chain.</p>
         </div>
         <mat-button-toggle-group>
-          <mat-button-toggle routerLink="../mentorship/partners/my-partners" title="Manage partners">
+          <mat-button-toggle routerLink="../org" title="Organization chart">
+            <mat-icon>account_tree</mat-icon> Org Chart
+          </mat-button-toggle>
+          <mat-button-toggle routerLink="/dashboard/mentorship/partners/my-partners" title="Manage partners">
             <mat-icon>groups</mat-icon> Partners
           </mat-button-toggle>
         </mat-button-toggle-group>
