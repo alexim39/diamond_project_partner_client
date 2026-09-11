@@ -70,6 +70,7 @@
       </a>
       <div [@submenuToggle]="isSubmenuOpen('performance') ? 'open' : 'closed'" class="submenu">
         <a mat-list-item routerLink="progress" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="My Journey - Diamond progression ladder"> - My Journey</a>
+        <a mat-list-item routerLink="training" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Training Center - IPO, QSG, SMO and Leadership"> - Training Center</a>
         <a mat-list-item routerLink="insights" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Team health, funnel and activity"> - Team Performance</a>
         <a mat-list-item routerLink="contact-analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); isHandset && drawer.close()" title="Contact summary and analytics"> - Contact Analytics</a>
       </div>
