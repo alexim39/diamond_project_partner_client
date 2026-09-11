@@ -32,7 +32,42 @@ export interface StoredNotificationItem {
   link: string | null;
   at: string;
   read: boolean;
+  key?: string | null;
 }
+
+export interface NotificationStats {
+  days: number;
+  totals: {
+    sent: number;
+    read: number;
+    clicked: number;
+    email: number;
+    sms: number;
+    push: number;
+    readRate: number;
+    clickRate: number;
+    engagementRate: number;
+  };
+  perCategory: Array<{
+    category: string;
+    sent: number;
+    read: number;
+    clicked: number;
+    channels: { email: number; sms: number; push: number };
+    readRate: number;
+    clickRate: number;
+    engagementRate: number;
+  }>;
+}
+
+export type StatsEnvelope = ApiEnvelope<NotificationStats>;
+
+export interface PushConfig {
+  publicKey: string | null;
+  enabled: boolean;
+}
+
+export type PushConfigEnvelope = ApiEnvelope<PushConfig>;
 
 export interface CenterListResponse {
   stored: StoredNotificationItem[];
@@ -46,6 +81,7 @@ export interface ChannelPreference {
   inApp: boolean;
   email: boolean;
   sms: boolean;
+  push: boolean;
 }
 
 export interface NotificationPreferences {

@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/notifications/notification.service';
+import { PushSubscriptionService } from '../../../core/notifications/push-subscription.service';
 import {
   CATEGORY_LABELS,
   ChannelPreference,
@@ -23,9 +24,10 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
 /**
  * @title Notification settings — per-category channels + email digest.
  *
- * Grouped category cards with In-app / Email / SMS toggles and a digest
- * picker. Loads backend defaults (in-app on, email/SMS off) and saves the
- * merged preference set. OnPush + signals, fully typed.
+ * Grouped category cards with In-app / Email / SMS / Push toggles, a digest
+ * picker, and a browser-push opt-in card. Loads backend defaults (in-app
+ * on, everything else off) and saves the merged preference set.
+ * OnPush + signals, fully typed.
  */
 @Component({
   selector: 'async-notification-preferences',
@@ -87,6 +89,12 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
                   [attr.aria-pressed]="channel(category, 'sms')"
                   (click)="flip(category, 'sms')"
                 >SMS {{ channel(category, 'sms') ? '✓' : '' }}</button>
+                <button
+                  mat-button
+                  [color]="channel(category, 'push') ? 'primary' : undefined"
+                  [attr.aria-pressed]="channel(category, 'push')"
+                  (click)="flip(category, 'push')"
+                >Push {{ channel(category, 'push') ? '✓' : '' }}</button>
               </div>
             </article>
           }
@@ -105,6 +113,29 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
               >{{ opt.label }}</button>
             }
           </div>
+        </article>
+
+        <article class="card push-card">
+          <h3>Browser push</h3>
+          <p class="muted">{{ pushHint() }}</p>
+          @if (push.error(); as pushErr) {
+            <p class="error" role="alert">{{ pushErr }}</p>
+          }
+          <div class="toggles">
+            @if (push.status() === 'subscribed') {
+              <button mat-button (click)="push.disable()" [disabled]="push.busy()">
+                {{ push.busy() ? 'Working…' : 'Turn off push on this device' }}
+              </button>
+            } @else {
+              <button
+                mat-button
+                color="primary"
+                (click)="push.enable()"
+                [disabled]="push.busy() || push.status() === 'unsupported' || push.status() === 'denied'"
+              >{{ push.busy() ? 'Working…' : 'Turn on push on this device' }}</button>
+            }
+          </div>
+          <p class="muted fine">Per-category Push toggles above decide what may buzz you.</p>
         </article>
 
         <div class="actions">
@@ -127,6 +158,9 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
     .card h3 { margin: 0 0 0.6em; font-size: 1em; }
     .toggles { display: flex; gap: 0.25em; flex-wrap: wrap; }
     .digest { max-width: 560px; }
+    .push-card { max-width: 560px; display: flex; flex-direction: column; gap: 0.5em; }
+    .push-card p { margin: 0; }
+    .fine { font-size: 0.8em; }
     .actions { display: flex; gap: 0.5em; flex-wrap: wrap; align-items: center; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .saved { color: var(--dp-success, #2e7d32); }
@@ -135,6 +169,7 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
 export class NotificationPreferencesComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly push = inject(PushSubscriptionService);
 
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
@@ -147,6 +182,17 @@ export class NotificationPreferencesComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+    void this.push.refresh();
+  }
+
+  protected pushHint(): string {
+    switch (this.push.status()) {
+      case 'subscribed': return 'Push is on for this device.';
+      case 'denied': return 'Browser permission is blocked — allow notifications in your browser settings first.';
+      case 'unsupported': return 'This browser does not support push notifications.';
+      case 'unsubscribed': return 'Get buzzed for the categories you enable below.';
+      default: return 'Checking this device…';
+    }
   }
 
   protected label(category: string): string {
@@ -161,7 +207,7 @@ export class NotificationPreferencesComponent implements OnInit {
     const current = this.prefs();
     if (!current) return;
     this.saved.set(false);
-    const row = current.channels[category] ?? { inApp: true, email: false, sms: false };
+    const row = current.channels[category] ?? { inApp: true, email: false, sms: false, push: false };
     this.prefs.set({
       ...current,
       channels: { ...current.channels, [category]: { ...row, [field]: !row[field] } },

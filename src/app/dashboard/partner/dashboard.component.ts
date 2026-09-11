@@ -19,7 +19,8 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { PartnerAuthService } from '../../auth/auth.service';
-import { PushNotificationsComponent } from './index/push-notifications/push-notifications.component';
+import { NotificationBellComponent } from '../notifications/bell/notification-bell.component';
+import { NotificationStreamService } from '../../core/notifications/notification-stream.service';
 import { MatBadgeModule } from '@angular/material/badge';
 
 /** Goal-worded primary navigation (max 8 groups) — Home is a direct link. */
@@ -177,8 +178,8 @@ mat-sidenav-content {
 `],
 providers: [PartnerService, PartnerAuthService],
 imports: [
-    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule, 
-    MatListModule, MatIconModule, AsyncPipe, RouterModule, PushNotificationsComponent,
+    MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule,
+    MatListModule, MatIconModule, AsyncPipe, RouterModule, NotificationBellComponent,
     CommonModule, LogoComponent, MatBadgeModule
     
 ],
@@ -226,19 +227,14 @@ export class DashboardComponent {
 
   partner!: PartnerInterface;
 
-  notificationCount = 0;
+  /** Live badge count — polling today, socket transport later. */
+  protected readonly stream = inject(NotificationStreamService);
 
   private readonly themes = inject(ThemeTogglerService);
   readonly theme = this.themes.theme;
 
   toggleTheme(): void {
     this.themes.toggle();
-  }
-
-  // Value is returned from notification child component
-  updateNotificationCount(count: number) {
-    this.notificationCount = count; // Update the notification count
-    //console.log('Notification count updated:', count);
   }
 
   constructor(

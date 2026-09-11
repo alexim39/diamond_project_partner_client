@@ -3,7 +3,6 @@ import { ProfileMrgContainerComponent } from './profile-mgr/profile-mgr-containe
 import { LandingPageSettingContainerComponent } from './Landing-page/Landing-page-container.component';
 import { BillingContainerComponent } from '../billing/billing-container.component';
 import { CommissionOverviewComponent } from '../billing/commissions/commissions.component';
-import { PushNotificationListContainerComponent } from './push-notification-list/push-notification-list-container';
 
 export const SettingsRoutes: Routes = [
   {
@@ -34,9 +33,11 @@ export const SettingsRoutes: Routes = [
             title: "Commissions - Track your network earnings",
         }, 
         {
+            // Legacy admin-style list retired — the Notification Center is
+            // the single standard surface (bookmarks keep working).
             path: 'notifications',
-            component: PushNotificationListContainerComponent,
-            title: "All Push Notification List - View all notification list",
+            redirectTo: '/dashboard/notifications/center',
+            pathMatch: 'full',
         }, 
     ],
   },

@@ -6,6 +6,9 @@ import {
   FeedEnvelope,
   NotificationPreferences,
   PreferencesEnvelope,
+  PushConfigEnvelope,
+  StatsEnvelope,
+  StoredNotificationItem,
 } from './notification.models';
 
 /** Unified notification feed → backend `/v1/notifications/*`. Fully typed. */
@@ -35,6 +38,15 @@ export class NotificationService {
     return this.api.post(`v1/notifications/${id}/read`, {});
   }
 
+  markStoredUnread(id: string): Observable<unknown> {
+    return this.api.post(`v1/notifications/${id}/unread`, {});
+  }
+
+  /** Click beacon — records engagement, implies read. */
+  recordOpen(id: string): Observable<{ data: StoredNotificationItem }> {
+    return this.api.post<{ data: StoredNotificationItem }>(`v1/notifications/${id}/open`, {});
+  }
+
   archiveStored(id: string): Observable<unknown> {
     return this.api.post(`v1/notifications/${id}/archive`, {});
   }
@@ -43,8 +55,24 @@ export class NotificationService {
     return this.api.delete(`v1/notifications/${id}`);
   }
 
-  bulk(action: 'read-all' | 'archive-all'): Observable<unknown> {
+  bulk(action: 'read-all' | 'archive-all' | 'delete-all'): Observable<unknown> {
     return this.api.post('v1/notifications/bulk', { action });
+  }
+
+  stats(days = 30): Observable<StatsEnvelope> {
+    return this.api.get<StatsEnvelope>(`v1/notifications/stats?days=${days}`);
+  }
+
+  pushConfig(): Observable<PushConfigEnvelope> {
+    return this.api.get<PushConfigEnvelope>('v1/notifications/push/vapid-key');
+  }
+
+  subscribePush(subscription: { endpoint: string; keys: { p256dh: string; auth: string }; userAgent?: string }): Observable<unknown> {
+    return this.api.post('v1/notifications/push/subscriptions', subscription);
+  }
+
+  unsubscribePush(endpoint: string): Observable<unknown> {
+    return this.api.post('v1/notifications/push/subscriptions/unsubscribe', { endpoint });
   }
 
   getPreferences(): Observable<PreferencesEnvelope> {
