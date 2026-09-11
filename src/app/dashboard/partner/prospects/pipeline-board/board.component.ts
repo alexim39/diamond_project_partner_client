@@ -145,7 +145,7 @@ import { ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, StuckEntry } from
     .card:active { cursor: grabbing; }
     .card-name { font-weight: 600; text-decoration: none; color: inherit; }
     .card-name:hover { color: var(--dp-gold-ink); }
-    .stuck-badge { color: var(--dp-error); font-size: 0.78em; font-weight: 600; }
+    .stuck-badge { color: var(--dp-error); font-size: 0.85em; font-weight: 600; }
     .drop-hint { text-align: center; margin: 0.5em 0; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }

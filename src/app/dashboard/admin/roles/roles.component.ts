@@ -136,16 +136,16 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     .breadcrumb a { text-decoration: none; }
     .roles-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
     .loader { flex: 2; min-width: 120px; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
-    .muted { color: #777; font-size: 0.85em; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .empty { color: var(--dp-muted); }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],
 })

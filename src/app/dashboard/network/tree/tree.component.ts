@@ -251,9 +251,9 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
     .node.selected rect { stroke: var(--dp-gold); stroke-width: 3; }
     .node.match rect { stroke: var(--dp-success); stroke-width: 3; stroke-dasharray: 5 3; }
     .t-name { font-size: 13px; font-weight: 600; fill: var(--dp-text); }
-    .t-sub { font-size: 11px; fill: var(--dp-muted); }
+    .t-sub { font-size: 12px; fill: var(--dp-muted); }
     .toggle { fill: var(--dp-surface); stroke: var(--dp-muted); stroke-width: 2; }
-    .t-toggle { font-size: 12px; font-weight: 700; fill: var(--dp-text); pointer-events: none; }
+    .t-toggle { font-size: 13px; font-weight: 700; fill: var(--dp-text); pointer-events: none; }
     .details { display: flex; align-items: center; gap: 1em; background: var(--dp-info-bg); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.75em 1em; flex-wrap: wrap; }
     .details .spacer { flex: 1; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }

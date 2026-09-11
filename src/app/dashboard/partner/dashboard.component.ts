@@ -152,7 +152,7 @@ mat-sidenav-content {
     border: none;
     color: var(--dp-muted);
     font: inherit;
-    font-size: 0.72em;
+    font-size: 0.8em;
     text-decoration: none;
     cursor: pointer;
   }

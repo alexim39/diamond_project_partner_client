@@ -112,6 +112,23 @@ mat-sidenav-content > router-outlet + * {
   outline-offset: 2px;
 }
 
+/* Senior-friendly touch + type (Phase 3): 44px targets, readable floors. */
+body {
+  line-height: 1.55;
+}
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button,
+.mat-mdc-stroked-button {
+  min-height: 44px;
+}
+@media only screen and (max-width: 600px) {
+  .mat-mdc-icon-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 /* Brand utilities for feature pages (both themes). */
 .dp-muted { color: var(--dp-muted); }
 .dp-card {
@@ -123,8 +140,8 @@ mat-sidenav-content > router-outlet + * {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 0.15em 0.7em;
-  font-size: 0.78em;
+  padding: 0.2em 0.8em;
+  font-size: 0.85em;
   font-weight: 600;
 }
 .dp-status--ok { background: var(--dp-success-bg); color: var(--dp-success); }

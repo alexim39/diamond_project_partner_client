@@ -45,11 +45,13 @@ styles: [`
     border-radius: 50%;
   }
   .name {
-    font-size: 0.7em;
+    font-size: 0.9em;
+    font-weight: 600;
   }
   .title {
-    font-size: 0.6em;
-    color: gray;
+    font-size: 0.8em;
+    color: var(--dp-sidenav-text);
+    opacity: 0.75;
     //margin-top: 0.8em;
   }
   .social {

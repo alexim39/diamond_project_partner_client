@@ -164,20 +164,20 @@ const naira = (n: number): string =>
     .commissions-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .subtitle { margin: 0.25em 0 0; color: #666; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75em; }
     .card { display: flex; flex-direction: column; gap: 0.15em; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.9em 1em; }
     .card.accent { background: #e8f5e9; border-color: #a5d6a7; }
-    .card .k { font-size: 0.85em; color: #666; }
+    .card .k { font-size: 0.85em; color: var(--dp-muted); }
     .card strong { font-size: 1.4em; }
     .ledger-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5em; }
     .ledger-head h3 { margin: 0; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .amount { font-weight: 600; white-space: nowrap; }
-    .muted { color: #777; font-size: 0.85em; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
-    .empty { color: #666; }
+    .empty { color: var(--dp-muted); }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],
 })
