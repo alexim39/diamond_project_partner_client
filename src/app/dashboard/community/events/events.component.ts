@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -19,6 +22,27 @@ const toInputDateTime = (d: Date): string => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
+/** Tomorrow at 09:00 local — sensible default start. */
+const defaultStart = (): Date => {
+  const d = new Date(Date.now() + 86400000);
+  d.setHours(9, 0, 0, 0);
+  return d;
+};
+
+/** Merge a picker date with a picker time into one local Date. */
+const mergeDateTime = (date: Date, time: Date): Date => {
+  const out = new Date(date);
+  out.setHours(time.getHours(), time.getMinutes(), 0, 0);
+  return out;
+};
+
+/** End is valid only as a complete pair (or fully empty). */
+const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
+  const date = group.get('endsDate')?.value;
+  const time = group.get('endsTime')?.value;
+  return (date == null) === (time == null) ? null : { endsIncomplete: true };
+};
+
 /**
  * @title Events — group gatherings with RSVP headcounts.
  *
@@ -30,8 +54,9 @@ const toInputDateTime = (d: Date): string => {
   selector: 'async-community-events',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatButtonToggleModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+    DatePipe, MatButtonModule, MatButtonToggleModule, MatDatepickerModule, MatNativeDateModule,
+    MatTimepickerModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
+    ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -80,12 +105,38 @@ const toInputDateTime = (d: Date): string => {
           </mat-form-field>
           <div class="two-col">
             <mat-form-field appearance="outline">
-              <mat-label>Starts</mat-label>
-              <input matInput type="datetime-local" formControlName="startsAt" />
+              <mat-label>Starts date</mat-label>
+              <input matInput [matDatepicker]="startsDatePicker" formControlName="startsDate" />
+              <mat-datepicker-toggle matSuffix [for]="startsDatePicker" />
+              <mat-datepicker #startsDatePicker />
             </mat-form-field>
             <mat-form-field appearance="outline">
-              <mat-label>Ends (optional)</mat-label>
-              <input matInput type="datetime-local" formControlName="endsAt" />
+              <mat-label>Starts time</mat-label>
+              <input matInput [matTimepicker]="startsTimePicker" formControlName="startsTime" />
+              <mat-timepicker-toggle matSuffix [for]="startsTimePicker" />
+              <mat-timepicker #startsTimePicker interval="30m" />
+            </mat-form-field>
+          </div>
+          <div class="two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>Ends date (optional)</mat-label>
+              <input
+                matInput
+                [matDatepicker]="endsDatePicker"
+                formControlName="endsDate"
+                [min]="form.controls.startsDate.value"
+              />
+              <mat-datepicker-toggle matSuffix [for]="endsDatePicker" />
+              <mat-datepicker #endsDatePicker />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Ends time (optional)</mat-label>
+              <input matInput [matTimepicker]="endsTimePicker" formControlName="endsTime" />
+              <mat-timepicker-toggle matSuffix [for]="endsTimePicker" />
+              <mat-timepicker #endsTimePicker interval="30m" />
+              @if (form.hasError('endsIncomplete')) {
+                <mat-error>Pick both an end date and time.</mat-error>
+              }
             </mat-form-field>
           </div>
           <div class="two-col">
@@ -203,14 +254,19 @@ export class CommunityEventsComponent implements OnInit {
     { label: 'Declined', value: 'declined' },
   ];
 
-  protected readonly form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
-    body: ['', [Validators.required, Validators.maxLength(2000)]],
-    startsAt: [toInputDateTime(new Date(Date.now() + 86400000)), Validators.required],
-    endsAt: [''],
-    location: ['', Validators.maxLength(200)],
-    scope: ['global' as AudienceScope, Validators.required],
-  });
+  protected readonly form = this.fb.group(
+    {
+      title: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
+      body: ['', [Validators.required, Validators.maxLength(2000)]],
+      startsDate: [defaultStart(), Validators.required],
+      startsTime: [defaultStart(), Validators.required],
+      endsDate: [null as Date | null],
+      endsTime: [null as Date | null],
+      location: ['', Validators.maxLength(200)],
+      scope: ['global' as AudienceScope, Validators.required],
+    },
+    { validators: endsPairValidator },
+  );
 
   protected visible(): CommunityEvent[] {
     return this.tab() === 'upcoming' ? this.upcoming() : this.mine();
@@ -252,14 +308,16 @@ export class CommunityEventsComponent implements OnInit {
     this.publishing.set(true);
     this.publishError.set(null);
     const v = this.form.getRawValue();
+    const startsAt = toInputDateTime(mergeDateTime(v.startsDate!, v.startsTime!));
+    const endsAt = v.endsDate && v.endsTime ? toInputDateTime(mergeDateTime(v.endsDate, v.endsTime)) : null;
     this.events
       .create({
-        title: v.title.trim(),
-        body: v.body.trim(),
-        startsAt: v.startsAt,
-        ...(v.endsAt ? { endsAt: v.endsAt } : {}),
-        location: v.location.trim(),
-        scope: v.scope,
+        title: (v.title ?? '').trim(),
+        body: (v.body ?? '').trim(),
+        startsAt,
+        ...(endsAt ? { endsAt } : {}),
+        location: (v.location ?? '').trim(),
+        scope: v.scope ?? 'global',
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -267,8 +325,8 @@ export class CommunityEventsComponent implements OnInit {
           this.publishing.set(false);
           this.showCompose.set(false);
           this.form.reset({
-            title: '', body: '', startsAt: toInputDateTime(new Date(Date.now() + 86400000)),
-            endsAt: '', location: '', scope: 'global',
+            title: '', body: '', startsDate: defaultStart(), startsTime: defaultStart(),
+            endsDate: null, endsTime: null, location: '', scope: 'global',
           });
           this.tab.set('mine');
           this.reload();
