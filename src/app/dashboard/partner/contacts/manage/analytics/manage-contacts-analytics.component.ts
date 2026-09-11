@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -13,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
 import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
@@ -39,7 +39,7 @@ import { SMSService } from '../../../sms/sms.service';
     changeDetection: ChangeDetectionStrategy.Eager,
     providers: [ContactsService, SMSService]
 })
-export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
+export class ManageContactsAnalyticsComponent implements OnInit {
 
   @Input() prospect!: ContactsInterface;
   prospectData!: any;
@@ -51,7 +51,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
   emailBody: string;
   emailSubject: string;
   readonly dialog = inject(MatDialog);
-  subscriptions: Array<Subscription> = [];
+  private readonly destroyRef = inject(DestroyRef);
   partner!: PartnerInterface;
 
 
@@ -84,9 +84,10 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
       this.prospectData = this.prospect;
     }
 
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
+    // get current signed in user (shared subject — tracked)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           //console.log(this.partner)
@@ -96,7 +97,6 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
           // redirect to home page
         }
       )
-    )
 
   }
 
@@ -112,28 +112,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
       })
       return;
     }
-    this.subscriptions.push(
-      /* this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: `Your have successfully updated prospect status`,
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-
-      }, (error: any) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please and try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
-      }) */
-    )
+    // NOTE: status update is disabled upstream (kept for reference).
   }
 
   updateProspectRemark() {
@@ -150,28 +129,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.subscriptions.push(
-     /*  this.contactsService.updateProspectRemark(obj).subscribe((prospectRemark: ContactsInterface) => {
-        Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: `Your have successfully updated remark on for prospect`,
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        })
-
-      }, (error: any) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please and try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
-      }) */
-    )
+    // NOTE: remark update is disabled upstream (kept for reference).
 
   }
 
@@ -189,8 +147,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
 
-        this.subscriptions.push(
-          this.contactsService.deleteProspect(this.prospectData._id).subscribe((prospect: ContactsInterface) => {
+        this.contactsService.deleteProspect(this.prospectData._id).subscribe((prospect: ContactsInterface) => {
             // this.prospectContact = prospectContact;
             //console.log('prospectContact ',prospectStatus)
             Swal.fire({
@@ -216,7 +173,6 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
               timer: 4000
             })
           })
-        )
 
       }
     });
@@ -257,8 +213,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
 
   sendSMS() {
 
-    this.subscriptions.push(
-      this.contactsService.signleSMSCharge(this.partner._id).subscribe((smsCharge: any) => {
+    this.contactsService.signleSMSCharge(this.partner._id).subscribe((smsCharge: any) => {
         //console.log('sms ',smsCharge)
         const transactionId = smsCharge?.data._id;
 
@@ -286,14 +241,11 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
         }
 
       })
-    )
   }
 
   private callSMSGate(transactionId: string) {
 
-    this.subscriptions.push(
-
-      this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(
+    this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(
         response => {
           //console.log('SMS sent successfully:', response);  
 
@@ -306,8 +258,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
               status: "success"
             }
             // record sms to database
-            this.subscriptions.push(
-              this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
+            this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
                 //console.log('smsSave ',smsSave)
 
                 Swal.fire({
@@ -318,7 +269,6 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
                   timer: 4000
                 });
               })
-            )
           } else {
             const smsObject = {
               partner: this.partner._id,
@@ -328,8 +278,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
               status: "failed"
             }
             // record sms to database
-            this.subscriptions.push(
-              this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
+            this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
                 //console.log('smsSave ',smsSave)
 
                 Swal.fire({
@@ -340,7 +289,6 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
                   timer: 4000
                 });
               })
-            )
           }
 
 
@@ -350,13 +298,12 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: 'SMS not sent, there was an error sending SMS',
-            showConfirmButton: false,
-            timer: 4000
+          text: 'SMS not sent, there was an error sending SMS',
+          showConfirmButton: false,
+          timer: 4000
           })
         }
-      )
-    );
+      );
   }
 
   sendEmail() {
@@ -366,11 +313,9 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
       emailBody: this.emailBody,
       emailSubject: this.emailSubject
     }
-    this.subscriptions.push(
-
-      this.contactsService.sendProspectEmail(emailObject).subscribe(
+    this.contactsService.sendProspectEmail(emailObject).subscribe(
         response => {
-          //console.log('SMS sent successfully:', response);  
+          //console.log('SMS sent successfully:', response);
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -380,7 +325,7 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
           })
         },
         error => {
-          //console.error('Error sending SMS:', error);  
+          //console.error('Error sending SMS:', error);
           Swal.fire({
             position: "bottom",
             icon: 'info',
@@ -390,8 +335,6 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
           })
         }
       )
-
-    );
   }
 
   editProspectDetail() {
@@ -407,13 +350,6 @@ export class ManageContactsAnalyticsComponent implements OnInit, OnDestroy {
   ViewResponse(prospect: ProspectListInterface) {
     this.dialog.open(ProspectResponseComponent, {
       data: prospect
-    });
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
     });
   }
 

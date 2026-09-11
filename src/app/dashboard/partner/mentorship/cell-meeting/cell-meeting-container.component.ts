@@ -1,7 +1,7 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CellMeetingComponent } from './cell-meeting.component';
 
 
@@ -19,21 +19,22 @@ import { CellMeetingComponent } from './cell-meeting.component';
   }
   `
 })
-export class CellMettingContainerComponent implements OnInit, OnDestroy {
+export class CellMettingContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private partnerService: PartnerService,
   ) { }
 
   ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe(
-       
+
+    // get current signed in user (shared subject — tracked)
+    this.partnerService.getSharedPartnerData$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(
+
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
@@ -44,19 +45,11 @@ export class CellMettingContainerComponent implements OnInit, OnDestroy {
             }) */
           }
         },
-        
+
         error => {
           console.log(error)
           // redirect to home page
         }
       )
-    )
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
-    });
   }
 }
