@@ -46,6 +46,33 @@ export interface PendingConfirmation {
 
 export type ConfirmationsEnvelope = ApiEnvelope<{ items: PendingConfirmation[]; total: number }>;
 
+export interface ConfirmationMemberStat {
+  partnerId: string;
+  level: string | null;
+  member: { username: string; name: string } | null;
+  resolved: number;
+  pending: number;
+  stale: number;
+  medianMs: number | null;
+  medianDisplay: string | null;
+}
+
+export interface ConfirmationDeciderStat {
+  uplineId: string;
+  member: { username: string; name: string } | null;
+  resolved: number;
+  medianMs: number | null;
+  medianDisplay: string | null;
+}
+
+export interface ConfirmationStats {
+  overall: { medianMs: number | null; medianDisplay: string | null; resolved: number; pending: number; stale: number };
+  perMember: ConfirmationMemberStat[];
+  perDecider: ConfirmationDeciderStat[];
+}
+
+export type ConfirmationStatsEnvelope = ApiEnvelope<ConfirmationStats>;
+
 export const TRAINING_CONFIRM_KEYS = ['ipo', 'qsg', 'smo'];
 
 export const TRAINING_KEY_LABELS: Record<string, string> = { ipo: 'IPO', qsg: 'QSG', smo: 'SMO' };

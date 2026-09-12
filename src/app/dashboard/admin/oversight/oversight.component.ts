@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../../core/progression/progression.service';
-import { LADDER, Oversight, PendingNomination } from '../../../core/progression/progression.models';
+import { ConfirmationStats, LADDER, Oversight, PendingNomination } from '../../../core/progression/progression.models';
 import { ApiError } from '../../../core/http/api-error';
 
 /**
@@ -90,6 +90,30 @@ import { ApiError } from '../../../core/http/api-error';
           }
         </div>
 
+        @if (confirmStats(); as stats) {
+          <div class="dp-card levels-card">
+            <h3>Confirmation responsiveness</h3>
+            <p class="muted">
+              Downline median time-to-decision:
+              <strong>{{ stats.overall.medianDisplay ?? '—' }}</strong>
+              · {{ stats.overall.resolved }} decided · {{ stats.overall.pending }} pending
+              @if (stats.overall.stale > 0) {
+                <strong class="stale">({{ stats.overall.stale }} stale over 72h)</strong>
+              }
+            </p>
+            @if (stats.perDecider.length > 0) {
+              <ul class="decider-list">
+                @for (d of stats.perDecider; track d.uplineId) {
+                  <li>
+                    <span>{{ d.member?.name ?? 'Teammate' }}</span>
+                    <span class="muted">{{ d.resolved }} decided · median {{ d.medianDisplay ?? '—' }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+
         <h3>Nominations ({{ o.pendingNominations.length }})</h3>
         @if (o.pendingNominations.length > 0) {
           <ul class="nom-list">
@@ -143,6 +167,9 @@ import { ApiError } from '../../../core/http/api-error';
     .nom-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
     .nom-note { margin: 0; font-style: italic; }
     .nom-actions { display: flex; gap: 0.4em; flex-wrap: wrap; }
+    .decider-list { list-style: none; margin: 0.25em 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35em; }
+    .decider-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6em; flex-wrap: wrap; font-size: 0.9em; }
+    .stale { color: var(--dp-error); }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
@@ -159,6 +186,7 @@ export class OversightComponent implements OnInit {
   protected readonly actingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly oversight = signal<Oversight | null>(null);
+  protected readonly confirmStats = signal<ConfirmationStats | null>(null);
 
   protected readonly ladderBars = computed(() => {
     const dist = this.oversight()?.distribution ?? {};
@@ -190,6 +218,13 @@ export class OversightComponent implements OnInit {
           this.error.set(err.message);
           this.loading.set(false);
         },
+      });
+    this.progress
+      .confirmationStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.confirmStats.set(res.data ?? null),
+        error: () => this.confirmStats.set(null),
       });
   }
 
