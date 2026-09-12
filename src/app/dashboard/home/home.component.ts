@@ -285,7 +285,7 @@ export class HomeComponent implements OnInit {
   protected readonly earnings = signal<PerformanceData | null>(null);
   protected readonly journey = signal<Journey | null>(null);
   protected readonly communityPosts = signal<FeedPost[]>([]);
-  protected readonly prospectCount = signal<number | null>(null);
+  protected readonly listSubmitted = signal(false);
   protected readonly today = new Date();
   protected readonly bannerDismissed = signal(false);
 
@@ -342,7 +342,7 @@ export class HomeComponent implements OnInit {
   protected starterItems(): Array<{ key: string; label: string; link: string; done: boolean }> {
     return [
       { key: 'profile', label: 'Complete your profile', link: 'settings/profiles', done: !this.profileIncomplete() },
-      { key: 'prospect', label: 'Add your first prospect', link: 'tools/contacts/new', done: (this.prospectCount() ?? 1) > 0 },
+      { key: 'prospect', label: 'Submit your contact list (20+)', link: 'tools/contacts/new', done: this.listSubmitted() },
       { key: 'goal', label: 'Set your first goal', link: 'goals', done: (this.overview()?.goals.total ?? 1) > 0 },
       { key: 'ipo', label: 'Take the IPO course', link: 'training', done: this.ipoDone() },
     ];
@@ -403,25 +403,22 @@ export class HomeComponent implements OnInit {
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
-    // Journey + community + prospect count fail soft — the page must never blank on them.
-    const myId = this.auth.currentUser()?.id ?? null;
+    // Journey + community + contact list fail soft — the page must never blank on them.
     forkJoin({
       overview: this.analytics.overview(30),
       perf: this.billing.performance(),
       journey: this.progress.mine().pipe(catchError(() => of(null))),
       feed: this.community.feed(undefined, 5).pipe(catchError(() => of(null))),
-      prospects: myId
-        ? this.leads.listByPartner(myId, 1).pipe(catchError(() => of(null)))
-        : of(null),
+      contactList: this.leads.contactListMine().pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ overview, perf, journey, feed, prospects }) => {
+        next: ({ overview, perf, journey, feed, contactList }) => {
           this.overview.set(overview.data ?? null);
           this.earnings.set(perf.data ?? null);
           this.journey.set(journey?.data ?? null);
           this.communityPosts.set(feed?.data?.items?.slice(0, 3) ?? []);
-          this.prospectCount.set(prospects ? (prospects.data?.length ?? 0) : null);
+          this.listSubmitted.set((contactList?.data?.batches ?? []).length > 0);
           this.loading.set(false);
         },
         error: (err: ApiError) => {

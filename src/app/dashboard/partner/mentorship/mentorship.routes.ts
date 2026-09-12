@@ -38,6 +38,11 @@ export const MentorshipRoutes: Routes = [
                      title: "Manage Team - Manage team members from partners",
                  },
                  {
+                     path: 'contact-lists',
+                     loadComponent: () => import('./team/contact-lists/contact-lists.component').then(r => r.DownlineContactListsComponent),
+                     title: "Downline Contact Lists - Work submitted onboarding lists",
+                 },
+                 {
                      path: 'confirmations',
                      component: TrainingConfirmationsComponent,
                      title: "Confirm Training - Approve downline training completions",

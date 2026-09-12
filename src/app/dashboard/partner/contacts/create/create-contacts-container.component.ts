@@ -1,47 +1,18 @@
-
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
-import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CreateContactsComponent } from './create-contacts.component';
 
 
 /**
- * @title contacts container
+ * @title contacts container — hosts the member contact list.
  */
 @Component({
     selector: 'async-contacts-container',
     imports: [CreateContactsComponent],
     providers: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-  @if (partner) {
-    <async-create-contatcs [partner]="partner"/>
-  }
+  <async-create-contatcs />
   `
 })
-export class CreateContactsContainerComponent implements OnInit, OnDestroy {
-
-  partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
-
-  constructor(
-    private partnerService: PartnerService,
-  ) { }
-
-  ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
-        next: (partner: PartnerInterface) => {
-          this.partner = partner;
-        },
-      })
-    )
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
+export class CreateContactsContainerComponent {
 }

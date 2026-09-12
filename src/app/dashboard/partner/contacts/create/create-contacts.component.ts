@@ -1,354 +1,353 @@
-
-import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
-import { MatIconModule } from '@angular/material/icon';
-import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import Swal from 'sweetalert2';
-import {MatSelectModule} from '@angular/material/select';
-import { Subscription } from 'rxjs';
-import { ContactsService } from '../contacts.service';
-import { MatInputModule } from '@angular/material/input';  
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, RouterModule } from '@angular/router';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import { HttpErrorResponse } from '@angular/common/http';
+import { MatSelectModule } from '@angular/material/select';
+import { RouterModule } from '@angular/router';
+import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
+import {
+  ContactListBatch, ContactListEntry, ContactPriority, RELATIONSHIP_TAGS, RelationshipTag,
+} from '../../prospects/lead-pipeline/lead.models';
+import { ApiError } from '../../../../core/http/api-error';
 
 /**
- * @title Contacts
+ * @title My contact list — onboarding deliverable.
+ *
+ * Quick-add people you plan to introduce (name + phone + tag in seconds),
+ * watch the counter climb to the 20-contact minimum, then submit once —
+ * your upline is notified and works the list with you. Submitted batches
+ * show pipeline progress underneath. OnPush + signals, fully typed.
  */
 @Component({
 selector: 'async-create-contatcs',
-template:   `
-
+imports: [
+  CommonModule, DatePipe, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatIconModule,
+  MatInputModule, MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+],
+template: `
 <section class="breadcrumb-wrapper">
   <div class="breadcrumb">
-    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
-    <a>Tools</a> &gt;
-    <a>Contacts</a> &gt;
-    <span>Create contacts</span>
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <span>My contact list</span>
   </div>
 </section>
 
-<section class="async-background ">
-  <h2>Create Prospect Contact List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+<section class="list-page">
+  <div class="page-head">
+    <div>
+      <h2>My contact list</h2>
+      <p class="subtitle">People you plan to introduce into the business. Add at least {{ minRequired() }} — then submit once for your upline to work with you.</p>
+    </div>
+    <span class="count-pill" [class.count-pill--ready]="canSubmit()">{{ unsubmittedCount() }} of {{ minRequired() }}</span>
+  </div>
 
-  <section class="async-container">
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
 
-    <div class="title">
-      <h3>New Contact Form</h3>
-      <div class="action-area">
-        <mat-button-toggle-group>
-          <mat-button-toggle routerLink="../list" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon> Contact List</mat-button-toggle>
-          <mat-button-toggle (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon> Import Prospect from Online</mat-button-toggle>
+  @if (error(); as err) {
+    <p class="error" role="alert">
+      {{ err }}
+      <button mat-button (click)="reload()">Retry</button>
+    </p>
+  }
+
+  @if (notice(); as note) {
+    <p class="notice" role="status">{{ note }}</p>
+  }
+
+  <form class="dp-card add-card" [formGroup]="form" (ngSubmit)="add()">
+    <h3>Add someone <span class="muted">— Enter adds another, fast</span></h3>
+    <div class="two-col">
+      <mat-form-field appearance="outline">
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="prospectName" maxlength="80" placeholder="e.g. Adaeze Obi" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Phone number</mat-label>
+        <input matInput formControlName="prospectPhone" inputmode="tel" maxlength="20" placeholder="e.g. 0803…" />
+      </mat-form-field>
+    </div>
+    <div class="two-col">
+      <mat-form-field appearance="outline">
+        <mat-label>Relationship</mat-label>
+        <mat-select formControlName="relationship">
+          @for (t of tags; track t) {
+            <mat-option [value]="t">{{ t }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <div class="priority-row" role="group" aria-label="Priority">
+        <mat-button-toggle-group formControlName="priority" aria-label="Priority">
+          <mat-button-toggle value="normal">Normal</mat-button-toggle>
+          <mat-button-toggle value="high">High priority</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
     </div>
-
-
-    <div class="form-container">
-      <form class="flex-form" [formGroup]="prospectContactForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="prospectName" required>
-            @if (prospectContactForm.get('prospectName')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Surname</mat-label>
-            <input matInput type="email" formControlName="prospectSurname">
-            @if (prospectContactForm.get('prospectSurname')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Email Address</mat-label>
-            <input matInput formControlName="prospectEmail">
-            @if (prospectContactForm.get('prospectEmail')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="prospectPhone" required>
-            @if (prospectContactForm.get('prospectPhone')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Source of Contact</mat-label>
-            <mat-select formControlName="prospectSource" required>
-              <mat-option value="Family">Family</mat-option>
-              <mat-option value="Friend">Friend</mat-option>
-              <mat-option value="Relative">Relative</mat-option>
-              <mat-option value="Referrals">Referrals</mat-option>
-              <mat-option value="Social Media">Social Media</mat-option>
-              <mat-option value="Website">Website</mat-option>
-              <mat-option value="Content Marketing">Content Marketing</mat-option>
-              <mat-option value="Email Marketing">Email Marketing</mat-option>
-              <mat-option value="Networking Events">Networking Events</mat-option>
-              <mat-option value="Search Engine Advertising (SEA)">Search Engine Advertising (SEA)</mat-option>
-              <mat-option value="Pay-Per-Click (PPC)">Pay-Per-Click (PPC)</mat-option>
-              <mat-option value="Purchased Lists">Purchased Lists</mat-option>
-              <mat-option value="Partnerships">Partnerships</mat-option>
-              <mat-option value="Offline Marketing">Offline Marketing</mat-option>
-              <mat-option value="Market Research">Market Research</mat-option>
-              <mat-option value="Contact Recommendation">Contact Recommendation</mat-option>
-              <mat-option value="Survey Form">Survey Form</mat-option>
-              <mat-option value="Other Means">Other Means</mat-option>
-            </mat-select>
-            @if (prospectContactForm.get('prospectSource')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Short Remark/Comment</mat-label>
-            <textarea matInput formControlName="prospectRemark"></textarea>
-          </mat-form-field>
-        </div>
-
-
-        <div class="form-group"></div>
-        <div class="form-group"></div>
-        <div class="form-group"></div>
-        <button mat-flat-button color="primary">Submit</button>
-      </form>
+    <div class="two-col">
+      <mat-form-field appearance="outline">
+        <mat-label>Email (optional)</mat-label>
+        <input matInput formControlName="prospectEmail" inputmode="email" maxlength="254" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Best time to call (optional)</mat-label>
+        <input matInput formControlName="bestTimeToCall" maxlength="120" placeholder="e.g. Evenings after 7pm" />
+      </mat-form-field>
     </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Notes (optional)</mat-label>
+      <textarea matInput rows="2" formControlName="notes" maxlength="2000" placeholder="Interests, context, anything useful"></textarea>
+    </mat-form-field>
+    <mat-checkbox formControlName="consentToContact">They agreed to be contacted</mat-checkbox>
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || adding()">
+        {{ adding() ? 'Adding…' : 'Add to list' }}
+      </button>
+      @if (formError(); as err) {
+        <span class="error" role="alert">{{ err }}</span>
+      }
+    </div>
+  </form>
 
+  @if (entries().length > 0) {
+    <h3>On your list ({{ entries().length }})</h3>
+    <ul class="entry-list">
+      @for (e of entries(); track e.id) {
+        <li class="dp-card entry">
+          <div>
+            <strong>{{ e.prospectName }} {{ e.prospectSurname }}</strong>
+            <span class="muted"> · {{ e.prospectPhone }}</span>
+            <div class="entry-tags">
+              <mat-chip highlighted>{{ e.relationship }}</mat-chip>
+              @if (e.priority === 'high') {
+                <mat-chip color="warn" highlighted>High priority</mat-chip>
+              }
+            </div>
+          </div>
+          <span class="spacer"></span>
+          @if (confirmDeleteId() === e.id) {
+            <button mat-button color="warn" (click)="remove(e.id)" [disabled]="deleting()">Confirm</button>
+            <button mat-button (click)="confirmDeleteId.set(null)">Cancel</button>
+          } @else {
+            <button mat-icon-button (click)="confirmDeleteId.set(e.id)" aria-label="Remove contact" title="Remove">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </li>
+      }
+    </ul>
 
-  </section>
+    <div class="dp-card submit-card">
+      <div>
+        <strong>Submit your list</strong>
+        <p class="muted">Your upline gets notified and starts calling with you.</p>
+      </div>
+      <span class="spacer"></span>
+      @if (confirmSubmit()) {
+        <button mat-flat-button color="primary" (click)="submit()" [disabled]="submitting() || !canSubmit()">
+          {{ submitting() ? 'Submitting…' : 'Confirm submit' }}
+        </button>
+        <button mat-button (click)="confirmSubmit.set(false)">Cancel</button>
+      } @else {
+        <button mat-flat-button color="primary" (click)="confirmSubmit.set(true)" [disabled]="!canSubmit()">
+          Submit {{ unsubmittedCount() }} contacts
+        </button>
+      }
+    </div>
+  }
 
+  @if (batches().length > 0) {
+    <h3>Submitted lists</h3>
+    <ul class="batch-list">
+      @for (b of batches(); track b.batch) {
+        <li class="dp-card batch">
+          <div>
+            <strong>{{ b.total }} contacts</strong>
+            <span class="muted"> · submitted {{ b.submittedAt | date:'mediumDate' }} · {{ b.worked }} worked</span>
+            <div class="entry-tags">
+              @for (stage of stageKeys(b); track stage) {
+                <mat-chip highlighted>{{ stage }} ({{ b.stageCounts[stage] }})</mat-chip>
+              }
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  }
 </section>
-
 `,
-providers: [ContactsService],
-imports: [MatIconModule, RouterModule, MatButtonToggleModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule],
-changeDetection: ChangeDetectionStrategy.Eager,
+changeDetection: ChangeDetectionStrategy.OnPush,
 styles: [`
-
-.async-background {
-    margin: 2em;
-    .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
-        height: 100%;
-        padding: 1em;
-        .title {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
-            .action-area {
-                .action {
-                    font-weight: bold;
-                    margin-top: 1em;
-                }
-            }
-        }
-
-        .search {
-            padding: 0.5em 0;
-            text-align: center;
-            mat-form-field {
-                width: 70%;
-
-            }
-        }       
-
-        .no-campaign {
-            text-align: center;
-            color: rgb(196, 129, 4);
-            font-weight: bold;
-        }
-    }
-}
-
-.form-container {
-    margin-top: 1em;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    .flex-form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        .form-group {
-            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
-            display: flex;
-            flex-direction: column;
-        }    
-    }
-}
-
-
-@media (max-width: 600px) {
-    .form-group {
-        flex: 1 1 100%;
-    }
-}
-
+  .breadcrumb-wrapper { margin-bottom: 1em; }
+  .breadcrumb a { text-decoration: none; }
+  .list-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+  .list-page h3 { margin: 0.5em 0 0; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
+  .page-head h2 { margin: 0; }
+  .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 40em; }
+  .count-pill { font-size: 1em; font-weight: 800; border-radius: 999px; padding: 0.35em 1em; background: var(--dp-surface); border: 1px solid var(--dp-line); color: var(--dp-muted); white-space: nowrap; }
+  .count-pill--ready { background: var(--dp-success-bg); border-color: var(--dp-success); color: var(--dp-success); }
+  html[data-theme="dark"] .count-pill--ready { color: #9ccc9f; }
+  .add-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
+  .add-card h3 { margin: 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
+  @media only screen and (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  .priority-row { display: flex; align-items: center; }
+  .form-actions { display: flex; align-items: center; gap: 0.75em; }
+  .form-actions button { min-height: 44px; }
+  .entry-list, .batch-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
+  .entry, .batch { padding: 0.8em 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+  .entry-tags { display: flex; gap: 0.3em; margin-top: 0.3em; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+  .submit-card { padding: 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; border-left: 4px solid var(--dp-gold); }
+  .submit-card p { margin: 0.2em 0 0; }
+  .submit-card button { min-height: 44px; }
+  .muted { color: var(--dp-muted); font-size: 0.85em; }
+  .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
+  .notice { color: var(--dp-success, #2e7d32); }
 `],
 })
-export class CreateContactsComponent implements OnInit, OnDestroy {
-    @Input() partner!: PartnerInterface;
-    readonly dialog = inject(MatDialog);
+export class CreateContactsComponent implements OnInit {
+  private readonly leads = inject(LeadPipelineService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
-    prospectContactForm!: FormGroup;
-    subscriptions: Array<Subscription> = [];
+  protected readonly tags = RELATIONSHIP_TAGS;
+  protected readonly loading = signal(true);
+  protected readonly adding = signal(false);
+  protected readonly submitting = signal(false);
+  protected readonly deleting = signal(false);
+  protected readonly error = signal<string | null>(null);
+  protected readonly formError = signal<string | null>(null);
+  protected readonly notice = signal<string | null>(null);
+  protected readonly entries = signal<ContactListEntry[]>([]);
+  protected readonly unsubmittedCount = signal(0);
+  protected readonly minRequired = signal(20);
+  protected readonly canSubmit = signal(false);
+  protected readonly batches = signal<ContactListBatch[]>([]);
+  protected readonly confirmDeleteId = signal<string | null>(null);
+  protected readonly confirmSubmit = signal(false);
 
-    constructor(
-      private contactsService: ContactsService,
-      private router: Router,
-    ) {}
+  protected readonly form = this.fb.nonNullable.group({
+    prospectName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+    prospectPhone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(20)]],
+    prospectEmail: [''],
+    relationship: ['Friend' as string, Validators.required],
+    priority: ['normal' as string, Validators.required],
+    bestTimeToCall: [''],
+    consentToContact: [false],
+    notes: [''],
+  });
 
+  ngOnInit(): void {
+    this.reload();
+  }
 
-    ngOnInit(): void {
-      if (this.partner) {
-        this.prospectContactForm = new FormGroup({
-          prospectName: new FormControl('', Validators.required),
-          prospectSurname: new FormControl(''),
-          prospectEmail: new FormControl(''),
-          prospectPhone: new FormControl('', Validators.required),
-          prospectSource: new FormControl('', Validators.required),
-          prospectRemark: new FormControl(''),
-          partnerId: new FormControl(this.partner._id),
-        });
-      }
-    }
+  protected stageKeys(b: ContactListBatch): string[] {
+    return Object.keys(b.stageCounts ?? {}).sort();
+  }
 
-    onSubmit() {
-      const prospectObject = this.prospectContactForm.value;
-  
-      this.subscriptions.push(
-        this.contactsService.create(prospectObject).subscribe( {
-
-          next: (response) => {
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: response.message,
-              showConfirmButton: true,
-              timer: 10000,
-              confirmButtonColor: "#ffab40",
-            });
-          },
-          error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-            }
-            Swal.fire({
-              position: "bottom",
-              icon: 'error',
-              text: errorMessage,
-              showConfirmButton: false,
-              timer: 4000
-            });  
-          }
-        })
-      )
-    }
-
-    showDescription () {
-      this.dialog.open(HelpDialogComponent, {
-        data: {help: `
-          Here, you can easily import (from campaign prospect list) or create contact list for your potential prospect
-        `},
-      });
-    }
-
-
-  importContacts(): void {
-    this.scrollToTop();
-
-    const partnerId = this.partner._id;
-
-    Swal.fire({
-      title: `Ready to import contacts from online survey list?`,
-      text: "This action may take a while!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, import!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-      this.subscriptions.push(
-        this.contactsService.import(partnerId).subscribe({
-
-        next: (response) => {
-            Swal.fire({
-              position: "bottom",
-              icon: 'success',
-              text: response.message,
-              showConfirmButton: true,
-              timer: 10000,
-              confirmButtonColor: "#ffab40",
-              confirmButtonText: "View Contacts",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.router.navigateByUrl('dashboard/tools/contacts/list');
-              }
-            });
+  protected reload(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.leads
+      .contactListMine()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const data = res.data;
+          this.entries.set(data?.unsubmitted ?? []);
+          this.unsubmittedCount.set(data?.unsubmittedCount ?? 0);
+          this.minRequired.set(data?.minRequired ?? 20);
+          this.canSubmit.set(data?.canSubmit ?? false);
+          this.batches.set(data?.batches ?? []);
+          this.loading.set(false);
         },
-          error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-            }
-            Swal.fire({
-              position: "bottom",
-              icon: 'error',
-              text: errorMessage,
-              showConfirmButton: false,
-              timer: 4000
-            });  
-        }          
-        })
-      )
-    }
-    });
+        error: (err: ApiError) => {
+          this.error.set(err.message);
+          this.loading.set(false);
+        },
+      });
   }
 
-   // scroll to top when clicked
-   scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  protected add(): void {
+    if (this.form.invalid || this.adding()) return;
+    this.adding.set(true);
+    this.formError.set(null);
+    this.notice.set(null);
+    const v = this.form.getRawValue();
+    this.leads
+      .createContact({
+        prospectName: v.prospectName.trim(),
+        prospectPhone: v.prospectPhone.trim(),
+        ...(v.prospectEmail.trim() ? { prospectEmail: v.prospectEmail.trim() } : {}),
+        prospectSource: 'Contact List',
+        relationship: v.relationship as RelationshipTag,
+        priority: v.priority as ContactPriority,
+        bestTimeToCall: v.bestTimeToCall.trim(),
+        consentToContact: v.consentToContact,
+        notes: v.notes.trim(),
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.adding.set(false);
+          this.form.reset({ relationship: 'Friend', priority: 'normal', consentToContact: false });
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.adding.set(false);
+          this.formError.set(err.message);
+        },
+      });
   }
 
-    
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  protected remove(id: string): void {
+    this.deleting.set(true);
+    this.leads
+      .removeProspect(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.deleting.set(false);
+          this.confirmDeleteId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.deleting.set(false);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected submit(): void {
+    if (!this.canSubmit() || this.submitting()) return;
+    this.submitting.set(true);
+    this.error.set(null);
+    this.notice.set(null);
+    this.leads
+      .submitContactList()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.submitting.set(false);
+          this.confirmSubmit.set(false);
+          this.notice.set(`List submitted — ${res.data?.count ?? ''} contacts sent to your upline.`);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.submitting.set(false);
+          this.error.set(err.message);
+        },
+      });
   }
 }
