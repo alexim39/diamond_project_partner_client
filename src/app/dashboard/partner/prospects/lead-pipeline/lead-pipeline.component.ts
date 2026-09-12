@@ -190,6 +190,14 @@ import { forkJoin } from 'rxjs';
                 <a mat-icon-button [routerLink]="['../edit', lead.id]" title="Edit {{ names(lead) }}" aria-label="Edit {{ names(lead) }}">
                   <mat-icon>edit</mat-icon>
                 </a>
+                @if (deleteConfirmId() === lead.id) {
+                  <button mat-button color="warn" (click)="remove(lead)" [disabled]="actingId() === lead.id">Delete?</button>
+                  <button mat-button (click)="deleteConfirmId.set(null)">Cancel</button>
+                } @else {
+                  <button mat-icon-button (click)="deleteConfirmId.set(lead.id)" title="Delete {{ names(lead) }}" aria-label="Delete {{ names(lead) }}">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
                 @if (!isConverted(lead)) {
                   <a mat-button [routerLink]="['../booking', lead.id]" title="Book a chat with {{ names(lead) }}">Book</a>
                 }
@@ -282,6 +290,7 @@ export class LeadPipelineComponent implements OnInit {
 
   protected readonly displayedColumns = ['select', 'name', 'contact', 'stage', 'interest', 'action'];
   protected readonly selected = signal<Set<string>>(new Set());
+  protected readonly deleteConfirmId = signal<string | null>(null);
 
   protected readonly selectionCount = computed(() => this.selected().size);
 
@@ -371,6 +380,24 @@ export class LeadPipelineComponent implements OnInit {
     if (emails.length === 0) return;
     this.exportContacts.setData(emails);
     this.router.navigate(['/dashboard/tools/email/new']);
+  }
+
+  protected remove(lead: ProspectLead): void {
+    this.actingId.set(lead.id);
+    this.leads
+      .removeProspect(lead.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.deleteConfirmId.set(null);
+          this.actingId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
   }
 
   ngOnInit(): void {
