@@ -11,8 +11,15 @@ import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, Downlin
 export class LeadPipelineService {
   private readonly api = inject(ApiClient);
 
-  listByPartner(partnerId: string, limit = 200): Observable<ProspectListEnvelope> {
-    return this.api.get<ProspectListEnvelope>(`v1/prospects/by-partner/${partnerId}?limit=${limit}`);
+  listByPartner(partnerId: string, opts: number | { limit?: number; skip?: number; q?: string; stage?: string } = {}): Observable<ProspectListEnvelope> {
+    const o = typeof opts === 'number' ? { limit: opts } : opts;
+    const params = new URLSearchParams();
+    if (o.limit != null) params.set('limit', String(o.limit));
+    if (o.skip != null) params.set('skip', String(o.skip));
+    if (o.q?.trim()) params.set('q', o.q.trim());
+    if (o.stage) params.set('stage', o.stage);
+    const qs = params.toString();
+    return this.api.get<ProspectListEnvelope>(`v1/prospects/by-partner/${partnerId}${qs ? `?${qs}` : ''}`);
   }
 
   stuck(partnerId: string): Observable<StuckEnvelope> {

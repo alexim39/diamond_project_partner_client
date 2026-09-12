@@ -89,7 +89,7 @@ export class ActivateNewPartnerComponent implements OnInit {
     const selfId = this.data?._id;
     if (!selfId) return;
     this.leads
-      .listByPartner(String(selfId), 200)
+      .listByPartner(String(selfId), { limit: 200 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => this.prospects.set(res.data ?? []),

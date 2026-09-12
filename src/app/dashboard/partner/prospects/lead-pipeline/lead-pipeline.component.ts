@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Router, RouterModule } from '@angular/router';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -30,7 +31,7 @@ import { forkJoin } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatTableModule, MatChipsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatTooltipModule, RouterModule,
+    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatPaginatorModule, MatTooltipModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -88,7 +89,7 @@ import { forkJoin } from 'rxjs';
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Search leads</mat-label>
-          <input matInput type="search" placeholder="Name, phone or email" (input)="search.set($any($event.target).value)" />
+          <input matInput type="search" placeholder="Name, phone or email" [value]="search()" (input)="onSearch($any($event.target).value)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         <button
@@ -225,7 +226,15 @@ import { forkJoin } from 'rxjs';
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </div>
-        <p class="total muted">{{ filtered().length }} of {{ total() }} leads</p>
+        <mat-paginator
+          [length]="total()"
+          [pageSize]="pageSize()"
+          [pageIndex]="pageIndex()"
+          [pageSizeOptions]="[25, 50, 100]"
+          showFirstLastButtons
+          (page)="onPage($event)"
+        />
+        <p class="total muted">Showing {{ filtered().length }} of {{ total() }} leads</p>
       }
     </section>
   `,
@@ -283,6 +292,8 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly stageFilter = signal<ProspectStage | null>(null);
   protected readonly stuckOnly = signal(false);
+  protected readonly pageSize = signal(50);
+  protected readonly pageIndex = signal(0);
   protected readonly stuckDays = signal<Record<string, StuckEntry>>({});
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
@@ -308,16 +319,9 @@ export class LeadPipelineComponent implements OnInit {
   });
 
   protected readonly filtered = computed(() => {
-    const q = this.search().trim().toLowerCase();
-    const stage = this.stageFilter();
     const stuckMap = this.stuckDays();
-    return this.rows().filter((lead) => {
-      if (stage && (lead.status?.stage ?? 'New') !== stage) return false;
-      if (this.stuckOnly() && !stuckMap[lead.id]) return false;
-      if (!q) return true;
-      const haystack = `${lead.prospectName} ${lead.prospectSurname ?? ''} ${lead.prospectPhone} ${lead.prospectEmail ?? ''}`.toLowerCase();
-      return haystack.includes(q);
-    });
+    if (!this.stuckOnly()) return this.rows();
+    return this.rows().filter((lead) => !!stuckMap[lead.id]);
   });
 
   protected readonly stuckCount = computed(() => Object.keys(this.stuckDays()).length);
@@ -413,8 +417,12 @@ export class LeadPipelineComponent implements OnInit {
     }
     this.loading.set(true);
     this.error.set(null);
+    const limit = this.pageSize();
+    const skip = this.pageIndex() * limit;
+    const q = this.search().trim() || undefined;
+    const stage = this.stageFilter() ?? undefined;
     forkJoin({
-      leads: this.leads.listByPartner(partnerId),
+      leads: this.leads.listByPartner(partnerId, { limit, skip, q, stage }),
       stuck: this.leads.stuck(partnerId),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -433,8 +441,23 @@ export class LeadPipelineComponent implements OnInit {
       });
   }
 
+  protected onSearch(value: string): void {
+    this.search.set(value);
+    this.pageIndex.set(0);
+    this.reload();
+  }
+
+  protected onPage(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.pageIndex.set(event.pageIndex);
+    this.reload();
+  }
+
   protected toggleStageFilter(stage: ProspectStage): void {
-    this.stageFilter.set(this.stageFilter() === stage ? null : stage);
+    const next = this.stageFilter() === stage ? null : stage;
+    this.stageFilter.set(next);
+    this.pageIndex.set(0);
+    this.reload();
   }
 
   protected stuckOf(lead: ProspectLead): StuckEntry | null {
