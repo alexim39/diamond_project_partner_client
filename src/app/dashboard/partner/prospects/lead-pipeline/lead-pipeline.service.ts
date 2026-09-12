@@ -39,6 +39,10 @@ export class LeadPipelineService {
     return this.api.post('v1/prospects', payload);
   }
 
+  updateContact(prospectId: string, payload: Partial<CreateContactPayload>): Observable<unknown> {
+    return this.api.put(`v1/prospects/${prospectId}`, payload);
+  }
+
   removeProspect(prospectId: string): Observable<unknown> {
     return this.api.delete(`v1/prospects/${prospectId}`);
   }

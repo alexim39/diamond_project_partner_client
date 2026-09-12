@@ -105,6 +105,9 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           @if (isConverted()) {
             <span class="muted">Enrolled ✓</span>
           }
+          <a mat-icon-button [routerLink]="['../edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect">
+            <mat-icon>edit</mat-icon>
+          </a>
           @if (!isConverted()) {
             <a mat-button [routerLink]="['../booking', prospectId()]" title="Book a chat">Book session</a>
           }
