@@ -1,325 +1,208 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
-import { MatIconModule } from '@angular/material/icon';
-import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import Swal from 'sweetalert2';
-import {MatSelectModule} from '@angular/material/select';
-import { Subscription } from 'rxjs';
-import { ContactsInterface, ContactsService } from '../contacts.service';
-import { MatInputModule } from '@angular/material/input';  
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, RouterModule } from '@angular/router';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { Location } from '@angular/common';  
-import { HttpErrorResponse } from '@angular/common/http';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { MatDialog } from '@angular/material/dialog';
+import { Router, RouterModule } from '@angular/router';
+import { Location } from '@angular/common';
+import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { ContactsInterface, ContactsService } from '../contacts.service';
+import { ApiError } from '../../../../core/http/api-error';
+
+const toHHMM = (d: Date): string => {
+  const pad = (v: number): string => String(v).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+const REASONS = [
+  'About Diamond Project Business',
+  'Follow-up Conversation',
+  'Product Presentation',
+  'Business Guidance',
+  'Investment Strategy',
+  'Cashflow Management',
+  'Wealth Mindset',
+  'General Financial Planning',
+];
 
 /**
- * @title Contacts
+ * @title Book session — schedule a chat with a prospect.
+ *
+ * Prospect context up top (who you're booking, with links into their
+ * detail and the pipeline), session details below: reason, contact
+ * method, date + time pickers. Success lands on My sessions so the
+ * booking is visible in the list immediately. OnPush + signals.
  */
 @Component({
 selector: 'async-book-session',
 providers: [ContactsService],
-imports: [CommonModule, MatIconModule, RouterModule, 
-  MatDatepickerModule, MatNativeDateModule, MatButtonToggleModule, MatFormFieldModule, 
-  MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, ReactiveFormsModule, MatSelectModule
+imports: [
+  CommonModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatIconModule,
+  MatInputModule, MatProgressBarModule, MatSelectModule, MatTimepickerModule,
+  FormsModule, ReactiveFormsModule, RouterModule,
 ],
 template: `
-
-<section class="async-background ">
-  <h2>Book Prospect Session <mat-icon (click)="showDescription()">help</mat-icon></h2>
-
-  <section class="async-container">
-    <div class="title">
-      <div class="control">
-        <div class="back" (click)="back()" title="Back">
-          <mat-icon>arrow_back</mat-icon>
-        </div>
-        <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
-      </div>
-      <h3>{{$safeNavigationMigration(prospect?.prospectSurname) | titlecase}} {{$safeNavigationMigration(prospect?.prospectName) | titlecase}}'s Session Booking</h3>
-    </div>
-
-
-    <div class="form-container">
-      <form class="flex-form" [formGroup]="prospectContactForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="prospectName" required>
-            @if (prospectContactForm.get('prospectName')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Surname</mat-label>
-            <input matInput formControlName="prospectSurname" required>
-            @if (prospectContactForm.get('prospectSurname')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Email Address</mat-label>
-            <input matInput formControlName="prospectEmail" required>
-            @if (prospectContactForm.get('prospectEmail')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="prospectPhone" required>
-            @if (prospectContactForm.get('prospectPhone')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Source of Contact</mat-label>
-            <mat-select formControlName="prospectSource" required>
-              <mat-option value="Family">Family</mat-option>
-              <mat-option value="Friend">Friend</mat-option>
-              <mat-option value="Relative">Relative</mat-option>
-              <mat-option value="Unique Link">Unique Link</mat-option>
-              <mat-option value="Referrals">Referrals</mat-option>
-              <mat-option value="Contact Recommendation">Contact Recommendation</mat-option>
-              <mat-option value="Social Media">Social Media</mat-option>
-              <mat-option value="Website">Website</mat-option>
-              <mat-option value="Content Marketing">Content Marketing</mat-option>
-              <mat-option value="Email Marketing">Email Marketing</mat-option>
-              <mat-option value="Networking Events">Networking Events</mat-option>
-              <mat-option value="Ads">Ads</mat-option>
-              <mat-option value="Purchased Lists">Purchased Lists</mat-option>
-              <mat-option value="Partner's List">Partner's List</mat-option>
-              <mat-option value="Offline Marketing">Offline Marketing</mat-option>
-              <mat-option value="Market Research">Market Research</mat-option>
-              <mat-option value="Survey Form">Survey Form</mat-option>
-              <mat-option value="Other Means">Other Means</mat-option>
-            </mat-select>
-            @if (prospectContactForm.get('prospectSource')?.hasError('required') ) {
-              <mat-error>
-                This field is required.
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Short Remark/Comment</mat-label>
-            <textarea matInput formControlName="prospectRemark"></textarea>
-          </mat-form-field>
-        </div>
-
-        <div style="border: 1px dotted rgb(235, 235, 235); width: 100%; margin: 1em 0 2em 0;"></div>
-
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Consultation Topic/Reason  </mat-label>
-            <mat-select formControlName="reason">
-              <mat-option value=" Investment Strategy"> Investment Strategy</mat-option>
-              <mat-option value="Cashflow Management">Cashflow Management</mat-option>
-              <mat-option value="Wealth Mindset">Wealth Mindset</mat-option>
-              <mat-option value="Business Guidance">Business Guidance</mat-option>
-              <mat-option value="General Financial Planning">General Financial Planning</mat-option>
-              <mat-option value="About Diamond Project Business">About Diamond Project Business</mat-option>
-              <mat-option value="cant say">Can't say</mat-option>
-            </mat-select>
-            @if (prospectContactForm.get('reason')?.hasError('required') ) {
-              <mat-error>
-                This answer is required
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Preferred Contact Method </mat-label>
-            <mat-select formControlName="contactMethod">
-              <mat-option value="Email">Email</mat-option>
-              <mat-option value="Phone">Phone</mat-option>
-              <mat-option value="WhatsApp">WhatsApp</mat-option>
-              <mat-option value="Text Message">Text Message</mat-option>
-              <mat-option value="Video Call">Video Call (Zoom, Google Meet, etc.)</mat-option>
-              <mat-option value="Any Option">Any Option</mat-option>
-            </mat-select>
-            @if (prospectContactForm.get('contactMethod')?.hasError('required') ) {
-              <mat-error>
-                This answer is required
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="none-form-group">
-          <mat-form-field appearance="outline">
-            <mat-label> Leave a brief Description/Questions (Optional)</mat-label>
-            <textarea matInput formControlName="description"></textarea>
-          </mat-form-field>
-        </div>
-
-        <div class="form-group">
-          <!-- date -->
-          <mat-form-field appearance="outline">
-            <mat-label>Choose a date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="consultDate" [min]="minDate">
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            @if (prospectContactForm.get('consultDate')?.hasError('required') ) {
-              <mat-error>
-                Date is required
-              </mat-error>
-            }
-          </mat-form-field>
-
-        </div>
-
-        <div class="form-group">
-          <mat-form-field appearance="outline">
-            <mat-label>Choose a time</mat-label>
-            <input matInput type="time" formControlName="consultTime">
-            <mat-hint>HH/MM/am/pm</mat-hint>
-            @if (prospectContactForm.get('consultTime')?.hasError('required') ) {
-              <mat-error>
-                Time is required
-              </mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-
-        <div class="form-group"></div>
-
-
-        <button mat-flat-button color="primary">Save Booking</button>
-      </form>
-    </div>
-
-  </section>
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <a routerLink="/dashboard/prospects/pipeline">Prospects</a> &gt;
+    <span>Book session</span>
+  </div>
 </section>
 
+<section class="book-page">
+  <div class="page-head">
+    <div class="control">
+      <button mat-icon-button (click)="back()" title="Back" aria-label="Back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2>Book a session{{ prospectName() ? ' with ' + prospectName() : '' }}</h2>
+        <p class="subtitle">Pick a reason, a time, a way to reach them — the session lands on your My sessions list.</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="showDescription()" title="Help" aria-label="Help">
+      <mat-icon>help</mat-icon>
+    </button>
+  </div>
+
+  @if (prospect) {
+    <div class="dp-card context-card">
+      <div>
+        <strong>{{ prospect.prospectName }} {{ prospect.prospectSurname }}</strong>
+        <a class="phone" [href]="'tel:' + prospect.prospectPhone">{{ prospect.prospectPhone }}</a>
+        <div class="muted">{{ prospect.prospectEmail || 'no email' }} · {{ prospect.prospectSource || 'Contact List' }}</div>
+      </div>
+      <span class="spacer"></span>
+      <a mat-button [routerLink]="['/dashboard/prospects/detail', prospect._id]">Prospect detail</a>
+      <a mat-button routerLink="/dashboard/prospects/bookings">My sessions</a>
+    </div>
+  }
+
+  @if (saving()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (error(); as err) {
+    <p class="error" role="alert">{{ err }}</p>
+  }
+
+  @if (notice(); as note) {
+    <p class="notice" role="status">{{ note }}</p>
+  }
+
+  @if (prospectContactForm) {
+    <form class="dp-card form-card" [formGroup]="prospectContactForm" (ngSubmit)="onSubmit()">
+      <div class="two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Session reason</mat-label>
+          <mat-select formControlName="reason">
+            @for (r of reasons; track r) {
+              <mat-option [value]="r">{{ r }}</mat-option>
+            }
+          </mat-select>
+          @if (prospectContactForm.get('reason')?.hasError('required') && prospectContactForm.get('reason')?.touched) {
+            <mat-error>This answer is required</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Preferred contact method</mat-label>
+          <mat-select formControlName="contactMethod">
+            <mat-option value="Phone">Phone</mat-option>
+            <mat-option value="WhatsApp">WhatsApp</mat-option>
+            <mat-option value="Text Message">Text Message</mat-option>
+            <mat-option value="Email">Email</mat-option>
+            <mat-option value="Video Call">Video Call (Zoom, Google Meet, etc.)</mat-option>
+            <mat-option value="Any Option">Any Option</mat-option>
+          </mat-select>
+          @if (prospectContactForm.get('contactMethod')?.hasError('required') && prospectContactForm.get('contactMethod')?.touched) {
+            <mat-error>This answer is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>What should this session cover? (optional)</mat-label>
+        <textarea matInput rows="2" formControlName="description" maxlength="2000"></textarea>
+      </mat-form-field>
+
+      <div class="two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Session date</mat-label>
+          <input matInput [matDatepicker]="sessionDatePicker" formControlName="consultDate" [min]="minDate" />
+          <mat-datepicker-toggle matSuffix [for]="sessionDatePicker" />
+          <mat-datepicker #sessionDatePicker />
+          @if (prospectContactForm.get('consultDate')?.hasError('required') && prospectContactForm.get('consultDate')?.touched) {
+            <mat-error>Date is required</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Session time</mat-label>
+          <input matInput [matTimepicker]="sessionTimePicker" formControlName="consultTime" />
+          <mat-timepicker-toggle matSuffix [for]="sessionTimePicker" />
+          <mat-timepicker #sessionTimePicker interval="30m" />
+          @if (prospectContactForm.get('consultTime')?.hasError('required') && prospectContactForm.get('consultTime')?.touched) {
+            <mat-error>Time is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="prospectContactForm.invalid || saving()">
+          {{ saving() ? 'Booking…' : 'Book session' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
 `,
-changeDetection: ChangeDetectionStrategy.Eager,
+changeDetection: ChangeDetectionStrategy.OnPush,
 styles: [`
-
-.async-background {
-    margin: 2em;
-    .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
-        height: 100%;
-        padding: 1em;
-        .title {
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
-            display: flex;
-            flex-direction: column;  
-            //align-items: center; /* Vertically center the items */  
-            justify-content: flex-start; 
-            .control {
-                display: flex;
-                justify-content: space-between;
-                .back {
-                    cursor: pointer;
-                }
-                .back:hover {
-                    cursor: pointer;
-                    opacity: 0.5;
-    
-                }
-            }
-
-           
-            h3 {
-                margin-top: 1em; 
-            }
-        }
-
-        .search {
-            padding: 0.5em 0;
-            text-align: center;
-            mat-form-field {
-                width: 70%;
-
-            }
-        }       
-
-        .no-campaign {
-            text-align: center;
-            color: rgb(196, 129, 4);
-            font-weight: bold;
-        }
-    }
-}
-
-.form-container {
-    margin-top: 1em;
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    .flex-form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        .form-group {
-            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
-            display: flex;
-            flex-direction: column;
-        } 
-        .none-form-group {
-            flex: 1 1 100%;
-            display: flex;
-            flex-direction: column;
-        }   
-    }
-}
-
-
-@media (max-width: 600px) {
-    .form-group {
-        flex: 1 1 100%;
-    }
-}
-
+  .breadcrumb-wrapper { margin-bottom: 1em; }
+  .breadcrumb a { text-decoration: none; }
+  .book-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; }
+  .page-head h2 { margin: 0; }
+  .control { display: flex; gap: 0.6em; align-items: flex-start; }
+  .control button { flex: none; }
+  .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 44em; }
+  .context-card { padding: 0.9em 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+  .context-card a { min-height: 44px; }
+  .phone { color: var(--dp-gold-ink); font-weight: 600; text-decoration: none; margin-left: 0.5em; }
+  .spacer { flex: 1; }
+  .form-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
+  @media only screen and (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  .form-actions button { min-height: 44px; }
+  .muted { color: var(--dp-muted); font-size: 0.85em; }
+  .error { color: var(--dp-error); }
+  .notice { color: var(--dp-success, #2e7d32); }
 `],
 })
-export class BookSessionComponent implements OnInit, OnDestroy {
+export class BookSessionComponent implements OnInit {
     @Input() prospect!: ContactsInterface | any;
     readonly dialog = inject(MatDialog);
     @Input() partner!: PartnerInterface;
     prospectContactForm!: FormGroup;
-    subscriptions: Array<Subscription> = [];
 
-    minDate = new Date(); // Today's date
+    protected readonly saving = signal(false);
+    protected readonly error = signal<string | null>(null);
+    protected readonly notice = signal<string | null>(null);
+    protected readonly reasons = REASONS;
+
+    private readonly destroyRef = inject(DestroyRef);
+    minDate = new Date();
 
     constructor(
       private contactsService: ContactsService,
@@ -329,119 +212,70 @@ export class BookSessionComponent implements OnInit, OnDestroy {
 
 
     ngOnInit(): void {
-
         if (this.prospect) {
-
           this.prospectContactForm = new FormGroup({
-            prospectName: new FormControl({value: this.prospect?.prospectName, disabled: true}, Validators.required),
-            prospectSurname: new FormControl({value: this.prospect?.prospectSurname, disabled: true}, Validators.required),
-            prospectEmail: new FormControl({value:this.prospect?.prospectEmail, disabled: true}, Validators.required),
-            prospectPhone: new FormControl({value:this.prospect?.prospectPhone, disabled: true}, Validators.required),
-            prospectSource: new FormControl({value:this.prospect?.prospectSource, disabled: true}, Validators.required),
-            prospectRemark: new FormControl({value:this.prospect?.prospectRemark, disabled: true}),
-            prospectId: new FormControl(this.prospect?._id),
             reason: new FormControl('', Validators.required),
             description: new FormControl(''),
-            consultDate: new FormControl('', Validators.required),
-            consultTime: new FormControl('', Validators.required),
+            consultDate: new FormControl<Date | null>(null, Validators.required),
+            consultTime: new FormControl<Date | null>(null, Validators.required),
             contactMethod: new FormControl('', Validators.required),
           });
         }
     }
 
-  back(): void {  
-    if (window.history.length > 1) {  
-        //window.history.back();  
-        this.location.back(); // This will take you to the previous page in the history 
-    } else {  
-        // Redirect to a default route if there's no history  
-        this.router.navigateByUrl('dashboard/tools/contacts/list');  
-    }  
+    protected prospectName(): string {
+      if (!this.prospect) return '';
+      return `${this.prospect.prospectName ?? ''} ${this.prospect.prospectSurname ?? ''}`.trim();
+    }
+
+  back(): void {
+    if (window.history.length > 1) {
+        this.location.back();
+    } else {
+        this.router.navigateByUrl('/dashboard/prospects/pipeline');
+    }
   }
 
   onSubmit(): void {
+    Object.keys(this.prospectContactForm.controls).forEach((name) => {
+      this.prospectContactForm.get(name)?.markAsTouched();
+    });
 
-    // Mark all form controls as touched to trigger the display of error messages
-    this.markAllAsTouched();
-
-    if (this.prospectContactForm.valid) {
-      // Send the form value to your Node.js backend
-     //const formData: FormGroup = this.prospectContactForm.value;
-
-     const formData: any = {
-      reason: this.prospectContactForm.value.reason,
-      description: this.prospectContactForm.value.description,
-      //referralCode: req.body.referralCode,
-      consultDate: this.prospectContactForm.value.consultDate,
-      consultTime: this.prospectContactForm.value.consultTime,
-      contactMethod: this.prospectContactForm.value.contactMethod,
-      //referral: req.body.referral,
+    if (this.prospectContactForm.invalid || this.saving()) return;
+    const v = this.prospectContactForm.getRawValue();
+    const formData: any = {
+      reason: v.reason,
+      description: v.description ?? '',
+      consultDate: v.consultDate,
+      consultTime: v.consultTime instanceof Date ? toHHMM(v.consultTime) : v.consultTime,
+      contactMethod: v.contactMethod,
       referral: 'Booked for prospect',
       phone: this.prospect?.prospectPhone,
       email: this.prospect?.prospectEmail,
       surname: this.prospect?.prospectSurname,
       name: this.prospect?.prospectName,
-      //userDevice: req.body.userDevice,
       username: this.partner.username,
-     }
-      this.subscriptions.push(
-        this.contactsService.bookSession(formData).subscribe({
-
-          next: (response) => {
-              Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: response.message, //`Your have successfully updated prospect status`,
-                  showConfirmButton: true,
-                  confirmButtonColor: "#ffab40",
-                  timer: 10000,
-              }).then((result) => {
-                  this.router.navigate(['/dashboard/prospects/detail', this.prospect?._id]);
-              })
-          },
-          error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                  errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                  position: "bottom",
-                  icon: 'error',
-                  text: errorMessage,
-                  showConfirmButton: false,
-                  timer: 4000
-              }); 
-          }
-              
-        })
-      )
-    }     
+    };
+    this.saving.set(true);
+    this.error.set(null);
+    this.contactsService.bookSession(formData).subscribe({
+      next: (response) => {
+        this.saving.set(false);
+        this.notice.set(response?.message ?? 'Session booked — see it on your My sessions list.');
+        this.router.navigate(['/dashboard/prospects/bookings']);
+      },
+      error: (error: ApiError) => {
+        this.saving.set(false);
+        this.error.set(error.message);
+      },
+    });
   }
-
-    // Helper method to mark all form controls as touched
-    private markAllAsTouched() {
-      Object.keys(this.prospectContactForm.controls).forEach(controlName => {
-        this.prospectContactForm.get(controlName)?.markAsTouched();
-      });
-    }
-  
 
     showDescription () {
       this.dialog.open(HelpDialogComponent, {
         data: {help: `
-          Here, you can easily book a virtual or physical session for your prospect
+          Book a virtual or physical session for your prospect. After booking, track its outcome on the My sessions page.
         `},
       });
     }
-
-   // scroll to top when clicked
-   scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-    
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
 }
