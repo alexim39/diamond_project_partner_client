@@ -92,11 +92,6 @@ export class ContactsService {
     return this.apiService.get<string>(`prospect/delete/${id}`, undefined, undefined, true);
   }
 
-  // promote new prospect 
-  promoteProspectToPartner(formData: codeData): Observable<any> {
-    return this.apiService.post<ContactsInterface>(`reservationCode/submit`, formData, undefined, true);
-  }
-
   // single sms charge
   signleSMSCharge(partnerId: string): Observable<any> {
     return this.apiService.get<ContactsInterface>(`billing/single-sms-charge/${partnerId}`, undefined, undefined, true);

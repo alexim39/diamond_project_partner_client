@@ -44,7 +44,7 @@
             } @else if (child.external) {
               <a mat-list-item class="nav-leaf" [title]="child.title ?? child.label" target="_blank" [href]="child.external" (click)="onNavigate(drawer)"><span class="nav-label">{{ child.label }}</span></a>
             } @else {
-              <a mat-list-item class="nav-leaf" [routerLink]="child.link ?? ''" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" [title]="child.title ?? child.label" (click)="onNavigate(drawer)"><span class="nav-label">{{ child.label }}</span></a>
+              <a mat-list-item class="nav-leaf" [routerLink]="child.link ?? ''" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" [title]="child.title ?? child.label" (click)="onNavigate(drawer)"><span class="nav-label">{{ child.label }}</span>@if (needsProfilePill(group.key, child.link)) { <span class="nav-pill">!</span> }</a>
             }
           }
         </div>

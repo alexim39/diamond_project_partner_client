@@ -127,14 +127,6 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // promote new prospect 
-  promoteProspectToPartner(prospect: codeData): Observable<ContactsInterface> {
-    //console.log('record', prospect);
-    return this.http
-      .post<ContactsInterface>(this.apiURL + `/reservationCode/submit`, prospect, { withCredentials: true })
-      .pipe(retry(1), catchError(this.handleError));
-  }
-
   // single sms charge
   signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
     //console.log('record', obj);
