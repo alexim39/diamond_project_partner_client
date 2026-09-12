@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../../core/progression/progression.service';
+import { AnalyticsService } from '../../../core/analytics/analytics.service';
+import { ActivationAnalytics } from '../../../core/analytics/analytics.models';
 import { ConfirmationStats, LADDER, Oversight, PendingNomination } from '../../../core/progression/progression.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -114,6 +116,25 @@ import { ApiError } from '../../../core/http/api-error';
           </div>
         }
 
+        @if (activation(); as act) {
+          <div class="dp-card levels-card">
+            <h3>Activation — first 7 days</h3>
+            <p class="muted">
+              <strong>{{ act.rate ?? '—' }}{{ act.rate !== null ? '%' : '' }}</strong>
+              of {{ act.cohort }} recent signups completed profile, first prospect and IPO in time.
+            </p>
+            @for (leg of activationLegs(act); track leg.key) {
+              <div class="bar-row">
+                <span class="bar-label">{{ leg.label }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="leg.width"></div>
+                </div>
+                <span class="bar-num">{{ leg.count | number }}</span>
+              </div>
+            }
+          </div>
+        }
+
         <h3>Nominations ({{ o.pendingNominations.length }})</h3>
         @if (o.pendingNominations.length > 0) {
           <ul class="nom-list">
@@ -180,6 +201,7 @@ import { ApiError } from '../../../core/http/api-error';
 })
 export class OversightComponent implements OnInit {
   private readonly progress = inject(ProgressionService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -187,6 +209,7 @@ export class OversightComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly oversight = signal<Oversight | null>(null);
   protected readonly confirmStats = signal<ConfirmationStats | null>(null);
+  protected readonly activation = signal<ActivationAnalytics | null>(null);
 
   protected readonly ladderBars = computed(() => {
     const dist = this.oversight()?.distribution ?? {};
@@ -226,6 +249,23 @@ export class OversightComponent implements OnInit {
         next: (res) => this.confirmStats.set(res.data ?? null),
         error: () => this.confirmStats.set(null),
       });
+    this.analytics
+      .activation()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.activation.set(res.data ?? null),
+        error: () => this.activation.set(null),
+      });
+  }
+
+  protected activationLegs(act: ActivationAnalytics): Array<{ key: string; label: string; count: number; width: number }> {
+    const base = Math.max(1, act.cohort);
+    const legs = [
+      { key: 'profile', label: 'Profile complete', count: act.legs.profile },
+      { key: 'prospect', label: 'First prospect in 7d', count: act.legs.prospect },
+      { key: 'ipo', label: 'IPO in 7d', count: act.legs.ipo },
+    ];
+    return legs.map((l) => ({ ...l, width: Math.max(l.count ? 2 : 0, Math.round((l.count / base) * 100)) }));
   }
 
   protected levelLabel(level: string | null): string {

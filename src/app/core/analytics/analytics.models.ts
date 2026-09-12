@@ -75,3 +75,28 @@ export interface DashboardOverview {
 export interface OverviewEnvelope extends ApiEnvelope<DashboardOverview> {
   data: DashboardOverview;
 }
+
+export interface ActivationMember {
+  partnerId: string;
+  member: { name: string; username: string };
+  signedUpAt: string;
+  profileDone: boolean;
+  prospectAdded: boolean;
+  ipoDone: boolean;
+  activated: boolean;
+  daysToActivate: number | null;
+}
+
+export interface ActivationAnalytics {
+  days: number;
+  cohort: number;
+  capped: boolean;
+  activated: number;
+  rate: number | null;
+  legs: { profile: number; prospect: number; ipo: number };
+  perMember: ActivationMember[];
+}
+
+export interface ActivationEnvelope extends ApiEnvelope<ActivationAnalytics> {
+  data: ActivationAnalytics;
+}
