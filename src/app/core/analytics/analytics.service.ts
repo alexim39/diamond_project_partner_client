@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { ActionsEnvelope, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
+import { ActionsEnvelope, ActivationEnvelope, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
 
 /** Read-only analytics → backend `/v1/analytics/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -23,5 +23,10 @@ export class AnalyticsService {
   /** Single aggregation powering the Insights page (replaces 3 calls). */
   overview(days = 30): Observable<OverviewEnvelope> {
     return this.api.get<OverviewEnvelope>(`v1/dashboard/overview?days=${days}`);
+  }
+
+  /** 7-day onboarding activation over the trailing signup cohort. */
+  activation(days = 90): Observable<ActivationEnvelope> {
+    return this.api.get<ActivationEnvelope>(`v1/analytics/activation?days=${days}`);
   }
 }
