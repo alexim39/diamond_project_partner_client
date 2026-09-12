@@ -9,7 +9,8 @@ import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
-import { PartnerAuthService, PartnerSignUpInterface } from '../auth.service';
+import { AuthService } from '../../core/auth/auth.service';
+import { PartnerSignUpInterface } from '../auth.service';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -23,7 +24,6 @@ import { HttpErrorResponse } from '@angular/common/http';
  */
 @Component({
     selector: 'async-partner-signup',
-    providers: [PartnerAuthService],
     imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
     templateUrl: 'partner-signup.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -40,7 +40,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private partnerSignUpService: PartnerAuthService
+    private partnerSignUpService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -66,15 +66,17 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
     this.markAllAsTouched();
 
     if (this.signUpForm.valid) {
-      // Send the form value to your Node.js backend
+      // v1 signup (transactional code consume + upline link); the response
+      // envelope carries the user-facing message.
       const formData: PartnerSignUpInterface = this.signUpForm.value;
       this.subscriptions.push(
         this.partnerSignUpService.signup(formData).subscribe({
-          next: (response) => {
+          next: (res) => {
+            const response = res as { message?: string };
             Swal.fire({
               position: "bottom",
               icon: 'success',
-              text: response.message,
+              text: response.message ?? 'Registration successful',
               showConfirmButton: true,
               timer: 10000,
               confirmButtonColor: "#ffab40",

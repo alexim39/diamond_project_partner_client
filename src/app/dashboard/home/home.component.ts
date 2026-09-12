@@ -36,6 +36,16 @@ import { ApiError } from '../../core/http/api-error';
   ],
   template: `
     <section class="home-page">
+      @if (profileIncomplete() && !bannerDismissed()) {
+        <div class="profile-banner" role="status">
+          <mat-icon>account_circle</mat-icon>
+          <p>Your profile setup is incomplete — add your phone number and address so your upline and prospects can reach you.</p>
+          <a mat-button routerLink="settings/profiles">Complete profile</a>
+          <button mat-icon-button (click)="bannerDismissed.set(true)" aria-label="Dismiss">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
       <div class="greeting">
         <div>
           <p class="eyebrow">Today · Daily Action Center</p>
@@ -195,6 +205,10 @@ import { ApiError } from '../../core/http/api-error';
     .greeting h2 { margin: 0; font-size: 1.6em; }
     .today { margin: 0 0 0.2em; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8em; }
     .eyebrow { margin: 0 0 0.3em; font-size: 0.78em; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dp-gold-ink); }
+    .profile-banner { display: flex; align-items: center; gap: 0.75em; background: var(--dp-info-bg); border: 1px solid var(--dp-info); border-radius: 10px; padding: 0.7em 0.9em; }
+    .profile-banner mat-icon { color: var(--dp-info); flex: none; }
+    .profile-banner p { margin: 0; flex: 1; font-size: 0.9em; }
+    .profile-banner a { flex: none; min-height: 44px; }
     .subtitle { margin: 0.3em 0 0; color: var(--dp-muted); }
     .action-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .action-item { display: flex; gap: 0.9em; align-items: center; padding: 0.7em 1em; }
@@ -236,6 +250,15 @@ export class HomeComponent implements OnInit {
   protected readonly journey = signal<Journey | null>(null);
   protected readonly communityPosts = signal<FeedPost[]>([]);
   protected readonly today = new Date();
+  protected readonly bannerDismissed = signal(false);
+
+  /** Required for onboarding: phone + street/city/state (picture stays optional). */
+  protected profileIncomplete(): boolean {
+    const u = (this.auth.currentUser() ?? {}) as { phone?: unknown; address?: { street?: unknown; city?: unknown; state?: unknown } };
+    const filled = (v: unknown): boolean => String(v ?? '').trim().length > 0;
+    return !filled(u.phone)
+      || !filled(u.address?.street) || !filled(u.address?.city) || !filled(u.address?.state);
+  }
 
   protected greeting(): string {
     const h = new Date().getHours();

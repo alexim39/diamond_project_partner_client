@@ -593,6 +593,20 @@ export class DashboardComponent {
     if (this.isHandset) drawer.close();
   }
 
+  /** Onboarding nudge: same required rule as the Home banner (picture optional). */
+  protected profileIncomplete(): boolean {
+    const p = (this.partner ?? {}) as Partial<PartnerInterface> & {
+      phone?: unknown; address?: { street?: unknown; city?: unknown; state?: unknown };
+    };
+    const filled = (v: unknown): boolean => String(v ?? '').trim().length > 0;
+    return !filled(p.phone)
+      || !filled(p.address?.street) || !filled(p.address?.city) || !filled(p.address?.state);
+  }
+
+  protected needsProfilePill(groupKey: string, link: string | undefined): boolean {
+    return groupKey === 'me' && link === 'settings/profiles' && this.profileIncomplete();
+  }
+
   /** Keep the group holding the active route expanded across navigations. */
   private revealActiveRoute(url: string): void {
     const path = url.split('?')[0].split('#')[0];
