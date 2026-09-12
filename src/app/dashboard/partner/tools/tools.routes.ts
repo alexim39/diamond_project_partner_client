@@ -6,7 +6,6 @@ import { smsLogContainerComponent } from '../sms/sms-log/sms-log-container.compo
 import { EmailContainerComponent } from '../email/email-container.component';
 import { EmailLogContainerComponent } from '../email/email-log/email-log-container.component';
 import { CreateContactsContainerComponent } from '../contacts/create/create-contacts-container.component';
-import { ManageContactsContainerComponent } from '../contacts/manage/manage-contacts-container.component';
 import { MarketingChannelsComponent } from './campaigns/create-campaign/marketing-channels.component';
 import { ManageCampaignContainerComponent } from './campaigns/manage-campaign/manage-campaign-container.component';
 import { ManageCampaignDetailContainerComponent } from './campaigns/manage-campaign/details/manage-campaign-detail-container.component';
@@ -101,10 +100,12 @@ export const ToolsRoutes: Routes = [
                 title: "Create Contacts - Create new contacts",
             },   
             {
+                // Legacy table retired — the pipeline absorbed its bulk
+                // outreach; old links land on the working view instead.
                 path: 'list',
-                component: ManageContactsContainerComponent,
-                title: "Manage Contacts - View and manage your contacts",
-            },     
+                redirectTo: '/dashboard/prospects/pipeline',
+                pathMatch: 'full',
+            },
         ]
    },
 ];

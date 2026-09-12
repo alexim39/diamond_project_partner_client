@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
@@ -27,7 +29,7 @@ import { forkJoin } from 'rxjs';
   selector: 'async-lead-pipeline',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTableModule, MatChipsModule, MatButtonModule, MatButtonToggleModule, MatIconModule,
+    MatTableModule, MatChipsModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressBarModule, MatTooltipModule, RouterModule,
   ],
   template: `
@@ -114,9 +116,39 @@ import { forkJoin } from 'rxjs';
         <p class="empty">No leads match. Add prospects to start building your pipeline.</p>
       }
 
+      @if (selectionCount() > 0) {
+        <div class="bulk-bar" role="group" aria-label="Bulk outreach">
+          <span class="muted">{{ selectionCount() }} selected</span>
+          <button mat-button (click)="sendSms()">
+            <mat-icon>smartphone</mat-icon> Send SMS
+          </button>
+          <button mat-button (click)="sendEmail()">
+            <mat-icon>mail</mat-icon> Send email
+          </button>
+          <button mat-button (click)="clearSelection()">Clear</button>
+        </div>
+      }
+
       @if (filtered().length > 0) {
         <div class="table-wrap">
           <table mat-table [dataSource]="filtered()" class="mat-elevation-z2">
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox
+                  [checked]="allVisibleSelected()"
+                  [indeterminate]="someVisibleSelected()"
+                  (change)="toggleAllVisible()"
+                  aria-label="Select all visible"
+                />
+              </th>
+              <td mat-cell *matCellDef="let lead">
+                <mat-checkbox
+                  [checked]="isSelected(lead.id)"
+                  (change)="toggleSelect(lead.id)"
+                  [aria-label]="'Select ' + names(lead)"
+                />
+              </td>
+            </ng-container>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
               <td mat-cell *matCellDef="let lead" class="name-cell"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a></td>
@@ -207,6 +239,8 @@ import { forkJoin } from 'rxjs';
     .stage-card .label { font-size: 0.85em; }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
+    .bulk-bar { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.5em 0.75em; }
+    .bulk-bar button { min-height: 44px; }
     .loader { flex: 2; min-width: 120px; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
@@ -224,6 +258,8 @@ import { forkJoin } from 'rxjs';
 export class LeadPipelineComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly exportContacts = inject(ExportContactAndEmailService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -238,7 +274,10 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly confirmId = signal<string | null>(null);
   protected readonly issuedCode = signal<{ name: string; code: string } | null>(null);
 
-  protected readonly displayedColumns = ['name', 'contact', 'stage', 'interest', 'action'];
+  protected readonly displayedColumns = ['select', 'name', 'contact', 'stage', 'interest', 'action'];
+  protected readonly selected = signal<Set<string>>(new Set());
+
+  protected readonly selectionCount = computed(() => this.selected().size);
 
   protected readonly stageCounts = computed(() => {
     const counts = new Map<ProspectStage, number>();
@@ -268,6 +307,66 @@ export class LeadPipelineComponent implements OnInit {
 
   protected readonly stuckCount = computed(() => Object.keys(this.stuckDays()).length);
 
+  protected isSelected(id: string): boolean {
+    return this.selected().has(id);
+  }
+
+  protected allVisibleSelected(): boolean {
+    const visible = this.filtered();
+    return visible.length > 0 && visible.every((lead) => this.selected().has(lead.id));
+  }
+
+  protected someVisibleSelected(): boolean {
+    const visible = this.filtered();
+    const count = visible.filter((lead) => this.selected().has(lead.id)).length;
+    return count > 0 && count < visible.length;
+  }
+
+  protected toggleSelect(id: string): void {
+    this.selected.update((set) => {
+      const next = new Set(set);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  protected toggleAllVisible(): void {
+    const visible = this.filtered();
+    this.selected.update((set) => {
+      const next = new Set(set);
+      if (visible.every((lead) => next.has(lead.id))) {
+        for (const lead of visible) next.delete(lead.id);
+      } else {
+        for (const lead of visible) next.add(lead.id);
+      }
+      return next;
+    });
+  }
+
+  protected clearSelection(): void {
+    this.selected.set(new Set());
+  }
+
+  /** Bulk outreach handoff — selected numbers/emails ride the shared subject to the compose pages. */
+  protected sendSms(): void {
+    const phones = this.rows()
+      .filter((lead) => this.selected().has(lead.id) && lead.prospectPhone?.trim())
+      .map((lead) => lead.prospectPhone.trim());
+    if (phones.length === 0) return;
+    this.exportContacts.setData(phones);
+    this.router.navigate(['/dashboard/tools/sms/new']);
+  }
+
+  protected sendEmail(): void {
+    const emails = this.rows()
+      .filter((lead) => this.selected().has(lead.id) && lead.prospectEmail?.trim())
+      .map((lead) => lead.prospectEmail!.trim());
+    if (emails.length === 0) return;
+    this.exportContacts.setData(emails);
+    this.router.navigate(['/dashboard/tools/email/new']);
+  }
+
   ngOnInit(): void {
     this.reload();
   }
@@ -291,6 +390,7 @@ export class LeadPipelineComponent implements OnInit {
           this.rows.set(leads.data ?? []);
           this.total.set(leads.meta?.total ?? (leads.data ?? []).length);
           this.stuckDays.set(Object.fromEntries((stuck.data ?? []).map((s) => [s.prospectId, s])));
+          this.selected.set(new Set());
           this.loading.set(false);
         },
         error: (err: ApiError) => {
