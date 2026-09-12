@@ -37,6 +37,19 @@ export interface PendingNomination {
   member: { username: string; name: string } | null;
 }
 
+export interface PendingConfirmation {
+  partnerId: string;
+  level: string | null;
+  pending: Array<{ key: string; label: string; requestedAt: string | null }>;
+  member: { username: string; name: string } | null;
+}
+
+export type ConfirmationsEnvelope = ApiEnvelope<{ items: PendingConfirmation[]; total: number }>;
+
+export const TRAINING_CONFIRM_KEYS = ['ipo', 'qsg', 'smo'];
+
+export const TRAINING_KEY_LABELS: Record<string, string> = { ipo: 'IPO', qsg: 'QSG', smo: 'SMO' };
+
 export interface Oversight {
   level: string;
   isAdmin: boolean;

@@ -8,6 +8,7 @@ import { EditTeamContainerComponent } from './team/edit-team/edit-team-container
 import { MyPartnerSupportContainerComponent } from './my-partners/support/support-container.component';
 import { MyPartnersContactsContainerComponent } from './my-partners/contacts/contacts-container.component';
 import { MyPartnerContactsDetailContainerComponent } from './my-partners/contacts/details/contacts-detail-container.component';
+import { TrainingConfirmationsComponent } from './team/training-confirmations/training-confirmations.component';
 
 export const MentorshipRoutes: Routes = [
   {
@@ -32,10 +33,15 @@ export const MentorshipRoutes: Routes = [
                     title: "Create New Team - Create new team from partners",
                 },
                  {
-                    path: 'members',
-                    component: ManageTeamContainerComponent,
-                    title: "Manage Team - Manage team members from partners",
-                }, 
+                     path: 'members',
+                     component: ManageTeamContainerComponent,
+                     title: "Manage Team - Manage team members from partners",
+                 },
+                 {
+                     path: 'confirmations',
+                     component: TrainingConfirmationsComponent,
+                     title: "Confirm Training - Approve downline training completions",
+                 },
 
                 {
                     path: 'member/:id',
