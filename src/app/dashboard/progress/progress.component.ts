@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../core/progression/progression.service';
-import { Journey, LADDER, levelRank, MissingRequirement } from '../../core/progression/progression.models';
+import { Journey, LADDER, TRAINING_CONFIRM_KEYS, levelRank, MissingRequirement } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
 
 const BOOLEAN_STAMPS = new Set([
@@ -153,7 +153,9 @@ const BOOLEAN_STAMPS = new Set([
                     <div class="req-body">
                       <strong>{{ req.label }}</strong>
                       <span class="muted">{{ req.action }}</span>
-                      @if (cta(req); as label) {
+                      @if (pendingNote(req); as pending) {
+                        <p class="pending" role="status"><mat-icon>hourglass_empty</mat-icon>{{ pending }}</p>
+                      } @else if (cta(req); as label) {
                         <div class="req-cta">
                           <button mat-button (click)="act(req)" [disabled]="acting()">{{ label }}</button>
                         </div>
@@ -212,6 +214,8 @@ const BOOLEAN_STAMPS = new Set([
     .req-list mat-icon { color: var(--dp-gold); font-size: 20px; height: 20px; width: 20px; }
     .req-body { flex: 1; display: flex; flex-direction: column; gap: 0.2em; }
     .req-cta { display: flex; gap: 0.4em; margin-top: 0.25em; }
+    .pending { display: flex; align-items: center; gap: 0.4em; margin: 0.25em 0 0; font-size: 0.85em; color: var(--dp-gold-ink); }
+    .pending mat-icon { font-size: 18px; height: 18px; width: 18px; }
     .accounts-row { display: flex; gap: 0.75em; align-items: center; padding: 1em; flex-wrap: wrap; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
@@ -274,9 +278,25 @@ export class ProgressComponent implements OnInit {
     return '';
   }
 
+  /**
+   * Training marked done but awaiting upline verification — show the
+   * pending message instead of another Mark done button.
+   */
+  protected pendingNote(req: MissingRequirement): string | null {
+    if (!TRAINING_CONFIRM_KEYS.includes(req.key)) return null;
+    const stamp = (this.journey()?.milestones?.[req.key] ?? {}) as { done?: boolean; confirmedAt?: string | null };
+    if (stamp.done === true && !stamp.confirmedAt) {
+      return 'Thank you for taking the next step — your upline will confirm this activity.';
+    }
+    return null;
+  }
+
   protected act(req: MissingRequirement): void {
     if (BOOLEAN_STAMPS.has(req.key)) {
-      this.mutate({ [req.key]: { done: true } }, `"${req.label}" recorded.`);
+      const note = TRAINING_CONFIRM_KEYS.includes(req.key)
+        ? `"${req.label}" recorded — thank you for taking the next step. Your upline will confirm this activity.`
+        : `"${req.label}" recorded.`;
+      this.mutate({ [req.key]: { done: true } }, note);
     } else if (req.key === 'accounts') {
       this.showAccounts.set(true);
     } else if (req.key === 'g8Request') {
