@@ -147,6 +147,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'My account', link: 'settings/profiles', title: 'Your account' },
       { label: 'My public page', link: 'settings/landing-page', title: 'Your public page' },
       { label: 'Notification settings', link: 'notifications/preferences', title: 'How you get notified' },
+      { label: 'Ask Ora', link: 'ora', title: 'Chat with Ora, your growth coach' },
       { label: 'Get help', link: 'support/ticket', title: 'Ask for help' },
       { label: 'About', link: 'support/about/app', title: 'About this app' },
       { label: 'Survey', external: 'https://survey.diamondprojectonline.com/', title: 'Partners survey' },
