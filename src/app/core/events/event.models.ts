@@ -20,7 +20,7 @@ export interface CommunityEvent {
   location: string;
   scope: AudienceScope;
   createdAt: string;
-  author: { username: string; name: string } | null;
+  author: { username: string; name: string; profileImage?: string | null } | null;
   rsvps: RsvpCounts;
   myRsvp: RsvpStatus | null;
 }

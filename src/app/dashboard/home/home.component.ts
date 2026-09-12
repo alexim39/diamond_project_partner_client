@@ -12,6 +12,7 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { BillingService } from '../../core/billing/billing.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { CommunityService } from '../../core/community/community.service';
+import { AvatarComponent } from '../../_common/avatar.component';
 import { ProgressionService } from '../../core/progression/progression.service';
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
 import { PerformanceData } from '../../core/billing/billing.models';
@@ -31,7 +32,7 @@ import { ApiError } from '../../core/http/api-error';
   selector: 'async-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule,
+    AvatarComponent, DatePipe, DecimalPipe, MatButtonModule, MatCardModule, MatChipsModule,
     MatIconModule, MatProgressBarModule, RouterModule,
   ],
   template: `
@@ -102,7 +103,7 @@ import { ApiError } from '../../core/http/api-error';
               @for (post of communityPosts(); track post.id) {
                 <li class="dp-card preview-item">
                   <div class="preview-top">
-                    <strong>{{ post.author?.name ?? 'Teammate' }}</strong>
+                    <strong class="byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }}</strong>
                     <span class="muted">{{ post.likeCount ?? 0 }} likes · {{ post.commentCount ?? 0 }} comments</span>
                   </div>
                   @if (post.title) {
@@ -227,6 +228,7 @@ import { ApiError } from '../../core/http/api-error';
     .preview-item { padding: 0.7em 1em; display: flex; flex-direction: column; gap: 0.25em; }
     .preview-item p { margin: 0; }
     .preview-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+    .byline { display: inline-flex; align-items: center; gap: 0.4em; }
     .journey-strip { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
     .journey-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
     .journey-level { display: block; font-size: 1.3em; margin-top: 0.15em; }

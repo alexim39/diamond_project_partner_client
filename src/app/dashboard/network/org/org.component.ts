@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 import { NetworkService } from '../tree/network.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { NetworkNode, NetworkTreeMeta } from '../tree/network.models';
 
 interface OrgLevel {
@@ -30,8 +31,8 @@ interface OrgLevel {
   selector: 'async-org-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatProgressBarModule, MatSelectModule, RouterModule,
+    AvatarComponent, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule,
+    MatProgressBarModule, MatSelectModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -108,7 +109,7 @@ interface OrgLevel {
                       (click)="select(member)"
                       [title]="names(member)"
                     >
-                      <span class="avatar" aria-hidden="true">{{ initial(member) }}</span>
+                      <async-avatar [photo]="member.profileImage" [name]="names(member)" size="sm" />
                       <span class="member-name">{{ names(member) }}</span>
                       <span class="muted">@{{ member.username }} · {{ member.childCount }}</span>
                     </button>
@@ -156,7 +157,7 @@ interface OrgLevel {
     .member { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.75em; cursor: pointer; color: inherit; font: inherit; text-align: left; }
     .member:hover { border-color: var(--dp-gold); }
     .member--match { border-color: var(--dp-success); border-width: 2px; }
-    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 2em; border-radius: 50%; background: var(--dp-gold-soft); color: var(--dp-gold-ink); font-weight: 700; }
+    .member async-avatar { margin-bottom: 0.15em; }
     .member-name { font-weight: 600; }
     .details { display: flex; align-items: center; gap: 1em; background: var(--dp-info-bg); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.75em 1em; flex-wrap: wrap; }
     .details .spacer { flex: 1; }

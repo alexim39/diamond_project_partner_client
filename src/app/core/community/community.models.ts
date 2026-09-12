@@ -14,6 +14,7 @@ export const POST_KIND_LABELS: Record<PostKind, string> = {
 export interface DirectoryLabel {
   username: string;
   name: string;
+  profileImage?: string | null;
 }
 
 export interface PostAttachment {
