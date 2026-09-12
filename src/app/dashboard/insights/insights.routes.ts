@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { DownloadsComponent } from './downloads/downloads.component';
 import { InsightsOverviewComponent } from './overview/insights.component';
 import { TeamReportsComponent } from './team-reports/team-reports.component';
 
@@ -12,5 +13,10 @@ export const InsightsRoutes: Routes = [
     path: 'team-reports',
     component: TeamReportsComponent,
     title: 'Team Reports - Report up, request down',
+  },
+  {
+    path: 'downloads',
+    component: DownloadsComponent,
+    title: 'Reports & Downloads - Export your business data',
   },
 ];

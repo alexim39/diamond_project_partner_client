@@ -131,8 +131,8 @@
         <a routerLink="/dashboard" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); drawer.close()">
           <mat-icon>home</mat-icon><span>Home</span>
         </a>
-        <a routerLink="progress" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); drawer.close()">
-          <mat-icon>route</mat-icon><span>Journey</span>
+        <a routerLink="prospects/pipeline" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: false}" (click)="scrollToTop(); drawer.close()">
+          <mat-icon>person_search</mat-icon><span>Prospects</span>
         </a>
         <a routerLink="network/tree" routerLinkActive="active-tab" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop(); drawer.close()">
           <mat-icon>groups</mat-icon><span>Team</span>
