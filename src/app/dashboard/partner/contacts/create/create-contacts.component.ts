@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,12 +10,30 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 import { RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
 import {
   ContactListBatch, ContactListEntry, ContactPriority, RELATIONSHIP_TAGS, RelationshipTag,
 } from '../../prospects/lead-pipeline/lead.models';
 import { ApiError } from '../../../../core/http/api-error';
+
+const toHHMM = (d: Date): string => {
+  const pad = (v: number): string => String(v).padStart(2, '0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+/**
+ * Nigerian mobile numbers: 080… / +234… with a 10-digit 7/8/9 block
+ * (covers all NCC 070/080/081/090/091 allocations). Spaces and dashes
+ * are ignored so `0803 123 4567` validates.
+ */
+const NG_PHONE_RE = /^(?:\+?234|0)([789]\d{9})$/;
+const nigerianPhoneValidator = (control: AbstractControl): ValidationErrors | null => {
+  const raw = String(control.value ?? '');
+  if (!raw.trim()) return null;
+  return NG_PHONE_RE.test(raw.replace(/[\s\-()]/g, '')) ? null : { ngPhone: true };
+};
 
 /**
  * @title My contact list — onboarding deliverable.
@@ -29,7 +47,7 @@ import { ApiError } from '../../../../core/http/api-error';
 selector: 'async-create-contatcs',
 imports: [
   CommonModule, DatePipe, MatButtonModule, MatButtonToggleModule, MatCheckboxModule, MatChipsModule, MatIconModule,
-  MatInputModule, MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+  MatInputModule, MatProgressBarModule, MatSelectModule, MatTimepickerModule, ReactiveFormsModule, RouterModule,
 ],
 template: `
 <section class="breadcrumb-wrapper">
@@ -43,9 +61,9 @@ template: `
   <div class="page-head">
     <div>
       <h2>My contact list</h2>
-      <p class="subtitle">People you plan to introduce into the business. Add at least {{ minRequired() }} — then submit once for your upline to work with you.</p>
+      <p class="subtitle">People you plan to introduce into the business. Add them gradually — your list saves as you go. Submit once you reach {{ minRequired() }}+ for your upline to work with you.</p>
     </div>
-    <span class="count-pill" [class.count-pill--ready]="canSubmit()">{{ unsubmittedCount() }} of {{ minRequired() }}</span>
+    <span class="count-pill" [class.count-pill--ready]="canSubmit()">{{ unsubmittedCount() }} saved · submit at {{ minRequired() }}+</span>
   </div>
 
   @if (loading()) {
@@ -72,7 +90,10 @@ template: `
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Phone number</mat-label>
-        <input matInput formControlName="prospectPhone" inputmode="tel" maxlength="20" placeholder="e.g. 0803…" />
+        <input matInput formControlName="prospectPhone" inputmode="tel" maxlength="20" placeholder="e.g. 0803 123 4567" />
+        @if (form.get('prospectPhone')?.hasError('ngPhone') && form.get('prospectPhone')?.touched) {
+          <mat-error>Enter a valid Nigerian mobile number (e.g. 0803 123 4567).</mat-error>
+        }
       </mat-form-field>
     </div>
     <div class="two-col">
@@ -98,7 +119,9 @@ template: `
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Best time to call (optional)</mat-label>
-        <input matInput formControlName="bestTimeToCall" maxlength="120" placeholder="e.g. Evenings after 7pm" />
+        <input matInput [matTimepicker]="bestTimePicker" formControlName="bestTimeToCall" placeholder="e.g. 19:00" />
+        <mat-timepicker-toggle matSuffix [for]="bestTimePicker" />
+        <mat-timepicker #bestTimePicker interval="30m" />
       </mat-form-field>
     </div>
     <mat-form-field appearance="outline">
@@ -147,7 +170,7 @@ template: `
     <div class="dp-card submit-card">
       <div>
         <strong>Submit your list</strong>
-        <p class="muted">Your upline gets notified and starts calling with you.</p>
+        <p class="muted">Submit when ready ({{ minRequired() }}+ contacts) — your upline gets notified and starts calling with you.</p>
       </div>
       <span class="spacer"></span>
       @if (confirmSubmit()) {
@@ -239,11 +262,11 @@ export class CreateContactsComponent implements OnInit {
 
   protected readonly form = this.fb.nonNullable.group({
     prospectName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
-    prospectPhone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(20)]],
+    prospectPhone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(20), nigerianPhoneValidator]],
     prospectEmail: [''],
     relationship: ['Friend' as string, Validators.required],
     priority: ['normal' as string, Validators.required],
-    bestTimeToCall: [''],
+    bestTimeToCall: [null as Date | null],
     consentToContact: [false],
     notes: [''],
   });
@@ -293,7 +316,7 @@ export class CreateContactsComponent implements OnInit {
         prospectSource: 'Contact List',
         relationship: v.relationship as RelationshipTag,
         priority: v.priority as ContactPriority,
-        bestTimeToCall: v.bestTimeToCall.trim(),
+        bestTimeToCall: v.bestTimeToCall instanceof Date ? toHHMM(v.bestTimeToCall) : '',
         consentToContact: v.consentToContact,
         notes: v.notes.trim(),
       })
