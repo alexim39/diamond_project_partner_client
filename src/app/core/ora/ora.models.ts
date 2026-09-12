@@ -13,9 +13,15 @@ export interface OraContext {
 
 export type OraContextEnvelope = ApiEnvelope<OraContext>;
 
+export interface OraAction {
+  label: string;
+  link: string;
+}
+
 export interface OraChatReply {
   conversationId: string;
   reply: string;
+  actions: OraAction[];
 }
 
 export type OraChatEnvelope = ApiEnvelope<OraChatReply>;
@@ -23,6 +29,7 @@ export type OraChatEnvelope = ApiEnvelope<OraChatReply>;
 export interface OraConversationSummary {
   id: string;
   title: string;
+  pinned: boolean;
   updatedAt: string | null;
 }
 
@@ -41,3 +48,19 @@ export interface OraConversation {
 }
 
 export type OraConversationEnvelope = ApiEnvelope<OraConversation>;
+
+export interface OraTopicCount {
+  topic: string;
+  label: string;
+  count: number;
+}
+
+export interface OraAnalytics {
+  days: number;
+  questions: number;
+  conversations: number;
+  activeDays: number;
+  perTopic: OraTopicCount[];
+}
+
+export type OraAnalyticsEnvelope = ApiEnvelope<OraAnalytics>;

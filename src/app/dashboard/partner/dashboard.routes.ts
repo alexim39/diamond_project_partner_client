@@ -41,8 +41,9 @@ export const dashboardRoutes: Routes = [
             { path: 'earnings', loadChildren: () => import('../earnings/earnings.routes').then(r => r.EarningsRoutes) }, 
             { path: 'progress', loadChildren: () => import('../progress/progress.routes').then(r => r.ProgressRoutes) }, 
             { path: 'training', loadChildren: () => import('../training/training.routes').then(r => r.TrainingRoutes) }, 
-            { path: 'community', loadChildren: () => import('../community/community.routes').then(r => r.CommunityRoutes) }, 
-            { path: 'marketing', loadChildren: () => import('../marketing/marketing.routes').then(r => r.MarketingRoutes) }, 
+            { path: 'community', loadChildren: () => import('../community/community.routes').then(r => r.CommunityRoutes) },
+            { path: 'marketing', loadChildren: () => import('../marketing/marketing.routes').then(r => r.MarketingRoutes) },
+            { path: 'ora', loadChildren: () => import('../ora/ora.routes').then(r => r.OraRoutes) }, 
                 
                  
             {
