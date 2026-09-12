@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ConvertEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
+import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, DownlineContactListsEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -33,6 +33,26 @@ export class LeadPipelineService {
 
   logCommunication(prospectId: string, payload: LogCommunicationPayload): Observable<unknown> {
     return this.api.post(`v1/prospects/${prospectId}/communications`, payload);
+  }
+
+  createContact(payload: CreateContactPayload): Observable<unknown> {
+    return this.api.post('v1/prospects', payload);
+  }
+
+  removeProspect(prospectId: string): Observable<unknown> {
+    return this.api.delete(`v1/prospects/${prospectId}`);
+  }
+
+  contactListMine(): Observable<ContactListMineEnvelope> {
+    return this.api.get<ContactListMineEnvelope>('v1/prospects/contact-list/mine');
+  }
+
+  submitContactList(): Observable<{ message: string; success: boolean; data: { batch: string; count: number } }> {
+    return this.api.post<{ message: string; success: boolean; data: { batch: string; count: number } }>('v1/prospects/contact-list/submit', {});
+  }
+
+  downlineContactLists(): Observable<DownlineContactListsEnvelope> {
+    return this.api.get<DownlineContactListsEnvelope>('v1/prospects/contact-list/downline');
   }
 
   prospectName(lead: ProspectLead): string {
