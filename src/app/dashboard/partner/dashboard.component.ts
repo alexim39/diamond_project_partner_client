@@ -58,7 +58,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'People to meet', link: 'prospects/general-list', title: 'People you can talk to' },
       { label: 'My follow-ups', link: 'prospects/personal-list', title: 'People waiting on you' },
       { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
-      { label: 'Everyone in one list', link: 'prospects/pipeline', title: 'Everyone in one list' },
       { label: 'Book a chat', link: 'prospects/bookings', title: 'Book a chat' },
       { label: 'Email list', link: 'prospects/email-list', title: 'Email list' },
       { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
