@@ -144,24 +144,45 @@ template: `
     <ul class="entry-list">
       @for (e of entries(); track e.id) {
         <li class="dp-card entry">
-          <div>
-            <strong>{{ e.prospectName }} {{ e.prospectSurname }}</strong>
-            <span class="muted"> · {{ e.prospectPhone }}</span>
-            <div class="entry-tags">
-              <mat-chip highlighted>{{ e.relationship }}</mat-chip>
-              @if (e.priority === 'high') {
-                <mat-chip color="warn" highlighted>High priority</mat-chip>
-              }
+          @if (editingId() === e.id) {
+            <div class="edit-row">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Full name</mat-label>
+                <input matInput [value]="editName()" (input)="editName.set($any($event.target).value)" maxlength="80" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Phone</mat-label>
+                <input matInput [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" inputmode="tel" maxlength="20" />
+              </mat-form-field>
+              <button mat-flat-button color="primary" (click)="saveEdit(e)" [disabled]="savingEdit()">{{ savingEdit() ? 'Saving…' : 'Save' }}</button>
+              <button mat-button (click)="cancelEdit()" [disabled]="savingEdit()">Cancel</button>
             </div>
-          </div>
-          <span class="spacer"></span>
-          @if (confirmDeleteId() === e.id) {
-            <button mat-button color="warn" (click)="remove(e.id)" [disabled]="deleting()">Confirm</button>
-            <button mat-button (click)="confirmDeleteId.set(null)">Cancel</button>
+            @if (editError(); as err) {
+              <p class="error" role="alert">{{ err }}</p>
+            }
           } @else {
-            <button mat-icon-button (click)="confirmDeleteId.set(e.id)" aria-label="Remove contact" title="Remove">
-              <mat-icon>delete</mat-icon>
-            </button>
+            <div>
+              <strong>{{ e.prospectName }} {{ e.prospectSurname }}</strong>
+              <span class="muted"> · {{ e.prospectPhone }}</span>
+              <div class="entry-tags">
+                <mat-chip highlighted>{{ e.relationship }}</mat-chip>
+                @if (e.priority === 'high') {
+                  <mat-chip color="warn" highlighted>High priority</mat-chip>
+                }
+              </div>
+            </div>
+            <span class="spacer"></span>
+            @if (confirmDeleteId() === e.id) {
+              <button mat-button color="warn" (click)="remove(e.id)" [disabled]="deleting()">Confirm</button>
+              <button mat-button (click)="confirmDeleteId.set(null)">Cancel</button>
+            } @else {
+              <button mat-icon-button (click)="startEdit(e)" aria-label="Edit contact" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="confirmDeleteId.set(e.id)" aria-label="Remove contact" title="Remove">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
           }
         </li>
       }
@@ -229,6 +250,9 @@ styles: [`
   .form-actions button { min-height: 44px; }
   .entry-list, .batch-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
   .entry, .batch { padding: 0.8em 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+  .edit-row { display: flex; gap: 0.6em; flex-wrap: wrap; align-items: center; width: 100%; }
+  .edit-row mat-form-field { flex: 1; min-width: 160px; }
+  .edit-row button { min-height: 44px; }
   .entry-tags { display: flex; gap: 0.3em; margin-top: 0.3em; flex-wrap: wrap; }
   .spacer { flex: 1; }
   .submit-card { padding: 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; border-left: 4px solid var(--dp-gold); }
@@ -259,6 +283,11 @@ export class CreateContactsComponent implements OnInit {
   protected readonly batches = signal<ContactListBatch[]>([]);
   protected readonly confirmDeleteId = signal<string | null>(null);
   protected readonly confirmSubmit = signal(false);
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly editName = signal('');
+  protected readonly editPhone = signal('');
+  protected readonly savingEdit = signal(false);
+  protected readonly editError = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     prospectName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
@@ -277,6 +306,53 @@ export class CreateContactsComponent implements OnInit {
 
   protected stageKeys(b: ContactListBatch): string[] {
     return Object.keys(b.stageCounts ?? {}).sort();
+  }
+
+  protected startEdit(e: ContactListEntry): void {
+    this.editingId.set(e.id);
+    this.editName.set(`${e.prospectName} ${e.prospectSurname}`.trim());
+    this.editPhone.set(e.prospectPhone);
+    this.editError.set(null);
+    this.confirmDeleteId.set(null);
+  }
+
+  protected cancelEdit(): void {
+    this.editingId.set(null);
+    this.editError.set(null);
+  }
+
+  protected saveEdit(e: ContactListEntry): void {
+    const name = this.editName().trim();
+    const phone = this.editPhone().trim();
+    if (!name || name.length < 2) {
+      this.editError.set('Name must be at least 2 characters.');
+      return;
+    }
+    const ngPhoneRe = /^(?:\+?234|0)([789]\d{9})$/;
+    if (!ngPhoneRe.test(phone.replace(/[\s\-()]/g, ''))) {
+      this.editError.set('Enter a valid Nigerian mobile number (e.g. 0803 123 4567).');
+      return;
+    }
+    this.savingEdit.set(true);
+    this.editError.set(null);
+    // Split full name into prospectName + prospectSurname for the legacy schema.
+    const parts = name.split(/\s+/);
+    const prospectName = parts.shift() ?? name;
+    const prospectSurname = parts.join(' ');
+    this.leads
+      .updateContact(e.id, { prospectName, prospectSurname, prospectPhone: phone })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingEdit.set(false);
+          this.editingId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.savingEdit.set(false);
+          this.editError.set(err.message);
+        },
+      });
   }
 
   protected reload(): void {

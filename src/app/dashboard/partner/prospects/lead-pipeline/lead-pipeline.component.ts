@@ -187,6 +187,9 @@ import { forkJoin } from 'rxjs';
                     Advance to {{ next }}
                   </button>
                 }
+                <a mat-icon-button [routerLink]="['../edit', lead.id]" title="Edit {{ names(lead) }}" aria-label="Edit {{ names(lead) }}">
+                  <mat-icon>edit</mat-icon>
+                </a>
                 @if (!isConverted(lead)) {
                   <a mat-button [routerLink]="['../booking', lead.id]" title="Book a chat with {{ names(lead) }}">Book</a>
                 }
