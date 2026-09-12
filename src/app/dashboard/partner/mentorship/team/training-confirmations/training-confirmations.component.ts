@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../../../../core/progression/progression.service';
-import { PendingConfirmation } from '../../../../../core/progression/progression.models';
+import { ConfirmationStats, PendingConfirmation } from '../../../../../core/progression/progression.models';
 import { ApiError } from '../../../../../core/http/api-error';
 
 /**
@@ -35,6 +35,16 @@ import { ApiError } from '../../../../../core/http/api-error';
         <div>
           <h2>Confirm training</h2>
           <p class="subtitle">Your downline marked these complete — verify and confirm so their gates unlock.</p>
+          @if (stats(); as s) {
+            <p class="stats-line" role="status">
+              Downline median confirmation time:
+              <strong>{{ s.overall.medianDisplay ?? '—' }}</strong>
+              · {{ s.overall.pending }} pending
+              @if (s.overall.stale > 0) {
+                <strong class="stale">({{ s.overall.stale }} stale over 72h)</strong>
+              }
+            </p>
+          }
         </div>
       </div>
 
@@ -102,6 +112,8 @@ import { ApiError } from '../../../../../core/http/api-error';
     .confirm-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .stats-line { margin: 0.4em 0 0; font-size: 0.85em; color: var(--dp-muted); }
+    .stats-line .stale { color: var(--dp-error); }
     .card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
     .member-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
     .card-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
@@ -123,6 +135,7 @@ export class TrainingConfirmationsComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly items = signal<PendingConfirmation[]>([]);
+  protected readonly stats = signal<ConfirmationStats | null>(null);
   protected readonly deciding = signal<string | null>(null);
   protected readonly lastApproved = signal(true);
   protected readonly noteDraft = signal('');
@@ -150,6 +163,13 @@ export class TrainingConfirmationsComponent implements OnInit {
           this.error.set(err.message);
           this.loading.set(false);
         },
+      });
+    this.progress
+      .confirmationStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.stats.set(res.data ?? null),
+        error: () => this.stats.set(null),
       });
   }
 
