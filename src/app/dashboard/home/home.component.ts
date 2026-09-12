@@ -14,6 +14,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CommunityService } from '../../core/community/community.service';
 import { AvatarComponent } from '../../_common/avatar.component';
 import { ProgressionService } from '../../core/progression/progression.service';
+import { LeadPipelineService } from '../partner/prospects/lead-pipeline/lead-pipeline.service';
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
 import { PerformanceData } from '../../core/billing/billing.models';
 import { FeedPost } from '../../core/community/community.models';
@@ -56,6 +57,28 @@ import { ApiError } from '../../core/http/api-error';
         </div>
         <a mat-button routerLink="insights">Full insights</a>
       </div>
+
+      @if (showStarter()) {
+        <div class="starter-strip dp-card">
+          <div class="starter-head">
+            <mat-icon>rocket_launch</mat-icon>
+            <strong>Getting started</strong>
+            <span class="muted">{{ starterDone() }} of 4 done</span>
+          </div>
+          <ol>
+            @for (item of starterItems(); track item.key) {
+              <li [class.done]="item.done">
+                <mat-icon>{{ item.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>{{ item.label }}</span>
+                <span class="spacer"></span>
+                @if (!item.done) {
+                  <a mat-button [routerLink]="item.link">Start</a>
+                }
+              </li>
+            }
+          </ol>
+        </div>
+      }
 
       @if (loading()) {
         <mat-progress-bar mode="indeterminate" />
@@ -230,6 +253,16 @@ import { ApiError } from '../../core/http/api-error';
     .preview-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .byline { display: inline-flex; align-items: center; gap: 0.4em; }
     .journey-strip { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .starter-strip { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; border-left: 4px solid var(--dp-gold); }
+    .starter-head { display: flex; align-items: center; gap: 0.5em; }
+    .starter-head mat-icon { color: var(--dp-gold); }
+    .starter-strip ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .starter-strip li { display: flex; align-items: center; gap: 0.6em; padding: 0.45em 0; border-top: 1px solid var(--dp-line); }
+    .starter-strip li:first-child { border-top: none; }
+    .starter-strip li.done { opacity: 0.65; }
+    .starter-strip li.done mat-icon { color: var(--dp-success, #2e7d32); }
+    .starter-strip .spacer { flex: 1; }
+    .starter-strip a { min-height: 44px; }
     .journey-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
     .journey-level { display: block; font-size: 1.3em; margin-top: 0.15em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
@@ -241,6 +274,7 @@ export class HomeComponent implements OnInit {
   private readonly analytics = inject(AnalyticsService);
   private readonly billing = inject(BillingService);
   private readonly auth = inject(AuthService);
+  private readonly leads = inject(LeadPipelineService);
   private readonly progress = inject(ProgressionService);
   private readonly community = inject(CommunityService);
   private readonly destroyRef = inject(DestroyRef);
@@ -251,6 +285,7 @@ export class HomeComponent implements OnInit {
   protected readonly earnings = signal<PerformanceData | null>(null);
   protected readonly journey = signal<Journey | null>(null);
   protected readonly communityPosts = signal<FeedPost[]>([]);
+  protected readonly prospectCount = signal<number | null>(null);
   protected readonly today = new Date();
   protected readonly bannerDismissed = signal(false);
 
@@ -301,6 +336,32 @@ export class HomeComponent implements OnInit {
   }
 
   /**
+   * First-run checklist — the four activation moves. Unknown counts as
+   * done (fail-soft): the strip must never nag on uncertain data.
+   */
+  protected starterItems(): Array<{ key: string; label: string; link: string; done: boolean }> {
+    return [
+      { key: 'profile', label: 'Complete your profile', link: 'settings/profiles', done: !this.profileIncomplete() },
+      { key: 'prospect', label: 'Add your first prospect', link: 'tools/contacts/new', done: (this.prospectCount() ?? 1) > 0 },
+      { key: 'goal', label: 'Set your first goal', link: 'goals', done: (this.overview()?.goals.total ?? 1) > 0 },
+      { key: 'ipo', label: 'Take the IPO course', link: 'training', done: this.ipoDone() },
+    ];
+  }
+
+  protected showStarter(): boolean {
+    return this.starterItems().some((i) => !i.done);
+  }
+
+  protected starterDone(): number {
+    return this.starterItems().filter((i) => i.done).length;
+  }
+
+  private ipoDone(): boolean {
+    const ipo = this.journey()?.milestones?.['ipo'] as { done?: boolean } | undefined;
+    return ipo?.done === true;
+  }
+
+  /**
    * Role-based section order — actions always first, the rest follows
    * what matters at this rank: early ranks learn, mid ranks build,
    * senior ranks oversee.
@@ -342,20 +403,25 @@ export class HomeComponent implements OnInit {
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
-    // Journey + community fail soft — the page must never blank on them.
+    // Journey + community + prospect count fail soft — the page must never blank on them.
+    const myId = this.auth.currentUser()?.id ?? null;
     forkJoin({
       overview: this.analytics.overview(30),
       perf: this.billing.performance(),
       journey: this.progress.mine().pipe(catchError(() => of(null))),
       feed: this.community.feed(undefined, 5).pipe(catchError(() => of(null))),
+      prospects: myId
+        ? this.leads.listByPartner(myId, 1).pipe(catchError(() => of(null)))
+        : of(null),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ overview, perf, journey, feed }) => {
+        next: ({ overview, perf, journey, feed, prospects }) => {
           this.overview.set(overview.data ?? null);
           this.earnings.set(perf.data ?? null);
           this.journey.set(journey?.data ?? null);
           this.communityPosts.set(feed?.data?.items?.slice(0, 3) ?? []);
+          this.prospectCount.set(prospects ? (prospects.data?.length ?? 0) : null);
           this.loading.set(false);
         },
         error: (err: ApiError) => {
