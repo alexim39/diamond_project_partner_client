@@ -46,59 +46,44 @@ export interface NavGroup {
 }
 
 /**
- * Information architecture (max 8 top-level destinations):
- * Home · Alerts · My Journey · Grow · My Team · Money · Community · Me.
- * Every legacy route is preserved — only the grouping changed.
+ * Information architecture — one home per PRD module (8 groups + Home + Alerts).
+ * Home · Alerts · Prospects · Marketing · My Team · My Journey · Money · Insights · Community · Me.
+ * Group labels use PRD module language so training docs and the menu agree;
+ * every route is preserved — only the grouping changed.
  */
 const NAV_GROUPS: NavGroup[] = [
   {
-    key: 'journey', label: 'My Journey', icon: 'route', title: 'Your progress, targets and learning',
+    key: 'prospects', label: 'Prospects', icon: 'person_search', title: 'Find, follow up and convert',
     children: [
-      { label: 'My level & next steps', link: 'progress', title: 'My level and next steps' },
-      { label: 'My targets', link: 'goals', title: 'My targets' },
-      { label: "How I'm doing", link: 'insights', title: 'How you and your team are doing' },
-      {
-        label: 'Learn', title: 'Courses, mentors and shareables',
-        children: [
-          { label: 'Courses', link: 'training', title: 'Courses that move you up' },
-          { label: 'Get a mentor', link: 'mentorship/new-request', title: 'Get help from a leader' },
-          { label: 'Things to share', link: 'resources/ads-contents', title: 'Pictures and words to share' },
-          { label: 'Prospecting guides', link: 'resources/prospecting-contents', title: 'Guides for meeting people' },
-        ],
-      },
+      { label: 'People to meet', link: 'prospects/general-list', title: 'People you can talk to' },
+      { label: 'My follow-ups', link: 'prospects/personal-list', title: 'People waiting on you' },
+      { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
+      { label: 'Everyone in one list', link: 'prospects/pipeline', title: 'Everyone in one list' },
+      { label: 'Book a chat', link: 'prospects/bookings', title: 'Book a chat' },
+      { label: 'Email list', link: 'prospects/email-list', title: 'Email list' },
+      { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
+      { label: 'Everyone you know', link: 'tools/contacts/list', title: 'Everyone you know' },
     ],
   },
   {
-    key: 'grow', label: 'Grow My Business', icon: 'eco', title: 'People, campaigns and outreach',
+    key: 'marketing', label: 'Marketing', icon: 'campaign', title: 'Promote your business',
     children: [
-      {
-        label: 'Prospects', title: 'People you can talk to',
-        children: [
-          { label: 'People to meet', link: 'prospects/general-list', title: 'People you can talk to' },
-          { label: 'My follow-ups', link: 'prospects/personal-list', title: 'People waiting on you' },
-          { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
-          { label: 'Everyone in one list', link: 'prospects/pipeline', title: 'Everyone in one list' },
-          { label: 'Book a chat', link: 'prospects/bookings', title: 'Book a chat' },
-          { label: 'Email list', link: 'prospects/email-list', title: 'Email list' },
-        ],
-      },
       {
         label: 'Campaigns', title: 'Invites and campaigns',
         children: [
           { label: 'Tell others', link: 'tools/campaigns/share', title: 'Tell others about the business' },
           { label: 'My invites', link: 'tools/campaigns/manage', title: 'My invites and campaigns' },
           { label: 'Link results', link: 'tools/campaigns/link', title: 'How your invite link is doing' },
-          { label: 'What campaigns earned', link: 'marketing/roi', title: 'What your campaigns earned back' },
           { label: 'Start a campaign', link: 'tools/campaigns/new', title: 'Start an invite campaign' },
           { label: 'Campaign results', link: 'tools/campaigns/analytics', title: 'How campaigns are doing' },
+          { label: 'What campaigns earned', link: 'marketing/roi', title: 'What your campaigns earned back' },
         ],
       },
       {
-        label: 'Contacts', title: 'Everyone you know',
+        label: 'Share', title: 'Content worth sharing',
         children: [
-          { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
-          { label: 'Everyone you know', link: 'tools/contacts/list', title: 'Everyone you know' },
-          { label: 'Contacts at a glance', link: 'contact-analytics', title: 'Your contacts at a glance' },
+          { label: 'Things to share', link: 'resources/ads-contents', title: 'Pictures and words to share' },
+          { label: 'Prospecting guides', link: 'resources/prospecting-contents', title: 'Guides for meeting people' },
         ],
       },
       {
@@ -124,6 +109,20 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    key: 'journey', label: 'My Journey', icon: 'route', title: 'Where you are and what is next',
+    children: [
+      { label: 'My level & next steps', link: 'progress', title: 'My level and next steps' },
+      { label: 'My targets', link: 'goals', title: 'My targets' },
+      {
+        label: 'Learn', title: 'Courses and mentors',
+        children: [
+          { label: 'Courses', link: 'training', title: 'Courses that move you up' },
+          { label: 'Get a mentor', link: 'mentorship/new-request', title: 'Get help from a leader' },
+        ],
+      },
+    ],
+  },
+  {
     key: 'money', label: 'Money', icon: 'payments', title: 'Earnings, payouts and orders',
     children: [
       { label: 'My money', link: 'earnings', title: 'Money in and out' },
@@ -131,6 +130,14 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Payments', link: 'settings/billing', title: 'Payments and billing' },
       { label: 'Buy products', link: 'products/eshop', title: 'Buy products' },
       { label: 'My orders', link: 'products/order-history', title: 'What you ordered' },
+    ],
+  },
+  {
+    key: 'insights', label: 'Insights', icon: 'insights', title: 'Understand your business',
+    children: [
+      { label: "How I'm doing", link: 'insights', title: 'How you and your team are doing' },
+      { label: 'Contacts at a glance', link: 'contact-analytics', title: 'Your contacts at a glance' },
+      { label: 'Reports & downloads', link: 'insights/downloads', title: 'Export your business data' },
     ],
   },
   {

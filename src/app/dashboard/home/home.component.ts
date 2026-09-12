@@ -38,6 +38,7 @@ import { ApiError } from '../../core/http/api-error';
     <section class="home-page">
       <div class="greeting">
         <div>
+          <p class="eyebrow">Today · Daily Action Center</p>
           <p class="muted today">{{ today | date:'fullDate' }}</p>
           <h2>{{ greeting() }}{{ firstName() ? ', ' + firstName() : '' }}</h2>
           <p class="subtitle">{{ headline() }}</p>
@@ -193,6 +194,7 @@ import { ApiError } from '../../core/http/api-error';
     .greeting { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.75em; }
     .greeting h2 { margin: 0; font-size: 1.6em; }
     .today { margin: 0 0 0.2em; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8em; }
+    .eyebrow { margin: 0 0 0.3em; font-size: 0.78em; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dp-gold-ink); }
     .subtitle { margin: 0.3em 0 0; color: var(--dp-muted); }
     .action-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .action-item { display: flex; gap: 0.9em; align-items: center; padding: 0.7em 1em; }
