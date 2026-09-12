@@ -105,6 +105,9 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           @if (isConverted()) {
             <span class="muted">Enrolled ✓</span>
           }
+          @if (!isConverted()) {
+            <a mat-button [routerLink]="['../booking', prospectId()]" title="Book a chat">Book session</a>
+          }
           <button mat-button (click)="toggleLogForm()">{{ showLogForm() ? 'Cancel' : 'Log activity' }}</button>
         </div>
 
