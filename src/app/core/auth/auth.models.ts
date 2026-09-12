@@ -18,8 +18,8 @@ export interface SignupRequest {
   tnc?: boolean;
 }
 
-/** Canonical roles (backend normalizes legacy 'User'/'admin' casing). */
-export type UserRole = 'user' | 'leader' | 'admin';
+/** Canonical roles (backend normalizes legacy 'User'/'admin' casing; `g8` is admin-bestowed). */
+export type UserRole = 'user' | 'leader' | 'g8' | 'admin';
 
 export interface AuthUser {
   id: string;

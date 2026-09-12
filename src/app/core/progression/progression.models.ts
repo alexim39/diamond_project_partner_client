@@ -40,6 +40,7 @@ export interface PendingNomination {
 export interface Oversight {
   level: string;
   isAdmin: boolean;
+  isG8: boolean;
   total: number;
   capped: boolean;
   distribution: Record<string, number>;

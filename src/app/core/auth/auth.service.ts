@@ -6,7 +6,7 @@ import { AuthUser, MeResponse, SigninRequest, SigninResponse, SignupRequest, Use
 /** Canonical roles — absorbs legacy 'User'/'admin' casing from the API. */
 export function normalizeRole(value: unknown): UserRole {
   const v = String(value ?? '').trim().toLowerCase();
-  return v === 'admin' || v === 'leader' ? v : 'user';
+  return v === 'admin' || v === 'leader' || v === 'g8' ? v : 'user';
 }
 
 /**
@@ -30,7 +30,7 @@ export class AuthService {
   /** Canonical role (backend may still serve legacy casing). */
   readonly role = computed(() => normalizeRole(this.userSignal()?.role));
   readonly isAdmin = computed(() => this.role() === 'admin');
-  readonly isLeader = computed(() => this.role() === 'leader' || this.role() === 'admin');
+  readonly isLeader = computed(() => this.role() === 'leader' || this.role() === 'g8' || this.role() === 'admin');
 
   private track(user: AuthUser | null | undefined): void {
     if (user) user = { ...user, role: normalizeRole(user.role) };

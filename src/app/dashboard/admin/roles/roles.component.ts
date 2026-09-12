@@ -17,6 +17,7 @@ import { UserRole } from '../../../core/auth/auth.models';
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
   leader: { label: 'Leader', color: '#bbdefb', text: '#0d47a1' },
+  g8: { label: 'G8 Leader', color: '#e1bee7', text: '#4a148c' },
   admin: { label: 'Admin', color: '#ffccbc', text: '#bf360c' },
 };
 
@@ -214,9 +215,9 @@ export class ManageRolesComponent implements OnInit {
     return `${row.name ?? ''} ${row.surname ?? ''}`.trim() || row.username;
   }
 
-  /** Valid transitions from a role (same-role excluded). */
+  /** Valid transitions from a role (same-role excluded; G8 is admin-bestowed). */
   protected transitions(role: UserRole): UserRole[] {
-    return (['user', 'leader', 'admin'] as UserRole[]).filter((r) => r !== role);
+    return (['user', 'leader', 'g8', 'admin'] as UserRole[]).filter((r) => r !== role);
   }
 
   protected arm(partnerId: string, role: UserRole): void {
