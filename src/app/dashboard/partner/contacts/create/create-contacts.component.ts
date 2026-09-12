@@ -180,7 +180,7 @@ template: `
         <button mat-button (click)="confirmSubmit.set(false)">Cancel</button>
       } @else {
         <button mat-flat-button color="primary" (click)="confirmSubmit.set(true)" [disabled]="!canSubmit()">
-          Submit {{ unsubmittedCount() }} contacts
+          Submit {{ unsubmittedCount() }} contact{{ unsubmittedCount() === 1 ? '' : 's' }}
         </button>
       }
     </div>
