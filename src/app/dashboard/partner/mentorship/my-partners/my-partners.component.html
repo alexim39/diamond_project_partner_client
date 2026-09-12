@@ -28,7 +28,7 @@
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef> Name </th>
-            <td mat-cell *matCellDef="let element" matTooltip="Manage partner" style="cursor: pointer; font-size: 1em; font-weight: bold;" (click)="support(element._id)"> {{element.name | titlecase }} {{element.surname | titlecase }}  </td>
+            <td mat-cell *matCellDef="let element" matTooltip="Manage partner" style="cursor: pointer; font-size: 1em; font-weight: bold;" (click)="support(element._id)"><span class="name-cell"><async-avatar [photo]="element.profileImage" [name]="element.name + ' ' + element.surname" size="xs" /> {{element.name | titlecase }} {{element.surname | titlecase }}</span></td>
           </ng-container>
           <ng-container matColumnDef="phone">
             <th mat-header-cell *matHeaderCellDef> Phone </th>

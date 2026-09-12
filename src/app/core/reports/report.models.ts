@@ -12,7 +12,7 @@ export interface PeriodReport {
   plans: string;
   requestId: string | null;
   createdAt: string;
-  author?: { username: string; name: string } | null;
+  author?: { username: string; name: string; profileImage?: string | null } | null;
 }
 
 export interface ReportRequest {

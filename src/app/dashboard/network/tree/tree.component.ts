@@ -12,6 +12,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeTogglerService } from '../../../_common/services/theme-toggler.service';
 import { ApiError } from '../../../core/http/api-error';
 import { NetworkService } from './network.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { NetworkNode, NetworkTreeMeta, PositionedNode } from './network.models';
 
 const NODE_W = 168;
@@ -39,8 +40,8 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
   selector: 'async-network-tree',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule,
-    MatInputModule, MatProgressBarModule, MatSelectModule, RouterModule,
+    AvatarComponent, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatIconModule, MatInputModule,
+    MatProgressBarModule, MatSelectModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -210,6 +211,7 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
 
         @if (selected(); as detail) {
           <div class="details" role="status">
+            <async-avatar [photo]="detail.profileImage" [name]="names(detail)" size="sm" />
             <div>
               <strong>{{ names(detail) }}</strong>
               <span class="muted">@{{ detail.username }} · {{ detail.plan }} plan</span>

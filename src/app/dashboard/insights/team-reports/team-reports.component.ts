@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ReportService } from '../../../core/reports/report.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { DownlineOption, PeriodReport, ReportRequest } from '../../../core/reports/report.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -28,7 +29,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   selector: 'async-team-reports',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatNativeDateModule,
+    AvatarComponent, DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatNativeDateModule,
     MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
     ReactiveFormsModule, RouterModule,
   ],
@@ -212,7 +213,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
             <li class="card">
               <div class="card-top">
                 <strong>{{ rep.title }}</strong>
-                <mat-chip highlighted>{{ rep.author?.name ?? 'Team member' }}</mat-chip>
+                <mat-chip highlighted><async-avatar [photo]="rep.author?.profileImage" [name]="rep.author?.name ?? 'Team member'" size="xs" />{{ rep.author?.name ?? 'Team member' }}</mat-chip>
               </div>
               <p class="muted">{{ rep.periodStart | date:'mediumDate' }} → {{ rep.periodEnd | date:'mediumDate' }}</p>
               <p>{{ rep.highlights }}</p>

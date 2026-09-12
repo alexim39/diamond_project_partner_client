@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { AudienceScope, CommunityEvent, RsvpStatus } from '../../../core/events/event.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -54,7 +55,7 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
   selector: 'async-community-events',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatButtonToggleModule, MatDatepickerModule, MatNativeDateModule,
+    AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatDatepickerModule, MatNativeDateModule,
     MatTimepickerModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
     ReactiveFormsModule, RouterModule,
   ],
@@ -171,7 +172,7 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
               <div class="event-top">
                 <div>
                   <strong>{{ event.title }}</strong>
-                  <span class="muted"> · {{ event.author?.name ?? 'Teammate' }}</span>
+                  <span class="muted byline"> · <async-avatar [photo]="event.author?.profileImage" [name]="event.author?.name ?? 'Teammate'" size="xs" />{{ event.author?.name ?? 'Teammate' }}</span>
                 </div>
                 <span class="muted">{{ event.startsAt | date:'medium' }}</span>
               </div>
@@ -222,6 +223,7 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
     .event-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
     .event-card p { margin: 0; }
     .event-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
+    .byline { display: inline-flex; align-items: center; gap: 0.4em; }
     .event-top .muted mat-icon, p.muted mat-icon { font-size: 16px; height: 16px; width: 16px; vertical-align: -3px; }
     .rsvp-row { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
     .rsvp-row .spacer { flex: 1; }

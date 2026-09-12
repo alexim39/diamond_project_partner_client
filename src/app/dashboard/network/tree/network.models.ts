@@ -8,6 +8,7 @@ export interface NetworkNode {
   surname: string;
   role: string;
   plan: string;
+  profileImage?: string | null;
   joinedAt?: string;
   children: NetworkNode[];
   childCount: number;

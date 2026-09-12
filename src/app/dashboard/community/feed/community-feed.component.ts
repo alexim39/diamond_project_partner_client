@@ -10,6 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { CommunityService } from '../../../core/community/community.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { API_BASE_URL } from '../../../core/config/api-tokens';
 import { AudienceScope, DirectoryEntry, FeedComment, FeedPost, POST_KIND_LABELS, PostAttachment, PostKind } from '../../../core/community/community.models';
 import { ApiError } from '../../../core/http/api-error';
@@ -44,7 +45,7 @@ const KIND_STYLES: Record<PostKind, string> = {
   selector: 'async-community-feed',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
+    AvatarComponent, DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
     MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -173,7 +174,7 @@ const KIND_STYLES: Record<PostKind, string> = {
                 @if (post.pinned) {
                   <mat-icon title="Pinned">push_pin</mat-icon>
                 }
-                <span class="muted">{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
+                <span class="muted byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
               </div>
               @if (post.title) {
                 <strong>{{ post.title }}</strong>
@@ -216,7 +217,7 @@ const KIND_STYLES: Record<PostKind, string> = {
                   }
                   @for (comment of comments(); track comment.id) {
                     <div class="comment" [class.comment--reply]="!!comment.parentId">
-                      <strong>{{ comment.author?.name ?? 'Teammate' }}</strong>
+                      <strong class="byline"><async-avatar [photo]="comment.author?.profileImage" [name]="comment.author?.name ?? 'Teammate'" size="xs" />{{ comment.author?.name ?? 'Teammate' }}</strong>
                       <div class="comment-body">@for (seg of segments(comment.body); track $index) {<span [class.mention]="seg.mention">{{ seg.text }}</span>}</div>
                       <div class="comment-foot">
                         <span class="muted">{{ comment.createdAt | date:'short' }}</span>
@@ -278,6 +279,7 @@ const KIND_STYLES: Record<PostKind, string> = {
     .post p { margin: 0; }
     .post--recognition { border-left: 4px solid var(--dp-success); }
     .post-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+    .byline { display: inline-flex; align-items: center; gap: 0.4em; }
     .post-top mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-gold); }
     .post-body { white-space: pre-wrap; line-height: 1.6; }
     .mention { color: var(--dp-gold-ink); font-weight: 700; }

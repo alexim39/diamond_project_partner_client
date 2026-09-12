@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivateNewPartnerComponent } from './activate-new-partner.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AvatarComponent } from '../../../../_common/avatar.component';
 
 
 @Component({
@@ -67,6 +68,12 @@ styles: [`
             background-color: white;
         }
 
+        .name-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+        }
+
         .no-campaign {
             text-align: center;
             color: rgb(196, 129, 4);
@@ -90,7 +97,8 @@ imports: [
         FormsModule,
         MatCheckboxModule,
         MatSlideToggleModule,
-        MatTooltipModule
+        MatTooltipModule,
+        AvatarComponent
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     providers: []

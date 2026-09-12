@@ -44,8 +44,8 @@ template: `
 changeDetection: ChangeDetectionStrategy.OnPush,
 styles: [`
   .photo-block { display: flex; flex-direction: column; align-items: center; gap: 0.6em; padding: 1em; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 12px; }
-  .photo-preview { width: 8em; height: 8em; border-radius: 50%; object-fit: cover; border: 2px solid var(--dp-gold); }
-  .photo-fallback { width: 8em; height: 8em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.4em; font-weight: 800; color: var(--dp-sidenav-text); background: var(--dp-sidenav); }
+  .photo-preview { width: 4em; height: 4em; border-radius: 50%; object-fit: cover; border: 2px solid var(--dp-gold); }
+  .photo-fallback { width: 4em; height: 4em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.4em; font-weight: 800; color: var(--dp-sidenav-text); background: var(--dp-sidenav); }
   .why { margin: 0; text-align: center; font-size: 0.85em; color: var(--dp-muted); max-width: 26em; }
   .file-row input { max-width: 100%; font: inherit; }
   .file-row input::file-selector-button { min-height: 44px; border-radius: 8px; border: 1px solid var(--dp-line); background: var(--dp-surface); color: inherit; font: inherit; padding: 0 1em; margin-right: 0.75em; cursor: pointer; }
