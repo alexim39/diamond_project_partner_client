@@ -1,8 +1,42 @@
 
+@if (profile(); as p) {
+  <div class="identity-card">
+    @if (p.profileImage) {
+      <img [src]="p.profileImage" alt="Profile photo" class="identity-avatar" />
+    } @else {
+      <span class="identity-fallback" aria-hidden="true">{{ initial() }}</span>
+    }
+    <div class="identity-main">
+      <h3>{{ p.name }} {{ p.surname }}</h3>
+      <p class="muted">@{{ p.username }} · {{ p.email }}</p>
+      @if (publicPageUrl(); as url) {
+        <p class="muted">Public page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a> · {{ p.visits ?? 0 }} views</p>
+      }
+      @if (meter(); as m) {
+        <div class="meter" role="status" [attr.aria-label]="'Profile ' + m.percent + ' percent complete'">
+          <div class="meter-top"><span><strong>{{ m.percent }}%</strong> complete</span><span class="muted">{{ m.complete ? 'Onboarding done — nice.' : 'Finish the required items below.' }}</span></div>
+          <div class="meter-bar"><span class="meter-fill" [style.width.%]="m.percent"></span></div>
+          @if (m.missing.length > 0) {
+            <div class="missing">
+              @for (item of m.missing; track item) {
+                <span class="missing-tag">{{ item }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="photo-wrap">
+    <async-profile-picture-upload [partner]="p" (uploaded)="onPhotoUploaded($event)" />
+  </div>
+}
+
 <mat-accordion>
   <mat-expansion-panel [expanded]="true">
     <mat-expansion-panel-header>
-      <mat-panel-title> Personal Information </mat-panel-title>
+      <mat-panel-title> Personal &amp; Contact <span class="section-badge section-badge--required">Required</span> </mat-panel-title>
     </mat-expansion-panel-header>
 
     <div class="form-container">
@@ -22,7 +56,7 @@
         <div class="form-group">
           <mat-form-field appearance="outline">
             <mat-label>Surname</mat-label>
-            <input matInput type="email" formControlName="surname" required>
+            <input matInput formControlName="surname" required>
             @if (profileMgrForm.get('surname')?.hasError('required') ) {
               <mat-error>
                 This is required
@@ -58,12 +92,7 @@
         <div class="form-group">
           <mat-form-field appearance="outline">
             <mat-label>Reservation Code</mat-label>
-            <input matInput formControlName="reservationCode" readonly="true" required>
-            @if (profileMgrForm.get('reservationCode')?.hasError('required') ) {
-              <mat-error>
-                This is required
-              </mat-error>
-            }
+            <input matInput formControlName="reservationCode" readonly="true">
           </mat-form-field>
         </div>
 
@@ -140,17 +169,6 @@
           </mat-form-field>
         </div>
 
-        <div class="form-group">
-          <mat-slide-toggle [checked]="status"[disabled]="disabled" (change)="onToggleChange($event)">Active State</mat-slide-toggle>
-          <small style="color: gray;">Account Status</small>
-        </div>
-
-        <div class="form-ungroup">
-          @if (partner) {
-            <async-profile-picture-upload [partner]="partner"></async-profile-picture-upload>
-          }
-        </div>
-
         <div class="form-group"></div>
         <button mat-flat-button color="primary" (click)="onProfileSubmit()">Submit</button>
       </form>
@@ -159,7 +177,7 @@
 
   <mat-expansion-panel>
     <mat-expansion-panel-header>
-      <mat-panel-title> Profession Information </mat-panel-title>
+      <mat-panel-title> Profession <span class="section-badge section-badge--optional">Optional</span> </mat-panel-title>
     </mat-expansion-panel-header>
 
 
@@ -192,7 +210,6 @@
               <mat-option value="M.Sc., M.A., M.B.A.">M.Sc., M.A., M.B.A.</mat-option>
               <mat-option value="Ph.D.">Ph.D.</mat-option>
               <mat-option value="NCE">NCE</mat-option>
-              <mat-option value="M.Sc., M.A., M.B.A.">M.Sc., M.A., M.B.A.</mat-option>
               <mat-option value="None">None</mat-option>
             </mat-select>
             @if (professionalForm.get('educationBackground')?.hasError('required') ) {
@@ -207,7 +224,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Best Hobby</mat-label>
             <input matInput formControlName="hobby" required maxlength="50">
-            @if (profileMgrForm.get('hobby')?.hasError('required') ) {
+            @if (professionalForm.get('hobby')?.hasError('required') ) {
               <mat-error>
                 This is required
               </mat-error>
@@ -219,7 +236,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Best Skill</mat-label>
             <input matInput formControlName="skill" required maxlength="50">
-            @if (profileMgrForm.get('skill')?.hasError('required') ) {
+            @if (professionalForm.get('skill')?.hasError('required') ) {
               <mat-error>
                 This is required
               </mat-error>
@@ -237,7 +254,7 @@
 
   <mat-expansion-panel>
     <mat-expansion-panel-header>
-      <mat-panel-title> Username </mat-panel-title>
+      <mat-panel-title> Account </mat-panel-title>
     </mat-expansion-panel-header>
 
     <div class="form-container">
@@ -251,23 +268,16 @@
         </div>
         <div class="form-group"></div>
         <div class="form-group">
-          Landing page URL: <a href="http://diamondprojectonline.com/{{partner.username | lowercase}}" target="_blank">www.diamondprojectonline.com/{{partner.username | lowercase}}</a>
-          Page View: {{partner.visits}}
+          @if (publicPageUrl(); as url) {
+            Landing page URL: <a [href]="url" target="_blank" rel="noopener">www.diamondprojectonline.com/{{ profile()?.username | lowercase }}</a>
+          }
+          <span class="muted">Page views: {{ profile()?.visits ?? 0 }}</span>
         </div>
         <button mat-flat-button color="primary">Submit</button>
       </form>
     </div>
 
-
-
-  </mat-expansion-panel>
-
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title> Password </mat-panel-title>
-    </mat-expansion-panel-header>
-
-    <div class="form-container">
+    <div class="form-container" style="margin-top: 1em;">
       <form class="flex-form" [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
         <div class="form-group">
           <mat-form-field appearance="outline">
@@ -320,7 +330,7 @@
           </mat-form-field>
         </div>
         <div class="form-group"></div>
-        <button mat-flat-button color="primary">Submit</button>
+        <button mat-flat-button color="primary">Change password</button>
       </form>
     </div>
 

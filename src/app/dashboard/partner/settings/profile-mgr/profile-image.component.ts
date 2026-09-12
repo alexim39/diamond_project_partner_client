@@ -1,143 +1,132 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-
+import { ChangeDetectionStrategy, Component, DestroyRef, Input, OnInit, inject, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
-import Swal from 'sweetalert2';
-import { environment } from '../../../../../environments/environment';
+import { ProfilePhotoService } from '../../../../core/settings/profile-photo.service';
+import { ApiError, toApiError } from '../../../../core/http/api-error';
 
+const MAX_BYTES = 5 * 1024 * 1024;
+
+/**
+ * @title Profile photo uploader — Cloudinary-backed.
+ *
+ * Preview → validate (image, ≤5MB) → upload to `/v1/settings/*` → emit
+ * the secure URL. The secret never leaves the server; the browser only
+ * ever sees the public URL. OnPush + signals, fully typed.
+ */
 @Component({
 selector: 'async-profile-picture-upload',
-imports: [MatButtonModule],
+imports: [MatButtonModule, MatIconModule, MatProgressBarModule],
 template: `
-  <section>
-    <div class="profile-picture-upload">
-      @if (profilePictureUrl) {
-        <img [src]="profilePictureUrl" alt="Profile Picture" class="profile-picture-preview"/>
-      }
-      <input type="file" (change)="onFileSelected($event)" accept="image/*" />
-      <button mat-flat-button (click)="onUpload()">Upload</button>
-    </div>
-  </section>
-  `,
-changeDetection: ChangeDetectionStrategy.Eager,
-styles: `
-  section {
-    display: flex;  
-    justify-content: center;  
-    align-items: center;  
-    height: 15em;  
-    background-color: #f0f0f0; 
-    .profile-picture-upload {
-      //width: 12em;  /* Set the width of the circle */  
-      //height: 12em; /* Set the height of the circle */  
-      //overflow: hidden; /* Hide any overflow part of the image */  
-      display: flex;  
-      flex-direction: column;
-      justify-content: center;  
-      align-items: center;
-      .profile-picture-preview {
-          border-radius: 50%; /* Makes the container round */  
-          width: 100%; /* Scale the image to cover the container */  
-          height: auto; /* Maintain the aspect ratio */  
-          object-fit: cover; /* Cover the container without distorting the image */ 
-          width: 8em;  /* Set the width of the circle */  
-          height: 8em; /* Set the height of the circle */   
-      }
-      button {
-          margin:1em;
-      }
+  <div class="photo-block">
+    @if (preview()) {
+      <img [src]="preview()" alt="Profile picture preview" class="photo-preview"/>
+    } @else {
+      <span class="photo-fallback" aria-hidden="true">{{ initial() }}</span>
     }
-  }
-  
-  `
+    <p class="why">Prospects see this photo when you invite them — faces close faster than blank avatars.</p>
+    <label class="file-row">
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" aria-label="Choose profile photo" />
+    </label>
+    @if (uploading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    @if (status(); as s) {
+      <p class="status" [class.status--error]="isError()">{{ s }}</p>
+    }
+    <button mat-flat-button color="primary" (click)="onUpload()" [disabled]="!selectedFile || uploading()">
+      {{ uploading() ? 'Uploading…' : 'Upload photo' }}
+    </button>
+  </div>
+  `,
+changeDetection: ChangeDetectionStrategy.OnPush,
+styles: [`
+  .photo-block { display: flex; flex-direction: column; align-items: center; gap: 0.6em; padding: 1em; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 12px; }
+  .photo-preview { width: 8em; height: 8em; border-radius: 50%; object-fit: cover; border: 2px solid var(--dp-gold); }
+  .photo-fallback { width: 8em; height: 8em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.4em; font-weight: 800; color: var(--dp-sidenav-text); background: var(--dp-sidenav); }
+  .why { margin: 0; text-align: center; font-size: 0.85em; color: var(--dp-muted); max-width: 26em; }
+  .file-row input { max-width: 100%; font: inherit; }
+  .file-row input::file-selector-button { min-height: 44px; border-radius: 8px; border: 1px solid var(--dp-line); background: var(--dp-surface); color: inherit; font: inherit; padding: 0 1em; margin-right: 0.75em; cursor: pointer; }
+  .status { margin: 0; font-size: 0.85em; color: var(--dp-success, #2e7d32); text-align: center; }
+  .status--error { color: var(--dp-error); }
+  button { min-height: 44px; }
+`],
 })
-export class ProfilePictureUploadComponent {
-    // Define API
-    apiURL = environment.apiUrl;
-
-  selectedFile: File | null = null;
-  profilePictureUrl: string | ArrayBuffer | null = null;
+export class ProfilePictureUploadComponent implements OnInit {
+  private readonly photos = inject(ProfilePhotoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @Input() partner!: PartnerInterface;
+  readonly uploaded = output<string>();
 
-  constructor(private http: HttpClient) {}
+  protected readonly preview = signal<string | null>(null);
+  protected readonly initial = signal('?');
+  protected readonly uploading = signal(false);
+  protected readonly status = signal<string | null>(null);
+  protected readonly isError = signal(false);
+  protected selectedFile: File | null = null;
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      this.selectedFile = input.files[0];
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.profilePictureUrl = reader.result;
-      };
-      reader.readAsDataURL(this.selectedFile);
-    }
+  ngOnInit(): void {
+    if (this.partner?.profileImage) this.preview.set(this.partner.profileImage);
+    const name = `${this.partner?.name ?? ''} ${this.partner?.surname ?? ''}`.trim();
+    this.initial.set(name ? name.charAt(0).toUpperCase() : '?');
   }
 
-  onUpload(): void {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('profilePicture', this.selectedFile, this.selectedFile.name);
-      formData.append('userId', this.partner._id); 
-
-      this.http.post(this.apiURL + `/image/profile/${this.partner._id}`, formData).subscribe({
-        
-        
-        next: (response: any) => {
-          Swal.fire({
-            position: "bottom",
-            icon: 'success',
-            text: response.message,
-            showConfirmButton: true,
-            timer: 10000,
-            confirmButtonColor: "#ffab40",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              location.reload();
-            }
-          });
-        },
-        error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
-          Swal.fire({
-            position: "bottom",
-            icon: 'error',
-            text: errorMessage,
-            showConfirmButton: false,
-            timer: 4000
-          });  
-        }
-
-
-        /* Swal.fire({
-          position: "bottom",
-          icon: 'success',
-          text: 'Your profile image has been updated successfully',
-          showConfirmButton: true,
-          confirmButtonColor: "#ffab40",
-          timer: 15000,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // reload page
-            location.reload();
-          }
-        });
-
-      }, error => {
-        //console.error('Upload failed!', error);
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please try again',
-          showConfirmButton: false,
-          timer: 4000
-        }) */
-      });
+  protected onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    this.status.set(null);
+    this.isError.set(false);
+    if (!file) {
+      this.selectedFile = null;
+      return;
     }
+    if (!file.type.startsWith('image/')) {
+      this.selectedFile = null;
+      this.status.set('Please choose an image file (JPEG, PNG or WebP).');
+      this.isError.set(true);
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      this.selectedFile = null;
+      this.status.set('That image is over 5MB — please choose a smaller one.');
+      this.isError.set(true);
+      return;
+    }
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = () => this.preview.set(String(reader.result));
+    reader.readAsDataURL(file);
+  }
+
+  protected onUpload(): void {
+    if (!this.selectedFile || this.uploading()) return;
+    this.uploading.set(true);
+    this.status.set(null);
+    this.isError.set(false);
+    this.photos
+      .upload(this.selectedFile)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.uploading.set(false);
+          const url = res.data?.url;
+          if (url) {
+            this.preview.set(url);
+            this.selectedFile = null;
+            this.status.set('Photo updated successfully.');
+            this.uploaded.emit(url);
+          } else {
+            this.status.set('Upload finished without a photo URL — please try again.');
+            this.isError.set(true);
+          }
+        },
+        error: (err: unknown) => {
+          this.uploading.set(false);
+          this.status.set(toApiError(err).message);
+          this.isError.set(true);
+        },
+      });
   }
 }
