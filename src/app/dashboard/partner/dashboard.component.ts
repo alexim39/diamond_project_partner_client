@@ -56,8 +56,7 @@ const NAV_GROUPS: NavGroup[] = [
     key: 'prospects', label: 'Prospects', icon: 'person_search', title: 'Find, follow up and convert',
     children: [
       { label: 'General contact list', link: 'prospects/general-list', title: 'Everyone you can talk to' },
-      { label: 'Personal contact list', link: 'tools/contacts/list', title: 'People you personally know' },
-      { label: 'My follow-ups', link: 'prospects/personal-list', title: 'People waiting on you' },
+      { label: 'My follow-ups', link: 'prospects/personal-list', title: 'People waiting on you — select rows to message them in bulk' },
       { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
       { label: 'Book a chat', link: 'prospects/bookings', title: 'Book a chat' },
       { label: 'Email list', link: 'prospects/email-list', title: 'Email list' },
