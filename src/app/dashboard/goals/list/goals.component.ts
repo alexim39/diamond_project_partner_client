@@ -4,6 +4,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -37,8 +39,9 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
   selector: 'async-goals',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, DecimalPipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, NgxEchartsDirective, ReactiveFormsModule, RouterModule,
+    DatePipe, DecimalPipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatNativeDateModule,
+    MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, NgxEchartsDirective,
+    ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -87,11 +90,20 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Start</mat-label>
-            <input matInput type="date" formControlName="startDate" />
+            <input matInput [matDatepicker]="goalStartPicker" formControlName="startDate" />
+            <mat-datepicker-toggle matSuffix [for]="goalStartPicker" />
+            <mat-datepicker #goalStartPicker />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>End</mat-label>
-            <input matInput type="date" formControlName="endDate" />
+            <input
+              matInput
+              [matDatepicker]="goalEndPicker"
+              formControlName="endDate"
+              [min]="form.controls.startDate.value"
+            />
+            <mat-datepicker-toggle matSuffix [for]="goalEndPicker" />
+            <mat-datepicker #goalEndPicker />
           </mat-form-field>
           <div class="form-actions">
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving()">
@@ -241,8 +253,8 @@ export class GoalsComponent implements OnInit {
     title: [''],
     kind: ['sales' as GoalKind, Validators.required],
     target: [100, [Validators.required, Validators.min(1)]],
-    startDate: [toInputDate(new Date()), Validators.required],
-    endDate: [toInputDate(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)), Validators.required],
+    startDate: [new Date(), Validators.required],
+    endDate: [new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0), Validators.required],
   });
 
   ngOnInit(): void {
@@ -278,7 +290,7 @@ export class GoalsComponent implements OnInit {
     this.formError.set(null);
     const v = this.form.getRawValue();
     this.goalsApi
-      .create({ title: v.title.trim(), kind: v.kind, target: Number(v.target), startDate: v.startDate, endDate: v.endDate })
+      .create({ title: v.title.trim(), kind: v.kind, target: Number(v.target), startDate: toInputDate(v.startDate), endDate: toInputDate(v.endDate) })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
