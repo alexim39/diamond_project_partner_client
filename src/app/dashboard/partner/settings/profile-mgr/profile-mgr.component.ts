@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnDestroy, OnInit, Signal, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -8,13 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PartnerInterface, } from '../../../../_common/services/partner.service';
+import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ProfileService } from '../../profile/profile.service';
 import Swal from 'sweetalert2';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { ProfilePictureUploadComponent } from './profile-image.component';
@@ -24,99 +23,69 @@ import { MatSelectModule } from '@angular/material/select';
 import { Countries, States } from '../../../../_common/services/countries';
 import { HttpErrorResponse } from '@angular/common/http';
 
+interface MeterItem {
+  label: string;
+  done: boolean;
+  required: boolean;
+}
+
 /**
- * @title profile manager
+ * @title profile manager — completion-driven account page.
+ *
+ * Identity header (photo, completion meter, public page) plus three
+ * purpose-grouped sections. Required vs optional is explicit everywhere
+ * so a member arriving from the onboarding banner always knows the next
+ * step. Save flows are unchanged (legacy profile endpoints).
  */
 @Component({
 selector: 'async-profile-mgr',
 templateUrl: 'profile-mgr.component.html',
 styles: [`
-
-.address-section {
-  margin: 0 auto;
-  border: 1px solid gray;
-  padding: 1em;
-  border-radius: 5px;
-  .address-container {
-    display: flex;
-    flex-wrap: wrap; // Allow wrapping of items
-    gap: 20px; // Add consistent spacing between items
-    margin-top: 20px;
-    flex-direction: row; // Default to row layout
-    justify-content: space-between; // Align items to the left and right
-
-    mat-form-field {
-      flex: 1 1 calc(50% - 20px); // Two columns layout with gap adjustment
-      min-width: 200px; // Ensure a minimum width for smaller fields
-      max-width: 100%; // Prevent fields from exceeding container width
-    }
-  }
-
-  // Mobile responsiveness
+  .identity-card { display: flex; gap: 1em; align-items: center; flex-wrap: wrap; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 12px; padding: 1em; margin-bottom: 1em; }
+  .identity-avatar { width: 4.5em; height: 4.5em; border-radius: 50%; object-fit: cover; border: 2px solid var(--dp-gold); flex: none; }
+  .identity-fallback { width: 4.5em; height: 4.5em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8em; font-weight: 800; color: var(--dp-sidenav-text); background: var(--dp-sidenav); flex: none; }
+  .identity-main { flex: 1 1 12em; min-width: 0; }
+  .identity-main h3 { margin: 0; }
+  .identity-main p { margin: 0.15em 0 0; }
+  .identity-main a { color: var(--dp-gold-ink); word-break: break-all; }
+  .meter { margin-top: 0.5em; }
+  .meter-top { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 0.3em; }
+  .meter-bar { height: 8px; border-radius: 999px; background: var(--dp-line); overflow: hidden; }
+  .meter-fill { display: block; height: 100%; background: var(--dp-gold); transition: width 0.3s ease; }
+  .missing { display: flex; flex-wrap: wrap; gap: 0.35em; margin-top: 0.5em; }
+  .missing-tag { font-size: 0.78em; border: 1px solid var(--dp-gold); color: var(--dp-gold-ink); border-radius: 999px; padding: 0.15em 0.7em; }
+  .photo-wrap { flex: 1 1 100%; }
+  .section-badge { font-size: 0.72em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 999px; padding: 0.2em 0.7em; margin-left: 0.6em; vertical-align: middle; }
+  .section-badge--required { background: var(--dp-warning-bg); color: var(--dp-warning); }
+  .section-badge--optional { background: var(--dp-surface); border: 1px solid var(--dp-line); color: var(--dp-muted); }
+  html[data-theme="dark"] .section-badge--required { color: #e3c878; }
+  .address-section { margin: 0 auto; border: 1px solid var(--dp-line); padding: 1em; border-radius: 8px; }
+  .address-container { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; flex-direction: row; justify-content: space-between; }
+  .address-container mat-form-field { flex: 1 1 calc(50% - 20px); min-width: 200px; max-width: 100%; }
   @media (max-width: 600px) {
-    .address-section {
-      .address-container {
-        display: flex;
-        flex-direction: column; // Stack items vertically
-        gap: 15px; // Adjust gap for smaller screens
-
-        mat-form-field {
-          flex: 1 1 100%; // Full width for mobile devices
-          min-width: unset; // Remove minimum width constraint
-        }
-      }
-    }
+    .address-container { flex-direction: column; gap: 15px; }
+    .address-container mat-form-field { flex: 1 1 100%; min-width: unset; }
   }
-}
-
-
-
-.form-container {
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-
-    .flex-form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-
-        .form-group {
-            flex: 1 1 calc(50% - 20px); /* Two-column layout with gap adjustment */
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-ungroup {
-            flex: 1 1 100%; /* Take up the full width */
-            display: flex;
-            flex-direction: column;
-        }
-    }
-}
-
-// Mobile responsiveness
-@media (max-width: 600px) {
-    .flex-form {
-        .form-group,
-        .form-ungroup {
-            flex: 1 1 100%; /* Full width for mobile devices */
-        }
-    }
-}
-
+  .form-container { padding: 20px; background: var(--dp-surface); border: 1px solid var(--dp-line); box-shadow: none; border-radius: 8px; }
+  .form-container .flex-form { display: flex; flex-wrap: wrap; gap: 20px; }
+  .form-container .flex-form .form-group { flex: 1 1 calc(50% - 20px); display: flex; flex-direction: column; }
+  .form-container .flex-form .form-ungroup { flex: 1 1 100%; display: flex; flex-direction: column; }
+  @media (max-width: 600px) {
+    .flex-form .form-group, .flex-form .form-ungroup { flex: 1 1 100%; }
+  }
+  .muted { color: var(--dp-muted); font-size: 0.85em; }
 `],
 providers: [provideNativeDateAdapter(), ProfileService],
-changeDetection: ChangeDetectionStrategy.Eager,
-imports: [FormsModule, CommonModule, MatSlideToggleModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
+changeDetection: ChangeDetectionStrategy.OnPush,
+imports: [FormsModule, CommonModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
     ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
 ]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);
   @Input() partner!: PartnerInterface;
-  //@Input({ required: true}) partner!: Signal<PartnerInterface>;
+
+  protected readonly profile = signal<PartnerInterface | null>(null);
 
   profileMgrForm!: FormGroup;
   usernameForm!: FormGroup;
@@ -126,8 +95,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   hideNew = signal(true);
 
   subscriptions: Array<Subscription> = [];
-  disabled = true;
-  status = false;
 
   minDate!: Date;
 
@@ -136,7 +103,8 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   isNigeria = true; // Tracks whether the selected country is Nigeria
 
   constructor(
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private partnerService: PartnerService,
   ) { }
 
 
@@ -151,14 +119,15 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Set the minimum date to today  
+    // Set the minimum date to today
     this.minDate = new Date();
+    this.profile.set(this.partner ?? null);
 
     if (this.partner) {
+      this.isNigeria = (this.partner?.address?.country ?? 'Nigeria') === 'Nigeria';
       this.profileMgrForm = new FormGroup({
         name: new FormControl(this.partner.name, Validators.required),
         surname: new FormControl(this.partner.surname, Validators.required),
-        //address: new FormControl(this.partner.address),
         address: new FormGroup({
           street: new FormControl(this.partner?.address?.street, Validators.required),
           city: new FormControl(this.partner?.address?.city, Validators.required),
@@ -169,7 +138,6 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
         phone: new FormControl(this.partner.phone, Validators.required),
         reservationCode: new FormControl(this.partner.reservationCode, Validators.required),
         dobDatePicker: new FormControl(this.partner.dobDatePicker),
-        //status: new FormControl(this.partner.status, Validators.required),
         bio: new FormControl(this.partner.bio),
         id: new FormControl(this.partner._id),
       });
@@ -189,26 +157,57 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
         skill: new FormControl(this.partner.skill, [Validators.required]),
         id: new FormControl(this.partner._id),
       });
-      this.status = this.partner.status;
-
-      // user account is already activated,
-      if (this.partner.status) {
-        // disable slide
-        this.disabled = true;
-      } else {
-        this.disabled = false;
-      }
     }
   }
 
-  onToggleChange(event: MatSlideToggleChange) {
-    if (event.checked) {
-      console.log('Send email');
-      // Call your method when checked  
-    } else {
-      console.log('Do nothing');
-      // Call your method when unchecked  
-    }
+  /** Completion meter — required gates onboarding, recommended polishes it. */
+  protected meter(): { percent: number; missing: string[]; complete: boolean } {
+    const p = this.profile();
+    const filled = (v: unknown): boolean => String(v ?? '').trim().length > 0;
+    const items: MeterItem[] = [
+      { label: 'Phone number', done: filled(p?.phone), required: true },
+      { label: 'Street', done: filled(p?.address?.street), required: true },
+      { label: 'City', done: filled(p?.address?.city), required: true },
+      { label: 'State', done: filled(p?.address?.state), required: true },
+      { label: 'Profile photo', done: filled(p?.profileImage), required: false },
+      { label: 'Short bio', done: filled(p?.bio), required: false },
+      { label: 'Date of birth', done: filled(p?.dobDatePicker), required: false },
+    ];
+    const done = items.filter((i) => i.done).length;
+    const missingRequired = items.filter((i) => i.required && !i.done).map((i) => i.label);
+    const missingRecommended = items.filter((i) => !i.required && !i.done).map((i) => i.label);
+    return {
+      percent: Math.round((done / items.length) * 100),
+      missing: [...missingRequired, ...missingRecommended],
+      complete: missingRequired.length === 0,
+    };
+  }
+
+  protected initial(): string {
+    const p = this.profile();
+    const name = `${p?.name ?? ''} ${p?.surname ?? ''}`.trim();
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
+  protected publicPageUrl(): string | null {
+    const username = String(this.profile()?.username ?? '').trim().toLowerCase();
+    return username ? `https://www.diamondprojectonline.com/${username}` : null;
+  }
+
+  protected onPhotoUploaded(url: string): void {
+    const current = this.profile();
+    if (!current) return;
+    const updated = { ...current, profileImage: url };
+    this.profile.set(updated);
+    this.partnerService.updatePartnerService(updated);
+  }
+
+  private refreshShared(patch: Partial<PartnerInterface>): void {
+    const current = this.profile();
+    if (!current) return;
+    const updated = { ...current, ...patch };
+    this.profile.set(updated);
+    this.partnerService.updatePartnerService(updated);
   }
 
   onProfileSubmit() {
@@ -219,6 +218,15 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.profileService.profileUpdate(profileObject).subscribe( {
 
         next: (response) => {
+          this.refreshShared({
+            name: profileObject.name,
+            surname: profileObject.surname,
+            email: profileObject.email,
+            phone: profileObject.phone,
+            bio: profileObject.bio,
+            dobDatePicker: profileObject.dobDatePicker,
+            address: profileObject.address,
+          });
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -253,6 +261,12 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       this.profileService.professionUpdate(professionalForm).subscribe( {
 
         next: (response) => {
+          this.refreshShared({
+            jobTitle: professionalForm.jobTitle,
+            educationBackground: professionalForm.educationBackground,
+            hobby: professionalForm.hobby,
+            skill: professionalForm.skill,
+          });
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -282,10 +296,12 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   onUsernameSubmit() {
     const usernameObject = this.usernameForm.value;
 
+
     this.subscriptions.push(
       this.profileService.usernameUpdate(usernameObject).subscribe( {
 
         next: (response) => {
+          this.refreshShared({ username: usernameObject.username });
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -314,6 +330,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
   onPasswordSubmit() {
     const passwordObject = this.passwordForm.value;
+
 
     this.subscriptions.push(
       this.profileService.changePassword(passwordObject).subscribe( {
@@ -348,7 +365,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   showDescription () {
     this.dialog.open(HelpDialogComponent, {
       data: {help: `
-        Make sure your username, which is part of your unique link, is meaningful and easy to remember. 
+        Make sure your username, which is part of your unique link, is meaningful and easy to remember.
         For example, in diamondprojectonline.com/business, "business" is a meaninful and easy to remember username.
 
         <p>Other examples of good unique link:
@@ -376,15 +393,15 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     this.isNigeria = selectedCountry === 'Nigeria';
 
     // Reset the state field when the country changes
-    this.profileMgrForm.get('state')?.reset();
+    this.profileMgrForm.get('address.state')?.reset();
 
     // Update validation for the state field
     if (this.isNigeria) {
-      this.profileMgrForm.get('state')?.setValidators([Validators.required]);
+      this.profileMgrForm.get('address.state')?.setValidators([Validators.required]);
     } else {
-      this.profileMgrForm.get('state')?.setValidators([Validators.required, Validators.minLength(2)]);
+      this.profileMgrForm.get('address.state')?.setValidators([Validators.required, Validators.minLength(2)]);
     }
-    this.profileMgrForm.get('state')?.updateValueAndValidity();
+    this.profileMgrForm.get('address.state')?.updateValueAndValidity();
   }
 
 }

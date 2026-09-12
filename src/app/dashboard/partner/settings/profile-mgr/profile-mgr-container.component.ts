@@ -3,93 +3,47 @@ import {Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy} from '@an
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
 import { ProfileMgrComponent } from './profile-mgr.component';
-import {MatTabsModule} from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
-import { NotificationsSettingsComponent } from '../notifications/notifications.component';
 
 /**
- * @title Container
+ * @title My account — profile completion home.
+ *
+ * Single purpose now: the member's identity, completion meter and editable
+ * sections. Notification preferences live only at
+ * `/dashboard/notifications/preferences` (linked from here, never duplicated).
  */
 @Component({
 selector: 'async-profile-mgr-container',
 template: `
 
-<section class="async-background">
-  <h2>Account Settings <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
-
-  <section class="async-container">
-    <div class="title">
-      <h1>Account Profile Manager</h1>
-      <div class="fund-area">
-        <a mat-raised-button><mat-icon>edit</mat-icon>Edit Profile</a>
-      </div>
+<section class="account-page">
+  <div class="page-head">
+    <div>
+      <h2>My account <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
+      <p class="subtitle">Your identity across Diamond Project — complete it once, benefit everywhere.</p>
     </div>
+  </div>
 
-
-    <mat-tab-group>
-      <mat-tab label="Profile Settings">
-        @if (partner) {
-          <async-profile-mgr [partner]="partner" />
-        }
-      </mat-tab>
-      <mat-tab label="Notification Settings">
-        @if (partner) {
-          <async-notifications-settings [partner]="partner" />
-        }
-      </mat-tab>
-    </mat-tab-group>
-  </section>
+  @if (partner) {
+    <async-profile-mgr [partner]="partner" />
+  }
 </section>
 
 `,
 providers: [],
-imports: [ProfileMgrComponent, MatTabsModule, MatIconModule, MatButtonModule, NotificationsSettingsComponent],
+imports: [ProfileMgrComponent, MatIconModule, MatButtonModule],
 changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
-
-.async-background {
-  margin: 2em;
-    .help {
-    cursor: pointer;
-  }
-  .async-container {
-      background-color: #dcdbdb;
-      border-radius: 1%;
-      height: 100%;
-      padding: 1em;
-      .title {
-        display: flex;
-        justify-content: space-between;
-        border-bottom: 1px solid #ccc;
-        padding: 1em;
-        .fund-area {
-          .fund {
-            //display: flex;
-            font-weight: bold;
-            margin-top: 1em;
-          }
-        }
-      }
-
-  .search {
-    padding: 0.5em 0;
-    text-align: center;
-    mat-form-field {
-        width: 70%;
-
-    }
-  }
-  }
-}
-
+  .account-page { margin: 0 auto; max-width: 960px; padding: 0 0 2em; }
+  .page-head h2 { margin: 0; display: flex; align-items: center; gap: 0.4em; }
+  .help { cursor: pointer; font-size: 20px; height: 20px; width: 20px; color: var(--dp-muted); }
+  .subtitle { margin: 0.25em 0 1em; color: var(--dp-muted); }
 `]
 })
 export class ProfileMrgContainerComponent implements OnInit, OnDestroy {
-
-  //partner = signal<PartnerInterface>({});
 
   partner!: PartnerInterface;
   subscriptions: Subscription[] = [];
@@ -103,9 +57,11 @@ export class ProfileMrgContainerComponent implements OnInit, OnDestroy {
     // get current signed in user
     this.subscriptions.push(
       this.partnerService.getSharedPartnerData$.subscribe({
+
         next: (partner: PartnerInterface) => {
           this.partner = partner;
         }
+
       })
     )
   }
@@ -117,7 +73,7 @@ export class ProfileMrgContainerComponent implements OnInit, OnDestroy {
 
    showDescription () {
       this.dialog.open(HelpDialogComponent, {
-        data: {help: 'In this section, you can set up your account page information'},
+        data: {help: 'Complete your profile once — your photo, name and public page follow you into invitations, the community and team views.'},
       });
     }
 }

@@ -205,7 +205,7 @@ import { ApiError } from '../../core/http/api-error';
     .greeting h2 { margin: 0; font-size: 1.6em; }
     .today { margin: 0 0 0.2em; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8em; }
     .eyebrow { margin: 0 0 0.3em; font-size: 0.78em; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dp-gold-ink); }
-    .profile-banner { display: flex; align-items: center; gap: 0.75em; background: var(--dp-info-bg); border: 1px solid var(--dp-info); border-radius: 10px; padding: 0.7em 0.9em; }
+    .profile-banner { display: flex; align-items: center; gap: 0.75em; background: var(--dp-info-bg); border: 1px solid var(--dp-info); border-radius: 10px; padding: 0.7em 0.9em; margin: 1em 0; }
     .profile-banner mat-icon { color: var(--dp-info); flex: none; }
     .profile-banner p { margin: 0; flex: 1; font-size: 0.9em; }
     .profile-banner a { flex: none; min-height: 44px; }
