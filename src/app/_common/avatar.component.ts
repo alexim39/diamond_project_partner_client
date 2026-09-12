@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, inject, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, effect, inject, input, signal } from '@angular/core';
 import { API_BASE_URL } from '../core/config/api-tokens';
 
 /**
@@ -10,8 +10,8 @@ import { API_BASE_URL } from '../core/config/api-tokens';
   selector: 'async-avatar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (url()) {
-      <img [src]="url()" [alt]="alt()" class="avatar avatar--{{ size() }}" loading="lazy" />
+    @if (url() && !failed()) {
+      <img [src]="url()" [alt]="alt()" class="avatar avatar--{{ size() }}" loading="lazy" (error)="failed.set(true)" />
     } @else {
       <span class="avatar avatar--{{ size() }} avatar--fallback" aria-hidden="true">{{ initial() }}</span>
     }
@@ -33,6 +33,16 @@ export class AvatarComponent {
   readonly size = input<'xs' | 'sm' | 'md'>('sm');
 
   private readonly baseUrl = inject(API_BASE_URL);
+  /** Set when the image 404s (deleted legacy file, dead URL) — fall back to the initial. */
+  protected readonly failed = signal(false);
+
+  constructor() {
+    // New photo → retry the image instead of sticking on the fallback.
+    effect(() => {
+      this.photo();
+      this.failed.set(false);
+    }, { allowSignalWrites: true });
+  }
 
   protected readonly url = computed(() => {
     const raw = String(this.photo() ?? '').trim();
