@@ -20,6 +20,7 @@ import { PartnerInterface, PartnerService } from '../../_common/services/partner
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { PartnerAuthService } from '../../auth/auth.service';
 import { NotificationBellComponent } from '../notifications/bell/notification-bell.component';
+import { OraWidgetComponent } from '../ora/ora-widget.component';
 import { NotificationStreamService } from '../../core/notifications/notification-stream.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -434,7 +435,7 @@ mat-sidenav-content {
 providers: [PartnerService, PartnerAuthService],
 imports: [
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule,
-    MatListModule, MatIconModule, AsyncPipe, RouterModule, NotificationBellComponent,
+    MatListModule, MatIconModule, AsyncPipe, RouterModule, NotificationBellComponent, OraWidgetComponent,
     CommonModule, LogoComponent, MatBadgeModule, MatProgressBarModule
     
 ],
