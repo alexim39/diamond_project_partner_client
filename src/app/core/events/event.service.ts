@@ -20,6 +20,10 @@ export class EventService {
     return this.api.post<EventEnvelope>('v1/events', payload);
   }
 
+  update(eventId: string, payload: CreateEventPayload): Observable<EventEnvelope> {
+    return this.api.put<EventEnvelope>(`v1/events/${eventId}`, payload);
+  }
+
   rsvp(eventId: string, status: RsvpStatus): Observable<RsvpEnvelope> {
     return this.api.post<RsvpEnvelope>(`v1/events/${eventId}/rsvp`, { status });
   }

@@ -12,7 +12,7 @@ import { LeadPipelineService } from '../../../prospects/lead-pipeline/lead-pipel
 import { DownlineContactListItem } from '../../../prospects/lead-pipeline/lead.models';
 import { ApiError } from '../../../../../core/http/api-error';
 
-type ListFilter = 'all' | 'needs-work' | 'done';
+type ListFilter = 'all' | 'needs-work' | 'done' | 'overdue';
 
 const PAGE_SIZE = 10;
 const PREVIEW_COUNT = 5;
@@ -65,6 +65,9 @@ const PREVIEW_COUNT = 5;
           <mat-chip highlighted>{{ items().length }} list{{ items().length === 1 ? '' : 's' }}</mat-chip>
           <mat-chip highlighted>{{ totalContacts() }} contacts</mat-chip>
           <mat-chip highlighted>{{ unworkedCount() }} unworked</mat-chip>
+          @if (overdueCount() > 0) {
+            <mat-chip color="warn" highlighted>{{ overdueCount() }} overdue 48h</mat-chip>
+          }
         </div>
 
         <div class="toolbar">
@@ -75,6 +78,7 @@ const PREVIEW_COUNT = 5;
           <div class="filter-row" role="radiogroup" aria-label="List filter">
             <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'all'" [attr.aria-pressed]="filter() === 'all'" (click)="filter.set('all'); page.set(0)">All</button>
             <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'needs-work'" [attr.aria-pressed]="filter() === 'needs-work'" (click)="filter.set('needs-work'); page.set(0)">Needs work</button>
+            <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'overdue'" [attr.aria-pressed]="filter() === 'overdue'" (click)="filter.set('overdue'); page.set(0)">Overdue</button>
             <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'done'" [attr.aria-pressed]="filter() === 'done'" (click)="filter.set('done'); page.set(0)">Fully worked</button>
           </div>
         </div>
@@ -94,11 +98,16 @@ const PREVIEW_COUNT = 5;
               <div class="batch-head">
                 <div>
                   <strong>{{ b.member?.name ?? 'Team member' }}</strong>
-                  <span class="muted">@{{ b.member?.username ?? '—' }} · submitted {{ b.submittedAt | date:'mediumDate' }}</span>
+                  <span class="muted"> @{{ b.member?.username ?? '—' }} · submitted {{ b.submittedAt | date:'mediumDate' }}</span>
                 </div>
                 <span class="count-pill">{{ b.worked }} of {{ b.total }} worked</span>
               </div>
               <div class="entry-tags">
+                @if (b.sla?.overdue) {
+                  <mat-chip color="warn" highlighted>Overdue 48h — first touch needed</mat-chip>
+                } @else if (b.sla && b.worked === 0 && b.sla.hoursLeft >= 0) {
+                  <mat-chip highlighted>First touch due in {{ b.sla.hoursLeft }}h</mat-chip>
+                }
                 @for (stage of stageKeys(b); track stage) {
                   <mat-chip highlighted>{{ stage }} ({{ b.stageCounts[stage] }})</mat-chip>
                 }
@@ -218,6 +227,7 @@ export class DownlineContactListsComponent implements OnInit {
     return this.items().filter((b) => {
       if (f === 'needs-work' && (b.total - b.worked) <= 0) return false;
       if (f === 'done' && (b.total - b.worked) > 0) return false;
+      if (f === 'overdue' && b.sla?.overdue !== true) return false;
       if (!q) return true;
       const hay = `${b.member?.name ?? ''} ${b.member?.username ?? ''} ${(b.contacts ?? []).map((c) => `${c.prospectName} ${c.prospectSurname} ${c.prospectPhone}`).join(' ')}`.toLowerCase();
       return hay.includes(q);
@@ -234,6 +244,7 @@ export class DownlineContactListsComponent implements OnInit {
   protected readonly memberCount = computed(() => new Set(this.items().map((b) => b.partnerId)).size);
   protected readonly totalContacts = computed(() => this.items().reduce((n, b) => n + (b.contacts?.length ?? 0), 0));
   protected readonly unworkedCount = computed(() => this.items().reduce((n, b) => n + Math.max(0, (b.total ?? 0) - (b.worked ?? 0)), 0));
+  protected readonly overdueCount = computed(() => this.items().filter((b) => b.sla?.overdue === true).length);
 
   ngOnInit(): void {
     this.reload();

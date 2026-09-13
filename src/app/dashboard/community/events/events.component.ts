@@ -156,8 +156,11 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
           </div>
           <div class="form-actions">
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || publishing()">
-              {{ publishing() ? 'Creating…' : 'Create event' }}
+              {{ publishing() ? 'Saving…' : (editingId() ? 'Save changes' : 'Create event') }}
             </button>
+            @if (editingId()) {
+              <button mat-button type="button" (click)="cancelEdit()" [disabled]="publishing()">Cancel</button>
+            }
             @if (publishError(); as err) {
               <span class="error" role="alert">{{ err }}</span>
             }
@@ -191,7 +194,18 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
                 }
                 <span class="spacer"></span>
                 @if (isMine(event)) {
-                  <button mat-button color="warn" (click)="cancel(event)" [disabled]="actingId() === event.id">Cancel event</button>
+                  <button mat-button (click)="startEdit(event)" [disabled]="actingId() === event.id">Edit</button>
+                  @if (confirmingCancelId() === event.id) {
+                    <span class="delete-confirm" role="alertdialog" aria-label="Confirm event deletion">
+                      <strong>Delete this event?</strong> RSVPs go with it — this cannot be undone.
+                      <button mat-button (click)="confirmingCancelId.set(null)" [disabled]="actingId() === event.id">Keep</button>
+                      <button mat-flat-button color="warn" (click)="confirmCancel(event)" [disabled]="actingId() === event.id">
+                        {{ actingId() === event.id ? 'Deleting…' : 'Yes, delete' }}
+                      </button>
+                    </span>
+                  } @else {
+                    <button mat-button color="warn" (click)="confirmingCancelId.set(event.id)" [disabled]="actingId() === event.id">Cancel event</button>
+                  }
                 }
               </div>
             </li>
@@ -227,6 +241,9 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
     .event-top .muted mat-icon, p.muted mat-icon { font-size: 16px; height: 16px; width: 16px; vertical-align: -3px; }
     .rsvp-row { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
     .rsvp-row .spacer { flex: 1; }
+    .delete-confirm { display: inline-flex; align-items: center; gap: 0.4em; flex-wrap: wrap; background: var(--dp-error-bg); border: 1px solid var(--dp-error); border-radius: 8px; padding: 0.3em 0.6em; font-size: 0.85em; }
+    html[data-theme='dark'] .delete-confirm { color: #e89a9a; }
+    .delete-confirm button { min-height: 44px; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
@@ -246,6 +263,8 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly publishError = signal<string | null>(null);
   protected readonly showCompose = signal(false);
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly confirmingCancelId = signal<string | null>(null);
   protected readonly tab = signal<'upcoming' | 'mine'>('upcoming');
   protected readonly upcoming = signal<CommunityEvent[]>([]);
   protected readonly mine = signal<CommunityEvent[]>([]);
@@ -297,8 +316,32 @@ export class CommunityEventsComponent implements OnInit {
   }
 
   protected toggleCompose(): void {
-    this.showCompose.set(!this.showCompose());
+    const opening = !this.showCompose();
+    this.showCompose.set(opening);
     this.publishError.set(null);
+    if (opening) this.cancelEdit();
+  }
+
+  protected startEdit(event: CommunityEvent): void {
+    const start = new Date(event.startsAt);
+    const end = event.endsAt ? new Date(event.endsAt) : null;
+    this.form.reset({
+      title: event.title, body: event.body,
+      startsDate: start, startsTime: start,
+      endsDate: end, endsTime: end,
+      location: event.location ?? '', scope: event.scope,
+    });
+    this.editingId.set(event.id);
+    this.showCompose.set(true);
+    this.publishError.set(null);
+  }
+
+  protected cancelEdit(): void {
+    this.editingId.set(null);
+    this.form.reset({
+      title: '', body: '', startsDate: defaultStart(), startsTime: defaultStart(),
+      endsDate: null, endsTime: null, location: '', scope: 'global',
+    });
   }
 
   protected isMine(event: CommunityEvent): boolean {
@@ -312,20 +355,23 @@ export class CommunityEventsComponent implements OnInit {
     const v = this.form.getRawValue();
     const startsAt = toInputDateTime(mergeDateTime(v.startsDate!, v.startsTime!));
     const endsAt = v.endsDate && v.endsTime ? toInputDateTime(mergeDateTime(v.endsDate, v.endsTime)) : null;
-    this.events
-      .create({
-        title: (v.title ?? '').trim(),
-        body: (v.body ?? '').trim(),
-        startsAt,
-        ...(endsAt ? { endsAt } : {}),
-        location: (v.location ?? '').trim(),
-        scope: v.scope ?? 'global',
-      })
+    const payload = {
+      title: (v.title ?? '').trim(),
+      body: (v.body ?? '').trim(),
+      startsAt,
+      ...(endsAt ? { endsAt } : {}),
+      location: (v.location ?? '').trim(),
+      scope: v.scope ?? 'global',
+    };
+    const editing = this.editingId();
+    const request = editing ? this.events.update(editing, payload) : this.events.create(payload);
+    request
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.publishing.set(false);
           this.showCompose.set(false);
+          this.editingId.set(null);
           this.form.reset({
             title: '', body: '', startsDate: defaultStart(), startsTime: defaultStart(),
             endsDate: null, endsTime: null, location: '', scope: 'global',
@@ -363,6 +409,10 @@ export class CommunityEventsComponent implements OnInit {
   }
 
   protected cancel(event: CommunityEvent): void {
+    this.confirmingCancelId.set(event.id);
+  }
+
+  protected confirmCancel(event: CommunityEvent): void {
     this.actingId.set(event.id);
     this.events
       .cancel(event.id)
@@ -370,6 +420,7 @@ export class CommunityEventsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.actingId.set(null);
+          this.confirmingCancelId.set(null);
           this.reload();
         },
         error: (err: ApiError) => {

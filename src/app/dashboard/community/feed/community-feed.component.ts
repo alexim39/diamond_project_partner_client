@@ -10,6 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { CommunityService } from '../../../core/community/community.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { API_BASE_URL } from '../../../core/config/api-tokens';
 import { AudienceScope, DirectoryEntry, FeedComment, FeedPost, POST_KIND_LABELS, PostAttachment, PostKind } from '../../../core/community/community.models';
@@ -175,7 +176,52 @@ const KIND_STYLES: Record<PostKind, string> = {
                   <mat-icon title="Pinned">push_pin</mat-icon>
                 }
                 <span class="muted byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
+                @if (isMine(post)) {
+                  <span class="spacer"></span>
+                  @if (!post.auto) {
+                    <button mat-icon-button (click)="startEdit(post)" [disabled]="savingEdit()" title="Edit post" aria-label="Edit post">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
+                  <button mat-icon-button (click)="confirmingDeleteId.set(post.id)" [disabled]="deleting()" title="Delete post" aria-label="Delete post">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </div>
+              @if (confirmingDeleteId() === post.id) {
+                <div class="delete-confirm" role="alertdialog" aria-label="Confirm delete">
+                  <span><strong>Delete this post?</strong> Comments and likes go with it — this cannot be undone.</span>
+                  <span class="delete-actions">
+                    <button mat-button (click)="confirmingDeleteId.set(null)" [disabled]="deleting()">Keep</button>
+                    <button mat-flat-button color="warn" (click)="confirmDelete(post)" [disabled]="deleting()">
+                      {{ deleting() ? 'Deleting…' : 'Yes, delete' }}
+                    </button>
+                  </span>
+                </div>
+              }
+              @if (editingId() === post.id) {
+                <mat-form-field appearance="outline">
+                  <mat-label>Title (optional)</mat-label>
+                  <input matInput [value]="editTitle()" (input)="editTitle.set($any($event.target).value)" maxlength="120" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Post text</mat-label>
+                  <textarea matInput rows="3" [value]="editBody()" (input)="editBody.set($any($event.target).value)" maxlength="2000"></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Link (optional)</mat-label>
+                  <input matInput [value]="editLink()" (input)="editLink.set($any($event.target).value)" maxlength="500" />
+                </mat-form-field>
+                <div class="form-actions">
+                  <button mat-flat-button color="primary" (click)="saveEdit(post)" [disabled]="savingEdit() || !editBody().trim()">
+                    {{ savingEdit() ? 'Saving…' : 'Save changes' }}
+                  </button>
+                  <button mat-button (click)="cancelEdit()" [disabled]="savingEdit()">Cancel</button>
+                  @if (editError(); as err) {
+                    <span class="error" role="alert">{{ err }}</span>
+                  }
+                </div>
+              } @else {
               @if (post.title) {
                 <strong>{{ post.title }}</strong>
               }
@@ -184,6 +230,7 @@ const KIND_STYLES: Record<PostKind, string> = {
                 <a class="link-row" [href]="post.link" target="_blank" rel="noopener">
                   <mat-icon>link</mat-icon><span>{{ post.link }}</span>
                 </a>
+              }
               }
               @if (post.attachments?.length) {
                 <div class="attach-grid">
@@ -279,6 +326,11 @@ const KIND_STYLES: Record<PostKind, string> = {
     .post p { margin: 0; }
     .post--recognition { border-left: 4px solid var(--dp-success); }
     .post-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+    .post-top .spacer { flex: 1; }
+    .delete-confirm { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; background: var(--dp-error-bg); border: 1px solid var(--dp-error); border-radius: 8px; padding: 0.6em 0.8em; font-size: 0.88em; }
+    html[data-theme='dark'] .delete-confirm { color: #e89a9a; }
+    .delete-confirm button { min-height: 44px; }
+    .delete-actions { display: inline-flex; gap: 0.4em; margin-left: auto; }
     .byline { display: inline-flex; align-items: center; gap: 0.4em; }
     .post-top mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-gold); }
     .post-body { white-space: pre-wrap; line-height: 1.6; }
@@ -317,6 +369,7 @@ const KIND_STYLES: Record<PostKind, string> = {
 })
 export class CommunityFeedComponent implements OnInit {
   private readonly community = inject(CommunityService);
+  private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly apiBase = inject(API_BASE_URL);
@@ -343,6 +396,14 @@ export class CommunityFeedComponent implements OnInit {
   private lastMentionQuery = '';
   protected readonly staged = signal<StagedPhoto[]>([]);
   protected readonly uploadError = signal<string | null>(null);
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly editTitle = signal('');
+  protected readonly editBody = signal('');
+  protected readonly editLink = signal('');
+  protected readonly savingEdit = signal(false);
+  protected readonly editError = signal<string | null>(null);
+  protected readonly confirmingDeleteId = signal<string | null>(null);
+  protected readonly deleting = signal(false);
 
   protected readonly kinds: PostKind[] = ['standard', 'announcement', 'recognition', 'training', 'event'];
 
@@ -633,8 +694,71 @@ export class CommunityFeedComponent implements OnInit {
       });
   }
 
-  protected report(post: FeedPost): void {
-    this.actingId.set(post.id);
+  protected isMine(post: FeedPost): boolean {
+    const me = this.auth.currentUser()?.id;
+    return !!me && String(post.authorId) === String(me);
+  }
+
+  protected startEdit(post: FeedPost): void {
+    this.editingId.set(post.id);
+    this.editTitle.set(post.title ?? '');
+    this.editBody.set(post.body ?? '');
+    this.editLink.set(post.link ?? '');
+    this.editError.set(null);
+    this.confirmingDeleteId.set(null);
+  }
+
+  protected cancelEdit(): void {
+    this.editingId.set(null);
+    this.editError.set(null);
+  }
+
+  protected saveEdit(post: FeedPost): void {
+    const body = this.editBody().trim();
+    if (!body || this.savingEdit()) return;
+    this.savingEdit.set(true);
+    this.editError.set(null);
+    this.community
+      .update(post.id, { title: this.editTitle().trim(), body, link: this.editLink().trim() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.savingEdit.set(false);
+          this.editingId.set(null);
+          const updated = res.data as FeedPost | undefined;
+          this.posts.set(this.posts().map((p) => p.id === post.id
+            ? { ...p, title: updated?.title ?? this.editTitle().trim(), body, link: updated?.link ?? this.editLink().trim(), mentions: updated?.mentions ?? p.mentions }
+            : p));
+        },
+        error: (err: ApiError) => {
+          this.savingEdit.set(false);
+          this.editError.set(err.message);
+        },
+      });
+  }
+
+  protected confirmDelete(post: FeedPost): void {
+    if (this.deleting()) return;
+    this.deleting.set(true);
+    this.community
+      .remove(post.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.deleting.set(false);
+          this.confirmingDeleteId.set(null);
+          if (this.openThread() === post.id) this.openThread.set(null);
+          this.posts.set(this.posts().filter((p) => p.id !== post.id));
+        },
+        error: (err: ApiError) => {
+          this.deleting.set(false);
+          this.confirmingDeleteId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected report(post: FeedPost): void {    this.actingId.set(post.id);
     this.community
       .report(post.id)
       .pipe(takeUntilDestroyed(this.destroyRef))

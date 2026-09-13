@@ -98,3 +98,9 @@ export interface CreatePostPayload {
   scope: AudienceScope;
   attachments?: PostAttachment[];
 }
+
+export interface UpdatePostPayload {
+  title?: string;
+  body?: string;
+  link?: string;
+}

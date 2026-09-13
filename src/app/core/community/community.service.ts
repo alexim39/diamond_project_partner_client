@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
   AttachmentEnvelope, CommentEnvelope, CommentsEnvelope, CreatePostPayload, DirectoryEnvelope,
-  FeedEnvelope, PostEnvelope, ToggleEnvelope,
+  FeedEnvelope, PostEnvelope, ToggleEnvelope, UpdatePostPayload,
 } from './community.models';
 
 /** Community feed → backend `/v1/community/*`. Fully typed. */
@@ -18,6 +18,14 @@ export class CommunityService {
 
   create(payload: CreatePostPayload): Observable<PostEnvelope> {
     return this.api.post<PostEnvelope>('v1/community', payload);
+  }
+
+  update(postId: string, payload: UpdatePostPayload): Observable<PostEnvelope> {
+    return this.api.put<PostEnvelope>(`v1/community/${postId}`, payload);
+  }
+
+  remove(postId: string): Observable<unknown> {
+    return this.api.delete(`v1/community/${postId}`);
   }
 
   /** Upload one image; returns the attachment ref for the composer. */

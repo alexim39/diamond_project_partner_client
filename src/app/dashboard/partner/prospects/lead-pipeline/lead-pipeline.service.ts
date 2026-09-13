@@ -26,12 +26,12 @@ export class LeadPipelineService {
     return this.api.get<StuckEnvelope>(`v1/prospects/stuck/${partnerId}`);
   }
 
-  advanceStage(prospectId: string, stage: ProspectStage): Observable<unknown> {
-    return this.api.post(`v1/prospects/${prospectId}/status`, { stage });
+  advanceStage(prospectId: string, stage: ProspectStage, author?: { by?: string; byName?: string }): Observable<unknown> {
+    return this.api.post(`v1/prospects/${prospectId}/status`, { stage, ...(author ?? {}) });
   }
 
-  convert(prospectId: string): Observable<ConvertEnvelope> {
-    return this.api.post<ConvertEnvelope>(`v1/prospects/${prospectId}/convert`, {});
+  convert(prospectId: string, author?: { by?: string; byName?: string }): Observable<ConvertEnvelope> {
+    return this.api.post<ConvertEnvelope>(`v1/prospects/${prospectId}/convert`, { ...(author ?? {}) });
   }
 
   getById(prospectId: string): Observable<ProspectDetailEnvelope> {

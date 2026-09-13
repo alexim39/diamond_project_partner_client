@@ -618,8 +618,11 @@ export class BookingStatusUpdateComponent implements OnInit {
 
   /**
    * Mirror this outcome into the prospect's follow-up timeline.
-   * Match is by normalized phone within this partner's pipeline (bookings
-   * carry no prospectId). All failures are soft — the booking save stands.
+   * Bookings carry no prospectId, so resolve the owner first: a downline
+   * contact match gives the EXACT prospect id (upline booking for downline —
+   * the previously-missed case); otherwise fall back to the booker's own
+   * pipeline by normalized phone. All failures are soft — the booking save
+   * stands.
    */
   private syncToTimeline(
     composed: string,
@@ -627,7 +630,7 @@ export class BookingStatusUpdateComponent implements OnInit {
   ): void {
     const partnerId = this.data?._partnerId ?? this.data?.partnerId ?? null;
     const phone = this.data?.phone ?? null;
-    if (!partnerId || !phone) {
+    if (!phone) {
       this.timelineState.set('skipped');
       this.timelineNote.set('Outcome kept on the session — no linked pipeline prospect to update.');
       return;
@@ -635,48 +638,101 @@ export class BookingStatusUpdateComponent implements OnInit {
     this.timelineState.set('syncing');
     this.timelineNote.set(null);
     this.timelineProspectId.set(null);
-    this.leads.listByPartner(String(partnerId), { q: String(phone), limit: 50 }).subscribe({
-      next: (res) => {
-        const items = res?.data ?? [];
-        const hit = items.find((p) => phonesMatch(p.prospectPhone, phone))
-          ?? (items.length === 1 ? items[0] : null);
-        if (!hit) {
+    // 1) Downline owner first — exact prospect id, no fuzzy search.
+    this.leads.downlineContactLists().subscribe({
+      next: (down) => {
+        const contacts: Array<{ id: string; prospectPhone: string }> = [];
+        for (const item of down?.data?.items ?? []) {
+          for (const c of item.contacts ?? []) contacts.push(c);
+        }
+        const owned = contacts.find((c) => phonesMatch(c.prospectPhone, phone));
+        if (owned) {
+          this.pushTimeline(owned.id, composed, extra);
+          return;
+        }
+        // 2) Own pipeline fallback (booker's own prospect).
+        if (!partnerId) {
           this.timelineState.set('skipped');
           this.timelineNote.set('Outcome kept on the session — no matching pipeline prospect found for this phone.');
           return;
         }
-        const interest = (['hot', 'warm', 'cold'] as const).includes(extra.interestLevel as never)
-          ? (extra.interestLevel as 'hot' | 'warm' | 'cold')
-          : 'warm';
-        const followUp = this.formatDateValue(extra.followUpDate);
-        const followUpAction = String(extra.nextAction ?? '').trim().slice(0, 500)
-          || (followUp ? `Follow up by ${followUp}` : `Session outcome: ${this.selected() || 'recorded'}`);
-        const me = this.auth.currentUser();
-        const authorName = [me?.name, me?.surname].filter(Boolean).join(' ') || String(me?.username ?? '');
-        this.leads.logCommunication(hit.id, {
-          type: commTypeFor(this.data?.contactMethod),
-          interestLevel: interest,
-          date: new Date().toISOString().slice(0, 10),
-          duration: 0,
-          description: composed.slice(0, 5000),
-          followUpAction,
-          ...(me?.id ? { createdBy: String(me.id) } : {}),
-          ...(authorName ? { createdByName: authorName } : {}),
-        }).subscribe({
-          next: () => {
-            this.timelineState.set('done');
-            this.timelineProspectId.set(hit.id);
-            this.timelineNote.set('Also logged to the prospect follow-up timeline.');
+        this.leads.listByPartner(String(partnerId), { q: String(phone), limit: 50 }).subscribe({
+          next: (res) => {
+            const items = res?.data ?? [];
+            const hit = items.find((p) => phonesMatch(p.prospectPhone, phone))
+              ?? (items.length === 1 ? items[0] : null);
+            if (!hit) {
+              this.timelineState.set('skipped');
+              this.timelineNote.set('Outcome kept on the session — no matching pipeline prospect found for this phone.');
+              return;
+            }
+            this.pushTimeline(hit.id, composed, extra);
           },
           error: (err: unknown) => {
             this.timelineState.set('failed');
-            this.timelineNote.set(`Saved on the session, but timeline update failed: ${toApiError(err).message}`);
+            this.timelineNote.set(`Saved on the session, but timeline lookup failed: ${toApiError(err).message}`);
           },
         });
       },
+      error: () => {
+        // Downline read failed — still try the own-pipeline fallback.
+        if (!partnerId) {
+          this.timelineState.set('skipped');
+          this.timelineNote.set('Outcome kept on the session — no matching pipeline prospect found for this phone.');
+          return;
+        }
+        this.leads.listByPartner(String(partnerId), { q: String(phone), limit: 50 }).subscribe({
+          next: (res) => {
+            const items = res?.data ?? [];
+            const hit = items.find((p) => phonesMatch(p.prospectPhone, phone))
+              ?? (items.length === 1 ? items[0] : null);
+            if (!hit) {
+              this.timelineState.set('skipped');
+              this.timelineNote.set('Outcome kept on the session — no matching pipeline prospect found for this phone.');
+              return;
+            }
+            this.pushTimeline(hit.id, composed, extra);
+          },
+          error: (err: unknown) => {
+            this.timelineState.set('failed');
+            this.timelineNote.set(`Saved on the session, but timeline lookup failed: ${toApiError(err).message}`);
+          },
+        });
+      },
+    });
+  }
+
+  private pushTimeline(
+    prospectId: string,
+    composed: string,
+    extra: { interestLevel: string; nextAction: string; followUpDate: unknown },
+  ): void {
+    const interest = (['hot', 'warm', 'cold'] as const).includes(extra.interestLevel as never)
+      ? (extra.interestLevel as 'hot' | 'warm' | 'cold')
+      : 'warm';
+    const followUp = this.formatDateValue(extra.followUpDate);
+    const followUpAction = String(extra.nextAction ?? '').trim().slice(0, 500)
+      || (followUp ? `Follow up by ${followUp}` : `Session outcome: ${this.selected() || 'recorded'}`);
+    const me = this.auth.currentUser();
+    const authorName = [me?.name, me?.surname].filter(Boolean).join(' ') || String(me?.username ?? '');
+    this.leads.logCommunication(prospectId, {
+      type: commTypeFor(this.data?.contactMethod),
+      interestLevel: interest,
+      date: new Date().toISOString().slice(0, 10),
+      duration: 0,
+      description: composed.slice(0, 5000),
+      followUpAction,
+      ...(me?.id ? { createdBy: String(me.id) } : {}),
+      ...(authorName ? { createdByName: authorName } : {}),
+    }).subscribe({
+      next: () => {
+        this.timelineState.set('done');
+        this.timelineProspectId.set(prospectId);
+        this.timelineNote.set('Also logged to the prospect follow-up timeline.');
+      },
       error: (err: unknown) => {
         this.timelineState.set('failed');
-        this.timelineNote.set(`Saved on the session, but timeline lookup failed: ${toApiError(err).message}`);
+        this.timelineNote.set(`Saved on the session, but timeline update failed: ${toApiError(err).message}`);
       },
     });
   }

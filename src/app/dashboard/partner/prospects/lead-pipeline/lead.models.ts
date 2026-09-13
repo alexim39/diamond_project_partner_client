@@ -27,6 +27,7 @@ export interface ProspectLead {
   bestTimeToCall?: string;
   consentToContact?: boolean;
   notes?: string;
+  stageHistory?: StageHistoryEntry[];
   status?: { name?: string; stage?: ProspectStage; note?: string; status?: string; stageEnteredAt?: string };
   communications?: Array<{ interestLevel?: string; date?: string }>;
   createdAt?: string;
@@ -72,6 +73,7 @@ export interface ContactListBatch {
   total: number;
   stageCounts: Record<string, number>;
   worked: number;
+  sla?: { ageHrs: number; unworked: boolean; overdue: boolean; hoursLeft: number } | null;
 }
 
 export interface ContactListMine {
@@ -117,6 +119,17 @@ export type DownlineContactListsEnvelope = ApiEnvelope<DownlineContactLists>;
 
 export interface ConvertEnvelope extends ApiEnvelope<{ code: string; prospect: ProspectLead }> {
   data: { code: string; prospect: ProspectLead };
+}
+
+/** Stage-move audit entry — mirrors backend `stageHistory` (who moved the prospect). */
+export interface StageHistoryEntry {
+  id?: string;
+  _id?: string;
+  from?: string | null;
+  to?: string;
+  at?: string;
+  by?: string;
+  byName?: string;
 }
 
 /** Full communication entry — mirrors backend `createCommunicationEntity`. */

@@ -14,7 +14,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ProspectService } from '../prospects.service';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { nextStage, ProspectDetail, STAGE_META, ProspectStage } from '../lead-pipeline/lead.models';
+import { nextStage, ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, ProspectStage } from '../lead-pipeline/lead.models';
 import { ApiError } from '../../../../core/http/api-error';
 
 const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp'] as const;
@@ -312,36 +312,51 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
         <h3>Activity timeline ({{ timeline().length }})</h3>
         @if (timeline().length > 0) {
           <ol class="timeline">
-            @for (comm of timeline(); track comm.id ?? comm.date ?? $index) {
+            @for (row of timeline(); track (row.kind === 'comm' ? (row.comm.id ?? row.comm.date) : (row.move.id ?? row.move.at)) ?? $index) {
+              @if (row.kind === 'comm') {
               <li class="timeline-item dp-card">
-                <mat-icon>{{ commIcon(comm.type) }}</mat-icon>
+                <mat-icon>{{ commIcon(row.comm.type) }}</mat-icon>
                 <div class="timeline-body">
                   <div class="timeline-top">
-                    <strong>{{ comm.type }}</strong>
-                    @if (comm.interestLevel) {
-                      <span class="dp-status dp-status--info">{{ comm.interestLevel }}</span>
+                    <strong>{{ row.comm.type }}</strong>
+                    @if (row.comm.interestLevel) {
+                      <span class="dp-status dp-status--info">{{ row.comm.interestLevel }}</span>
                     }
-                    @if (comm.outcome) {
-                      <span class="dp-status {{ outcomeClass(comm.outcome) }}">{{ comm.outcome }}</span>
+                    @if (row.comm.outcome) {
+                      <span class="dp-status {{ outcomeClass(row.comm.outcome) }}">{{ row.comm.outcome }}</span>
                     }
-                    @if (authorLabel(comm, prospect.partnerId); as by) {
-                      <span class="dp-status {{ authorClass(comm, prospect.partnerId) }}">{{ by }}</span>
+                    @if (authorLabel(row.comm, prospect.partnerId); as by) {
+                      <span class="dp-status {{ authorClass(row.comm, prospect.partnerId) }}">{{ by }}</span>
                     }
-                    <span class="muted">{{ comm.date | date:'medium' }}</span>
+                    <span class="muted">{{ row.comm.date | date:'medium' }}</span>
                   </div>
-                  @if (comm.description) {
-                    <p>{{ comm.description }}</p>
+                  @if (row.comm.description) {
+                    <p>{{ row.comm.description }}</p>
                   }
-                  @if (comm.followUpAction || comm.followUpDate) {
+                  @if (row.comm.followUpAction || row.comm.followUpDate) {
                     <p class="muted">
-                      Next: {{ comm.followUpAction || '—' }}@if (comm.followUpDate) { · by {{ comm.followUpDate | date:'mediumDate' }}}
-                      @if (followUpOverdue(comm)) {
+                      Next: {{ row.comm.followUpAction || '—' }}@if (row.comm.followUpDate) { · by {{ row.comm.followUpDate | date:'mediumDate' }}}
+                      @if (followUpOverdue(row.comm)) {
                         <span class="dp-status dp-status--warn">Overdue</span>
                       }
                     </p>
                   }
                 </div>
               </li>
+              } @else {
+              <li class="timeline-item timeline-item--stage dp-card">
+                <mat-icon>trending_up</mat-icon>
+                <div class="timeline-body">
+                  <div class="timeline-top">
+                    <strong>Stage: {{ row.move.from || 'New' }} → {{ row.move.to }}</strong>
+                    @if (stageAuthorLabel(row.move, prospect.partnerId); as by) {
+                      <span class="dp-status {{ stageAuthorClass(row.move, prospect.partnerId) }}">{{ by }}</span>
+                    }
+                    <span class="muted">{{ row.move.at | date:'medium' }}</span>
+                  </div>
+                </div>
+              </li>
+              }
             }
           </ol>
         } @else {
@@ -388,6 +403,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
     .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .timeline-item { display: flex; gap: 0.8em; padding: 0.8em 1em; }
     .timeline-item mat-icon { color: var(--dp-gold); }
+    .timeline-item--stage { border-left: 4px solid var(--dp-info); }
     .session-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .session-item { padding: 0.8em 1em; display: flex; flex-direction: column; gap: 0.25em; }
     .session-item p { margin: 0; }
@@ -439,10 +455,16 @@ export class ProspectDetailComponent implements OnInit {
     followUpDate: [null as Date | null],
   });
 
-  protected readonly timeline = computed(() => {
-    const comms = [...(this.lead()?.communications ?? [])];
-    comms.sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime());
-    return comms;
+  protected readonly timeline = computed<Array<{ kind: 'comm'; comm: ProspectCommunication } | { kind: 'stage'; move: StageHistoryEntry }>>(() => {
+    const lead = this.lead();
+    const rows: Array<{ kind: 'comm'; comm: ProspectCommunication } | { kind: 'stage'; move: StageHistoryEntry }> = [
+      ...((lead?.communications ?? []) as ProspectCommunication[]).map((comm) => ({ kind: 'comm' as const, comm })),
+      ...((lead?.stageHistory ?? []) as StageHistoryEntry[]).map((move) => ({ kind: 'stage' as const, move })),
+    ];
+    const at = (r: (typeof rows)[number]): number =>
+      new Date(r.kind === 'comm' ? (r.comm.date ?? 0) : (r.move.at ?? 0)).getTime();
+    rows.sort((a, b) => at(b) - at(a));
+    return rows;
   });
 
   protected readonly touchCount = computed(() => this.lead()?.communications?.length ?? 0);
@@ -673,12 +695,31 @@ export class ProspectDetailComponent implements OnInit {
     return u ? String(u) : '';
   }
 
+  /** Current actor for signed writes (stage moves, conversions). */
+  private actor(): { by?: string; byName?: string } {
+    const me = this.auth.currentUser();
+    const name = [me?.name, me?.surname].filter(Boolean).join(' ') || String(me?.username ?? '');
+    return {
+      ...(me?.id ? { by: String(me.id) } : {}),
+      ...(name ? { byName: name } : {}),
+    };
+  }
+
+  /** Stage-move author pill reuses the comm rule (by/byName shape). */
+  protected stageAuthorLabel(move: StageHistoryEntry, ownerId: unknown): string | null {
+    return this.authorLabel({ createdBy: move.by, createdByName: move.byName }, ownerId);
+  }
+
+  protected stageAuthorClass(move: StageHistoryEntry, ownerId: unknown): string {
+    return this.authorClass({ createdBy: move.by }, ownerId);
+  }
+
   protected advance(stage: ProspectStage): void {
     const id = this.prospectId();
     if (!id) return;
     this.acting.set(true);
     this.leads
-      .advanceStage(id, stage)
+      .advanceStage(id, stage, this.actor())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -698,7 +739,7 @@ export class ProspectDetailComponent implements OnInit {
     this.confirming.set(false);
     this.acting.set(true);
     this.leads
-      .convert(id)
+      .convert(id, this.actor())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

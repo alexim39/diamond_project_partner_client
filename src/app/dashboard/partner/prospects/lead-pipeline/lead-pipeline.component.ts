@@ -49,8 +49,8 @@ import { forkJoin } from 'rxjs';
           <p class="subtitle">Track every prospect from first contact to converted partner.</p>
         </div>
         <mat-button-toggle-group>
-          <mat-button-toggle routerLink="../personal-list" title="My prospect list">
-            <mat-icon>view_list</mat-icon> Contact List
+          <mat-button-toggle routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
+            <mat-icon>person_add</mat-icon> Add someone
           </mat-button-toggle>
           <mat-button-toggle routerLink="../general-list" title="General prospect list">
             <mat-icon>groups</mat-icon> General List
