@@ -1,6 +1,6 @@
 import { ApiEnvelope } from '../../core/auth/auth.models';
 
-export type AudienceScope = 'global' | 'team' | 'leadership';
+export type AudienceScope = 'global' | 'team' | 'leadership' | 'members';
 export type RsvpStatus = 'going' | 'interested' | 'declined';
 
 export interface RsvpCounts {
@@ -19,6 +19,7 @@ export interface CommunityEvent {
   endsAt: string | null;
   location: string;
   scope: AudienceScope;
+  teamId?: string | null;
   createdAt: string;
   author: { username: string; name: string; profileImage?: string | null } | null;
   rsvps: RsvpCounts;
@@ -44,4 +45,5 @@ export interface CreateEventPayload {
   endsAt?: string;
   location?: string;
   scope: AudienceScope;
+  teamId?: string;
 }

@@ -1,6 +1,6 @@
 import { ApiEnvelope } from '../../core/auth/auth.models';
 
-export type MessageKind = 'direct' | 'announcement' | 'broadcast';
+export type MessageKind = 'direct' | 'announcement' | 'broadcast' | 'team';
 
 export interface DirectoryLabel {
   username: string;
@@ -14,6 +14,7 @@ export interface Message {
   kind: MessageKind;
   title: string;
   body: string;
+  teamId?: string | null;
   readAt: string | null;
   createdAt: string;
   sender?: DirectoryLabel | null;
@@ -50,4 +51,13 @@ export interface AnnounceResult {
 
 export interface AnnounceEnvelope extends ApiEnvelope<AnnounceResult> {
   data: AnnounceResult;
+}
+
+export interface TeamAnnounceResult {
+  inserted: number;
+  teamId: string;
+}
+
+export interface TeamAnnounceEnvelope extends ApiEnvelope<TeamAnnounceResult> {
+  data: TeamAnnounceResult;
 }

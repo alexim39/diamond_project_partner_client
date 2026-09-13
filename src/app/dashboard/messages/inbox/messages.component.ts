@@ -12,10 +12,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
-import { AnnounceEnvelope, Contact, Message, MessageEnvelope } from '../../../core/messaging/message.models';
+import { AnnounceEnvelope, Contact, Message, MessageEnvelope, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
 import { ApiError } from '../../../core/http/api-error';
 
-type ComposeKind = 'direct' | 'announcement';
+type ComposeKind = 'direct' | 'announcement' | 'team';
 
 /**
  * @title Messages — inbox, direct replies and team announcements.
@@ -70,7 +70,14 @@ type ComposeKind = 'direct' | 'announcement';
           <mat-button-toggle-group [value]="composeKind()" (change)="setKind($event.value)" aria-label="Message type">
             <mat-button-toggle value="direct">Direct</mat-button-toggle>
             <mat-button-toggle value="announcement">Announcement</mat-button-toggle>
+            @if (teamId()) {
+              <mat-button-toggle value="team">Team</mat-button-toggle>
+            }
           </mat-button-toggle-group>
+
+          @if (composeKind() === 'team' && teamName()) {
+            <p class="muted" role="note">To every member of {{ teamName() }} — teammates only.</p>
+          }
 
           @if (composeKind() === 'direct') {
             <mat-form-field appearance="outline">
@@ -86,13 +93,17 @@ type ComposeKind = 'direct' | 'announcement';
               <mat-label>Title</mat-label>
               <input matInput formControlName="title" maxlength="120" placeholder="e.g. Team call tonight" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Audience</mat-label>
-              <mat-select formControlName="scope">
-                <mat-option value="direct">Direct team</mat-option>
-                <mat-option value="all">Entire downline (broadcast)</mat-option>
-              </mat-select>
-            </mat-form-field>
+            @if (composeKind() === 'team' && teamName()) {
+              <p class="muted" role="note">Audience: {{ teamName() }} members only.</p>
+            } @else {
+              <mat-form-field appearance="outline">
+                <mat-label>Audience</mat-label>
+                <mat-select formControlName="scope">
+                  <mat-option value="direct">Direct team</mat-option>
+                  <mat-option value="all">Entire downline (broadcast)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            }
           }
 
           <mat-form-field appearance="outline">
@@ -200,6 +211,8 @@ export class MessagesComponent implements OnInit {
   protected readonly sentNotice = signal<string | null>(null);
   protected readonly showCompose = signal(false);
   protected readonly composeKind = signal<ComposeKind>('direct');
+  protected readonly teamId = signal<string | null>(null);
+  protected readonly teamName = signal('');
   protected readonly replyingTo = signal<Message | null>(null);
   protected readonly inbox = signal<Message[]>([]);
   protected readonly sent = signal<Message[]>([]);
@@ -215,12 +228,15 @@ export class MessagesComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
-    // Team handoff (?team=&teamName=): open an announcement prefilled for
-    // the team. Delivery still follows message audiences — address it to
-    // your teammates before sending.
+    // Team handoff (?team=&teamName=): open the team channel prefilled.
+    // Delivery is teammates-only via the team endpoint (not the downline
+    // announcement audiences).
+    const team = this.route.snapshot.queryParamMap.get('team')?.trim() ?? '';
     const teamName = this.route.snapshot.queryParamMap.get('teamName')?.trim() ?? '';
-    if (teamName) {
-      this.composeKind.set('announcement');
+    if (team && teamName) {
+      this.teamId.set(team);
+      this.teamName.set(teamName);
+      this.composeKind.set('team');
       this.form.patchValue({ title: `[${teamName}] ` });
       this.showCompose.set(true);
     }
@@ -266,6 +282,7 @@ export class MessagesComponent implements OnInit {
   protected kindLabel(msg: Message): string {
     if (msg.kind === 'broadcast') return 'Broadcast';
     if (msg.kind === 'announcement') return 'Announcement';
+    if (msg.kind === 'team') return 'Team';
     return 'Direct';
   }
 
@@ -298,25 +315,33 @@ export class MessagesComponent implements OnInit {
       this.sendError.set('Choose a recipient.');
       return;
     }
-    if (this.composeKind() === 'announcement' && v.title.trim().length < 2) {
+    if ((this.composeKind() === 'announcement' || this.composeKind() === 'team') && v.title.trim().length < 2) {
       this.sendError.set('Announcements need a title.');
+      return;
+    }
+    if (this.composeKind() === 'team' && !this.teamId()) {
+      this.sendError.set('Team context is missing — reopen from the team page.');
       return;
     }
     this.sending.set(true);
     this.sendError.set(null);
     this.sentNotice.set(null);
     const kind = this.composeKind();
-    const request: Observable<MessageEnvelope | AnnounceEnvelope> = kind === 'direct'
+    const request: Observable<MessageEnvelope | AnnounceEnvelope | TeamAnnounceEnvelope> = kind === 'direct'
       ? this.messages.sendDirect(v.to, body)
-      : this.messages.announce(v.title.trim(), body, v.scope);
+      : kind === 'team'
+        ? this.messages.announceToTeam(this.teamId() as string, v.title.trim(), body)
+        : this.messages.announce(v.title.trim(), body, v.scope);
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.sending.set(false);
         this.replyingTo.set(null);
         this.form.reset({ to: '', title: '', scope: 'direct', body: '' });
         this.sentNotice.set(
-          kind === 'announcement' && 'inserted' in res.data
-            ? `Announced to ${res.data.inserted} partners.`
+          (kind === 'announcement' || kind === 'team') && 'inserted' in res.data
+            ? kind === 'team'
+              ? `Announced to ${res.data.inserted} teammate${res.data.inserted === 1 ? '' : 's'}.`
+              : `Announced to ${res.data.inserted} partners.`
             : 'Message sent.',
         );
         this.reload();

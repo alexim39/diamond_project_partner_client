@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
   AnnounceEnvelope, ContactsEnvelope, MessageEnvelope,
-  MessagesEnvelope, UnreadEnvelope,
+  MessagesEnvelope, TeamAnnounceEnvelope, UnreadEnvelope,
 } from './message.models';
 
 /** Team communication → backend `/v1/messages/*`. Fully typed. */
@@ -17,6 +17,10 @@ export class MessageService {
 
   announce(title: string, body: string, scope: 'direct' | 'all'): Observable<AnnounceEnvelope> {
     return this.api.post<AnnounceEnvelope>('v1/messages/announcements', { title, body, scope });
+  }
+
+  announceToTeam(teamId: string, title: string, body: string): Observable<TeamAnnounceEnvelope> {
+    return this.api.post<TeamAnnounceEnvelope>('v1/messages/team-announcements', { teamId, title, body });
   }
 
   inbox(limit = 50): Observable<MessagesEnvelope> {

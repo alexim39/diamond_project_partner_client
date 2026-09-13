@@ -151,6 +151,9 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
                 <mat-option value="global">Everyone</mat-option>
                 <mat-option value="team">My team</mat-option>
                 <mat-option value="leadership">Leadership</mat-option>
+                @if (teamId()) {
+                  <mat-option value="members">Team members only{{ teamName() ? ' — ' + teamName() : '' }}</mat-option>
+                }
               </mat-select>
             </mat-form-field>
           </div>
@@ -266,6 +269,8 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly showCompose = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly confirmingCancelId = signal<string | null>(null);
+  protected readonly teamId = signal<string | null>(null);
+  protected readonly teamName = signal('');
   protected readonly tab = signal<'upcoming' | 'mine'>('upcoming');
   protected readonly upcoming = signal<CommunityEvent[]>([]);
   protected readonly mine = signal<CommunityEvent[]>([]);
@@ -296,6 +301,21 @@ export class CommunityEventsComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+    // Team handoff (?team=&teamName=): open the composer scoped to team
+    // members only. Other audiences keep their downline meaning.
+    const team = this.route.snapshot.queryParamMap.get('team')?.trim() ?? '';
+    const teamName = this.route.snapshot.queryParamMap.get('teamName')?.trim() ?? '';
+    if (team && teamName) {
+      this.teamId.set(team);
+      this.teamName.set(teamName);
+      this.form.patchValue({
+        title: `${teamName} — `,
+        body: `For the ${teamName} team. `,
+        scope: 'members' as AudienceScope,
+      });
+      this.showCompose.set(true);
+      this.publishError.set(null);
+    }
   }
 
   protected reload(): void {
@@ -332,6 +352,8 @@ export class CommunityEventsComponent implements OnInit {
       endsDate: end, endsTime: end,
       location: event.location ?? '', scope: event.scope,
     });
+    // Keep team context so a team event stays team-scoped on save.
+    this.teamId.set(event.teamId ?? this.teamId());
     this.editingId.set(event.id);
     this.showCompose.set(true);
     this.publishError.set(null);
@@ -356,13 +378,20 @@ export class CommunityEventsComponent implements OnInit {
     const v = this.form.getRawValue();
     const startsAt = toInputDateTime(mergeDateTime(v.startsDate!, v.startsTime!));
     const endsAt = v.endsDate && v.endsTime ? toInputDateTime(mergeDateTime(v.endsDate, v.endsTime)) : null;
+    const scope = v.scope ?? 'global';
+    if (scope === 'members' && !this.teamId()) {
+      this.publishError.set('Team context is missing — reopen from the team page.');
+      this.publishing.set(false);
+      return;
+    }
     const payload = {
       title: (v.title ?? '').trim(),
       body: (v.body ?? '').trim(),
       startsAt,
       ...(endsAt ? { endsAt } : {}),
       location: (v.location ?? '').trim(),
-      scope: v.scope ?? 'global',
+      scope,
+      ...(scope === 'members' && this.teamId() ? { teamId: this.teamId() as string } : {}),
     };
     const editing = this.editingId();
     const request = editing ? this.events.update(editing, payload) : this.events.create(payload);
