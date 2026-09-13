@@ -37,6 +37,8 @@ export interface Goal {
   target: number;
   startDate: string;
   endDate: string;
+  status?: 'active' | 'closed';
+  closedAt?: string | null;
   progress: GoalProgress;
 }
 
@@ -64,4 +66,5 @@ export interface CreateGoalPayload {
   target: number;
   startDate: string;
   endDate: string;
+  status?: 'active' | 'closed';
 }

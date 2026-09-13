@@ -62,7 +62,10 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
             @if (behindCount() > 0) {
               <strong class="behind">{{ behindCount() }} behind pace.</strong>
             }
-            @if (completeCount() === 0 && behindCount() === 0 && !loading()) {
+            @if (closedCount() > 0) {
+              <span class="muted">{{ closedCount() }} closed.</span>
+            }
+            @if (completeCount() === 0 && behindCount() === 0 && closedCount() === 0 && !loading()) {
               Set a target below to start tracking.
             }
           </p>
@@ -70,8 +73,19 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
         <button mat-button (click)="toggleForm()">{{ showForm() ? 'Cancel' : 'New goal' }}</button>
       </div>
 
+      @if (goals().length > 0) {
+        <div class="filter-row" role="radiogroup" aria-label="Goal filter">
+          <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'all'" [attr.aria-pressed]="filter() === 'all'" (click)="filter.set('all')">All</button>
+          <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'active'" [attr.aria-pressed]="filter() === 'active'" (click)="filter.set('active')">Active</button>
+          <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'behind'" [attr.aria-pressed]="filter() === 'behind'" (click)="filter.set('behind')">Behind</button>
+          <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'complete'" [attr.aria-pressed]="filter() === 'complete'" (click)="filter.set('complete')">Complete</button>
+          <button type="button" class="filter-btn" [class.filter-btn--active]="filter() === 'closed'" [attr.aria-pressed]="filter() === 'closed'" (click)="filter.set('closed')">Closed</button>
+        </div>
+      }
+
       @if (showForm()) {
         <form class="goal-form" [formGroup]="form" (ngSubmit)="save()">
+          <h3 class="form-title">{{ editingId() ? 'Edit goal' : 'New goal' }}</h3>
           <mat-form-field appearance="outline">
             <mat-label>Title</mat-label>
             <input matInput formControlName="title" placeholder="e.g. September sales push" maxlength="120" />
@@ -107,8 +121,11 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           </mat-form-field>
           <div class="form-actions">
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving()">
-              {{ saving() ? 'Saving…' : 'Save goal' }}
+              {{ saving() ? 'Saving…' : (editingId() ? 'Save changes' : 'Save goal') }}
             </button>
+            @if (editingId()) {
+              <button mat-button type="button" (click)="cancelEdit()" [disabled]="saving()">Cancel</button>
+            }
             @if (formError(); as err) {
               <span class="error" role="alert">{{ err }}</span>
             }
@@ -127,10 +144,10 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
         </p>
       }
 
-      @if (goals().length > 0) {
+      @if (filtered().length > 0) {
         <ul class="goal-list">
-          @for (goal of goals(); track goal.id) {
-            <li class="goal-card" [class.goal-card--complete]="goal.progress.complete">
+          @for (goal of filtered(); track goal.id) {
+            <li class="goal-card" [class.goal-card--complete]="goal.progress.complete" [class.goal-card--closed]="goal.status === 'closed'">
               <div class="goal-top">
                 <div>
                   <strong>{{ goal.title }}</strong>
@@ -146,7 +163,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
               <div class="goal-meta">
                 <span>{{ goal.progress.current | number }} / {{ goal.target | number }} {{ unit(goal.kind) }}</span>
                 <span class="muted">{{ goal.progress.daysLeft }} days left</span>
-                @if (!goal.progress.complete) {
+                @if (!goal.progress.complete && goal.status !== 'closed') {
                   @if (goal.progress.forecast.willHit && goal.progress.forecast.etaDate) {
                     <span class="forecast-ok">On pace · ~{{ goal.progress.forecast.projected | number }} by {{ goal.progress.forecast.etaDate | date:'mediumDate' }}</span>
                   } @else if (goal.progress.forecast.requiredDaily !== null) {
@@ -155,19 +172,51 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
                     <span class="forecast-warn">Out of time · short {{ goal.progress.forecast.shortfall | number }}</span>
                   }
                 }
-                <button
-                  mat-button
-                  color="warn"
-                  (click)="remove(goal.id)"
-                  [disabled]="deletingId() === goal.id"
-                  aria-label="Delete {{ goal.title }}"
-                >Delete</button>
+                @if (goal.status === 'closed') {
+                  <span class="muted">Closed — reopen to track again.</span>
+                }
+              </div>
+              <div class="goal-actions">
+                <a mat-button [routerLink]="nextMove(goal).link">{{ nextMove(goal).label }}</a>
+                <span class="spacer"></span>
+                @if (goal.status !== 'closed' && !goal.progress.complete) {
+                  <button mat-button (click)="startEdit(goal)" [disabled]="saving() || actingId() === goal.id">Edit</button>
+                  <button mat-button (click)="duplicate(goal)" [disabled]="saving() || actingId() === goal.id">Duplicate</button>
+                  <button mat-button (click)="closeGoal(goal)" [disabled]="actingId() === goal.id">
+                    {{ actingId() === goal.id ? 'Saving…' : 'Mark done' }}
+                  </button>
+                } @else if (goal.status === 'closed') {
+                  <button mat-button (click)="reopen(goal)" [disabled]="actingId() === goal.id">
+                    {{ actingId() === goal.id ? 'Saving…' : 'Reopen' }}
+                  </button>
+                }
+                @if (confirmDeleteId() === goal.id) {
+                  <span class="delete-confirm" role="alertdialog" aria-label="Confirm goal deletion">
+                    <strong>Delete?</strong> This cannot be undone.
+                    <button mat-button (click)="confirmDeleteId.set(null)" [disabled]="deletingId() === goal.id">Keep</button>
+                    <button mat-button color="warn" (click)="remove(goal.id)" [disabled]="deletingId() === goal.id">
+                      {{ deletingId() === goal.id ? 'Deleting…' : 'Yes, delete' }}
+                    </button>
+                  </span>
+                } @else {
+                  <button
+                    mat-button
+                    color="warn"
+                    (click)="confirmDeleteId.set(goal.id)"
+                    [disabled]="deletingId() === goal.id"
+                    aria-label="Delete {{ goal.title }}"
+                  >Delete</button>
+                }
               </div>
             </li>
           }
         </ul>
       } @else if (!loading() && !error()) {
-        <p class="empty">No goals yet — create your first one above.</p>
+        @if (goals().length === 0) {
+          <p class="empty">No goals yet — create your first one above.</p>
+        } @else {
+          <p class="empty">No goals match — <button mat-button (click)="filter.set('all')">show all</button></p>
+        }
       }
 
       @if (trendsChart(); as chart) {
@@ -188,12 +237,22 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .done { color: var(--dp-success); }
     .behind { color: var(--dp-error); }
     .goal-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75em; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; }
-    .form-actions { display: flex; align-items: center; gap: 0.75em; grid-column: 1 / -1; }
+    .form-title { margin: 0; font-size: 1em; grid-column: 1 / -1; }
+    .form-actions { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; grid-column: 1 / -1; }
+    .form-actions button { min-height: 44px; }
+    .filter-row { display: flex; gap: 0.4em; flex-wrap: wrap; }
+    .filter-btn { border: 1px solid var(--dp-line); background: transparent; border-radius: 999px; padding: 0.5em 1em; min-height: 44px; cursor: pointer; color: inherit; font: inherit; font-size: 0.85rem; }
+    .filter-btn--active { border-color: var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
     .goal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
     .goal-card { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
     .goal-card--complete { border-left: 4px solid var(--dp-success); }
+    .goal-card--closed { opacity: 0.75; border-left: 4px solid var(--dp-line); }
     .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .goal-meta { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; font-size: 0.9em; }
+    .goal-actions { display: flex; align-items: center; gap: 0.4em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
+    .goal-actions a, .goal-actions button { min-height: 44px; }
+    .goal-actions .spacer { flex: 1; }
+    .delete-confirm { display: inline-flex; align-items: center; gap: 0.4em; flex-wrap: wrap; font-size: 0.85em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .forecast-ok { color: var(--dp-success); font-size: 0.85em; font-weight: 600; }
     .forecast-warn { color: var(--dp-error); font-size: 0.85em; font-weight: 600; }
@@ -213,18 +272,34 @@ export class GoalsComponent implements OnInit {
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
   protected readonly deletingId = signal<string | null>(null);
+  protected readonly actingId = signal<string | null>(null);
+  protected readonly confirmDeleteId = signal<string | null>(null);
+  protected readonly editingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
   protected readonly showForm = signal(false);
   protected readonly goals = signal<Goal[]>([]);
   protected readonly trends = signal<TrendBucket[]>([]);
+  protected readonly filter = signal<'all' | 'active' | 'behind' | 'complete' | 'closed'>('all');
 
   protected readonly kinds: GoalKind[] = ['sales', 'recruitment', 'team_volume', 'conversion'];
 
   protected readonly completeCount = computed(() => this.goals().filter((g) => g.progress.complete).length);
   protected readonly behindCount = computed(
-    () => this.goals().filter((g) => !g.progress.complete && !g.progress.onTrack).length,
+    () => this.goals().filter((g) => g.status !== 'closed' && !g.progress.complete && !g.progress.onTrack).length,
   );
+  protected readonly closedCount = computed(() => this.goals().filter((g) => g.status === 'closed').length);
+
+  protected readonly filtered = computed(() => {
+    const f = this.filter();
+    return this.goals().filter((g) => {
+      if (f === 'active') return g.status !== 'closed' && !g.progress.complete;
+      if (f === 'behind') return g.status !== 'closed' && !g.progress.complete && !g.progress.onTrack;
+      if (f === 'complete') return g.progress.complete;
+      if (f === 'closed') return g.status === 'closed';
+      return true;
+    });
+  });
 
   /** Sales trend chart — rebuilt on data or light/dark toggle. */
   protected readonly trendsChart = computed<EChartsCoreOption | null>(() => {
@@ -280,8 +355,36 @@ export class GoalsComponent implements OnInit {
   }
 
   protected toggleForm(): void {
-    this.showForm.set(!this.showForm());
+    const opening = !this.showForm();
+    this.showForm.set(opening);
     this.formError.set(null);
+    if (opening) this.cancelEdit();
+    else { this.editingId.set(null); }
+  }
+
+  protected startEdit(goal: Goal): void {
+    this.form.reset({
+      title: goal.title ?? '',
+      kind: goal.kind,
+      target: goal.target,
+      startDate: new Date(goal.startDate),
+      endDate: new Date(goal.endDate),
+    });
+    this.editingId.set(goal.id);
+    this.showForm.set(true);
+    this.formError.set(null);
+    this.confirmDeleteId.set(null);
+  }
+
+  protected cancelEdit(): void {
+    this.editingId.set(null);
+    this.form.reset({
+      title: '',
+      kind: 'sales' as GoalKind,
+      target: 100,
+      startDate: new Date(),
+      endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+    });
   }
 
   protected save(): void {
@@ -289,18 +392,96 @@ export class GoalsComponent implements OnInit {
     this.saving.set(true);
     this.formError.set(null);
     const v = this.form.getRawValue();
-    this.goalsApi
-      .create({ title: v.title.trim(), kind: v.kind, target: Number(v.target), startDate: toInputDate(v.startDate), endDate: toInputDate(v.endDate) })
+    const payload = {
+      title: v.title.trim(),
+      kind: v.kind,
+      target: Number(v.target),
+      startDate: toInputDate(v.startDate),
+      endDate: toInputDate(v.endDate),
+    };
+    const editing = this.editingId();
+    const request = editing
+      ? this.goalsApi.update(editing, payload)
+      : this.goalsApi.create(payload);
+    request
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.saving.set(false);
           this.showForm.set(false);
+          this.editingId.set(null);
           this.reload();
         },
         error: (err: ApiError) => {
           this.saving.set(false);
           this.formError.set(err.message);
+        },
+      });
+  }
+
+  /** Copy a goal into its next period (same length, starts the day after it ends). */
+  protected duplicate(goal: Goal): void {
+    if (this.saving() || this.actingId()) return;
+    this.actingId.set(goal.id);
+    const start = new Date(goal.startDate).getTime();
+    const end = new Date(goal.endDate).getTime();
+    const length = Math.max(86400000, end - start);
+    const nextStart = new Date(end + 86400000);
+    const nextEnd = new Date(end + 86400000 + length);
+    this.goalsApi
+      .create({
+        title: `${goal.title || this.kindLabel(goal.kind)} — next`.slice(0, 120),
+        kind: goal.kind,
+        target: goal.target,
+        startDate: toInputDate(nextStart),
+        endDate: toInputDate(nextEnd),
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.actingId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  /** Manual done — closes tracking (auto Complete stays derived). */
+  protected closeGoal(goal: Goal): void {
+    if (this.actingId()) return;
+    this.actingId.set(goal.id);
+    this.goalsApi
+      .update(goal.id, { status: 'closed' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.actingId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected reopen(goal: Goal): void {
+    if (this.actingId()) return;
+    this.actingId.set(goal.id);
+    this.goalsApi
+      .update(goal.id, { status: 'active' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.actingId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
         },
       });
   }
@@ -313,10 +494,12 @@ export class GoalsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.deletingId.set(null);
+          this.confirmDeleteId.set(null);
           this.goals.set(this.goals().filter((g) => g.id !== id));
         },
         error: (err: ApiError) => {
           this.deletingId.set(null);
+          this.confirmDeleteId.set(null);
           this.error.set(err.message);
         },
       });
@@ -331,10 +514,26 @@ export class GoalsComponent implements OnInit {
   }
 
   protected status(goal: Goal): { label: string; color: string; text: string } {
+    if (goal.status === 'closed') return { label: 'Closed', color: '#e0e0e0', text: '#424242' };
     if (goal.progress.complete) return { label: 'Complete', color: '#c8e6c9', text: '#1b5e20' };
     if (goal.progress.daysLeft === 0) return { label: 'Ended', color: '#e0e0e0', text: '#424242' };
     return goal.progress.onTrack
       ? { label: 'On track', color: '#bbdefb', text: '#0d47a1' }
       : { label: 'Behind pace', color: '#ffcdd2', text: '#b71c1c' };
+  }
+
+  /** Where the work for this goal kind actually happens. */
+  protected nextMove(goal: Goal): { label: string; link: string } {
+    switch (goal.kind) {
+      case 'recruitment':
+        return { label: 'Open pipeline', link: '/dashboard/prospects/pipeline' };
+      case 'conversion':
+        return { label: 'Work pipeline', link: '/dashboard/prospects/pipeline' };
+      case 'team_volume':
+        return { label: 'Open activation board', link: '/dashboard/mentorship/team/activation' };
+      case 'sales':
+      default:
+        return { label: 'Open eshop', link: '/dashboard/products/eshop' };
+    }
   }
 }

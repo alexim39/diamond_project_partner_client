@@ -32,16 +32,21 @@ export const MentorshipRoutes: Routes = [
                     component: CreateTeamContainerComponent,
                     title: "Create New Team - Create new team from partners",
                 },
-                 {
-                     path: 'members',
-                     component: ManageTeamContainerComponent,
-                     title: "Manage Team - Manage team members from partners",
-                 },
-                 {
-                     path: 'contact-lists',
-                     loadComponent: () => import('./team/contact-lists/contact-lists.component').then(r => r.DownlineContactListsComponent),
-                     title: "Downline Contact Lists - Work submitted onboarding lists",
-                 },
+                  {
+                      path: 'members',
+                      component: ManageTeamContainerComponent,
+                      title: "My Teams - Purpose teams you created",
+                  },
+                  {
+                      path: 'contact-lists',
+                      loadComponent: () => import('./team/contact-lists/contact-lists.component').then(r => r.DownlineContactListsComponent),
+                      title: "Downline Contact Lists - Work submitted onboarding lists",
+                  },
+                  {
+                      path: 'activation',
+                      loadComponent: () => import('./team/activation-board/activation-board.component').then(r => r.ActivationBoardComponent),
+                      title: "Activation Board - Who needs you next",
+                  },
                  {
                      path: 'confirmations',
                      component: TrainingConfirmationsComponent,
@@ -73,7 +78,7 @@ export const MentorshipRoutes: Routes = [
                         {
                             path: '',
                             component: MyPartnersContainerComponent,
-                            title: "My Partners - Manage partners listing",
+                            title: "My Partners - Your direct partners",
                         },
                         {
                             path: 'contacts/:id',

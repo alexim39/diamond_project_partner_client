@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, DownlineContactListsEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
+import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -64,6 +64,10 @@ export class LeadPipelineService {
 
   downlineContactLists(): Observable<DownlineContactListsEnvelope> {
     return this.api.get<DownlineContactListsEnvelope>('v1/prospects/contact-list/downline');
+  }
+
+  activationBoard(): Observable<ActivationBoardEnvelope> {
+    return this.api.get<ActivationBoardEnvelope>('v1/prospects/contact-list/activation');
   }
 
   prospectName(lead: ProspectLead): string {

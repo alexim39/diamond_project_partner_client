@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../../../prospects/lead-pipeline/lead-pipeline.service';
 import { DownlineContactListItem } from '../../../prospects/lead-pipeline/lead.models';
 import { ApiError } from '../../../../../core/http/api-error';
@@ -45,7 +45,10 @@ const PREVIEW_COUNT = 5;
           <h2>Downline contact lists</h2>
           <p class="subtitle">Lists your people submitted — call the fresh numbers first, book sessions, mark outcomes in the pipeline.</p>
         </div>
-        <button mat-button (click)="reload()" [disabled]="loading()">Refresh</button>
+        <div class="head-actions">
+          <a mat-button routerLink="../activation">Activation board</a>
+          <button mat-button (click)="reload()" [disabled]="loading()">Refresh</button>
+        </div>
       </div>
 
       @if (loading()) {
@@ -176,7 +179,8 @@ const PREVIEW_COUNT = 5;
     .lists-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
-    .page-head button { min-height: 44px; }
+    .head-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .head-actions button, .head-actions a { min-height: 44px; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 44em; }
     .chip-row { display: flex; gap: 0.4em; flex-wrap: wrap; }
     .toolbar { display: flex; gap: 0.75em; flex-wrap: wrap; align-items: center; }
@@ -210,6 +214,7 @@ const PREVIEW_COUNT = 5;
 })
 export class DownlineContactListsComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -247,6 +252,9 @@ export class DownlineContactListsComponent implements OnInit {
   protected readonly overdueCount = computed(() => this.items().filter((b) => b.sla?.overdue === true).length);
 
   ngOnInit(): void {
+    // Deep link from the activation board (?member=username) pre-filters here.
+    const member = this.route.snapshot.queryParamMap.get('member')?.trim() ?? '';
+    if (member) this.query.set(member);
     this.reload();
   }
 

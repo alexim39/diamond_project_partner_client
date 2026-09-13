@@ -100,10 +100,11 @@ const NAV_GROUPS: NavGroup[] = [
     children: [
       { label: 'Team tree', link: 'network/tree', title: 'See everyone below you' },
       { label: 'Levels view', link: 'network/org', title: 'Levels at a glance' },
-      { label: 'My members', link: 'mentorship/team/members', title: 'People on your team' },
-      { label: 'Directory', link: 'mentorship/partners/my-partners', title: 'Find anyone' },
+      { label: 'My teams', link: 'mentorship/team/members', title: 'Purpose teams you created' },
+      { label: 'My partners', link: 'mentorship/partners/my-partners', title: 'Your direct partners' },
       { label: 'Team updates', link: 'insights/team-reports', title: 'Updates to and from your team' },
       { label: 'Contact lists', link: 'mentorship/team/contact-lists', title: 'Work submitted onboarding lists' },
+      { label: 'Activation board', link: 'mentorship/team/activation', title: 'Who needs you next' },
       { label: 'Confirm training', link: 'mentorship/team/confirmations', title: 'Approve downline training completions' },
       { label: 'Start a team', link: 'mentorship/team/new', title: 'Start a new team' },
     ],

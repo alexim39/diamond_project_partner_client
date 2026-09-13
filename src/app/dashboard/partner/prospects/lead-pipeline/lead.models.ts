@@ -117,6 +117,33 @@ export interface DownlineContactLists {
 
 export type DownlineContactListsEnvelope = ApiEnvelope<DownlineContactLists>;
 
+export interface ActivationBoardItem {
+  partnerId: string;
+  member: { username: string; name: string } | null;
+  level?: string;
+  levelLabel?: string;
+  depth?: number;
+  relation?: string;
+  ipoDone: boolean;
+  qsgDone: boolean;
+  lists: number;
+  total: number;
+  worked: number;
+  unworked: number;
+  oldestPendingAt: string | null;
+  newestSubmittedAt: string | null;
+  overdue: boolean;
+  nextAction: string;
+  nextTone: 'warn' | 'bad' | 'info' | 'ok';
+}
+
+export interface ActivationBoard {
+  items: ActivationBoardItem[];
+  total: number;
+}
+
+export type ActivationBoardEnvelope = ApiEnvelope<ActivationBoard>;
+
 export interface ConvertEnvelope extends ApiEnvelope<{ code: string; prospect: ProspectLead }> {
   data: { code: string; prospect: ProspectLead };
 }

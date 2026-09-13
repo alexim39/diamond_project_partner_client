@@ -14,6 +14,7 @@ import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
 import { ActivateNewPartnerComponent } from './activate-new-partner.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -88,7 +89,7 @@ styles: [`
 `],
 imports: [
         MatCardModule, ReactiveFormsModule, FormsModule, MatFormFieldModule,
-        CommonModule, MatPaginatorModule, MatInputModule,
+        CommonModule, MatPaginatorModule, MatInputModule, MatChipsModule,
         MatTableModule,
         MatRadioModule,
         MatIconModule,
