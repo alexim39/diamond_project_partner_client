@@ -21,8 +21,8 @@ import { API_BASE_URL } from '../core/config/api-tokens';
     .avatar--xs { width: 1.6em; height: 1.6em; font-size: 0.85em; }
     .avatar--sm { width: 2.2em; height: 2.2em; font-size: 1em; }
     .avatar--md { width: 3em; height: 3em; font-size: 1.2em; }
-    img.avatar { border: 1px solid var(--dp-line); }
-    .avatar--fallback { display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: var(--dp-sidenav-text); }
+    img.avatar { border: 1.5px solid rgba(243,236,221,0.32); }
+    .avatar--fallback { display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: var(--dp-sidenav-text); border: 1.5px solid rgba(243,236,221,0.32); }
   `],
 })
 export class AvatarComponent {

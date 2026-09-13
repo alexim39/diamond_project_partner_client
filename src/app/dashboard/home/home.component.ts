@@ -41,7 +41,7 @@ import { ApiError } from '../../core/http/api-error';
       @if (profileIncomplete() && !bannerDismissed()) {
         <div class="profile-banner" role="status">
           <mat-icon>account_circle</mat-icon>
-          <p>Your profile setup is incomplete — add your phone number and address so your upline and prospects can reach you.</p>
+          <p>Your profile setup is incomplete — add your phone number and location so your upline and prospects can reach you.</p>
           <a mat-button routerLink="settings/profiles">Complete profile</a>
           <button mat-icon-button (click)="bannerDismissed.set(true)" aria-label="Dismiss">
             <mat-icon>close</mat-icon>
@@ -223,7 +223,7 @@ import { ApiError } from '../../core/http/api-error';
     </section>
   `,
   styles: [`
-    .home-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+    .home-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; margin-top: 1em; }
     .home-page h3 { margin: 0.5em 0 0; }
     .greeting { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.75em; }
     .greeting h2 { margin: 0; font-size: 1.6em; }
