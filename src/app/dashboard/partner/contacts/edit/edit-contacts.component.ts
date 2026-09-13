@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe, Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
@@ -40,7 +40,7 @@ const toHHMM = (d: Date): string => {
 @Component({
 selector: 'async-edit-contatcs',
 imports: [
-  CommonModule, DatePipe, MatButtonModule, MatButtonToggleModule, MatCheckboxModule,
+  CommonModule, MatButtonModule, MatButtonToggleModule, MatCheckboxModule,
   MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
   MatTimepickerModule, ReactiveFormsModule, RouterModule,
 ],

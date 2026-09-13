@@ -13,10 +13,20 @@ import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { ProspectListInterface, ProspectService } from '../prospects.service';
+import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { BookingStatusUpdateComponent } from './prospect-status-update.component';
 import { ApiError } from '../../../../core/http/api-error';
 
 const NEEDS_OUTCOME = ['Scheduled', 'In Progress', 'Rebooked'];
+
+/** Phone keys for owner-vs-downline matching (full normalized + last-9 tail). */
+const phoneKeys = (value: unknown): string[] => {
+  const raw = String(value ?? '').trim().replace(/[\s\-().]/g, '');
+  if (!raw) return [];
+  const full = raw.startsWith('+234') ? '0' + raw.slice(4) : raw.startsWith('234') && raw.length > 10 ? '0' + raw.slice(3) : raw;
+  const tail = full.replace(/\D/g, '').slice(-9);
+  return [...new Set([full, tail])].filter((k) => k.length >= 7);
+};
 
 interface BookingSession {
   _id?: string;
@@ -116,6 +126,9 @@ const STATUS_META: Record<string, { color: string; text: string }> = {
         <mat-chip highlighted>Today: {{ todayCount() }}</mat-chip>
         <mat-chip highlighted>This week: {{ weekCount() }}</mat-chip>
         <mat-chip highlighted>{{ sessions().length }} total</mat-chip>
+        @if (downlineCount() > 0) {
+          <mat-chip highlighted>Downline: {{ downlineCount() }}</mat-chip>
+        }
       </div>
 
       @if (filtered().length > 0) {
@@ -128,9 +141,16 @@ const STATUS_META: Record<string, { color: string; text: string }> = {
                   <a class="phone" [href]="'tel:' + s.phone">{{ s.phone }}</a>
                   <div class="muted">{{ s.consultDate | date:'mediumDate' }} · {{ s.consultTime }}</div>
                 </div>
-                <mat-chip [style.background]="chip(s.status).color" [style.color]="chip(s.status).text" highlighted>
-                  {{ s.status || 'Scheduled' }}
-                </mat-chip>
+                <div class="badges">
+                  @if (downlineOwner(s); as owner) {
+                    <span class="dp-status dp-status--warn" [title]="'Prospect belongs to ' + owner.name + ' — outcome mirrors to their timeline'">Partner · {{ owner.name }}</span>
+                  } @else if (isDownline(s)) {
+                    <span class="dp-status dp-status--warn" title="Prospect belongs to your downline — outcome mirrors to their timeline">Downline</span>
+                  }
+                  <mat-chip [style.background]="chip(s.status).color" [style.color]="chip(s.status).text" highlighted>
+                    {{ s.status || 'Scheduled' }}
+                  </mat-chip>
+                </div>
               </div>
               <div class="session-actions">
                 <button mat-button (click)="openSession(s)">Update outcome</button>
@@ -167,6 +187,7 @@ const STATUS_META: Record<string, { color: string; text: string }> = {
     .session { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.5em; }
     .session--attention { border-left: 4px solid var(--dp-warning); }
     .session-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
+    .badges { display: flex; gap: 0.4em; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
     .phone { color: var(--dp-gold-ink); font-weight: 600; text-decoration: none; margin-left: 0.5em; }
     .session-actions { display: flex; gap: 0.4em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
@@ -181,6 +202,7 @@ export class ProspectBookingComponent implements OnInit {
   @Input() prospectList!: unknown[];
 
   private readonly bookings = inject(ProspectService, { optional: true });
+  private readonly leads = inject(LeadPipelineService, { optional: true });
   private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -189,6 +211,9 @@ export class ProspectBookingComponent implements OnInit {
   protected readonly sessions = signal<BookingSession[]>([]);
   protected readonly filterText = signal('');
   protected readonly filterStatus = signal<string | null>(null);
+  protected readonly ownPhoneKeys = signal<Set<string>>(new Set());
+  protected readonly phonesLoaded = signal(false);
+  protected readonly downlineOwners = signal<Map<string, { name: string; username: string }>>(new Map());
 
   protected readonly statuses = ['Scheduled', 'In Progress', 'Rebooked', 'Completed', 'No Show from Prospect', 'No Show from Partner', 'Incomplete', 'Cancelled'];
 
@@ -205,9 +230,74 @@ export class ProspectBookingComponent implements OnInit {
   protected readonly todayCount = computed(() => this.sessions().filter((s) => this.isSameDay(s.consultDate, new Date())).length);
   protected readonly weekCount = computed(() => this.sessions().filter((s) => this.isThisWeek(s.consultDate)).length);
   protected readonly needsOutcome = computed(() => this.sessions().filter((s) => this.isPastUnresolved(s)).length);
+  protected readonly downlineCount = computed(() => this.sessions().filter((s) => this.isDownline(s)).length);
 
   ngOnInit(): void {
     this.sessions.set(this.toSessions(this.prospectList ?? []));
+    this.loadOwnPhones();
+    this.loadDownlineOwners();
+  }
+
+  /** Owner's pipeline phones — a session whose phone isn't yours is downline support. */
+  private loadOwnPhones(): void {
+    const id = this.partner?._id;
+    if (!id || !this.leads) return;
+    this.leads
+      .listByPartner(id, { limit: 500 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const keys = new Set<string>();
+          for (const p of res.data ?? []) {
+            for (const k of phoneKeys(p.prospectPhone)) keys.add(k);
+          }
+          this.ownPhoneKeys.set(keys);
+          this.phonesLoaded.set(true);
+        },
+        error: () => this.phonesLoaded.set(false),
+      });
+  }
+
+  protected isDownline(s: BookingSession): boolean {
+    if (!this.phonesLoaded() || !s?.phone) return false;
+    const keys = phoneKeys(s.phone);
+    if (keys.length === 0) return false;
+    return !keys.some((k) => this.ownPhoneKeys().has(k));
+  }
+
+  /** Downline owner lookup — which partner's prospect is this session for. */
+  private loadDownlineOwners(): void {
+    if (!this.leads) return;
+    this.leads
+      .downlineContactLists()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const owners = new Map<string, { name: string; username: string }>();
+          for (const item of res.data?.items ?? []) {
+            const label = {
+              name: item.member?.name ?? 'Team member',
+              username: item.member?.username ?? '',
+            };
+            for (const c of item.contacts ?? []) {
+              for (const k of phoneKeys(c.prospectPhone)) {
+                if (!owners.has(k)) owners.set(k, label);
+              }
+            }
+          }
+          this.downlineOwners.set(owners);
+        },
+        error: () => {},
+      });
+  }
+
+  protected downlineOwner(s: BookingSession): { name: string; username: string } | null {
+    if (!this.isDownline(s) || !s?.phone) return null;
+    for (const k of phoneKeys(s.phone)) {
+      const hit = this.downlineOwners().get(k);
+      if (hit) return hit;
+    }
+    return null;
   }
 
   private toSessions(rows: unknown[]): BookingSession[] {
@@ -278,6 +368,8 @@ export class ProspectBookingComponent implements OnInit {
     if (!id || !this.bookings) return;
     this.loading.set(true);
     this.error.set(null);
+    this.loadOwnPhones();
+    this.loadDownlineOwners();
     this.bookings
       .getSessionBookingsFor(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
