@@ -35,6 +35,10 @@ export class MessageService {
     return this.api.post<MessageEnvelope>(`v1/messages/${messageId}/read`, {});
   }
 
+  thread(counterpartId: string, limit = 100): Observable<MessagesEnvelope> {
+    return this.api.get<MessagesEnvelope>(`v1/messages/thread/${counterpartId}?limit=${limit}`);
+  }
+
   unreadCount(): Observable<UnreadEnvelope> {
     return this.api.get<UnreadEnvelope>('v1/messages/unread-count');
   }
