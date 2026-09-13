@@ -6,6 +6,9 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { TeamInterface, TeamService } from '../team.service';
@@ -13,6 +16,13 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { Subscription } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+/** Purpose clusters mirror the Start-a-team groups. */
+const PURPOSE_CLUSTERS: Record<string, string[]> = {
+  Growth: ['Recruitment Team', 'Marketing Team', 'Sales Team', 'Networking Team'],
+  Learning: ['Training and Development Team', 'Innovation Team', 'Content Creation Team'],
+  Operations: ['Strategic Planning Team', 'Partner Support Team', 'Events Management Team', 'Tech Support Team', 'Product Development Team', 'Compliance and Regulatory Team', 'Recognition and Rewards Team', 'Feedback and Improvement Team'],
+};
 
 @Component({
 selector: 'async-manage-team',
@@ -80,6 +90,15 @@ styles: [`
             color: var(--dp-muted);
         }
 
+        .section-head { margin: 1em 0 0.4em; font-size: 1em; }
+        .empty { color: var(--dp-muted); margin: 0 0 0.6em; }
+
+        .toolbar { display: flex; gap: 0.75em; flex-wrap: wrap; align-items: center; padding: 0.75em 0; }
+        .toolbar mat-form-field { flex: 1; min-width: 200px; }
+        .filter-row { display: flex; gap: 0.4em; flex-wrap: wrap; }
+        .filter-btn { border: 1px solid var(--dp-line); background: transparent; border-radius: 999px; padding: 0.5em 1em; min-height: 44px; cursor: pointer; color: inherit; font: inherit; font-size: 0.85rem; }
+        .filter-btn--active { border-color: var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
+
         .no-campaign {
             text-align: center;
             color: var(--dp-gold-ink);
@@ -103,6 +122,9 @@ imports: [
     MatIconModule,
     RouterModule,
     MatButtonModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
     FormsModule,
     MatCheckboxModule,
     MatSlideToggleModule,
@@ -117,6 +139,8 @@ export class ManageTeamComponent implements OnInit {
   dataSource: TeamInterface[] = [];
   isEmptyRecord = false;
   filterText: string = '';
+  purposeFilter: 'all' | 'Growth' | 'Learning' | 'Operations' = 'all';
+  protected readonly clusterNames: Array<'Growth' | 'Learning' | 'Operations'> = ['Growth', 'Learning', 'Operations'];
   displayedColumns: string[] = ['team', 'purpose', 'member', 'owner', 'date'];
 
   constructor(
@@ -138,6 +162,28 @@ export class ManageTeamComponent implements OnInit {
     this.router.navigate(['/dashboard/mentorship/team/member', id]);
   }
 
+  filteredTeams(): TeamInterface[] {
+    const q = this.filterText.trim().toLowerCase();
+    return this.dataSource.filter((t) => {
+      if (this.purposeFilter !== 'all'
+        && !(PURPOSE_CLUSTERS[this.purposeFilter] ?? []).includes(t.teamPurpose)) return false;
+      if (!q) return true;
+      return `${t.teamName ?? ''} ${t.teamPurpose ?? ''} ${t.description ?? ''}`.toLowerCase().includes(q);
+    });
+  }
+
+  protected isOwner(t: TeamInterface): boolean {
+    return String((t as { partnerId?: unknown }).partnerId ?? '') === String(this.partner?._id ?? '');
+  }
+
+  protected ownedTeams(): TeamInterface[] {
+    return this.filteredTeams().filter((t) => this.isOwner(t));
+  }
+
+  protected memberTeams(): TeamInterface[] {
+    return this.filteredTeams().filter((t) => !this.isOwner(t));
+  }
+
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -149,16 +195,16 @@ export class ManageTeamComponent implements OnInit {
   }
 
   getOwnerName(team: TeamInterface, partnerId: string): string {
-    //console.log(team);
-  
+    if (String((team as { partnerId?: unknown }).partnerId ?? '') === String(partnerId ?? '')) return 'Me';
+    if (team.owner?.name) return team.owner.name;
     if (team && team.members) {
       for (let member of team.members) {
-        if (member._id === team.partnerId) {
+        if (String(member._id) === String((team as { partnerId?: unknown }).partnerId ?? '')) {
           return `${member.surname} ${member.name}`;
         }
       }
     }
-  
+
     return 'Unknown Owner';
   }
 }

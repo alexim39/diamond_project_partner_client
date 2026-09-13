@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
@@ -254,6 +254,7 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
 })
 export class CommunityEventsComponent implements OnInit {
   private readonly events = inject(EventService);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 

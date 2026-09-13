@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
 import { AnnounceEnvelope, Contact, Message, MessageEnvelope } from '../../../core/messaging/message.models';
@@ -189,6 +189,7 @@ type ComposeKind = 'direct' | 'announcement';
 })
 export class MessagesComponent implements OnInit {
   private readonly messages = inject(MessageService);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -214,6 +215,15 @@ export class MessagesComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+    // Team handoff (?team=&teamName=): open an announcement prefilled for
+    // the team. Delivery still follows message audiences — address it to
+    // your teammates before sending.
+    const teamName = this.route.snapshot.queryParamMap.get('teamName')?.trim() ?? '';
+    if (teamName) {
+      this.composeKind.set('announcement');
+      this.form.patchValue({ title: `[${teamName}] ` });
+      this.showCompose.set(true);
+    }
   }
 
   protected reload(): void {

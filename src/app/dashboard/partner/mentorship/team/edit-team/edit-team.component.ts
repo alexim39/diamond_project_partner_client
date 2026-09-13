@@ -13,10 +13,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatDatepickerModule} from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter  
-import Swal from 'sweetalert2';
+import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter
 import { TeamInterface, TeamService } from '../team.service';
 import { HttpErrorResponse } from '@angular/common/http';
+
+/** Purpose clusters mirror the Start-a-team groups. */
+const PURPOSE_GROUPS: Array<{ label: string; options: string[] }> = [
+  { label: 'Growth', options: ['Recruitment Team', 'Marketing Team', 'Sales Team', 'Networking Team'] },
+  { label: 'Learning', options: ['Training and Development Team', 'Innovation Team', 'Content Creation Team'] },
+  { label: 'Operations', options: ['Strategic Planning Team', 'Partner Support Team', 'Events Management Team', 'Tech Support Team', 'Product Development Team', 'Compliance and Regulatory Team', 'Recognition and Rewards Team', 'Feedback and Improvement Team'] },
+];
 
 /**
  * @title Mentors Program
@@ -26,42 +32,56 @@ selector: 'async-edit-team',
 templateUrl: 'edit-team.component.html',
 styles: [`
 
-
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
     h2 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
         mat-icon {
             cursor: pointer;
         }
     }
+    .page-sub {
+        margin: 0;
+        color: var(--dp-muted);
+        font-size: 0.9em;
+        max-width: 44em;
+    }
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
-            .back {
-                cursor: pointer;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
+            .control {
+                display: flex;
+                align-items: center;
+                gap: 0.6em;
+                .back {
+                    cursor: pointer;
+                    padding: 0.4em;
+                }
+                .back:hover {
+                    opacity: 0.5;
+                }
             }
-        }
 
-        .search {
-            padding: 0.5em 0;
-            text-align: center;
-            mat-form-field {
-                width: 70%;
-
+            h3 {
+                margin: 0;
             }
-        }       
-
-        .no-campaign {
-            text-align: center;
-            color: rgb(196, 129, 4);
-            font-weight: bold;
         }
     }
 }
@@ -70,9 +90,9 @@ styles: [`
 .form-container {
     margin-top: 1em;
     padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    background: var(--dp-paper);
+    border: 1px solid var(--dp-line);
+    border-radius: var(--dp-radius);
     .flex-form {
         display: flex;
         flex-wrap: wrap;
@@ -81,7 +101,30 @@ styles: [`
             flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
             display: flex;
             flex-direction: column;
-        }    
+        }
+        .notice {
+            flex-basis: 100%;
+            color: var(--dp-success);
+            font-weight: 600;
+            margin: 0;
+        }
+        html[data-theme='dark'] .notice {
+            color: #9ccc9f;
+        }
+        .form-error {
+            flex-basis: 100%;
+            color: var(--dp-error);
+            margin: 0;
+        }
+        html[data-theme='dark'] .form-error {
+            color: #e89a9a;
+        }
+        .post-save {
+            flex-basis: 100%;
+        }
+        button[mat-flat-button] {
+            min-height: 44px;
+        }
     }
 }
 
@@ -94,6 +137,7 @@ styles: [`
 
 
 
+
 `],
 providers: [TeamService],
 changeDetection: ChangeDetectionStrategy.Eager,
@@ -101,13 +145,19 @@ imports: [CommonModule, MatIconModule, RouterModule, MatNativeDateModule, MatDat
 })
 export class EditTeamComponent implements OnInit {
   readonly panelOpenState = signal(false);
-  
+
     @Input() partner!: PartnerInterface;
     @Input() team!: TeamInterface;
     readonly dialog = inject(MatDialog);
 
+    protected readonly purposeGroups = PURPOSE_GROUPS;
+
     createTeamForm!: FormGroup;
     subscriptions: Array<Subscription> = [];
+
+    saving = false;
+    notice: string | null = null;
+    formError: string | null = null;
 
     constructor(
      private createTeamService: TeamService,
@@ -130,38 +180,23 @@ export class EditTeamComponent implements OnInit {
     }
 
     onSubmit() {
+      Object.keys(this.createTeamForm.controls).forEach((k) => this.createTeamForm.get(k)?.markAsTouched());
       const teamObject = this.createTeamForm.value;
 
-      if (this.createTeamForm.valid) {
+      if (this.createTeamForm.valid && !this.saving) {
+        this.saving = true;
+        this.notice = null;
+        this.formError = null;
         this.subscriptions.push(
           this.createTeamService.updateTeam(teamObject).subscribe({
 
             next: (response) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message,
-                showConfirmButton: true,
-                timer: 10000,
-                confirmButtonColor: "#ffab40",
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  this.router.navigate(['/dashboard/mentorship/team/members']);
-                }
-              });
+              this.saving = false;
+              this.notice = response.message ?? 'Team updated successfully.';
             },
             error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000
-              });  
+              this.saving = false;
+              this.formError = (error.error && error.error.message) || 'Server error occurred, please try again.';
             }
         })
     )

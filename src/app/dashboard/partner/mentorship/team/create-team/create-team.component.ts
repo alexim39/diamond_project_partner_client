@@ -141,7 +141,7 @@ export class CreateTeamComponent implements OnInit {
             const teamId = String(response?.savedTeam?._id ?? response?.data?._id ?? '');
             if (this.selectedMembers.length > 0 && teamId) {
               this.subscriptions.push(
-                this.createTeamService.addTeamMember([...this.selectedMembers], teamId).subscribe({
+                this.createTeamService.addTeamMember([...this.selectedMembers], teamId, String(this.partner?._id ?? '')).subscribe({
                   next: () => {
                     this.saving = false;
                     this.createdTeamId = teamId;

@@ -10,14 +10,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import Swal from 'sweetalert2';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
 import { TeamInterface, TeamService } from '../../team.service';
 import { AddMemberComponent } from './add-member/add-member.component';
-import {MatExpansionModule} from '@angular/material/expansion';
-import { HttpErrorResponse } from '@angular/common/http';
 
 /** @title Teams details */
 @Component({
@@ -31,7 +29,8 @@ import { HttpErrorResponse } from '@angular/common/http';
         ReactiveFormsModule,
         MatFormFieldModule,
         MatSelectModule,
-        MatInputModule, MatExpansionModule,
+        MatInputModule,
+        MatChipsModule,
         MatIconModule, MatButtonModule,
         MatDividerModule, MatListModule, CommonModule, RouterModule
     ]
@@ -43,6 +42,15 @@ export class TeamSupportComponent implements OnDestroy {
   duration!: null | number;
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
+
+  filterText = '';
+  confirmingDelete = false;
+  deleting = false;
+  deleteError: string | null = null;
+  confirmRemoveId: string | null = null;
+  confirmLeave = false;
+  removing = false;
+  actionError: string | null = null;
 
 
   constructor(
@@ -58,70 +66,72 @@ export class TeamSupportComponent implements OnDestroy {
     this.router.navigateByUrl('dashboard/mentorship/team/members');
   }
 
-  deleteTeam(teamId: string) { 
-    Swal.fire({
-      title: `Are you sure of your delete action?`,
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#ffab40",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.subscriptions.push(
-          this.teamService.deleteTeam(teamId).subscribe({
-
-            next: (response) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message,
-                showConfirmButton: true,
-                timer: 10000,
-                confirmButtonColor: "#ffab40",
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  this.router.navigateByUrl('dashboard/mentorship/team/members');
-                }
-              });
-            },
-            error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000
-              });  
-            }
+  deleteTeam(teamId: string) {
+    if (this.deleting) return;
+    this.deleting = true;
+    this.deleteError = null;
+    this.subscriptions.push(
+      this.teamService.deleteTeam(teamId, String(this.partner?._id ?? '')).subscribe({
+        next: () => {
+          this.deleting = false;
+          this.confirmingDelete = false;
+          this.router.navigateByUrl('dashboard/mentorship/team/members');
+        },
+        error: (error: unknown) => {
+          this.deleting = false;
+          this.deleteError = (error as { message?: string })?.message ?? 'Server error occurred, please try again.';
+        }
       })
-      )
-
-      }
-    });
+    );
   }
 
   edit(id: string) {
     this.router.navigate(['/dashboard/mentorship/team/detail', id]);
   }
 
-  addMember(team: TeamInterface, partner: PartnerInterface) {
-    this.dialog.open(AddMemberComponent, {
-      data: {team, partner},
-    });
+  /** Owner-only UI — compares as strings (ObjectId vs string shapes). */
+  protected isOwner(): boolean {
+    const owner = (this.team as unknown as { partnerId?: unknown } | null)?.partnerId;
+    return !!owner && !!this.partner?._id && String(owner) === String(this.partner._id);
+  }
 
-    /* dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      if (result !== undefined) {
-        this.animal.set(result);
+  /** Context handoff for Message / Create event (prefill downstream). */
+  protected teamQuery(): Record<string, string> {
+    const id = String(this.team?._id ?? '').trim();
+    const name = String(this.team?.teamName ?? '').trim();
+    return { ...(id ? { team: id } : {}), ...(name ? { teamName: name } : {}) };
+  }
+
+  protected leaveTeam(): void {
+    if (!this.team?._id || !this.partner?._id) return;
+    this.removeMember(String(this.partner._id), String(this.team._id), true);
+  }
+
+  viewMember(memberId: string) {
+    this.router.navigate(['/dashboard/mentorship/partners/my-partners/detail', memberId]);
+  }
+
+  filteredMembers(): PartnerInterface[] {
+    const q = this.filterText.trim().toLowerCase();
+    const members = this.team?.members ?? [];
+    if (!q) return members;
+    return members.filter((m) =>
+      `${m.name ?? ''} ${m.surname ?? ''} ${m.username ?? ''}`.toLowerCase().includes(q));
+  }
+
+  addMember(team: TeamInterface, partner: PartnerInterface) {
+    this.actionError = null;
+    this.dialog.open(AddMemberComponent, {
+      data: { team, partner },
+    }).afterClosed().subscribe((added: PartnerInterface[] | undefined) => {
+      // Dialog already saved via the API — merge into the local list so the
+      // page updates without a full reload.
+      if (Array.isArray(added) && added.length > 0) {
+        const known = new Set((this.team.members ?? []).map((m) => String(m._id)));
+        const fresh = added.filter((m) => m?._id && !known.has(String(m._id)));
+        if (fresh.length > 0) this.team = { ...this.team, members: [...(this.team.members ?? []), ...fresh] };
       }
-    }); */
+    });
   }
 
   // Scroll to top when clicked
@@ -135,53 +145,30 @@ export class TeamSupportComponent implements OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  removeMember(memberId: string, teamId: string) {
-    Swal.fire({
-      title: `Are you sure of your delete action?`,
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#ffab40",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        this.subscriptions.push(
-          this.teamService.deleteTeamMember(memberId, teamId).subscribe({
-
-            next: (response) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message,
-                showConfirmButton: true,
-                timer: 10000,
-                confirmButtonColor: "#ffab40",
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  location.reload();
-                }
-              });
-            },
-            error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: errorMessage,
-                showConfirmButton: false,
-                timer: 4000
-              });  
-            }
-          })
-        )
-
-      }
-    });
+  removeMember(memberId: string, teamId: string, afterLeaveGoBack = false) {
+    if (this.removing) return;
+    this.removing = true;
+    this.actionError = null;
+    this.subscriptions.push(
+      this.teamService.deleteTeamMember(memberId, teamId, String(this.partner?._id ?? '')).subscribe({
+        next: () => {
+          this.removing = false;
+          this.confirmRemoveId = null;
+          if (afterLeaveGoBack) {
+            this.router.navigateByUrl('dashboard/mentorship/team/members');
+            return;
+          }
+          this.team = {
+            ...this.team,
+            members: (this.team.members ?? []).filter((m) => String(m._id) !== String(memberId)),
+          };
+        },
+        error: (error: unknown) => {
+          this.removing = false;
+          this.actionError = (error as { message?: string })?.message ?? 'Server error occurred, please try again.';
+        }
+      })
+    );
   }
 
 

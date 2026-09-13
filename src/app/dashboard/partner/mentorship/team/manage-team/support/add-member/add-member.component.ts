@@ -22,9 +22,8 @@ import { startWith, map } from 'rxjs/operators';
 import { MatChipInputEvent, } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { TeamService } from '../../../team.service';
-import Swal from 'sweetalert2';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'dialog-overview-example',
@@ -170,31 +169,22 @@ export class AddMemberComponent implements OnInit, OnDestroy {
   addMember(teamId: string) {
     // Logic to use this.selectedPartners (e.g., close the dialog with the selected partners)
     //console.log("Selected Partners:", this.selectedPartners);
-   
 
 
-     this.subscriptions.push(
-      this.teamService.addTeamMember(this.selectedPartners, teamId).subscribe((teams: any) => {
+
+      this.subscriptions.push(
+      this.teamService.addTeamMember(this.selectedPartners, teamId, String(this.data?.partner?._id ?? '')).subscribe((teams: any) => {
 
         this.snackBar.open(`Team member have been successfully added`, 'Close', {
           duration: 1000,
         });
-        this.dialogRef.close(this.selectedPartners); // Example: close and return the selected partners
+        // Return the selection — the detail page merges it locally (no reload).
+        this.dialogRef.close([...this.selectedPartners]);
 
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
-
-        
       }, (error: Error) => {
-        //console.log(error)
-        Swal.fire({
-          position: "bottom",
-          icon: 'info',
-          text: 'Server error occured, please and try again',
-          showConfirmButton: false,
-          timer: 4000
-        })
+        this.snackBar.open('Server error occured, please try again', 'Close', {
+          duration: 4000,
+        });
       })
     )
 
