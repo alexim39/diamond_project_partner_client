@@ -259,7 +259,13 @@ export class ProspectBookingComponent implements OnInit {
   }
 
   protected openSession(session: BookingSession): void {
-    this.dialog.open(BookingStatusUpdateComponent, { data: session })
+    this.dialog.open(BookingStatusUpdateComponent, {
+      data: { ...session, _partnerId: this.partner?._id },
+      width: '680px',
+      maxWidth: '94vw',
+      autoFocus: 'dialog',
+      restoreFocus: true,
+    })
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((changed) => {

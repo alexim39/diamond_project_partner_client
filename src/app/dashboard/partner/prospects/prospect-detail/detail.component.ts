@@ -10,6 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
+import { ProspectService } from '../prospects.service';
 import { nextStage, ProspectDetail, STAGE_META, ProspectStage } from '../lead-pipeline/lead.models';
 import { ApiError } from '../../../../core/http/api-error';
 
@@ -17,6 +18,34 @@ const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp'] as const;
 const INTEREST_LEVELS = ['hot', 'warm', 'cold'] as const;
 
 const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
+
+interface LinkedSession {
+  id: string;
+  status: string;
+  consultDate?: string;
+  consultTime?: string;
+  reason?: string;
+  contactMethod?: string;
+  description?: string;
+}
+
+const normalizeSessionPhone = (value: unknown): string => {
+  const raw = String(value ?? '').trim().replace(/[\s\-().]/g, '');
+  if (raw.startsWith('+234')) return '0' + raw.slice(4);
+  if (raw.startsWith('234') && raw.length > 10) return '0' + raw.slice(3);
+  return raw;
+};
+
+const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
+  const x = normalizeSessionPhone(a);
+  const y = normalizeSessionPhone(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const tail = (s: string): string => s.replace(/\D/g, '').slice(-9);
+  const tx = tail(x);
+  const ty = tail(y);
+  return tx.length >= 7 && tx === ty;
+};
 
 /**
  * @title Prospect detail — bio, conversion journey, activity timeline.
@@ -27,6 +56,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
 @Component({
   selector: 'async-prospect-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ProspectService],
   imports: [
     DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
     MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
@@ -163,6 +193,30 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
           </form>
         }
 
+        <h3>Sessions ({{ sessions().length }})</h3>
+        @if (sessionsLoading()) {
+          <mat-progress-bar mode="indeterminate" />
+        } @else if (sessions().length > 0) {
+          <ol class="session-list">
+            @for (s of sessions(); track s.id || $index) {
+              <li class="dp-card session-item">
+                <div class="session-top">
+                  <strong>{{ s.consultDate | date: 'mediumDate' }}@if (s.consultTime) { · {{ s.consultTime }}}</strong>
+                  <span class="dp-status {{ sessionStatusClass(s.status) }}">{{ s.status }}</span>
+                </div>
+                @if (s.reason) {
+                  <p class="muted">{{ s.reason }}@if (s.contactMethod) { · via {{ s.contactMethod }}}</p>
+                }
+                @if (s.description) {
+                  <p>{{ s.description }}</p>
+                }
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="empty">No booked sessions for this prospect yet.</p>
+        }
+
         <h3>Activity timeline ({{ timeline().length }})</h3>
         @if (timeline().length > 0) {
           <ol class="timeline">
@@ -212,6 +266,10 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .timeline-item { display: flex; gap: 0.8em; padding: 0.8em 1em; }
     .timeline-item mat-icon { color: var(--dp-gold); }
+    .session-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
+    .session-item { padding: 0.8em 1em; display: flex; flex-direction: column; gap: 0.25em; }
+    .session-item p { margin: 0; }
+    .session-top { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
     .timeline-body { flex: 1; display: flex; flex-direction: column; gap: 0.25em; }
     .timeline-body p { margin: 0; }
     .timeline-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; text-transform: capitalize; }
@@ -225,6 +283,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
 })
 export class ProspectDetailComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
+  private readonly bookings = inject(ProspectService, { optional: true });
   private readonly routes = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
@@ -238,6 +297,8 @@ export class ProspectDetailComponent implements OnInit {
   protected readonly confirming = signal(false);
   protected readonly issuedCode = signal<{ name: string; code: string } | null>(null);
   protected readonly showLogForm = signal(false);
+  protected readonly sessions = signal<LinkedSession[]>([]);
+  protected readonly sessionsLoading = signal(false);
 
   protected readonly commTypes = [...COMM_TYPES];
   protected readonly interestLevels = [...INTEREST_LEVELS];
@@ -325,14 +386,70 @@ export class ProspectDetailComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.lead.set(res.data ?? null);
+          const prospect = res.data ?? null;
+          this.lead.set(prospect);
           this.loading.set(false);
+          if (prospect) this.loadSessions(prospect);
         },
         error: (err: ApiError) => {
           this.error.set(err.message);
           this.loading.set(false);
         },
       });
+  }
+
+  /**
+   * Linked sessions: bookings carry no prospectId, so match by normalized
+   * phone within this prospect's partner bookings. Fail-soft — a sessions
+   * failure never breaks the detail page.
+   */
+  private loadSessions(prospect: ProspectDetail): void {
+    const partnerId = (prospect as { partnerId?: unknown }).partnerId;
+    const phone = prospect.prospectPhone;
+    if (!partnerId || !phone || !this.bookings) {
+      this.sessions.set([]);
+      return;
+    }
+    this.sessionsLoading.set(true);
+    this.bookings.getSessionBookingsFor(String(partnerId)).subscribe({
+      next: (res: { data?: unknown[] }) => {
+        const rows = Array.isArray(res?.data) ? res.data : [];
+        const matched: LinkedSession[] = (rows as Array<Record<string, unknown>>)
+          .filter((r) => sessionPhonesMatch(r['phone'], phone))
+          .map((r) => ({
+            id: String(r['_id'] ?? r['id'] ?? ''),
+            status: typeof r['status'] === 'string' ? (r['status'] as string) : 'Scheduled',
+            consultDate: r['consultDate'] != null ? String(r['consultDate']) : undefined,
+            consultTime: typeof r['consultTime'] === 'string' ? (r['consultTime'] as string) : undefined,
+            reason: typeof r['reason'] === 'string' ? (r['reason'] as string) : undefined,
+            contactMethod: typeof r['contactMethod'] === 'string' ? (r['contactMethod'] as string) : undefined,
+            description: typeof r['description'] === 'string' ? (r['description'] as string) : undefined,
+          }))
+          .sort((a, b) => new Date(b.consultDate ?? 0).getTime() - new Date(a.consultDate ?? 0).getTime());
+        this.sessions.set(matched);
+        this.sessionsLoading.set(false);
+      },
+      error: () => {
+        this.sessions.set([]);
+        this.sessionsLoading.set(false);
+      },
+    });
+  }
+
+  protected sessionStatusClass(status: string): string {
+    switch (status) {
+      case 'Completed':
+        return 'dp-status--ok';
+      case 'Scheduled':
+      case 'In Progress':
+      case 'Rebooked':
+        return 'dp-status--info';
+      case 'Cancelled':
+      case 'Incomplete':
+        return 'dp-status--bad';
+      default:
+        return 'dp-status--warn';
+    }
   }
 
   protected reload(): void {
