@@ -88,6 +88,16 @@ template: `
     </div>
   }
 
+  @if (isDownlineBooking()) {
+    <div class="downline-banner" role="note">
+      <mat-icon>support_agent</mat-icon>
+      <div>
+        <strong>Booking for your downline prospect{{ prospectName() ? ' — ' + prospectName() : '' }}.</strong>
+        <span class="muted"> This session lands on YOUR My sessions list, and the outcome you record is mirrored to their follow-up timeline. Enrolment credit stays with the owner.</span>
+      </div>
+    </div>
+  }
+
   @if (saving()) {
     <mat-progress-bar mode="indeterminate" />
   }
@@ -177,6 +187,10 @@ styles: [`
   .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 44em; }
   .context-card { padding: 0.9em 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
   .context-card a { min-height: 44px; }
+  .downline-banner { display: flex; align-items: flex-start; gap: 0.6em; background: var(--dp-info-bg); border: 1px solid var(--dp-info); border-radius: 8px; padding: 0.75em 1em; font-size: 0.9em; }
+  html[data-theme='dark'] .downline-banner { color: #90caf9; }
+  .downline-banner mat-icon { flex: none; }
+  .downline-banner div { flex: 1; }
   .phone { color: var(--dp-gold-ink); font-weight: 600; text-decoration: none; margin-left: 0.5em; }
   .spacer { flex: 1; }
   .form-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
@@ -226,6 +240,13 @@ export class BookSessionComponent implements OnInit {
     protected prospectName(): string {
       if (!this.prospect) return '';
       return `${this.prospect.prospectName ?? ''} ${this.prospect.prospectSurname ?? ''}`.trim();
+    }
+
+    /** Upline support: the prospect belongs to someone else in your downline. */
+    protected isDownlineBooking(): boolean {
+      const owner = (this.prospect as { partnerId?: unknown } | null)?.partnerId;
+      const me = (this.partner as { _id?: unknown } | null)?._id;
+      return !!owner && !!me && String(owner) !== String(me);
     }
 
   back(): void {
