@@ -2,25 +2,21 @@
   <div class="breadcrumb">
     <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
     <a>Mentorship</a> &gt;
-    <a>Team</a> &gt;
-    <span>Create team</span>
+    <a>My teams</a> &gt;
+    <span>Start a team</span>
   </div>
 </section>
 
 <section class="async-background ">
-  <h2>Create Team <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <h2>Start a Purpose Team <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <p class="page-sub">Organize any platform users — not only your downline — around one job: a training cohort, an event crew, a sales push. Manage it afterwards under My teams.</p>
 
   <section class="async-container">
 
     <div class="title">
-      <h3>Create A Team of Partners</h3>
+      <h3>Team setup</h3>
       <div class="action-area">
-        <a mat-list-item routerLink="../../team/members" routerLinkActive="active" title="View team list" mat-raised-button><mat-icon>card_membership</mat-icon>View Team</a>
-        <!-- <mat-button-toggle-group>
-        <mat-button-toggle style="background: white" routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon>Contact List</mat-button-toggle>
-        <mat-button-toggle style="background: white" (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon>Import Prospect from Online</mat-button-toggle>
-      </mat-button-toggle-group> -->
-
+        <a mat-list-item routerLink="../../team/members" routerLinkActive="active" title="View my teams" mat-raised-button><mat-icon>groups</mat-icon>My Teams</a>
     </div>
   </div>
 
@@ -45,9 +41,6 @@
         <mat-form-field appearance="outline">
           <mat-label>Description/purpose of the team</mat-label>
           <textarea matInput formControlName="description"></textarea>
-          <!-- <mat-error *ngIf="ticketForm.get('description')?.hasError('required') ">
-          This field is required.
-        </mat-error> -->
       </mat-form-field>
     </div>
 
@@ -56,21 +49,13 @@
       <mat-form-field appearance="outline">
         <mat-label>Team Purpose </mat-label>
         <mat-select formControlName="teamPurpose" required>
-          <mat-option value="Recruitment Team">Recruitment Team</mat-option>
-          <mat-option value="Training and Development Team">Training and Development Team</mat-option>
-          <mat-option value="Strategic Planning Team">Strategic Planning Team</mat-option>
-          <mat-option value="Partner Support Team">Partner Support Team</mat-option>
-          <mat-option value="Marketing Team">Marketing Team</mat-option>
-          <mat-option value="Sales Team">Sales Team</mat-option>
-          <mat-option value="Product Development Team">Product Development Team</mat-option>
-          <mat-option value="Events Management Team">Events Management Team</mat-option>
-          <mat-option value="Tech Support Team">Tech Support Team</mat-option>
-          <mat-option value="Content Creation Team">Content Creation Team</mat-option>
-          <mat-option value="Compliance and Regulatory Team">Compliance and Regulatory Team</mat-option>
-          <mat-option value="Innovation Team">Innovation Team</mat-option>
-          <mat-option value="Recognition and Rewards Team">Recognition and Rewards Team</mat-option>
-          <mat-option value="Networking Team">Networking Team</mat-option>
-          <mat-option value="Feedback and Improvement Team">Feedback and Improvement Team</mat-option>
+          @for (group of purposeGroups; track group.label) {
+            <mat-optgroup [label]="group.label">
+              @for (purpose of group.options; track purpose) {
+                <mat-option [value]="purpose">{{ purpose }}</mat-option>
+              }
+            </mat-optgroup>
+          }
         </mat-select>
         @if (createTeamForm.get('teamPurpose')?.hasError('required') ) {
           <mat-error>
@@ -80,10 +65,54 @@
       </mat-form-field>
     </div>
 
+    <div class="form-group full-width">
+      <mat-form-field appearance="outline">
+        <mat-label>Add members (optional — any platform user)</mat-label>
+        <mat-chip-grid #chipGrid aria-label="Team member selection">
+          @for (member of selectedMembers; track member._id) {
+            <mat-chip-row (removed)="removeMember(member)">
+              {{ displayMember(member) }}
+              <button matChipRemove [attr.aria-label]="'remove ' + displayMember(member)">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+        </mat-chip-grid>
+        <input
+          placeholder="Type 2+ letters to search everyone…"
+          [formControl]="memberSearch"
+          [matChipInputFor]="chipGrid"
+          [matAutocomplete]="auto"
+          (input)="onMemberInput(memberSearch.value)"
+        />
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayMember.bind(this)" (optionSelected)="selectMember($event.option.value)">
+          @for (user of filteredUsers; track user._id) {
+            <mat-option [value]="user">
+              {{ displayMember(user) }} <span class="muted">@{{ user.username }}</span>
+            </mat-option>
+          }
+        </mat-autocomplete>
+        <mat-hint>{{ selectedMembers.length }} selected · you can also add more later from the team page</mat-hint>
+      </mat-form-field>
+    </div>
+
 
     <div class="form-group"></div>
     <div class="form-group"></div>
-    <button mat-flat-button color="primary">Create</button>
+    @if (notice) {
+      <p class="notice" role="status">{{ notice }}</p>
+    }
+    @if (formError) {
+      <p class="form-error" role="alert">{{ formError }}</p>
+    }
+    @if (!createdTeamId) {
+      <button mat-flat-button color="primary" [disabled]="saving">{{ saving ? 'Creating…' : 'Create team' }}</button>
+    } @else {
+      <div class="post-create">
+        <a mat-flat-button color="primary" routerLink="../../team/members">View my teams</a>
+        <button mat-button type="button" (click)="startAnother()">Start another</button>
+      </div>
+    }
   </form>
 </div>
 

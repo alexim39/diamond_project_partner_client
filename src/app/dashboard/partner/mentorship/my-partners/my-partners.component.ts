@@ -27,25 +27,35 @@ templateUrl: 'my-partners.component.html',
 styles: [`
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
     h2 {
+        margin: 0;
         mat-icon {
             cursor: pointer;
         }
     }
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 1%;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
+            h3 {
+                margin: 0;
+            }
             .fund-area {
                 .fund {
-                    //display: flex;
                     font-weight: bold;
                     margin-top: 1em;
                 }
@@ -53,20 +63,28 @@ styles: [`
         }
 
         .search {
-            padding: 0.5em 0;
-            //display: flex;
-            //flex-direction: center;
+            padding: 0.75em 0;
             text-align: center;
             mat-form-field {
-                width: 70%;
-
+                width: min(70%, 560px);
             }
         }
 
         .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
+            padding: 0.5em;
+            border-radius: var(--dp-radius);
+            background: var(--dp-paper);
+            border: 1px solid var(--dp-line);
+            overflow-x: auto;
+        }
+
+        .table table.mat-mdc-table,
+        .table mat-paginator {
+            background: transparent;
+        }
+
+        .table .mat-mdc-header-cell {
+            color: var(--dp-muted);
         }
 
         .name-cell {
@@ -75,14 +93,45 @@ styles: [`
             gap: 0.5em;
         }
 
+        .chip-row {
+            display: inline-flex;
+            gap: 0.25em;
+            flex-wrap: wrap;
+        }
+
+        .muted {
+            color: var(--dp-muted);
+        }
+
+        .small {
+            font-size: 0.8em;
+        }
+
+        .fund-area {
+            display: flex;
+            gap: 0.5em;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .fund-area a {
+            min-height: 44px;
+        }
+
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
         }
 
-       
     }
+}
+
+.page-sub {
+    margin: 0;
+    color: var(--dp-muted);
+    font-size: 0.9em;
+    max-width: 44em;
 }
 
 
@@ -107,11 +156,13 @@ imports: [
 export class MyPartnersComponent implements OnInit, AfterViewInit {
   @Input() partner!: PartnerInterface;
   @Input() myPartners!: PartnerInterface[];
+  /** Activation snapshot keyed by partner id — fail-soft, missing rows hide extra chips. */
+  @Input() supportMap: Record<string, { levelLabel?: string; relation?: string; ipoDone?: boolean; qsgDone?: boolean; worked?: number; total?: number; unworked?: number; overdue?: boolean }> = {};
   subscriptions: Subscription[] = [];
   dataSource = new MatTableDataSource<PartnerInterface>([]);  
   isEmptyRecord = false;
   filterText: string = '';
-  displayedColumns: string[] = ['name', 'phone', 'email', 'code', 'username', 'date'];
+  displayedColumns: string[] = ['name', 'status', 'phone', 'email', 'username', 'date', 'actions'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   readonly dialog = inject(MatDialog);
@@ -132,10 +183,12 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
       this.isEmptyRecord = true;
     }
   
-    // Custom filter predicate to filter by name
+    // Custom filter predicate — name, phone, username or email.
     this.dataSource.filterPredicate = (data: PartnerInterface, filter: string) => {
-      return data.name.toLowerCase().includes(filter.toLowerCase()) || 
-             data.surname.toLowerCase().includes(filter.toLowerCase());
+      const q = filter.toLowerCase();
+      return [data.name, data.surname, data.phone, data.username, data.email]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(q));
     };
   }
 
@@ -154,6 +207,11 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
 
   support(id: string) {
     this.router.navigate(['/dashboard/mentorship/partners/my-partners/detail', id]);
+  }
+
+  /** Activation snapshot for one partner id (null when not loaded). */
+  info(id: string): { levelLabel?: string; relation?: string; ipoDone?: boolean; qsgDone?: boolean; worked?: number; total?: number; unworked?: number; overdue?: boolean } | null {
+    return this.supportMap?.[String(id)] ?? null;
   }
 
   // Scroll to top when clicked

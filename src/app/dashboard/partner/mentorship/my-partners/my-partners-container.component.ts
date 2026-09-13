@@ -5,6 +5,7 @@ import { Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MyPartnersComponent } from './my-partners.component';
 import { MyPartnersService } from './my-partners.service';
+import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +27,8 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
   @if (partner && myPartners) {
     <async-my-partners
       [partner]="partner"
-      [myPartners]="myPartners.data">
+      [myPartners]="myPartners.data"
+      [supportMap]="supportMap">
     </async-my-partners>
   }
 }
@@ -86,10 +88,12 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
 export class MyPartnersContainerComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
   myPartners: any; //PartnerInterface[] = [];
+  supportMap: Record<string, any> = {};
   isEmptyRecord = false;
 
   private readonly destroy$ = new Subject<void>();
   readonly dialog = inject(MatDialog);
+  private readonly leads = inject(LeadPipelineService);
 
   constructor(
     private partnerService: PartnerService,
@@ -139,6 +143,17 @@ export class MyPartnersContainerComponent implements OnInit, OnDestroy {
         error: () => {
           this.isEmptyRecord = true;
         }
+    });
+    // Activation snapshot for support chips — fail-soft, table works without it.
+    this.leads.activationBoard().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        const map: Record<string, any> = {};
+        for (const item of res.data?.items ?? []) {
+          map[String(item.partnerId)] = item;
+        }
+        this.supportMap = map;
+      },
+      error: () => {},
     });
   }
 

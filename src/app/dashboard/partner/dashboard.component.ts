@@ -106,7 +106,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Contact lists', link: 'mentorship/team/contact-lists', title: 'Work submitted onboarding lists' },
       { label: 'Activation board', link: 'mentorship/team/activation', title: 'Who needs you next' },
       { label: 'Confirm training', link: 'mentorship/team/confirmations', title: 'Approve downline training completions' },
-      { label: 'Start a team', link: 'mentorship/team/new', title: 'Start a new team' },
+      { label: 'Start a team', link: 'mentorship/team/new', title: 'Organize a purpose team' },
     ],
   },
   {

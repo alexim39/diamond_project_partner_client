@@ -20,25 +20,35 @@ templateUrl: 'manage-team.component.html',
 styles: [`
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
     h2 {
+        margin: 0;
         mat-icon {
             cursor: pointer;
         }
     }
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 1%;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
+            h3 {
+                margin: 0;
+            }
             .fund-area {
                 .fund {
-                    //display: flex;
                     font-weight: bold;
                     margin-top: 1em;
                 }
@@ -46,28 +56,39 @@ styles: [`
         }
 
         .search {
-            padding: 0.5em 0;
-            //display: flex;
-            //flex-direction: center;
+            padding: 0.75em 0;
             text-align: center;
             mat-form-field {
-                width: 70%;
+                width: min(70%, 560px);
 
             }
         }
 
         .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
+            padding: 0.5em;
+            border-radius: var(--dp-radius);
+            background: var(--dp-paper);
+            border: 1px solid var(--dp-line);
+            overflow-x: auto;
+        }
+
+        .table table.mat-mdc-table {
+            background: transparent;
+        }
+
+        .table .mat-mdc-header-cell {
+            color: var(--dp-muted);
         }
 
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
         }
 
+        a[mat-raised-button] {
+            min-height: 44px;
+        }
        
     }
 }

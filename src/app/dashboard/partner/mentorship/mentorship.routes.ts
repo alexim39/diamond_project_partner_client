@@ -30,7 +30,7 @@ export const MentorshipRoutes: Routes = [
                 {
                     path: 'new',
                     component: CreateTeamContainerComponent,
-                    title: "Create New Team - Create new team from partners",
+                    title: "Start a Team - Organize a purpose team",
                 },
                   {
                       path: 'members',
