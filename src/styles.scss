@@ -183,6 +183,14 @@ html[data-theme="dark"] .dp-status--warn { color: #e3c878; }
 html[data-theme="dark"] .dp-status--bad { color: #e89a9a; }
 html[data-theme="dark"] .dp-status--info { color: #90caf9; }
 
+/* Status chips painted via inline [style.background]/[style.color] (pipeline
+ * stages, booking statuses): MDC renders the label in its own span with a
+ * theme-driven color, which in dark mode paints light text on our light
+ * pastel chips (invisible). Inherit the host color we set inline instead. */
+mat-chip[style] .mdc-evolution-chip__text-label {
+  color: inherit;
+}
+
 .breadcrumb-wrapper {
   border-top: 1px solid var(--dp-line);
   border-bottom: 1px solid var(--dp-line);

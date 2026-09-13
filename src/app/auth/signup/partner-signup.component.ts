@@ -17,7 +17,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { minDigitsValidator } from '../../_common/services/phone-number-checker';
-import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * @title Partner signup
@@ -87,11 +86,15 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
               }
             });
           },
-          error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-            }
+          error: (error: unknown) => {
+            // Failures arrive normalized as ApiError {status, code, message}
+            // via apiErrorInterceptor — read message directly (legacy
+            // HttpErrorResponse shape kept as fallback).
+            const body = (error as { error?: { message?: unknown } } | null)?.error;
+            const raw = (error as { message?: unknown } | null)?.message ?? body?.message;
+            const errorMessage = typeof raw === 'string' && raw.length > 0
+              ? raw
+              : 'Server error occurred, please try again.';
             Swal.fire({
               position: "bottom",
               icon: 'error',

@@ -48,9 +48,8 @@ template: `
       <h3>General Online Survey List</h3>
       <div class="action-area">
         <mat-button-toggle-group>
-          <mat-button-toggle routerLink="../../tools/contacts/list" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
-          <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
-          <mat-button-toggle routerLink="../../prospects/personal-list" routerLinkActive="active" (click)="scrollToTop()" title="Personal Prospect List"><mat-icon>groups</mat-icon> Personal Prospect List</mat-button-toggle>
+          <mat-button-toggle routerLink="/dashboard/tools/contacts/new" (click)="scrollToTop()" title="Add someone to your contact list"><mat-icon>person_add</mat-icon> Add someone</mat-button-toggle>
+          <mat-button-toggle routerLink="../pipeline" (click)="scrollToTop()" title="My lead pipeline"><mat-icon>filter_alt</mat-icon> My pipeline</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
     </div>
@@ -134,22 +133,36 @@ template: `
 styles: [`
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
     h2 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
         mat-icon {
             cursor: pointer;
         }
     }
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
+            h3 {
+                margin: 0;
+            }
             .action-area {
                 .action {
                     font-weight: bold;
@@ -159,23 +172,34 @@ styles: [`
         }
 
         .search {
-            padding: 0.5em 0;
+            padding: 0.75em 0;
             text-align: center;
             mat-form-field {
-                width: 70%;
+                width: min(70%, 560px);
 
             }
         }    
         
         .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
+            padding: 0.5em;
+            border-radius: var(--dp-radius);
+            background: var(--dp-paper);
+            border: 1px solid var(--dp-line);
+            overflow-x: auto;
+        }
+
+        .table table.mat-mdc-table,
+        .table mat-paginator {
+            background: transparent;
+        }
+
+        .table .mat-mdc-header-cell {
+            color: var(--dp-muted);
         }
 
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
         }
     }
@@ -183,9 +207,9 @@ styles: [`
 
 .form-container {
     padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    background: var(--dp-surface);
+    border: 1px solid var(--dp-line);
+    border-radius: var(--dp-radius);
     .flex-form {
         display: flex;
         flex-wrap: wrap;
@@ -199,7 +223,7 @@ styles: [`
 }
 
 .moved-to-contact {
-    background-color: #f4f4f4; /* Light green background */
+    background: var(--dp-gold-soft);
 }
 
 .bold-text {
