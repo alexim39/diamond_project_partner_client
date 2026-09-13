@@ -342,7 +342,7 @@ export class HomeComponent implements OnInit {
   protected starterItems(): Array<{ key: string; label: string; link: string; done: boolean }> {
     return [
       { key: 'profile', label: 'Complete your profile', link: 'settings/profiles', done: !this.profileIncomplete() },
-      { key: 'prospect', label: 'Submit your contact list (20+)', link: 'tools/contacts/new', done: this.listSubmitted() },
+      { key: 'prospect', label: 'Submit your contact list (1+)', link: 'tools/contacts/new', done: this.listSubmitted() },
       { key: 'goal', label: 'Set your first goal', link: 'goals', done: (this.overview()?.goals.total ?? 1) > 0 },
       { key: 'ipo', label: 'Take the IPO course', link: 'training', done: this.ipoDone() },
     ];

@@ -4,20 +4,31 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ProspectService } from '../prospects.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { nextStage, ProspectDetail, STAGE_META, ProspectStage } from '../lead-pipeline/lead.models';
 import { ApiError } from '../../../../core/http/api-error';
 
 const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp'] as const;
 const INTEREST_LEVELS = ['hot', 'warm', 'cold'] as const;
+const COMM_OUTCOMES = ['Connected', 'No answer', 'Booked session', 'Follow-up set', 'Closed-lost'] as const;
+type CommOutcome = (typeof COMM_OUTCOMES)[number];
 
-const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
+/** Merge the date-picker day with the time-picker clock into one timestamp. */
+const combineDateAndTime = (day: Date | null, clock: Date | null): string => {
+  const d = day instanceof Date && !Number.isNaN(day.getTime()) ? new Date(day) : new Date();
+  const t = clock instanceof Date && !Number.isNaN(clock.getTime()) ? clock : new Date();
+  d.setHours(t.getHours(), t.getMinutes(), 0, 0);
+  return d.toISOString();
+};
 
 interface LinkedSession {
   id: string;
@@ -27,6 +38,7 @@ interface LinkedSession {
   reason?: string;
   contactMethod?: string;
   description?: string;
+  username?: string;
 }
 
 const normalizeSessionPhone = (value: unknown): string => {
@@ -58,8 +70,8 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ProspectService],
   imports: [
-    DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
-    MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
+    DatePipe, MatButtonModule, MatChipsModule, MatDatepickerModule, MatIconModule, MatInputModule,
+    MatProgressBarModule, MatSelectModule, MatTimepickerModule, ReactiveFormsModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -109,10 +121,39 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
           </mat-chip>
         </div>
 
+        @if (isDownline()) {
+          <div class="downline-banner" role="note">
+            <mat-icon>support_agent</mat-icon>
+            <div>
+              <strong>Downline prospect — you're supporting this contact.</strong>
+              <span class="muted"> Log activity, book sessions and advance the stage on their behalf. Enrolment credit stays with the owner.</span>
+            </div>
+          </div>
+        }
+
         <div class="journey dp-card">
           <div><strong>Journey:</strong> joined {{ prospect.createdAt | date:'mediumDate' }}</div>
           <div>{{ daysInStage() }} days in current stage</div>
           <div>{{ touchCount() }} logged touches</div>
+        </div>
+
+        <div class="dp-card context-card" aria-label="Contact context">
+          <div class="context-head">
+            <strong>Contact context</strong>
+            <a mat-button [routerLink]="['../edit', prospectId()]">Edit contact</a>
+          </div>
+          <dl class="facts">
+            <div><dt>Relationship</dt><dd>{{ prospect.relationship || '—' }}</dd></div>
+            <div><dt>Priority</dt><dd>{{ prospect.priority || '—' }}</dd></div>
+            <div><dt>Best time to call</dt><dd>{{ prospect.bestTimeToCall || '—' }}</dd></div>
+            <div><dt>Agreed to be contacted</dt><dd>{{ prospect.consentToContact ? 'Yes' : 'No' }}</dd></div>
+            <div><dt>Source</dt><dd>{{ prospect.prospectSource || '—' }}</dd></div>
+          </dl>
+          @if (prospect.notes) {
+            <p class="notes">{{ prospect.notes }}</p>
+          } @else {
+            <p class="muted">No notes yet — add context from Edit contact so your upline sees it here.</p>
+          }
         </div>
 
         <div class="detail-actions">
@@ -135,11 +176,11 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
           @if (isConverted()) {
             <span class="muted">Enrolled ✓</span>
           }
-          <a mat-icon-button [routerLink]="['../edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect">
+          <a mat-icon-button [routerLink]="['/dashboard/prospects/edit', prospectId()]" title="Edit prospect" aria-label="Edit prospect">
             <mat-icon>edit</mat-icon>
           </a>
           @if (!isConverted()) {
-            <a mat-button [routerLink]="['../booking', prospectId()]" title="Book a chat">Book session</a>
+            <a mat-button [routerLink]="['/dashboard/prospects/booking', prospectId()]" title="Book a chat">Book session</a>
           }
           <button mat-button (click)="toggleLogForm()">{{ showLogForm() ? 'Cancel' : 'Log activity' }}</button>
         </div>
@@ -164,14 +205,53 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
                 </mat-select>
               </mat-form-field>
             </div>
+            <div>
+              <span class="field-label" id="outcome-label">Outcome</span>
+              <div class="seg" role="radiogroup" aria-labelledby="outcome-label">
+                @for (o of commOutcomes; track o) {
+                  <button
+                    type="button"
+                    class="seg-btn"
+                    [class.seg-btn--active]="logForm.get('outcome')?.value === o"
+                    [attr.aria-pressed]="logForm.get('outcome')?.value === o"
+                    (click)="pickOutcome(o)"
+                  >{{ o }}</button>
+                }
+              </div>
+            </div>
             <div class="two-col">
               <mat-form-field appearance="outline">
                 <mat-label>Date</mat-label>
-                <input matInput type="date" formControlName="date" />
+                <input matInput [matDatepicker]="logDatePicker" formControlName="date" />
+                <mat-datepicker-toggle matSuffix [for]="logDatePicker" />
+                <mat-datepicker #logDatePicker />
+                @if (logForm.get('date')?.hasError('required') && logForm.get('date')?.touched) {
+                  <mat-error>Date is required</mat-error>
+                }
               </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Time</mat-label>
+                <input matInput [matTimepicker]="logTimePicker" formControlName="time" />
+                <mat-timepicker-toggle matSuffix [for]="logTimePicker" />
+                <mat-timepicker #logTimePicker interval="30m" />
+                @if (logForm.get('time')?.hasError('required') && logForm.get('time')?.touched) {
+                  <mat-error>Time is required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="two-col">
               <mat-form-field appearance="outline">
                 <mat-label>Duration (min)</mat-label>
                 <input matInput type="number" min="0" formControlName="duration" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Follow up by</mat-label>
+                <input matInput [matDatepicker]="followUpPicker" formControlName="followUpDate" placeholder="Pick a date" />
+                <mat-datepicker-toggle matSuffix [for]="followUpPicker" />
+                <mat-datepicker #followUpPicker />
+                @if (logForm.get('followUpDate')?.hasError('required') && logForm.get('followUpDate')?.touched) {
+                  <mat-error>Pick when to follow up (not needed for Closed-lost).</mat-error>
+                }
               </mat-form-field>
             </div>
             <mat-form-field appearance="outline">
@@ -186,6 +266,9 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
               <button mat-raised-button color="primary" type="submit" [disabled]="logForm.invalid || logging()">
                 {{ logging() ? 'Saving…' : 'Save activity' }}
               </button>
+              @if (showHotNudge()) {
+                <a mat-button [routerLink]="['../booking', prospectId()]">Next best move: Book session →</a>
+              }
               @if (logError(); as err) {
                 <span class="error" role="alert">{{ err }}</span>
               }
@@ -210,6 +293,15 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
                 @if (s.description) {
                   <p>{{ s.description }}</p>
                 }
+                @if (s.username) {
+                  <p class="muted">Booked by @{{ s.username }}
+                    @if (myUsername() && s.username === myUsername()) {
+                      <span class="dp-status dp-status--info">You</span>
+                    } @else {
+                      <span class="dp-status dp-status--warn">Support</span>
+                    }
+                  </p>
+                }
               </li>
             }
           </ol>
@@ -229,13 +321,24 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
                     @if (comm.interestLevel) {
                       <span class="dp-status dp-status--info">{{ comm.interestLevel }}</span>
                     }
+                    @if (comm.outcome) {
+                      <span class="dp-status {{ outcomeClass(comm.outcome) }}">{{ comm.outcome }}</span>
+                    }
+                    @if (authorLabel(comm, prospect.partnerId); as by) {
+                      <span class="dp-status {{ authorClass(comm, prospect.partnerId) }}">{{ by }}</span>
+                    }
                     <span class="muted">{{ comm.date | date:'medium' }}</span>
                   </div>
                   @if (comm.description) {
                     <p>{{ comm.description }}</p>
                   }
-                  @if (comm.followUpAction) {
-                    <p class="muted">Next: {{ comm.followUpAction }}</p>
+                  @if (comm.followUpAction || comm.followUpDate) {
+                    <p class="muted">
+                      Next: {{ comm.followUpAction || '—' }}@if (comm.followUpDate) { · by {{ comm.followUpDate | date:'mediumDate' }}}
+                      @if (followUpOverdue(comm)) {
+                        <span class="dp-status dp-status--warn">Overdue</span>
+                      }
+                    </p>
                   }
                 </div>
               </li>
@@ -256,8 +359,27 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
     .detail-head h2 { margin: 0; text-transform: capitalize; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .journey { display: flex; gap: 1.5em; flex-wrap: wrap; padding: 0.8em 1em; font-size: 0.9em; }
+    .downline-banner { display: flex; align-items: flex-start; gap: 0.6em; background: var(--dp-info-bg); border: 1px solid var(--dp-info); border-radius: 8px; padding: 0.75em 1em; font-size: 0.9em; }
+    html[data-theme='dark'] .downline-banner { color: #90caf9; }
+    .downline-banner mat-icon { flex: none; }
+    .downline-banner div { flex: 1; }
+    .context-card { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .context-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6em; flex-wrap: wrap; }
+    .context-head a { min-height: 44px; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em 1em; margin: 0; }
+    .facts div { min-width: 0; }
+    .facts dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dp-muted); }
+    .facts dd { margin: 0; font-size: 0.9rem; overflow-wrap: anywhere; text-transform: capitalize; }
+    .notes { margin: 0; font-size: 0.9rem; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.8em; }
+    @media only screen and (max-width: 600px) {
+      .facts { grid-template-columns: 1fr 1fr; }
+    }
     .detail-actions { display: flex; gap: 0.4em; flex-wrap: wrap; align-items: center; }
     .log-form { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
+    .field-label { font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 0.4em; }
+    .seg { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .seg-btn { display: inline-flex; align-items: center; gap: 0.35em; border: 1px solid var(--dp-line); border-radius: 999px; padding: 0.55em 1em; min-height: 44px; background: transparent; cursor: pointer; color: inherit; font: inherit; font-size: 0.9rem; }
+    .seg-btn--active { border: 2px solid var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
     @media only screen and (max-width: 600px) {
       .two-col { grid-template-columns: 1fr; }
@@ -284,6 +406,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
 export class ProspectDetailComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
   private readonly bookings = inject(ProspectService, { optional: true });
+  private readonly auth = inject(AuthService);
   private readonly routes = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
@@ -302,14 +425,18 @@ export class ProspectDetailComponent implements OnInit {
 
   protected readonly commTypes = [...COMM_TYPES];
   protected readonly interestLevels = [...INTEREST_LEVELS];
+  protected readonly commOutcomes = [...COMM_OUTCOMES];
 
   protected readonly logForm = this.fb.nonNullable.group({
     type: ['call' as (typeof COMM_TYPES)[number], Validators.required],
     interestLevel: ['warm' as (typeof INTEREST_LEVELS)[number], Validators.required],
-    date: [toInputDate(new Date()), Validators.required],
+    outcome: ['Connected' as CommOutcome, Validators.required],
+    date: [new Date() as Date | null, Validators.required],
+    time: [new Date() as Date | null, Validators.required],
     duration: [0, [Validators.required, Validators.min(0)]],
     description: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(5000)]],
     followUpAction: [''],
+    followUpDate: [null as Date | null],
   });
 
   protected readonly timeline = computed(() => {
@@ -326,6 +453,13 @@ export class ProspectDetailComponent implements OnInit {
   });
 
   protected readonly next = computed(() => nextStage(this.lead()?.status?.stage));
+
+  /** Upline support view: the prospect belongs to someone else in your downline. */
+  protected readonly isDownline = computed(() => {
+    const owner = this.lead()?.partnerId;
+    const me = this.auth.currentUser()?.id;
+    return !!owner && !!me && String(owner) !== String(me);
+  });
 
   protected readonly daysInStage = computed(() => {
     const s = this.lead()?.status;
@@ -424,6 +558,7 @@ export class ProspectDetailComponent implements OnInit {
             reason: typeof r['reason'] === 'string' ? (r['reason'] as string) : undefined,
             contactMethod: typeof r['contactMethod'] === 'string' ? (r['contactMethod'] as string) : undefined,
             description: typeof r['description'] === 'string' ? (r['description'] as string) : undefined,
+            username: typeof r['username'] === 'string' ? (r['username'] as string) : undefined,
           }))
           .sort((a, b) => new Date(b.consultDate ?? 0).getTime() - new Date(a.consultDate ?? 0).getTime());
         this.sessions.set(matched);
@@ -460,6 +595,82 @@ export class ProspectDetailComponent implements OnInit {
   protected toggleLogForm(): void {
     this.showLogForm.set(!this.showLogForm());
     this.logError.set(null);
+    if (this.showLogForm()) this.applyFollowUpValidators();
+  }
+
+  protected pickOutcome(o: CommOutcome): void {
+    this.logForm.get('outcome')?.setValue(o);
+    this.logForm.get('outcome')?.markAsTouched();
+    this.applyFollowUpValidators();
+  }
+
+  /** Follow-up date is required unless the touch closed the prospect. */
+  private applyFollowUpValidators(): void {
+    const fud = this.logForm.get('followUpDate');
+    if (this.logForm.get('outcome')?.value === 'Closed-lost') fud?.setValidators([]);
+    else fud?.setValidators([Validators.required]);
+    fud?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  /** Hot + still open → point at the booking action inline. */
+  protected showHotNudge(): boolean {
+    return this.logForm.get('interestLevel')?.value === 'hot'
+      && this.logForm.get('outcome')?.value !== 'Closed-lost'
+      && !this.isConverted();
+  }
+
+  protected outcomeClass(outcome: string | undefined): string {
+    switch (outcome) {
+      case 'Booked session':
+      case 'Connected':
+        return 'dp-status--ok';
+      case 'Follow-up set':
+        return 'dp-status--info';
+      case 'Closed-lost':
+        return 'dp-status--bad';
+      default:
+        return 'dp-status--warn';
+    }
+  }
+
+  protected followUpOverdue(comm: { followUpDate?: string; status?: string }): boolean {
+    if (!comm?.followUpDate || comm?.status === 'Closed') return false;
+    const due = new Date(comm.followUpDate);
+    if (Number.isNaN(due.getTime())) return false;
+    const today = new Date();
+    due.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return due.getTime() < today.getTime();
+  }
+
+  /** Author pill: your own touches vs the owner's vs supporting upline. */
+  protected authorLabel(
+    comm: { createdBy?: string; createdByName?: string },
+    ownerId: unknown,
+  ): string | null {
+    const author = comm?.createdBy ? String(comm.createdBy) : '';
+    if (!author) return null;
+    const me = this.auth.currentUser()?.id ? String(this.auth.currentUser()?.id) : '';
+    const name = comm?.createdByName ? String(comm.createdByName) : '';
+    if (me && author === me) return 'You';
+    if (ownerId && author === String(ownerId)) return name ? `Owner · ${name}` : 'Owner';
+    return name ? `Support · ${name}` : 'Support';
+  }
+
+  protected authorClass(
+    comm: { createdBy?: string },
+    ownerId: unknown,
+  ): string {
+    const author = comm?.createdBy ? String(comm.createdBy) : '';
+    const me = this.auth.currentUser()?.id ? String(this.auth.currentUser()?.id) : '';
+    if (me && author === me) return 'dp-status--info';
+    if (ownerId && author === String(ownerId)) return 'dp-status--ok';
+    return 'dp-status--warn';
+  }
+
+  protected myUsername(): string {
+    const u = this.auth.currentUser()?.username;
+    return u ? String(u) : '';
   }
 
   protected advance(stage: ProspectStage): void {
@@ -503,26 +714,38 @@ export class ProspectDetailComponent implements OnInit {
   }
 
   protected saveLog(): void {
+    this.applyFollowUpValidators();
     if (this.logForm.invalid) return;
     const id = this.prospectId();
     if (!id) return;
     this.logging.set(true);
     this.logError.set(null);
     const v = this.logForm.getRawValue();
+    const outcome = v.outcome as CommOutcome;
+    const me = this.auth.currentUser();
+    const authorName = [me?.name, me?.surname].filter(Boolean).join(' ') || String(me?.username ?? '');
     this.leads
       .logCommunication(id, {
         type: v.type,
         interestLevel: v.interestLevel,
-        date: v.date,
+        date: combineDateAndTime(v.date, v.time),
         duration: Number(v.duration),
         description: v.description.trim(),
         followUpAction: v.followUpAction.trim(),
+        outcome,
+        followUpDate: v.followUpDate instanceof Date && !Number.isNaN(v.followUpDate.getTime())
+          ? v.followUpDate.toISOString().slice(0, 10)
+          : undefined,
+        status: outcome === 'Closed-lost' ? 'Closed' : 'Open',
+        ...(me?.id ? { createdBy: String(me.id) } : {}),
+        ...(authorName ? { createdByName: authorName } : {}),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.logging.set(false);
           this.showLogForm.set(false);
+          this.logForm.patchValue({ date: new Date(), time: new Date(), duration: 0, description: '', followUpAction: '', outcome: 'Connected' as CommOutcome, followUpDate: null });
           this.reload();
         },
         error: (err: ApiError) => {

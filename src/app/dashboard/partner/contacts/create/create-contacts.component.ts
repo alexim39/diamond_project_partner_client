@@ -39,8 +39,8 @@ const nigerianPhoneValidator = (control: AbstractControl): ValidationErrors | nu
  * @title My contact list — onboarding deliverable.
  *
  * Quick-add people you plan to introduce (name + phone + tag in seconds),
- * watch the counter climb to the 20-contact minimum, then submit once —
- * your upline is notified and works the list with you. Submitted batches
+ * watch the counter climb, then submit any time — your upline is notified
+ * and works the list with you. Submitted batches
  * show pipeline progress underneath. OnPush + signals, fully typed.
  */
 @Component({
@@ -278,7 +278,7 @@ export class CreateContactsComponent implements OnInit {
   protected readonly notice = signal<string | null>(null);
   protected readonly entries = signal<ContactListEntry[]>([]);
   protected readonly unsubmittedCount = signal(0);
-  protected readonly minRequired = signal(20);
+  protected readonly minRequired = signal(1);
   protected readonly canSubmit = signal(false);
   protected readonly batches = signal<ContactListBatch[]>([]);
   protected readonly confirmDeleteId = signal<string | null>(null);
@@ -366,7 +366,7 @@ export class CreateContactsComponent implements OnInit {
           const data = res.data;
           this.entries.set(data?.unsubmitted ?? []);
           this.unsubmittedCount.set(data?.unsubmittedCount ?? 0);
-          this.minRequired.set(data?.minRequired ?? 20);
+          this.minRequired.set(data?.minRequired ?? 1);
           this.canSubmit.set(data?.canSubmit ?? false);
           this.batches.set(data?.batches ?? []);
           this.loading.set(false);

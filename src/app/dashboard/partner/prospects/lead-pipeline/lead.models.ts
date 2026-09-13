@@ -22,6 +22,11 @@ export interface ProspectLead {
   prospectEmail?: string;
   prospectSource: string;
   partnerId: string;
+  relationship?: string;
+  priority?: string;
+  bestTimeToCall?: string;
+  consentToContact?: boolean;
+  notes?: string;
   status?: { name?: string; stage?: ProspectStage; note?: string; status?: string; stageEnteredAt?: string };
   communications?: Array<{ interestLevel?: string; date?: string }>;
   createdAt?: string;
@@ -124,6 +129,10 @@ export interface ProspectCommunication {
   duration?: number;
   description?: string;
   followUpAction?: string;
+  outcome?: 'Connected' | 'No answer' | 'Booked session' | 'Follow-up set' | 'Closed-lost' | string;
+  followUpDate?: string;
+  createdBy?: string;
+  createdByName?: string;
   topicsDiscussed?: string[];
   status?: string;
 }
@@ -143,6 +152,11 @@ export interface LogCommunicationPayload {
   duration?: number;
   description: string;
   followUpAction?: string;
+  outcome?: 'Connected' | 'No answer' | 'Booked session' | 'Follow-up set' | 'Closed-lost';
+  followUpDate?: string;
+  createdBy?: string;
+  createdByName?: string;
+  status?: 'Open' | 'Closed';
 }
 
 /** Stuck-in-pipeline entry — mirrors backend `stuckAnalysis`. */

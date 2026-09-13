@@ -17,6 +17,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { RouterModule } from '@angular/router';
 import { ProspectService } from '../prospects.service';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { toApiError } from '../../../../core/http/api-error';
 
 const normalizePhone = (value: unknown): string => {
@@ -402,6 +403,7 @@ export class BookingStatusUpdateComponent implements OnInit {
   readonly data = inject<any>(MAT_DIALOG_DATA);
   private readonly prospects = inject(ProspectService);
   private readonly leads = inject(LeadPipelineService);
+  private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
 
   protected readonly primaryOutcomes = PRIMARY_OUTCOMES;
@@ -649,6 +651,8 @@ export class BookingStatusUpdateComponent implements OnInit {
         const followUp = this.formatDateValue(extra.followUpDate);
         const followUpAction = String(extra.nextAction ?? '').trim().slice(0, 500)
           || (followUp ? `Follow up by ${followUp}` : `Session outcome: ${this.selected() || 'recorded'}`);
+        const me = this.auth.currentUser();
+        const authorName = [me?.name, me?.surname].filter(Boolean).join(' ') || String(me?.username ?? '');
         this.leads.logCommunication(hit.id, {
           type: commTypeFor(this.data?.contactMethod),
           interestLevel: interest,
@@ -656,6 +660,8 @@ export class BookingStatusUpdateComponent implements OnInit {
           duration: 0,
           description: composed.slice(0, 5000),
           followUpAction,
+          ...(me?.id ? { createdBy: String(me.id) } : {}),
+          ...(authorName ? { createdByName: authorName } : {}),
         }).subscribe({
           next: () => {
             this.timelineState.set('done');
