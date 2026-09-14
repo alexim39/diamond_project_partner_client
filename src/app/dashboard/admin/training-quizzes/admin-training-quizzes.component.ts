@@ -100,7 +100,7 @@ interface EditQuestion {
                 </mat-form-field>
               }
               <div class="quiz-actions">
-                <button mat-button (click)="addOption(qi)">Add option</button>
+                <button mat-button (click)="addOption(qi)" [disabled]="q.options.length >= 6">Add option</button>
                 <button mat-button color="warn" (click)="removeOption(qi, q.options.length - 1)" [disabled]="q.options.length <= 2">Remove option</button>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Correct option (1-based)</mat-label>
@@ -111,8 +111,9 @@ interface EditQuestion {
             </div>
             <mat-divider></mat-divider>
           }
-          <div class="edit-actions">
-            <button mat-button (click)="addQuestion()">Add question</button>
+            <div class="edit-actions">
+              <button mat-button (click)="addQuestion()" [disabled]="editQuiz().length >= 15">Add question</button>
+              <span class="muted">Up to 15 questions</span>
             <span class="spacer"></span>
             <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save quiz' }}</button>
           </div>
