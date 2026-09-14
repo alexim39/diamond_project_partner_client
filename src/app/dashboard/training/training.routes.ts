@@ -35,8 +35,18 @@ export const TrainingRoutes: Routes = [
   },
   {
     path: 'courses',
-    component: TrainingListComponent,
-    title: 'Courses - IPO, QSG, SMO and Leadership',
+    children: [
+      {
+        path: '',
+        component: TrainingListComponent,
+        title: 'Courses - IPO, QSG, SMO and Leadership',
+      },
+      {
+        path: ':courseId',
+        component: TrainingDetailComponent,
+        title: 'Course - Lessons and certification',
+      },
+    ],
   },
   {
     path: ':courseId',

@@ -19,6 +19,7 @@ export interface Lesson {
   body: string;
   takeaways: string[];
   quiz?: Array<{ q: string; options: string[]; answer: number }>;
+  videoUrl?: string | null;
 }
 
 export interface CourseDetail extends Omit<CourseSummary, 'lessons'> {
