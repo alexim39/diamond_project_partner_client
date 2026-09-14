@@ -28,7 +28,7 @@ type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'All';
   selector: 'async-admin-campaigns',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
+    DecimalPipe, FormsModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
     MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
     MatTableModule, RouterModule,
   ],

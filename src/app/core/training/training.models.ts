@@ -18,6 +18,7 @@ export interface Lesson {
   title: string;
   body: string;
   takeaways: string[];
+  quiz?: Array<{ q: string; options: string[]; answer: number }>;
 }
 
 export interface CourseDetail extends Omit<CourseSummary, 'lessons'> {
@@ -51,6 +52,32 @@ export interface Certificate {
   courseId: string;
   title: string;
   at: string;
+  number?: string;
+}
+
+export interface PathsEnvelope extends ApiEnvelope<Array<{
+  level: string; title: string; tagline: string; unlocked: boolean;
+  progress: { done: number; total: number; percent: number };
+  requirements: Array<{ key: string; label: string; action: string; met: boolean; courseId: string | null }>;
+  courses: Array<{ courseId: string; done: number; certified: boolean }>;
+}>> {
+  data: Array<{
+    level: string; title: string; tagline: string; unlocked: boolean;
+    progress: { done: number; total: number; percent: number };
+    requirements: Array<{ key: string; label: string; action: string; met: boolean; courseId: string | null }>;
+    courses: Array<{ courseId: string; done: number; certified: boolean }>;
+  }>;
+}
+
+export interface Readiness {
+  level: string; levelLabel: string; next: string | null; nextLabel: string | null;
+  percent: number; score: number; label: string; done: number; total: number;
+  missing: Array<{ key: string; label: string; action: string }>;
+  remainingActions: string[];
+}
+
+export interface ReadinessEnvelope extends ApiEnvelope<Readiness> {
+  data: Readiness;
 }
 
 export interface CertificatesEnvelope extends ApiEnvelope<Certificate[]> {

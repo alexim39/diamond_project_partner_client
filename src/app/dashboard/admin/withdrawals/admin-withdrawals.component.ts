@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -28,7 +28,7 @@ type QueueFilter = 'Pending' | 'Paid' | 'Rejected' | 'All';
   selector: 'async-admin-withdrawals',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
+    DecimalPipe, FormsModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
     MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
     MatTableModule, RouterModule,
   ],

@@ -113,10 +113,14 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'My level & next steps', link: 'progress', title: 'My level and next steps' },
       { label: 'My targets', link: 'goals', title: 'My targets' },
       {
-        label: 'Learn', title: 'Courses and mentors',
+        label: 'Learn', title: 'Leadership Academy and mentors',
         children: [
-          { label: 'Courses', link: 'training', title: 'Courses that move you up' },
-          { label: 'Get a mentor', link: 'mentorship/new-request', title: 'Get help from a leader' },
+          { label: 'Academy dashboard', link: 'training', title: 'Your learning journey at a glance' },
+          { label: 'Learning paths', link: 'training/paths', title: '10 rank journeys' },
+          { label: 'Library', link: 'training/library', title: 'Search, bookmarks and recent' },
+          { label: 'Analytics', link: 'training/analytics', title: 'Completion and pipeline' },
+          { label: 'My Coach', link: 'training/coach', title: 'Coaching notes with your upline' },
+          { label: 'Courses', link: 'training/courses', title: 'Courses that move you up' },
         ],
       },
     ],

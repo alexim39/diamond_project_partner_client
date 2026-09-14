@@ -1,0 +1,201 @@
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterModule } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { TrainingService } from '../../../core/training/training.service';
+import { ProgressionService } from '../../../core/progression/progression.service';
+import { ApiError } from '../../../core/http/api-error';
+
+/**
+ * @title Training analytics — who learned what, how fast.
+ *
+ * Completion rates per course, certification compliance, and leadership
+ * pipeline health — all derived from live training + progression signals.
+ * OnPush + signals, fail-soft.
+ */
+@Component({
+  selector: 'async-training-analytics',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule, RouterModule],
+  template: `
+    <section class="breadcrumb-wrapper">
+      <div class="breadcrumb">
+        <a routerLink="/dashboard">Dashboard</a> &gt;
+        <a routerLink="/dashboard/training">Academy</a> &gt;
+        <span>Analytics</span>
+      </div>
+    </section>
+
+    <section class="analytics-page">
+      <div class="page-head">
+        <div>
+          <h2>Training Analytics</h2>
+          <p class="subtitle">Completion, certification and pipeline — how learning turns into leadership.</p>
+        </div>
+        <a mat-button routerLink="/dashboard/training">Back to Academy</a>
+      </div>
+
+      @if (loading()) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+
+      @if (error(); as err) {
+        <p class="error" role="alert">
+          {{ err }}
+          <button mat-button (click)="reload()">Retry</button>
+        </p>
+      }
+
+      @if (!loading() && !error()) {
+        <div class="stat-grid">
+          <mat-card>
+            <mat-card-content>
+              <mat-icon>school</mat-icon>
+              <span class="stat-value">{{ avgCompletion() | number:'1.0-0' }}%</span>
+              <span class="stat-label">Avg completion</span>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <mat-icon>workspace_premium</mat-icon>
+              <span class="stat-value">{{ certCount() }}</span>
+              <span class="stat-label">Certificates earned</span>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <mat-icon>groups</mat-icon>
+              <span class="stat-value">{{ pipelineDone() }}/{{ pipelineTotal() }}</span>
+              <span class="stat-label">Pipeline certified</span>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <div class="dp-card table-card">
+          <h3>Per-course completion</h3>
+          <table>
+            <tr><th>Course</th><th>Progress</th><th>Status</th></tr>
+            @for (c of courses(); track c.id) {
+              <tr>
+                <td>{{ c.title }}</td>
+                <td><mat-progress-bar mode="determinate" [value]="c.percent" /> {{ c.percent }}%</td>
+                <td>
+                  @if (c.certified) {
+                    <span class="dp-status dp-status--ok">Certified</span>
+                  } @else if (c.done > 0) {
+                    <span class="dp-status dp-status--info">In progress</span>
+                  } @else {
+                    <span class="dp-status dp-status--warn">Not started</span>
+                  }
+                </td>
+              </tr>
+            }
+          </table>
+        </div>
+
+        <div class="dp-card table-card">
+          <h3>Leadership pipeline</h3>
+          <p class="muted">Your downline — how many at each rank have the training to advance.</p>
+          <div class="bar-list">
+            @for (r of pipelineBars(); track r.level) {
+              <div class="bar-row">
+                <span class="bar-label">{{ r.label }}</span>
+                <div class="bar-track"><div class="bar-fill" [style.width.%]="r.width"></div></div>
+                <span class="bar-num">{{ r.count }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </section>
+  `,
+  styles: [`
+    .breadcrumb-wrapper { margin-bottom: 1em; }
+    .breadcrumb a { text-decoration: none; }
+    .analytics-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+    .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
+    .page-head h2 { margin: 0; }
+    .page-head a { min-height: 44px; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 44em; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75em; }
+    .stat-grid mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
+    .stat-grid mat-icon { color: var(--dp-gold); }
+    .stat-value { font-size: 1.5em; font-weight: 700; }
+    .stat-label { color: var(--dp-muted); font-size: 0.85em; }
+    .table-card { padding: 1em; }
+    .table-card h3 { margin: 0 0 0.5em; }
+    .table-card table { width: 100%; border-collapse: collapse; }
+    .table-card th { text-align: left; color: var(--dp-muted); font-size: 0.85em; padding: 0.4em 0.5em; }
+    .table-card td { padding: 0.5em; border-top: 1px solid var(--dp-line); }
+    .bar-list { display: flex; flex-direction: column; gap: 0.5em; margin-top: 0.5em; }
+    .bar-row { display: grid; grid-template-columns: 160px 1fr 40px; gap: 0.6em; align-items: center; }
+    .bar-label { font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { height: 14px; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--dp-gold); min-width: 2px; }
+    .bar-num { text-align: right; font-weight: 600; font-size: 0.9em; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
+    html[data-theme='dark'] .error { color: #e89a9a; }
+  `],
+})
+export class TrainingAnalyticsComponent implements OnInit {
+  private readonly training = inject(TrainingService);
+  private readonly progress = inject(ProgressionService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
+  protected readonly courses = signal<Array<{ id: string; title: string; percent: number; done: number; total: number; certified: boolean }>>([]);
+  protected readonly certCount = signal(0);
+  protected readonly pipelineBars = signal<Array<{ level: string; label: string; count: number; width: number }>>([]);
+
+  protected readonly avgCompletion = computed(() => {
+    const cs: Array<{ percent: number }> = this.courses() as unknown as Array<{ percent: number }>;
+    if (cs.length === 0) return 0;
+    return Math.round(cs.reduce((s: number, c) => s + c.percent, 0) / cs.length);
+  });
+  protected readonly pipelineDone = computed(() => this.pipelineBars().filter((b) => b.count > 0).length);
+  protected readonly pipelineTotal = computed(() => this.pipelineBars().length);
+
+  ngOnInit(): void { this.reload(); }
+
+  protected reload(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    forkJoin({
+      courses: this.training.courses().pipe(catchError(() => of(null))),
+      certs: this.training.certificates().pipe(catchError(() => of(null))),
+      oversight: this.progress.oversight().pipe(catchError(() => of(null))),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (payload: { courses: unknown; certs: unknown; oversight: unknown }) => {
+          const { courses, certs, oversight } = payload as {
+            courses: { data?: Array<{ id: string; title: string; percent: number; done: number; total: number; certified: boolean }> } | null;
+            certs: { data?: unknown[] } | null;
+            oversight: { data?: { distribution?: Record<string, number> } } | null;
+          };
+          const cs = courses?.data ?? [];
+          this.courses.set(cs as never);
+          this.certCount.set((certs?.data ?? []).length);
+          const dist = oversight?.data?.distribution ?? {};
+          const max = Math.max(1, ...Object.values(dist).map(Number));
+          const labels: Record<string, string> = { prospect: 'Prospect', partner: 'Partner', emerging_active: 'Emerging Active', qualified_active: 'Qualified Active', active: 'Active', kingsman: 'Kingsman', ecl: 'ECL', cell_leader: 'Cell Leader', g_leader: 'G Leader', g8: 'G8' };
+          this.pipelineBars.set(Object.entries(dist).map(([level, count]) => ({
+            level, label: labels[level] ?? level, count: Number(count), width: Math.max(Number(count) ? 2 : 0, Math.round((Number(count) / max) * 100)),
+          })));
+          this.loading.set(false);
+        },
+        error: (err: import('../../../core/http/api-error').ApiError) => {
+          this.error.set(err.message);
+          this.loading.set(false);
+        },
+      });
+  }
+}

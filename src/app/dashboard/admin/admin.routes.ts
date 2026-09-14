@@ -5,6 +5,7 @@ import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
 import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
 import { AdminReservationsComponent } from './reservations/admin-reservations.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
+import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
 import { OversightComponent } from './oversight/oversight.component';
 import { adminGuard, g8Guard } from '../../core/auth/role.guard';
 
@@ -42,6 +43,11 @@ export const AdminRoutes: Routes = [
         path: 'orders',
         component: AdminOrdersComponent,
         title: 'Product Orders - Fulfill or refund orders',
+      },
+      {
+        path: 'training-quizzes',
+        component: AdminTrainingQuizzesComponent,
+        title: 'Training Quizzes - Edit course questions',
       },
     ],
   },

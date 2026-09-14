@@ -9,6 +9,8 @@ import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { TrainingService } from '../../../core/training/training.service';
 import { Certificate, CourseSummary } from '../../../core/training/training.models';
+import { downloadCert, certNumber } from '../../../core/training/cert';
+import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 
 /**
@@ -69,7 +71,7 @@ import { ApiError } from '../../../core/http/api-error';
                 <mat-progress-bar mode="determinate" [value]="course.percent" />
                 <div class="course-foot">
                   <span class="muted">{{ course.done }}/{{ course.total }} lessons</span>
-                  <a mat-button [routerLink]="[course.id]">{{ course.done > 0 && !course.certified ? 'Continue' : course.certified ? 'Review' : 'Start' }}</a>
+                  <a mat-button [routerLink]="['/dashboard/training', course.id]">{{ course.done > 0 && !course.certified ? 'Continue' : course.certified ? 'Review' : 'Start' }}</a>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -85,8 +87,10 @@ import { ApiError } from '../../../core/http/api-error';
               <mat-icon>workspace_premium</mat-icon>
               <div>
                 <strong>{{ cert.title }}</strong>
-                <span class="muted"> · earned</span>
+                <span class="muted"> · {{ certNumber(cert) }}</span>
               </div>
+              <span class="spacer"></span>
+              <button mat-button (click)="download(cert)">Download</button>
             </li>
           }
         </ul>
@@ -109,6 +113,7 @@ import { ApiError } from '../../../core/http/api-error';
     .course-foot { display: flex; justify-content: space-between; align-items: center; }
     .cert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
     .cert { display: flex; gap: 0.7em; align-items: center; padding: 0.7em 1em; }
+    .cert .spacer { flex: 1; }
     .cert mat-icon { color: var(--dp-gold); }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
@@ -116,6 +121,7 @@ import { ApiError } from '../../../core/http/api-error';
 })
 export class TrainingListComponent implements OnInit {
   private readonly training = inject(TrainingService);
+  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -143,5 +149,13 @@ export class TrainingListComponent implements OnInit {
           this.loading.set(false);
         },
       });
+  }
+
+  protected certNumber = certNumber;
+
+  protected download(cert: Certificate): void {
+    const user = this.auth.currentUser();
+    const name = [user?.name, user?.surname].filter(Boolean).join(' ') || user?.username || 'Partner';
+    downloadCert(cert, name);
   }
 }
