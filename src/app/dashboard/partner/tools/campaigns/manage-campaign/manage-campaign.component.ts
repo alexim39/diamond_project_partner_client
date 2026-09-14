@@ -113,7 +113,7 @@ export class ManageCampaignComponent implements OnInit {
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['transactionId',  'deliveryStatus', 'budget', 'campaignDates', 'visits', 'progression', 'publishDate', 'action'];
+  displayedColumns: string[] = ['transactionId',  'deliveryStatus', 'budget', 'campaignDates', 'targets', 'visits', 'progression', 'publishDate', 'action'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -163,6 +163,15 @@ export class ManageCampaignComponent implements OnInit {
       case 'rejected': return 'dp-status--bad';
       default: return 'dp-status--info';
     }
+  }
+
+  /** Compact targeting summary (scope + explicit picks for the admin). */
+  targetSummary(element: any): string {
+    const targets = element?.targetAudience?.locationTargets;
+    if (Array.isArray(targets) && targets.length > 0) {
+      return targets.length > 2 ? `${targets.length} places` : targets.join(', ');
+    }
+    return String(element?.targetAudience?.locationTarget ?? '—');
   }
 
 

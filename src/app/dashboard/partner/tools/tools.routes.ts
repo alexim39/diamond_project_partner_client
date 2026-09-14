@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
+import { CampaignAnalyticsContainerComponent } from '../prospects/campaign-analytics/campaign-analytics-container.component';
+import { LinkAnalyticsContainerComponent } from '../prospects/link-analytics/link-analytics-container.component';
 import { smsContainerComponent } from '../sms/sms-container.component';
 import { smsLogContainerComponent } from '../sms/sms-log/sms-log-container.component';
 import { EmailContainerComponent } from '../email/email-container.component';
 import { EmailLogContainerComponent } from '../email/email-log/email-log-container.component';
 import { CreateContactsContainerComponent } from '../contacts/create/create-contacts-container.component';
-import { MarketingChannelsComponent } from './campaigns/create-campaign/marketing-channels.component';
+import { CampaignWizardContainerComponent } from './campaigns/create-campaign/campaign-wizard/campaign-wizard-container.component';
 import { ManageCampaignContainerComponent } from './campaigns/manage-campaign/manage-campaign-container.component';
 import { ManageCampaignDetailContainerComponent } from './campaigns/manage-campaign/details/manage-campaign-detail-container.component';
 import { InvitationContainerComponent } from './campaigns/invitation/invitation-container.component';
@@ -24,8 +26,8 @@ export const ToolsRoutes: Routes = [
             children: [
                 {
                     path: 'new',
-                    component: MarketingChannelsComponent,
-                    title: "Choose and Create Marketing Campaign",
+                    component: CampaignWizardContainerComponent,
+                    title: "Start a Campaign - One wizard for every channel",
                 },
                 {
                     path: 'manage',

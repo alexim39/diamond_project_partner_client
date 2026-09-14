@@ -1,221 +1,142 @@
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <a>Marketing</a> &gt;
+    <a routerLink="/dashboard/tools/campaigns/manage">My campaigns</a> &gt;
+    <span>{{ campaignData?.campaignName || 'Campaign details' }}</span>
+  </div>
+</section>
+
 <section class="async-background">
-  <h2>Campaigns Details</h2>
-
-  <section class="async-container">
-    <div class="title">
-      <div class="control">
-        <div class="back" (click)="back()" title="Back">
-          <mat-icon>arrow_back</mat-icon>
-        </div>
-        <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
-      </div>
-      <h3>Ad Campaign Details</h3>
+  <div class="page-head">
+    <div class="back" (click)="back()" title="Back to My campaigns">
+      <mat-icon>arrow_back</mat-icon>
     </div>
+    <div>
+      <h2>{{ campaignData.campaignName | titlecase }}</h2>
+      <p class="page-sub">Created {{ campaignData.updatedAt | date }}</p>
+    </div>
+    <span class="spacer"></span>
+    <span class="dp-status {{ statusTone(campaignData.deliveryStatus) }}">{{ campaignData.deliveryStatus | titlecase }}</span>
+  </div>
 
+  <section class="cards">
+    <article class="dp-card flex-item">
+      <h3>Budget</h3>
+      <div class="list">
+        <h5>Amount</h5>
+        <span class="data">{{ campaignData.budget.budgetAmount | currency:'₦':'symbol':'1.0-0' }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="list">
+        <h5>Type</h5>
+        <span class="data">{{ campaignData.budget.budgetType | titlecase }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="list">
+        <h5>Visits</h5>
+        <span class="data">{{ campaignData.visits }}</span>
+      </div>
+    </article>
 
+    <article class="dp-card flex-item">
+      <h3>Flight</h3>
+      <div class="list">
+        <h5>Start date</h5>
+        <span class="data">{{ campaignData.adDuration.campaignStartDate | date }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="list">
+        <h5>End date</h5>
+        <span class="data">{{ campaignData.adDuration.noEndDate ? 'Continuous' : (campaignData.adDuration.campaignEndDate | date) }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="list">
+        <h5>Duration</h5>
+        <span class="data">{{ campaignData.adDuration.noEndDate ? 'Continuous' : duration + ' days' }}</span>
+      </div>
+    </article>
 
-    <section class="flex-container">
-      <article class="flex-item">
-        <h2>Ads information</h2>
-        <!-- <p>Ads information</p> -->
-
+    <article class="dp-card flex-item">
+      <h3>Audience</h3>
+      @if (campaignData.targetAudience.ageRangeTarget) {
         <div class="list">
-          <h5> Campaign </h5>
-          <span class="data">{{campaignData.campaignName | titlecase}} </span>
+          <h5>Age range</h5>
+          <span class="data">{{ campaignData.targetAudience.ageRangeTarget }}</span>
         </div>
         <mat-divider></mat-divider>
-
-
+      }
+      @if (campaignData.targetAudience.genderTarget) {
         <div class="list">
-          <h5> Status </h5>
-          <span class="data">{{campaignData.deliveryStatus | titlecase}} </span>
+          <h5>Gender</h5>
+          <span class="data">{{ campaignData.targetAudience.genderTarget }}</span>
         </div>
         <mat-divider></mat-divider>
-
-
+      }
+      <div class="list">
+        <h5>Targets for admin</h5>
+        <span class="data">{{ targetSummary() }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      @if (campaignData.targetAudience.educationTarget) {
         <div class="list">
-          <h5> Created Date </h5>
-          <span class="data">{{campaignData.updatedAt | date}} </span>
-        </div>
-
-
-      </article>
-
-      <article class="flex-item">
-        <h2>Ads Duration</h2>
-        <!-- <p>The campaign will run for 30 days starting from June 1, 2023.</p>   -->
-
-        <div class="list">
-          <h5> Start Date </h5>
-          <span class="data">{{campaignData.adDuration.campaignStartDate | date}} </span>
+          <h5>Education level</h5>
+          <span class="data">{{ campaignData.targetAudience.educationTarget }}</span>
         </div>
         <mat-divider></mat-divider>
-
-
+      }
+      @if (campaignData.targetAudience.relationshipTarget) {
         <div class="list">
-          <h5> End Date </h5>
-          <span class="data">{{ campaignData.adDuration.noEndDate ? 'No end date' : campaignData.adDuration.campaignEndDate | date}}</span>
+          <h5>Marital status</h5>
+          <span class="data">{{ campaignData.targetAudience.relationshipTarget }}</span>
+        </div>
+      }
+    </article>
+
+    <article class="dp-card flex-item">
+      <h3>Objective</h3>
+      <div class="list">
+        <h5>Primary objective</h5>
+        <span class="data">{{ campaignData.marketingObjectives.adObjective }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      @if (campaignData.marketingObjectives.successMeasurement) {
+        <div class="list">
+          <h5>Success measure</h5>
+          <span class="data">{{ campaignData.marketingObjectives.successMeasurement }}</span>
         </div>
         <mat-divider></mat-divider>
+      }
+      <div class="list">
+        <h5>Results</h5>
+        <span class="data"><a mat-button routerLink="/dashboard/marketing/roi">See earnings</a></span>
+      </div>
+    </article>
 
-
+    <article class="dp-card flex-item">
+      <h3>Format</h3>
+      <div class="list">
+        <h5>Ad format</h5>
+        <span class="data">{{ campaignData.adFormat.adFormat | titlecase }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="list">
+        <h5>Target device</h5>
+        <span class="data">{{ campaignData.adFormat.deviceType | titlecase }}</span>
+      </div>
+      @if (getSelectedAdPreferences().length > 0) {
+        <mat-divider></mat-divider>
         <div class="list">
-          <h5> Duration </h5>
-          <span class="data">{{ campaignData.adDuration.campaignEndDate ? duration + ' days' : 'Continuous' }}</span>
+          <h5>Placements</h5>
+          <span class="data">
+            <ul class="prefs">
+              @for (preference of getSelectedAdPreferences(); track preference) {
+                <li>{{ preference }}</li>
+              }
+            </ul>
+          </span>
         </div>
-
-      </article>
-
-      <article class="flex-item">
-        <h2>Ads Objective</h2>
-        <!-- <p>The main objective is to increase brand awareness.</p>   -->
-
-        <div class="list">
-          <h5> Campaign Objective </h5>
-          <span class="data">{{campaignData.marketingObjectives.adObjective }} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.marketingObjectives.successMeasurement) {
-          <div class="list">
-            <h5> Campaign Measurement Metrics </h5>
-            <span class="data">{{campaignData.marketingObjectives.successMeasurement}} </span>
-          </div>
-        }
-      </article>
-
-      <article class="flex-item">
-        <h2>Ads Result</h2>
-        <!-- <p>The main objective is to increase brand awareness.</p>   -->
-
-        <div class="list">
-          <h5> Ads Number of Visits </h5>
-          <span class="data">{{campaignData.visits }} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-
-        <div class="list">
-          <h5> Ads Converstion </h5>
-          <span class="data"> </span>
-        </div>
-      </article>
-
-      <article class="flex-item">
-        <h2>Ads Budget</h2>
-        <!-- <p>The budget for this campaign is $5000.</p>  -->
-
-        <div class="list">
-          <h5> Ads Budget Amount </h5>
-          <span class="data">{{campaignData.budget.budgetAmount | currency:'₦':'symbol':'1.0-0' }} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-
-        <div class="list">
-          <h5> Ads Budget Type </h5>
-          <span class="data">{{campaignData.budget.budgetType | titlecase}} </span>
-        </div>
-      </article>
-
-
-
-      <article class="flex-item">
-        <h2>Ads Format</h2>
-        <!-- <p>Formats include video ads and carousel images.</p>  -->
-
-        <div class="list">
-          <h5> Ads Format </h5>
-          <span class="data">{{campaignData.adFormat.adFormat | titlecase}} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-
-        <div class="list">
-          <h5> Target Device </h5>
-          <span class="data">{{campaignData.adFormat.deviceType | titlecase}} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.campaignName === 'Facebook') {
-          <div class="list">
-            <h5> Ads Preferences </h5>
-            <span class="data">
-              <ul>
-                @for (preference of getSelectedAdPreferences(); track preference) {
-                  <li>{{ preference }} </li>
-                }
-              </ul>
-            </span>
-          </div>
-        }
-
-      </article>
-
-
-
-      <article class="flex-item">
-        <h2>Ads Target Audience</h2>
-        <!-- <p>The target audience is males and females aged 18-35.</p>   -->
-
-        @if (campaignData.targetAudience.ageRangeTarget) {
-          <div class="list">
-            <h5> Campaign Age Range </h5>
-            <span class="data">{{campaignData.targetAudience.ageRangeTarget }} </span>
-          </div>
-        }
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.targetAudience.educationTarget) {
-          <div class="list">
-            <h5> Educational Level</h5>
-            <span class="data">{{campaignData.targetAudience.educationTarget}} </span>
-          </div>
-        }
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.targetAudience.genderTarget) {
-          <div class="list">
-            <h5> Gender </h5>
-            <span class="data">{{campaignData.targetAudience.genderTarget}} </span>
-          </div>
-        }
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.targetAudience.industryTarget) {
-          <div class="list">
-            <h5> Industry</h5>
-            <span class="data">{{campaignData.targetAudience.industryTarget}} </span>
-          </div>
-        }
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.targetAudience.locationTarget) {
-          <div class="list">
-            <h5> Location/Area</h5>
-            <span class="data">{{campaignData.targetAudience.locationTarget}} </span>
-          </div>
-        }
-        <mat-divider></mat-divider>
-
-
-        @if (campaignData.targetAudience.relationshipTarget) {
-          <div class="list">
-            <h5> Marital Status</h5>
-            <span class="data">{{campaignData.targetAudience.relationshipTarget}} </span>
-          </div>
-        }
-      </article>
-
-    </section>
-
+      }
+    </article>
   </section>
-
-
 </section>

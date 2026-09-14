@@ -88,6 +88,23 @@ export class ManageCampaignDetailComponent implements OnInit {
     return selectedPreferences;
   }
 
+  statusTone(status: string): string {
+    switch (String(status ?? '').toLowerCase()) {
+      case 'active': return 'dp-status--ok';
+      case 'paused': return 'dp-status--warn';
+      case 'ended':
+      case 'rejected': return 'dp-status--bad';
+      default: return 'dp-status--info';
+    }
+  }
+
+  /** Explicit state/country list for the admin record (legacy docs lack it). */
+  targetSummary(): string {
+    const targets = this.campaignData?.targetAudience?.locationTargets;
+    if (Array.isArray(targets) && targets.length > 0) return targets.join(', ');
+    return String(this.campaignData?.targetAudience?.locationTarget ?? '—');
+  }
+
   private separateCamelCase(input: string): string {
     let result = '';
 

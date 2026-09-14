@@ -1,6 +1,10 @@
 import { Routes } from '@angular/router';
 import { ManageRolesComponent } from './roles/roles.component';
 import { PayoutQueueComponent } from './payouts/payouts.component';
+import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
+import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
+import { AdminReservationsComponent } from './reservations/admin-reservations.component';
+import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { OversightComponent } from './oversight/oversight.component';
 import { adminGuard, g8Guard } from '../../core/auth/role.guard';
 
@@ -18,6 +22,26 @@ export const AdminRoutes: Routes = [
         path: 'payouts',
         component: PayoutQueueComponent,
         title: 'Payout Queue - Release commissions',
+      },
+      {
+        path: 'campaigns',
+        component: AdminCampaignsComponent,
+        title: 'Ad Campaigns - Run or refund held campaigns',
+      },
+      {
+        path: 'withdrawals',
+        component: AdminWithdrawalsComponent,
+        title: 'Withdrawals - Pay or refund requests',
+      },
+      {
+        path: 'reservations',
+        component: AdminReservationsComponent,
+        title: 'Reservation Codes - Review legacy codes',
+      },
+      {
+        path: 'orders',
+        component: AdminOrdersComponent,
+        title: 'Product Orders - Fulfill or refund orders',
       },
     ],
   },

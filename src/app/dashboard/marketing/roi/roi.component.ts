@@ -1,12 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { NgxEchartsDirective } from 'ngx-echarts';
 import { MarketingService } from '../../../core/marketing/marketing.service';
@@ -26,7 +27,7 @@ import { ApiError } from '../../../core/http/api-error';
   selector: 'async-campaign-roi',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe, MatButtonModule, MatCardModule, MatIconModule,
+    DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatPaginatorModule,
     MatProgressBarModule, MatSelectModule, MatTableModule,
     NgxEchartsDirective, RouterModule,
   ],
@@ -123,7 +124,7 @@ import { ApiError } from '../../../core/http/api-error';
       @if (campaigns().length > 0) {
         <h3>Campaigns</h3>
         <div class="table-wrap">
-          <table mat-table [dataSource]="campaigns()" class="mat-elevation-z2">
+          <table mat-table [dataSource]="paged()" class="mat-elevation-z2">
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Campaign</th>
               <td mat-cell *matCellDef="let c" class="name-cell">
@@ -158,8 +159,9 @@ import { ApiError } from '../../../core/http/api-error';
               <td mat-cell *matCellDef="let c" class="num-cell">{{ c.costPerProspect === null ? '—' : (c.costPerProspect | number) }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
+          <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons (page)="onPage($event)"></mat-paginator>
         </div>
         <p class="muted">Estimated rows count link-tagged recruits created while the campaign flew. Stamp a campaign on creation for exact numbers.</p>
       } @else if (!loading() && !error()) {
@@ -207,6 +209,20 @@ export class CampaignRoiComponent implements OnInit {
 
   protected readonly dayOptions = [7, 30, 90];
   protected readonly displayedColumns = ['name', 'visits', 'budget', 'sms', 'prospects', 'conversions', 'cpp'];
+  protected readonly pageSize = signal(10);
+  protected readonly pageIndex = signal(0);
+
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
+
+  protected readonly paged = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.campaigns().slice(start, start + this.pageSize());
+  });
+
+  protected onPage(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
 
   /** Cost-per-conversion bars — rebuilt on data or light/dark toggle. */
   protected readonly costChart = computed<EChartsCoreOption | null>(() => {
