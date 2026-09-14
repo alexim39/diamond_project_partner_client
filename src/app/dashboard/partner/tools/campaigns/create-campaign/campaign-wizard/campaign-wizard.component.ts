@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -55,7 +55,7 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
   selector: 'async-campaign-wizard',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule, CurrencyPipe, DatePipe, MatButtonModule, MatCheckboxModule, MatDatepickerModule,
+    CommonModule, CurrencyPipe, MatButtonModule, MatCheckboxModule, MatDatepickerModule,
     MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
     ReactiveFormsModule, RouterModule,
   ],

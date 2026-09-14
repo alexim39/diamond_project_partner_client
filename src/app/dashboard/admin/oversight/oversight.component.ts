@@ -122,6 +122,9 @@ import { ApiError } from '../../../core/http/api-error';
             <p class="muted">
               <strong>{{ act.rate ?? '—' }}{{ act.rate !== null ? '%' : '' }}</strong>
               of {{ act.cohort }} recent signups completed profile, first prospect and IPO in time.
+              @if (act.capped) {
+                <span>(first 200 most recent)</span>
+              }
             </p>
             @for (leg of activationLegs(act); track leg.key) {
               <div class="bar-row">
