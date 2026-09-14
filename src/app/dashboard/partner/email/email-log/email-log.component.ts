@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { Router, RouterModule } from '@angular/router';
@@ -27,14 +28,14 @@ template: `
 <section class="breadcrumb-wrapper">
     <div class="breadcrumb">
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
-      <a>Tools</a> &gt;
-      <a>Email</a> &gt;
-      <span>Email log</span>
-    </div>
+    <a>Tools</a> &gt;
+    <a>Email</a> &gt;
+    <span>Email inbox</span>
+  </div>
 </section>
 
 <section class="async-background ">
-    <h2>Manage Bulk Email List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+    <h2>Email inbox <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
     <section class="async-container">
 
@@ -43,13 +44,17 @@ template: `
               <div class="back" (click)="back()" title="Back">
                   <mat-icon>arrow_back</mat-icon>
               </div>
-              <a mat-list-item routerLink="../../email/new" routerLinkActive="active" (click)="scrollToTop()" title="New SMS" mat-raised-button><mat-icon>add</mat-icon>New Emails</a>
+              <a mat-list-item routerLink="../../email/new" routerLinkActive="active" (click)="scrollToTop()" title="New email" mat-raised-button><mat-icon>add</mat-icon>New Emails</a>
           </div>
-            <h3>Email History</h3>
+            <h3>History</h3>
         </div>
 
         @if(!isEmptyRecord) {
 
+            <div class="chip-row" role="status">
+              <mat-chip highlighted>{{ dataSource.data.length }} batch{{ dataSource.data.length === 1 ? '' : 'es' }}</mat-chip>
+              <mat-chip highlighted>{{ totalRecipients() }} recipients</mat-chip>
+            </div>
             <div class="search">
                 <mat-form-field appearance="outline">
                   <mat-label>Filter by email message</mat-label>
@@ -92,7 +97,11 @@ template: `
             </div>
 
         } @else {
-          <p class="no-campaign">No record available yet</p>  
+          <div class="empty-card">
+            <mat-icon>mail</mat-icon>
+            <p>No emails sent yet — compose your first bulk email.</p>
+            <a mat-button routerLink="../../email/new">Send Email</a>
+          </div>
         }        
     </section>
     
@@ -102,15 +111,19 @@ template: `
 styles: [`
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
             display: flex;
             flex-direction: column;  
             //align-items: center; /* Vertically center the items */  
@@ -118,6 +131,9 @@ styles: [`
             .control {
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 0.5em;
                 .back {
                     cursor: pointer;
                 }
@@ -130,7 +146,7 @@ styles: [`
 
            
             h3 {
-                margin-top: 1em; 
+                margin: 1em 0 0; 
             }
         }
 
@@ -138,24 +154,30 @@ styles: [`
             padding: 0.5em 0;
             text-align: center;
             mat-form-field {
-                width: 70%;
+                width: min(70%, 560px);
 
             }
         }       
 
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
         }
+
+        .chip-row { display: flex; gap: 0.4em; flex-wrap: wrap; margin-bottom: 0.6em; }
+        .empty-card { display: flex; flex-direction: column; align-items: center; gap: 0.5em; text-align: center; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 14px; padding: 2.5em 1.5em; color: var(--dp-muted); }
+        .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
+        .empty-card p { margin: 0; max-width: 34em; }
+        .empty-card a { min-height: 44px; }
     }
 }
 
 .form-container {
     padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    background: var(--dp-surface);
+    border: 1px solid var(--dp-line);
+    border-radius: var(--dp-radius);
     .flex-form {
         display: flex;
         flex-wrap: wrap;
@@ -169,12 +191,12 @@ styles: [`
 }
 
 tr:hover {
-    background: whitesmoke;
+    background: var(--dp-gold-soft);
     cursor: pointer;
 }
 
 tr:active {
-    background: #efefef;
+    background: var(--dp-line);
 }
 
 @media (max-width: 600px) {
@@ -187,7 +209,7 @@ tr:active {
 `],
 providers: [],
 changeDetection: ChangeDetectionStrategy.Eager,
-imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatPaginatorModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+imports: [CommonModule, MatIconModule, TruncatePipe, RouterModule, MatPaginatorModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, MatChipsModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule]
 })
 export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -244,6 +266,13 @@ export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Update the empty record flag
     this.isEmptyRecord = this.dataSource.filteredData.length === 0;
+  }
+
+  totalRecipients(): number {
+    return this.dataSource.data.reduce((n: number, row: any) => {
+      const list = row?.prospects;
+      return n + (Array.isArray(list) ? list.length : 0);
+    }, 0);
   }
 
   showDescription() {

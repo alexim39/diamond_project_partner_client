@@ -20,15 +20,24 @@ templateUrl: 'marketing-channels.component.html',
 styles: [`
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
+    .page-head {
+        display: flex;
+        align-items: center;
+        gap: 0.6em;
+        flex-wrap: wrap;
+        h2 { margin: 0; }
+    }
+    .subtitle { margin: 0; color: var(--dp-muted); max-width: 44em; }
     .async-container {
-        border-radius: 1%;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
-        mat-tab-group {
-            background-color: white;
-            border-radius: 10px;
-        }
     }
     mat-icon {
         cursor: pointer;

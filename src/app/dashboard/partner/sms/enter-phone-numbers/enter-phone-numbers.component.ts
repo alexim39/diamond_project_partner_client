@@ -1,7 +1,9 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { SMSService } from '../sms.service';
 import { Router } from '@angular/router';
@@ -9,12 +11,31 @@ import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { SMSGatewaysService } from '../../../../_common/services/sms.service';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { TemplateHandoffService } from '../../../../_common/services/template-handoff.service';
+import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { CampaignService } from '../../tools/campaigns/manage-campaign/manage-campaign.service';
+import { ApiError } from '../../../../core/http/api-error';
+
+const SMS_CHARGE_PER_PAGE = 4.56;
+const MAX_LOG_MIRROR = 50;
+
+const TEMPLATES = [
+  { label: 'Follow-up nudge', text: 'Hi, just following up on our last chat. Are you free for a quick call this week?' },
+  { label: 'Session invite', text: 'Hi! I would like to invite you to a free session on growing your income. Reply YES and I will book you in.' },
+  { label: 'Pricing follow-up', text: 'Hi, sharing the pricing we discussed. Let me know which option works for you and I will reserve it.' },
+];
+
+const tail9 = (s: string): string => String(s ?? '').replace(/\D/g, '').slice(-9);
 
 /**
  * @title enter-phone-numbers
+ *
+ * Bulk SMS composer: validate + cost preview + one server-side send
+ * (charge, gateway and record happen in a single session-owned call, so
+ * the gateway secret never touches the browser). Successful sends are
+ * mirrored into matching prospects' follow-up timelines.
  */
 @Component({
 selector: 'async-enter-phone-numbers',
@@ -31,16 +52,49 @@ template: `
     }
   </mat-form-field>
 
+  <p class="form-section-label">1 · Recipients</p>
+
   <mat-form-field appearance="outline" class="message-phone">
     <mat-label>Enter Phone Numbers</mat-label>
     <textarea matInput placeholder="Ex. 08080386208, 09062537816, ..." formControlName="phoneNumbers"></textarea>
-    <mat-hint align="start"><strong>Separate each phone with a comer</strong> </mat-hint>
+    <mat-hint align="start"><strong>Separate each phone with a comma</strong></mat-hint>
     @if (bulckSMSForm.get('phoneNumbers')?.hasError('required') ) {
       <mat-error>
         At least a phone number should be entered
       </mat-error>
     }
   </mat-form-field>
+
+  <p class="form-section-label">2 · Message</p>
+
+  <mat-form-field appearance="outline" class="template-field">
+    <mat-label>Use a template (optional)</mat-label>
+    <mat-select (selectionChange)="applyTemplate($event.value)">
+      @for (t of templates; track t.label) {
+        <mat-option [value]="t.text">{{ t.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="template-field">
+    <mat-label>Campaign (optional — links spend to ROI)</mat-label>
+    <mat-select [(value)]="campaignId">
+      <mat-option value="">No campaign</mat-option>
+      @for (c of campaigns; track c._id) {
+        <mat-option [value]="c._id">{{ c.campaignName }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <p class="form-section-label">3 · Review & send</p>
+
+  <div class="send-row" role="radiogroup" aria-label="Send timing">
+    <button mat-button type="button" (click)="sendMode = 'now'" [color]="sendMode === 'now' ? 'primary' : undefined">Send now</button>
+    <button mat-button type="button" (click)="sendMode = 'later'" [color]="sendMode === 'later' ? 'primary' : undefined">Schedule</button>
+    @if (sendMode === 'later') {
+      <input type="datetime-local" [(ngModel)]="scheduledAt" [ngModelOptions]="{standalone: true}" aria-label="Scheduled date and time" />
+    }
+  </div>
 
   <mat-form-field appearance="outline" class="message-phone">
     <mat-label>Enter Text Messages</mat-label>
@@ -53,94 +107,239 @@ template: `
     }
   </mat-form-field>
 
-  <button mat-flat-button>Send SMS</button>
+  @if (previewCount() > 0) {
+    <p class="cost-preview" role="status">
+      {{ previewCount() }} recipient{{ previewCount() === 1 ? '' : 's' }} · {{ pages }} page{{ pages === 1 ? '' : 's' }} ·
+      cost ₦{{ previewCost().toFixed(2) }} (balance ₦{{ balance().toFixed(2) }})
+      @if (invalidCount() > 0) {
+        <span> · {{ invalidCount() }} invalid skipped</span>
+      }
+      @if (!canAfford()) {
+        <strong> — insufficient balance</strong>
+      }
+    </p>
+  }
+
+  <button mat-flat-button [disabled]="sending">{{ sending ? 'Sending…' : (sendMode === 'later' ? 'Schedule SMS' : 'Send SMS') }}</button>
+  @if (formError) {
+    <p class="error" role="alert">{{ formError }}</p>
+  }
 </form>
+
+@if (scheduled.length > 0) {
+  <div class="scheduled">
+    <h4>Scheduled sends</h4>
+    <ul>
+      @for (s of scheduled; track s.id) {
+        <li>
+          <div>
+            <strong>{{ s.sendAt | date:'medium' }}</strong>
+            <span class="muted"> · {{ s.total }} recipient{{ s.total === 1 ? '' : 's' }} · {{ s.status }}</span>
+            <div class="muted small">{{ s.smsBody | slice:0:120 }}</div>
+          </div>
+          <span class="spacer"></span>
+          @if (s.status === 'scheduled') {
+            <button mat-button color="warn" type="button" (click)="cancelSchedule(s.id)" [disabled]="cancellingId === s.id">
+              {{ cancellingId === s.id ? 'Cancelling…' : 'Cancel' }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+}
 
 `,
 styles: `
 
 form {
-    margin: 2em;
+    margin: 0;
+    padding: 1em 0 0.5em;
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* Ensure the items take full width */  
+    align-items: stretch;
+    gap: 0.9em;
+
+    .form-section-label {
+        font-size: 0.78em;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--dp-gold-ink);
+        margin: 0.4em 0 -0.3em;
+    }
 
     .sender-id {
-        width: 20%;
+        max-width: 280px;
     }
-    .message-phone {
-        width: 80%;
-        height: 10em;
-        margin-top: 20px; 
+    .message-phone,
+    .template-field {
+        width: 100%;
+    }
+    .message-phone textarea {
+        min-height: 110px;
     }
 
     button {
-        width: 20em;
-        margin-top: 20px; 
-        align-self: center; 
+        min-height: 44px;
+        margin-top: 4px;
+        align-self: flex-start;
+    }
+
+    .send-row {
+        width: 100%;
+        display: flex;
+        gap: 0.5em;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .send-row button { width: auto; margin-top: 0; align-self: auto; }
+
+    .send-row input[type="datetime-local"] {
+        min-height: 44px;
+        border: 1px solid var(--dp-line);
+        border-radius: 4px;
+        padding: 0 0.6em;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+    }
+
+    .scheduled {
+        width: 100%;
+        margin-top: 1.5em;
+    }
+
+    .scheduled h4 { margin: 0 0 0.4em; }
+
+    .scheduled ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+
+    .scheduled li {
+        display: flex;
+        align-items: center;
+        gap: 0.6em;
+        padding: 0.6em 0;
+        border-top: 1px solid var(--dp-line);
+        flex-wrap: wrap;
+    }
+
+    .scheduled .spacer { flex: 1; }
+
+    .scheduled .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .scheduled .small { font-size: 0.8em; }
+
+    .cost-preview {
+        margin: 0;
+        font-size: 0.9em;
+        color: var(--dp-muted);
+        background: var(--dp-paper);
+        border: 1px solid var(--dp-line);
+        border-radius: 8px;
+        padding: 0.6em 0.8em;
+    }
+
+    .error {
+        color: var(--dp-error);
+    }
+    html[data-theme='dark'] .error {
+        color: #e89a9a;
     }
 }
 
 
  /* Media Query for Mobile Responsiveness */
- @media screen and (max-width: 600px) {
+@media screen and (max-width: 600px) {
     form {
         .sender-id {
-            width: 100%;
-        }
-        .message-phone {
-            width: 100%;
-            height: 10em;
+            max-width: none;
         }
         button {
             width: 100%;
+            align-self: stretch;
         }
     }
 }
 
 `,
-providers: [SMSService, SMSGatewaysService],
+providers: [SMSService, CampaignService],
 changeDetection: ChangeDetectionStrategy.Eager,
-imports: [MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule]
+imports: [CommonModule, MatInputModule, MatButtonModule, MatSelectModule, FormsModule, ReactiveFormsModule, MatFormFieldModule]
 })
 export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
   @Input() partner!: PartnerInterface;
   bulckSMSForm!: FormGroup;
   subscriptions: Array<Subscription> = [];
+  protected readonly templates = TEMPLATES;
+  protected readonly leads = inject(LeadPipelineService);
+  protected readonly auth = inject(AuthService);
+
+  sending = false;
+  formError: string | null = null;
+  sendMode: 'now' | 'later' = 'now';
+  scheduledAt = '';
+  campaigns: Array<{ _id: string; campaignName: string }> = [];
+  campaignId = '';
+  scheduled: Array<{ id: string; total: number; smsBody: string; sendAt: string; status: string }> = [];
+  cancellingId: string | null = null;
 
   constructor(
     private smsService: SMSService,
     private router: Router,
-    private smsGatewayService: SMSGatewaysService,
-    private exportContactAndEmailService: ExportContactAndEmailService
+    private exportContactAndEmailService: ExportContactAndEmailService,
+    private handoff: TemplateHandoffService,
+    private campaignService: CampaignService
   ) { }
 
 
   ngOnInit(): void {
-    // console.log(this.partner)
+    this.bulckSMSForm = new FormGroup({
+      senderId: new FormControl('C21FG', Validators.required),
+      phoneNumbers: new FormControl('', Validators.required),
+      textMessage: new FormControl('', Validators.required),
+    });
 
     this.subscriptions.push(
-      this.exportContactAndEmailService.data$.subscribe(data => {
+      this.exportContactAndEmailService.data$.subscribe((data) => {
         const contactPhoneNumbers: Array<string> = data;
-
-        if (contactPhoneNumbers) {
-          this.bulckSMSForm = new FormGroup({
-            senderId: new FormControl('C21FG', Validators.required),
-            phoneNumbers: new FormControl(contactPhoneNumbers, Validators.required),
-            textMessage: new FormControl('', Validators.required),
-            //partnerId: new FormControl(this.partner._id),
-          });
-        } else {
-          this.bulckSMSForm = new FormGroup({
-            senderId: new FormControl('', Validators.required),
-            phoneNumbers: new FormControl('', Validators.required),
-            textMessage: new FormControl('', Validators.required),
-            //partnerId: new FormControl(this.partner._id),
-          });
+        if (contactPhoneNumbers && contactPhoneNumbers.length > 0 && this.bulckSMSForm) {
+          // Patch numbers only — never wipe a typed message.
+          this.bulckSMSForm.get('phoneNumbers')?.setValue(contactPhoneNumbers);
         }
       })
-    )
+    );
 
+    // One-shot template handoff from the content library (appended, never wiped).
+    const handed = this.handoff.takeText();
+    if (handed && this.bulckSMSForm) {
+      const current = String(this.bulckSMSForm.get('textMessage')?.value ?? '').trim();
+      this.bulckSMSForm.get('textMessage')?.setValue(
+        ((current ? `${current}\n\n` : '') + handed).slice(0, 960));
+    }
+
+    if (this.partner?._id) {
+      this.subscriptions.push(
+        this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe({
+          next: (res) => {
+            this.campaigns = (res?.data ?? []).map((c: any) => ({ _id: String(c._id), campaignName: c.campaignName ?? 'Untitled campaign' }));
+          },
+          error: () => {},
+        })
+      );
+      this.reloadScheduled();
+    }
+  }
+
+  protected reloadScheduled(): void {
+    this.subscriptions.push(
+      this.smsService.listScheduled().subscribe({
+        next: (res) => {
+          this.scheduled = res?.data ?? [];
+        },
+        error: () => {},
+      })
+    );
   }
 
   get pages(): number {
@@ -148,231 +347,206 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
     return Math.ceil(messageLength / 160);
   }
 
+  /** Raw entries as typed (for invalid counting). */
+  private rawEntries(): string[] {
+    const v = this.bulckSMSForm.get('phoneNumbers')?.value;
+    const arr = typeof v === 'string' ? v.split(',') : Array.isArray(v) ? v : [];
+    return arr.map((n) => String(n).trim()).filter(Boolean);
+  }
+
+  protected previewCount(): number {
+    return this.formatPhoneNumbers(this.rawEntries()).length;
+  }
+
+  protected invalidCount(): number {
+    return Math.max(0, this.rawEntries().length - this.previewCount());
+  }
+
+  protected previewCost(): number {
+    return Math.round(this.previewCount() * this.pages * SMS_CHARGE_PER_PAGE * 100) / 100;
+  }
+
+  protected balance(): number {
+    return Number(this.partner?.balance ?? 0);
+  }
+
+  protected canAfford(): boolean {
+    return this.balance() >= this.previewCost();
+  }
+
+  protected applyTemplate(text: string): void {
+    if (text) this.bulckSMSForm.get('textMessage')?.setValue(text);
+  }
+
   onSubmit() {
-
-    if (this.bulckSMSForm.valid) {
-      const contacts = this.bulckSMSForm.get('phoneNumbers')?.value;
-      const formatedphoneNumbers = this.formatPhoneNumbers(contacts);
-
-      // Here you can send the formattedNumbers and form values to your backend  
-      //console.log('Sender ID:', this.bulckSMSForm.get('senderId')?.value);  
-      //console.log('Formatted Phone Numbers:', formattedNumbers);  
-      //console.log('Text Message:', this.bulckSMSForm.get('textMessage')?.value);  
-
-      const bulkSMSObject = {
-        senderId: this.bulckSMSForm.get('senderId')?.value,
-        phoneNumbers: formatedphoneNumbers,
-        textMessage: this.bulckSMSForm.get('textMessage')?.value,
-        partnerId: this.partner._id
-      }
-
-      // call sms charge method
-      this.chargeForSMS(formatedphoneNumbers);
-
+    Object.keys(this.bulckSMSForm.controls).forEach((k) => this.bulckSMSForm.get(k)?.markAsTouched());
+    if (!this.bulckSMSForm.valid || this.sending) return;
+    const to = this.formatPhoneNumbers(this.rawEntries());
+    const body = String(this.bulckSMSForm.get('textMessage')?.value ?? '').trim();
+    if (to.length === 0) {
+      this.formError = 'No valid Nigerian mobile numbers found.';
+      return;
     }
+    this.formError = null;
+    if (this.sendMode === 'later') return this.schedule(to, body);
+    const cost = Math.round(to.length * this.pages * SMS_CHARGE_PER_PAGE * 100) / 100;
+
+    Swal.fire({
+      title: 'Confirm bulk SMS',
+      text: `${to.length} recipient${to.length === 1 ? '' : 's'} · ${this.pages} page${this.pages === 1 ? '' : 's'} · ₦${cost.toFixed(2)} will be charged.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ffab40',
+      confirmButtonText: 'Yes, send it',
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      this.sending = true;
+      this.subscriptions.push(
+        this.smsService.sendBulkSMS({ to, body, ...(this.campaignId ? { campaignId: this.campaignId } : {}) }).subscribe({
+          next: (response) => {
+            this.sending = false;
+            const data = response.data;
+            const failedNote = data.failed.length > 0
+              ? ` Failed: ${data.failed.map((f: { to: string }) => f.to).join(', ')}.`
+              : '';
+            Swal.fire({
+              position: 'bottom',
+              icon: data.status === 'failed' ? 'error' : 'success',
+              text: `SMS sent to ${data.sent} of ${data.total} recipients.${failedNote}`,
+              showConfirmButton: false,
+              timer: 10000,
+            });
+            this.mirrorToTimelines(to, body);
+            this.bulckSMSForm.get('phoneNumbers')?.setValue('');
+          },
+          error: (error: ApiError) => {
+            this.sending = false;
+            this.formError = error.message;
+          },
+        })
+      );
+    });
   }
 
-  private chargeForSMS(phoneNumbers: Array<string>) {
-
-    const chargeObject = {
-      partnerId: this.partner._id,
-      numberOfContacts: phoneNumbers.length,
-      pages: this.pages
+  /** Later mode: validate the fire time, then queue (charged at send time). */
+  private schedule(to: string[], body: string): void {
+    const at = this.scheduledAt ? new Date(this.scheduledAt) : null;
+    if (!at || Number.isNaN(at.getTime()) || at.getTime() <= Date.now()) {
+      this.formError = 'Pick a future date and time for the scheduled send.';
+      return;
     }
-
+    this.sending = true;
     this.subscriptions.push(
-      this.smsService.bulkSMSCharge(chargeObject).subscribe({
-
-        next: (response) => {
-          console.log('sms charge ', response)
-          if (response.success) {
-            const transactionId = response?.data._id;
-            this.callSMSGate(transactionId)
-          }
-        },
-        error (error: HttpErrorResponse) {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
+      this.smsService.scheduleBulkSMS({
+        to,
+        body,
+        sendAt: at.toISOString(),
+        ...(this.campaignId ? { campaignId: this.campaignId } : {}),
+      }).subscribe({
+        next: () => {
+          this.sending = false;
+          this.bulckSMSForm.get('phoneNumbers')?.setValue('');
+          this.scheduledAt = '';
+          this.sendMode = 'now';
+          this.reloadScheduled();
           Swal.fire({
-            position: "bottom",
-            icon: 'error',
-            text: errorMessage,
+            position: 'bottom',
+            icon: 'success',
+            text: `SMS scheduled for ${at.toLocaleString()} — charged when it fires.`,
             showConfirmButton: false,
-            timer: 4000
-          });  
-        }
-      })
-    )
-  }
-
-
-  private callSMSGate(transactionId: string) {
-
-    const contacts = this.bulckSMSForm.get('phoneNumbers')?.value;
-    const formatedphoneNumbers = this.formatPhoneNumbers(contacts);
-    const senderId = this.bulckSMSForm.get('senderId')?.value;
-    const message = this.bulckSMSForm.get('textMessage')?.value;
-
-    //Here you can send the formattedNumbers and form values to your backend  
-    console.log('Sender ID:', this.bulckSMSForm.get('senderId')?.value);  
-    console.log('Formatted Phone Numbers:', formatedphoneNumbers);  
-    console.log('Text Message:', this.bulckSMSForm.get('textMessage')?.value);
-
-    this.subscriptions.push(
-
-      this.smsGatewayService.send(formatedphoneNumbers, message, senderId).subscribe({
-
-        next: (response) => {
-          let status: "success" | "failed" = response.data.status;
-          if (response.data.status == 'success') {
-            status = "success"
-          } else {
-            status = "failed"
-          }
-
-          const smsObject = {
-            partner: this.partner._id,
-            prospect: formatedphoneNumbers,
-            smsBody: message,
-            transactionId: transactionId,
-            status,
-          }
-
-          this.subscriptions.push(
-            this.smsService.saveSMSRecord(smsObject).subscribe({
-
-              next: (response) => {
-                  Swal.fire({
-                    position: "bottom",
-                    icon: 'success',
-                    text: response.message,
-                    showConfirmButton: false,
-                    timer: 10000,
-                  })
-                },
-                error: (error: HttpErrorResponse) => {
-                  let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                  if (error.error && error.error.message) {
-                    errorMessage = error.error.message; // Use backend's error message if available.
-                  }
-                  Swal.fire({
-                    position: "bottom",
-                    icon: 'error',
-                    text: errorMessage,
-                    showConfirmButton: false,
-                    timer: 4000
-                  });  
-                }
-            })
-          )
+            timer: 6000,
+          });
         },
-        error: (error: HttpErrorResponse) => {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'SMS not sent, there was an error sending SMS',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }
-        /* response => {
-          //console.log('SMS sent successfully:', response);  
-
-          if (response.data.status == 'success') {
-            const smsObject = {
-              partner: this.partner._id,
-              prospect: formatedphoneNumbers,
-              smsBody: message,
-              transactionId: transactionId,
-              status: "success"
-            }
-            // record sms to database
-            this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: any) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: 'SMS sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-            )
-          } else {
-            const smsObject = {
-              partner: this.partner._id,
-              prospect: formatedphoneNumbers,
-              smsBody: message,
-              transactionId: transactionId,
-              status: "failed"
-            }
-            // record sms to database
-            this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: any) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'info',
-                  text: 'SMS was not sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-            )
-          }
-
-
+        error: (error: ApiError) => {
+          this.sending = false;
+          this.formError = error.message;
         },
-        (error) => {
-          //console.error('Error sending SMS:', error);  
-         
-        } */
       })
     );
   }
 
+  protected cancelSchedule(id: string): void {
+    if (this.cancellingId) return;
+    this.cancellingId = id;
+    this.subscriptions.push(
+      this.smsService.cancelScheduled(id).subscribe({
+        next: () => {
+          this.cancellingId = null;
+          this.reloadScheduled();
+        },
+        error: (error: ApiError) => {
+          this.cancellingId = null;
+          this.formError = error.message;
+        },
+      })
+    );
+  }
+  private mirrorToTimelines(to: string[], body: string): void {
+    // Same identity the pipeline page uses, so mirrored touches land on
+    // the prospects the member actually sees in My follow-ups.
+    const id = String(this.auth.currentUser()?.id ?? this.partner?._id ?? '').trim();
+    if (!id || to.length === 0) return;
+    const keys = new Set(to.map(tail9).filter((k) => k.length >= 7));
+    if (keys.size === 0) return;
+    this.subscriptions.push(
+      this.leads.listByPartner(id, { limit: 500 }).subscribe({
+        next: (res) => {
+          const hits = (res.data ?? [])
+            .filter((p) => keys.has(tail9(p.prospectPhone)))
+            .slice(0, MAX_LOG_MIRROR);
+          const text = `Bulk SMS (${this.pages}p): ${body}`.slice(0, 5000);
+          for (const hit of hits) {
+            this.leads.logCommunication(hit.id, {
+              type: 'text',
+              interestLevel: 'warm',
+              date: new Date().toISOString().slice(0, 10),
+              duration: 0,
+              description: text,
+              followUpAction: '',
+            }).subscribe({ error: () => {} });
+          }
+        },
+        error: () => {},
+      })
+    );
+  }
 
   private formatPhoneNumbers(numbers: string | string[]): string[] {
-    // Initialize a Set to ensure uniqueness  
+    // Initialize a Set to ensure uniqueness
     const uniqueNumbers = new Set<string>();
 
-    // Determine how to process the input based on the provided category  
+    // Determine how to process the input based on the provided category
     let numberArray: string[];
 
     if (typeof numbers === 'string') {
-      // If the category is 'string', split the input string by commas and trim whitespace  
+      // If the category is 'string', split the input string by commas and trim whitespace
       numberArray = (numbers as string).split(',').map(num => num.trim());
     } else if (Array.isArray(numbers)) {
-      // If the category is 'array', ensure that it's properly typed  
+      // If the category is 'array', ensure that it's properly typed
       numberArray = (numbers as string[]).map(num => num.trim());
     } else {
-      throw new Error('Invalid category. Must be either "string" or "array".');
+      throw new Error('Invalid category. Must be either a string or an array.');
     }
 
     numberArray.forEach(number => {
-      // Validate and format phone number  
+      // Validate and format phone number
       if (this.isValidNigerianNumber(number)) {
-        // Format number to start with +234  
+        // Format number to start with +234
         const formattedNumber = number.startsWith('0')
-          ? '+234' + number.slice(1)  // Replace the initial 0 with +234  
+          ? '+234' + number.slice(1)  // Replace the initial 0 with +234
           : number.startsWith('+234')
-            ? number                       // If it already starts with +234, keep it  
-            : '+234' + number;            // Otherwise, prepend +234  
+            ? number                       // If it already starts with +234, keep it
+            : '+234' + number;            // Otherwise, prepend +234
         uniqueNumbers.add(formattedNumber);
       }
     });
 
-    // Return the unique, formatted phone numbers as an array  
+    // Return the unique, formatted phone numbers as an array
     return Array.from(uniqueNumbers);
   }
 
   private isValidNigerianNumber(number: string): boolean {
-    // Simple regex for validating Nigerian phone numbers  
+    // Simple regex for validating Nigerian phone numbers
     const regex = /^(0|\+234)[789]\d{9}$/;
     return regex.test(number);
   }

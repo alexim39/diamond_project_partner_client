@@ -1,61 +1,77 @@
-import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy, inject} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 import { MatIconModule } from '@angular/material/icon';
 import templatesData from '../../../../../../../public/resource-templates/text/source.json';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import {MatButtonModule} from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TemplateHandoffService } from '../../../../../_common/services/template-handoff.service';
+
+interface TextTemplate {
+  title: string;
+  description: string;
+  platforms?: string[];
+}
 
 /**
- * @title Text template download
+ * @title Text templates — copy or send straight into outreach.
  */
 @Component({
 selector: 'async-text-download',
 template: `
 
 <div class="wrapper">
-  <section class="content-header">
-    <h1>Social Media Text Templates</h1>
-    <h6>Copy the content templates below to start posting your Ads</h6>
-  </section>
+  <div class="toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Search templates</mat-label>
+      <input matInput type="search" [(ngModel)]="query" (input)="filterTemplates()" placeholder="Words or phrases" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Platform</mat-label>
+      <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="filterTemplates()">
+        <mat-option value="All Platforms">All Platforms</mat-option>
+        <mat-option value="Facebook">Facebook</mat-option>
+        <mat-option value="Twitter">Twitter</mat-option>
+        <mat-option value="Instagram">Instagram</mat-option>
+        <mat-option value="WhatsApp">WhatsApp</mat-option>
+        <mat-option value="LinkedIn">LinkedIn</mat-option>
+        <mat-option value="Pinterest">Pinterest</mat-option>
+        <mat-option value="TikTok">TikTok</mat-option>
+        <mat-option value="YouTube">YouTube</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 
-  <section class="filter-search">
-    <div class="filters">
-      <mat-form-field appearance="outline">
-        <mat-label>Select Platform</mat-label>
-        <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="filterTemplates()">
-          <mat-option value="All Platforms">All Platforms</mat-option>
-          <mat-option value="Facebook">Facebook</mat-option>
-          <mat-option value="Twitter">Twitter</mat-option>
-          <mat-option value="Instagram">Instagram</mat-option>
-          <mat-option value="WhatsApp">WhatsApp</mat-option>
-          <mat-option value="LinkedIn">LinkedIn</mat-option>
-          <mat-option value="Pinterest">Pinterest</mat-option>
-          <mat-option value="TikTok">TikTok</mat-option>
-          <mat-option value="YouTube">YouTube</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </section>
+  @if (filteredTemplates.length > 0) {
+    <section class="template-list">
+      @for (template of filteredTemplates; track template.title) {
+        <div class="template-item dp-card">
+          <div class="template-top">
+            <h3>{{ template.title }}</h3>
+            <button mat-icon-button (click)="copyContent(template)" title="Copy with my link" aria-label="Copy with my link">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+          <p>{{ template.description }}</p>
+          <p class="muted">Posts with <strong>{{ partnerLink() }}</strong></p>
+          <div class="template-actions">
+            <button mat-button (click)="useInSms(template)">Use in SMS</button>
+            <button mat-button (click)="useInEmail(template)">Use in Email</button>
+          </div>
+        </div>
+      }
+    </section>
+  } @else {
+    <p class="empty">No templates match — try another search or platform.</p>
+  }
 
-  <section class="template-list">
-    @for (template of filteredTemplates; track template) {
-      <div class="template-item">
-        <mat-icon class="copy-icon" (click)="copyContent(template)">content_copy</mat-icon>
-        <h3>{{ template.title }}</h3>
-        <p>{{ template.description }}</p>
-        <p>Visit <a href="https://diamondprojectonline.com/{{partner.username}}" target="_blank">diamondprojectonline.com/{{partner.username}}</a> to get started</p>
-      </div>
-    }
-  </section>
-
-  <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()">
+  <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()" aria-label="Scroll to top">
     <mat-icon>arrow_upward</mat-icon>
   </button>
 </div>
@@ -63,83 +79,38 @@ template: `
 `,
 styles: [`
 
-
-.wrapper {
-    margin: 2em;
-}
-.content-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-
-.filter-search {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
-}
+.wrapper { padding: 0.5em 0; }
+.toolbar { display: flex; gap: 0.75em; flex-wrap: wrap; align-items: center; margin-bottom: 1em; }
+.toolbar mat-form-field { flex: 1; min-width: 200px; }
 
 .template-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .template-item {
-    background-color: #f9f9f9;
-    border-radius: 8px;
     padding: 1rem;
-    text-align: left;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease-in-out;
-}
-
-.copy-icon {
-    float: right;
-    cursor: pointer;
-    color: #007bff;
-}
-
-.template-item:hover {
-    transform: scale(1.03);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
 }
 
 .template-item h3 {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-    color: #333;
+    margin: 0;
+    font-size: 1.05rem;
 }
 
-.template-item p, a {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 1rem;
-}
+.template-item p { margin: 0; font-size: 0.9rem; }
+.muted { color: var(--dp-muted); font-size: 0.85em; }
+.muted strong { color: var(--dp-gold-ink); }
 
-a {
-    text-decoration: underline;
-    font-weight: bolder;
-}
+.template-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5em; }
+.template-top button { min-height: 44px; }
+.template-actions { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.3em; }
+.template-actions button { min-height: 44px; }
 
-.template-item button {
-    background-color: #007BFF;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-}
-
-.template-item button:hover {
-    background-color: #0056b3;
-}
-
-@media (max-width: 768px) {
-    .template-list {
-        grid-template-columns: 1fr 1fr;
-    }
-}
+.empty { color: var(--dp-muted); text-align: center; padding: 2em 1em; }
 
 @media (max-width: 480px) {
     .template-list {
@@ -159,22 +130,26 @@ changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, FormsModule, MatInputModule, MatSelectModule]
 })
 export class TextDownloadComponent {
-  templates = templatesData;
-  filteredTemplates = templatesData;
+  templates: TextTemplate[] = [...(templatesData as TextTemplate[])];
+  filteredTemplates: TextTemplate[] = [...this.templates];
   selectedPlatform: string = 'All Platforms';
+  query = '';
 
   @Input() partner!: PartnerInterface;
 
+  private readonly handoff = inject(TemplateHandoffService);
+  private readonly router = inject(Router);
+
   constructor(
-    private http: HttpClient,
     private snackBar: MatSnackBar
   ) {}
 
     ngOnInit(): void {
-        this.templates = this.shuffleArray(templatesData);
+        this.templates = this.shuffleArray([...(templatesData as TextTemplate[])]);
+        this.filteredTemplates = [...this.templates];
     }
-  
-    private shuffleArray(array: any[]): any[] {
+
+    private shuffleArray(array: TextTemplate[]): TextTemplate[] {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -182,50 +157,53 @@ export class TextDownloadComponent {
       return array;
     }
 
- /*  copyContent(template: { description: string; }): void {
-    const partnerLink = `Visit https://diamondprojectonline/${this.partner.username} to get started`;
-    const fullContent = `${template.description}\n\n${partnerLink}`;
-    
-    navigator.clipboard.writeText(fullContent).then(() => {
-      console.log('Content and link copied to clipboard!');
-    }).catch(err => {
-      console.error('Failed to copy content and link: ', err);
-    });
-  } */
+    protected partnerLink(): string {
+      return `diamondprojectonline.com/${this.partner?.username ?? ''}`;
+    }
 
-    copyContent(template: { description: string; }): void {
-      const partnerLink = `Visit https://diamondprojectonline.com/${this.partner.username} to get started`;
-      const fullContent = `${template.description}\n\n${partnerLink}`;
-      
-      navigator.clipboard.writeText(fullContent).then(() => {
+    private fullContent(template: TextTemplate): string {
+      return `${template.description}\n\nVisit https://${this.partnerLink()} to get started`;
+    }
+
+    copyContent(template: TextTemplate): void {
+      navigator.clipboard.writeText(this.fullContent(template)).then(() => {
         this.showSnackbar('Content and link copied to clipboard!');
-      }).catch(err => {
-        console.error('Failed to copy content and link: ', err);
+      }).catch(() => {
         this.showSnackbar('Failed to copy content. Please try again.');
       });
     }
-  
+
+    protected useInSms(template: TextTemplate): void {
+      this.handoff.sendText(this.fullContent(template).slice(0, 960));
+      this.router.navigate(['/dashboard/tools/sms/new']);
+    }
+
+    protected useInEmail(template: TextTemplate): void {
+      this.handoff.sendText(this.fullContent(template));
+      this.router.navigate(['/dashboard/tools/email/new']);
+    }
+
     private showSnackbar(message: string): void {
       this.snackBar.open(message, 'Close', {
-        duration: 3000, // Duration in milliseconds
+        duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'bottom',
       });
     }
-  
+
 
   filterTemplates() {
-    if (this.selectedPlatform === 'All Platforms') {
-      this.filteredTemplates = this.templates;
-    } else {
-      this.filteredTemplates = this.templates.filter(template =>
-        template.platforms?.includes(this.selectedPlatform)
-      );
-    }
+    const q = this.query.trim().toLowerCase();
+    this.filteredTemplates = this.templates.filter((template) => {
+      const platformOk = this.selectedPlatform === 'All Platforms'
+        || template.platforms?.includes(this.selectedPlatform);
+      if (!platformOk) return false;
+      if (!q) return true;
+      return `${template.title ?? ''} ${template.description ?? ''}`.toLowerCase().includes(q);
+    });
   }
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
 }

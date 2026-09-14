@@ -22,23 +22,23 @@ import { HttpErrorResponse } from '@angular/common/http';
             {{data.emailSubject | uppercase }}
         </h2>
         <mat-dialog-content class="mat-typography">
-            <small style="color: gray;">Message:</small>
-            <p [innerHTML]="safeHtmlEmailBody" style="line-height: 1.7em;"></p>
+            <small class="muted">Message:</small>
+            <p [innerHTML]="safeHtmlEmailBody" class="body-text"></p>
 
-            <small style="color: gray;">Recipient: {{data.prospects.length}}</small>
-            <p style="line-height: 1.7em; color: gray"> 
+            <small class="muted">Recipient: {{data.prospects.length}}</small>
+            <p class="body-text muted">
                 {{ data.prospects.join(', ') }}
             </p>
         </mat-dialog-content>
 
         <mat-accordion>
 
-        <mat-expansion-panel style="margin: 2em">
+        <mat-expansion-panel class="more-action">
             <mat-expansion-panel-header>
                 <mat-panel-title> More Action </mat-panel-title>
                 </mat-expansion-panel-header>
-                <p style="color: gray;">Delete prospect from system</p>
-                <button mat-stroked-button (click)="delete(data._id)" style="color: red;">
+                <p class="muted">Delete prospect from system</p>
+                <button mat-stroked-button (click)="delete(data._id)" class="danger">
                 <mat-icon>delete</mat-icon>
                 Delete
                 </button>
@@ -51,6 +51,11 @@ import { HttpErrorResponse } from '@angular/common/http';
     </section>
   `,
     styles: `
+    .muted { color: var(--dp-muted); }
+    .body-text { line-height: 1.7em; overflow-wrap: anywhere; }
+    .more-action { margin: 2em; }
+    .danger { color: var(--dp-error); }
+    html[data-theme='dark'] .danger { color: #e89a9a; }
   `,
     providers: [EmailService],
     changeDetection: ChangeDetectionStrategy.Eager,

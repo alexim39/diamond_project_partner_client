@@ -1,37 +1,38 @@
 <div class="wrapper">
-  <section class="content-header">
-    <h1>Social Media Image Templates</h1>
-    <h6>Download the image templates below to start posting your Ads</h6>
-  </section>
+  <div class="toolbar">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Platform</mat-label>
+      <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="onPlatformChange()">
+        @for (platform of platforms; track platform) {
+          <mat-option [value]="platform">{{ platform }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
 
-  <section class="filter-search">
-    <div class="filters">
-      <mat-form-field appearance="outline">
-        <mat-label>Select Platform</mat-label>
-        <mat-select [(ngModel)]="selectedPlatform" (selectionChange)="onPlatformChange()">
-          @for (platform of platforms; track platform) {
-            <mat-option [value]="platform">{{ platform }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
-  </section>
+  @if (loadError) {
+    <p class="error" role="alert">{{ loadError }}</p>
+  }
 
-  <section class="template-list">
-    @for (template of filteredTemplates; track template) {
-      <div class="template-item">
-        <div class="template-image">
-          <img [src]="template.imageUrl" [alt]="template.title" style="width: 17em; height: 20em;">
-          <button mat-raised-button color="primary" (click)="downloadImage(template.imageUrl, template.title)" style="margin-top: 10px;">
-            <mat-icon>file_download</mat-icon> Download Image</button>
+  @if (filteredTemplates.length > 0) {
+    <section class="template-list">
+      @for (template of filteredTemplates; track template.imageUrl) {
+        <div class="template-item dp-card">
+          <div class="template-image">
+            <img [src]="template.imageUrl" [alt]="template.title" loading="lazy">
+            <strong>{{ template.title }}</strong>
+            <button mat-flat-button color="primary" (click)="downloadImage(template.imageUrl, template.title)">
+              <mat-icon>file_download</mat-icon> Download
+            </button>
           </div>
         </div>
       }
     </section>
+  } @else if (!loadError) {
+    <p class="empty">No image templates found.</p>
+  }
 
-
-    <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()">
-      <mat-icon>arrow_upward</mat-icon>
-    </button>
-  </div>
-
+  <button mat-mini-fab color="primary" class="scroll-to-top" (click)="scrollToTop()" aria-label="Scroll to top">
+    <mat-icon>arrow_upward</mat-icon>
+  </button>
+</div>

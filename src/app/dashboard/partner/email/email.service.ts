@@ -23,6 +23,21 @@ export class EmailService {
     return this.apiService.post<EmailInterface>(`emails/send-email`, formObject, undefined, true);
   }
 
+  // schedule a bulk email for later (free channel, cancellable)
+  scheduleBulkEmail(formObject: { to: Array<string>, subject: string, body: string, sendAt: string }): Observable<any> {
+    return this.apiService.post<any>(`v1/outreach/email/schedule`, formObject, undefined, true);
+  }
+
+  // scheduled email outbox (upcoming + recent)
+  listScheduledEmails(): Observable<any> {
+    return this.apiService.get<any>(`v1/outreach/email/scheduled`, undefined, undefined, true);
+  }
+
+  // cancel own scheduled email
+  cancelScheduledEmail(scheduleId: string): Observable<any> {
+    return this.apiService.delete<any>(`v1/outreach/email/scheduled/${scheduleId}`, undefined, undefined, true);
+  }
+
   // detele single email
   deleteSingleEmail(emailId: string): Observable<any> {
       return this.apiService.delete<any>(`emails/delete-single/${emailId}`, undefined, undefined, true);

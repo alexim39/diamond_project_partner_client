@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { CampaignAnalyticsContainerComponent } from '../prospects/campaign-analytics/campaign-analytics-container.component';
-import { LinkAnalyticsContainerComponent } from '../prospects/link-analytics/link-analytics-container.component';
 import { smsContainerComponent } from '../sms/sms-container.component';
 import { smsLogContainerComponent } from '../sms/sms-log/sms-log-container.component';
 import { EmailContainerComponent } from '../email/email-container.component';
@@ -32,22 +30,25 @@ export const ToolsRoutes: Routes = [
                 {
                     path: 'manage',
                     component: ManageCampaignContainerComponent,
-                    title: "Manage Marketing Campaigns",
+                    title: "My Campaigns - Manage your invite campaigns",
                 },  
                 {
+                    // Retired: mislabeled prospect tables, not analytics.
+                    // Real numbers live under What campaigns earned.
                     path: 'analytics',
-                    component: CampaignAnalyticsContainerComponent,
-                    title: "Campaign Analytics - Manage, understanding and Analyse each campaign",
+                    redirectTo: '/dashboard/marketing/roi',
+                    pathMatch: 'full',
                 },   
                 {
+                    // Retired: same reason — see above.
                     path: 'link',
-                    component: LinkAnalyticsContainerComponent,
-                    title: "Unique Link Analytics - Manage, understanding and Analyse your unique link",
+                    redirectTo: '/dashboard/marketing/roi',
+                    pathMatch: 'full',
                 }, 
                 {
                     path: 'share',
                     component: InvitationContainerComponent,
-                    title: "Share your unique link on social media",
+                    title: "Share Invite Link - Send your personal link outward",
                 },        
                      
                 {
@@ -67,12 +68,12 @@ export const ToolsRoutes: Routes = [
             {
                 path: 'new',
                 component: smsContainerComponent,
-                title: "Send Bulk SMS - Send bulk SMS to one or more contacts",
+                title: "Send SMS - Send bulk SMS to one or more contacts",
             },
             {
                 path: 'messages',
                 component: smsLogContainerComponent,
-                title: "Bulk SMS Log Center - View and manage your bulk SMS messages ",
+                title: "SMS Inbox - View and manage your bulk SMS messages ",
             },   
         ]
    },
@@ -82,12 +83,12 @@ export const ToolsRoutes: Routes = [
             {
                 path: 'new',
                 component: EmailContainerComponent,
-                title: "Send Bulk Email - Send bulk email to one or more contacts",
+                title: "Send Email - Send bulk email to one or more contacts",
             },  
             {
                 path: 'logs',
                 component: EmailLogContainerComponent,
-                title: "Bulk Email Log Center - View and manage your bulk email messages ",
+                title: "Email Inbox - View and manage your bulk email messages ",
             },    
         ]
    },

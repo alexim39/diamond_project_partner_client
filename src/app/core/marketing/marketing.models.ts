@@ -5,6 +5,7 @@ export interface CampaignRoi {
   name: string;
   visits: number;
   budget: number;
+  outreachSpend?: number;
   windowProspects: number;
   windowConversions: number;
   conversionRate: number | null;
@@ -16,6 +17,7 @@ export interface CampaignRoi {
 export interface RoiTotals {
   visits: number;
   budget: number;
+  outreachSpend?: number;
   prospects: number;
   conversions: number;
   conversionRate: number | null;

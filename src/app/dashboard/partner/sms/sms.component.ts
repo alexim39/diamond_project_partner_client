@@ -9,10 +9,11 @@ import { EnterPhoneNumbersComponent } from './enter-phone-numbers/enter-phone-nu
 
 import { Router, RouterModule } from '@angular/router';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { ProspectPickerComponent } from './prospect-picker/prospect-picker.component';
 
 @Component({
 selector: 'async-sms',
-imports: [MatButtonModule, MatIconModule, MatTabsModule, RouterModule, EnterPhoneNumbersComponent, MatButtonToggleModule],
+imports: [MatButtonModule, MatIconModule, MatTabsModule, RouterModule, EnterPhoneNumbersComponent, MatButtonToggleModule, ProspectPickerComponent],
 template: `
 
 <section class="breadcrumb-wrapper">
@@ -25,34 +26,43 @@ template: `
 </section>
 
 <section class="async-background ">
-  <h2>Create Bulk SMS List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <div class="page-head">
+    <div>
+      <h2>Send SMS <mat-icon (click)="showDescription()">help</mat-icon></h2>
+      <p class="subtitle">Reach many prospects at once — charged per page, logged to timelines.</p>
+    </div>
+    <a mat-button routerLink="../../../tools/sms/messages" (click)="scrollToTop()" title="SMS inbox"><mat-icon>sms</mat-icon> SMS inbox</a>
+  </div>
 
   <section class="async-container">
+
     <div class="title">
       <div class="control">
         <div class="back" (click)="back()" title="Back">
           <mat-icon>arrow_back</mat-icon>
         </div>
         <mat-button-toggle-group>
-          <mat-button-toggle routerLink="../../../tools/sms/messages" routerLinkActive="active" (click)="scrollToTop()" title="View email list"><mat-icon>sms</mat-icon> Messages</mat-button-toggle>
           <mat-button-toggle (click)="importContactPhoneNumbers()" title="Import Numbers from contact list"><mat-icon>cloud_download</mat-icon> Import Numbers from Contact</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
-      <h3>Send New SMS</h3>
+      <h3>Compose</h3>
 
     </div>
 
 
     <div class="container">
 
-      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [selectedIndex]="tabIndex" (selectedIndexChange)="tabIndex = $event">
         <mat-tab label="Enter Phone Numbers">
           @if (partner) {
             <async-enter-phone-numbers [partner]="partner"/>
           }
         </mat-tab>
-        <!-- <mat-tab label="Import From Contacts">Content 2</mat-tab> -->
-        <!-- <mat-tab label="Upload From Excel File">Content 3</mat-tab> -->
+        <mat-tab label="Choose from Prospects">
+          @if (partner) {
+            <async-prospect-picker [partnerId]="partner._id" (applied)="tabIndex = 0"/>
+          }
+        </mat-tab>
       </mat-tab-group>
 
     </div>
@@ -67,15 +77,43 @@ changeDetection: ChangeDetectionStrategy.Eager,
 styles: [`
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
+    .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1em;
+        h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+            mat-icon {
+                cursor: pointer;
+            }
+        }
+        a[mat-button] {
+            min-height: 44px;
+        }
+    }
+    .subtitle {
+        margin: 0.25em 0 0;
+        color: var(--dp-muted);
+        max-width: 44em;
+    }
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
             display: flex;
             flex-direction: column;  
             //align-items: center; /* Vertically center the items */  
@@ -83,6 +121,9 @@ styles: [`
             .control {
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 0.5em;
                 .back {
                     cursor: pointer;
                 }
@@ -95,7 +136,7 @@ styles: [`
 
            
             h3 {
-                margin-top: 1em; 
+                margin: 1em 0 0; 
             }
         }
 
@@ -103,15 +144,19 @@ styles: [`
             padding: 0.5em 0;
             text-align: center;
             mat-form-field {
-                width: 70%;
+                width: min(70%, 560px);
 
             }
         }       
 
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
+        }
+
+        mat-button-toggle-group {
+            flex-wrap: wrap;
         }
     }
 }
@@ -119,9 +164,9 @@ styles: [`
 .container {
     margin-top: 1em;
     padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    background: var(--dp-surface);
+    border: 1px solid var(--dp-line);
+    border-radius: var(--dp-radius);
 }
 
 
@@ -137,6 +182,7 @@ export class smsComponent {
 
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
+  tabIndex = 0;
 
   constructor(
     private router: Router,
@@ -151,7 +197,7 @@ export class smsComponent {
     }
   
     importContactPhoneNumbers() {
-      this.router.navigate(['/dashboard/tools/contacts/list']);
+      this.router.navigate(['/dashboard/prospects/pipeline']);
     }
 
     scrollToTop() {
@@ -163,7 +209,7 @@ export class smsComponent {
           window.history.back();  
       } else {  
           // Redirect to a default route if there's no history  
-          this.router.navigate(['/dashboard/tools/contacts/list']);
+          this.router.navigate(['/dashboard/tools/contacts/new']);
       }  
     }
       

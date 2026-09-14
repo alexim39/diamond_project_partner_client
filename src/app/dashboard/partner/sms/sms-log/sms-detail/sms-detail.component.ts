@@ -21,22 +21,22 @@ import { SMSService } from '../../sms.service';
             SMS Detail
         </h2>
         <mat-dialog-content class="mat-typography">
-            <small style="color: gray;">Message:</small>
-            <p [innerHTML]="safeHtmlSmsBody" style="line-height: 1.7em;"></p>
+            <small class="muted">Message:</small>
+            <p [innerHTML]="safeHtmlSmsBody" class="body-text"></p>
             <br>
 
-            <small style="color: gray;">Recipient: {{data.prospect.length}}</small>
-            <p style="line-height: 1.7em; color: gray"> {{data.prospect}} </p>
+            <small class="muted">Recipient: {{data.prospect.length}}</small>
+            <p class="body-text muted"> {{data.prospect}} </p>
         </mat-dialog-content>
 
         <mat-accordion>
 
-        <mat-expansion-panel style="margin: 2em">
+        <mat-expansion-panel class="more-action">
             <mat-expansion-panel-header>
                 <mat-panel-title> More Action </mat-panel-title>
                 </mat-expansion-panel-header>
-                <p style="color: gray;">Delete prospect from system</p>
-                <button mat-stroked-button (click)="deleteSMS(data._id)" style="color: red;">
+                <p class="muted">Delete prospect from system</p>
+                <button mat-stroked-button (click)="deleteSMS(data._id)" class="danger">
                 <mat-icon>delete</mat-icon>
                 Delete
                 </button>
@@ -50,6 +50,11 @@ import { SMSService } from '../../sms.service';
     </section>
   `,
     styles: `
+    .muted { color: var(--dp-muted); }
+    .body-text { line-height: 1.7em; overflow-wrap: anywhere; }
+    .more-action { margin: 2em; }
+    .danger { color: var(--dp-error); }
+    html[data-theme='dark'] .danger { color: #e89a9a; }
   `,
     providers: [SMSService],
     changeDetection: ChangeDetectionStrategy.Eager,

@@ -19,6 +19,7 @@ import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 import { SMSDetailDialogComponent } from './sms-detail/sms-detail.component';
 
 @Component({
@@ -30,12 +31,12 @@ template: `
     <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
     <a>Tools</a> &gt;
     <a>SMS</a> &gt;
-    <span>SMS log</span>
+    <span>SMS inbox</span>
   </div>
 </section>
 
 <section class="async-background">
-  <h2>Manage Bulk SMS List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <h2>SMS inbox <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
   <section class="async-container">
     <div class="title">
@@ -47,10 +48,14 @@ template: `
           <mat-icon>add</mat-icon>New SMS
         </a>
       </div>
-      <h3>SMS History</h3>
+      <h3>History</h3>
     </div>
 
     @if (!isEmptyRecord) {
+      <div class="chip-row" role="status">
+        <mat-chip highlighted>{{ dataSource.data.length }} batch{{ dataSource.data.length === 1 ? '' : 'es' }}</mat-chip>
+        <mat-chip highlighted>{{ totalRecipients() }} recipients</mat-chip>
+      </div>
       <div class="search">
         <mat-form-field appearance="outline">
           <mat-label>Filter by sms message</mat-label>
@@ -81,7 +86,12 @@ template: `
           </ng-container>
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td mat-cell *matCellDef="let element"> {{ element.status }} </td>
+            <td mat-cell *matCellDef="let element">
+              <span class="dp-status {{ statusTone(element.status) }}">{{ element.status }}</span>
+              @if (deliverySummary(element); as d) {
+                <div class="muted small">{{ d }}</div>
+              }
+            </td>
           </ng-container>
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef> Date </th>
@@ -95,7 +105,11 @@ template: `
     }
 
     @if (isEmptyRecord) {
-      <p class="no-campaign">No record available yet</p>
+      <div class="empty-card">
+        <mat-icon>sms</mat-icon>
+        <p>No SMS sent yet — compose your first bulk message.</p>
+        <a mat-button routerLink="../../sms/new">Send SMS</a>
+      </div>
     }
   </section>
 </section>
@@ -106,15 +120,19 @@ template: `
 styles: [`
   
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
+            border-bottom: 1px solid var(--dp-line);
+            padding: 0.5em 0.5em 1em;
             display: flex;
             flex-direction: column;  
             //align-items: center; /* Vertically center the items */  
@@ -122,6 +140,9 @@ styles: [`
             .control {
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 0.5em;
                 .back {
                     cursor: pointer;
                 }
@@ -134,7 +155,7 @@ styles: [`
 
            
             h3 {
-                margin-top: 1em; 
+                margin: 1em 0 0; 
             }
         }
 
@@ -142,24 +163,32 @@ styles: [`
             padding: 0.5em 0;
             text-align: center;
             mat-form-field {
-                width: 70%;
+                width: min(70%, 560px);
 
             }
         }       
 
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
         }
+
+        .chip-row { display: flex; gap: 0.4em; flex-wrap: wrap; margin-bottom: 0.6em; }
+        .muted { color: var(--dp-muted); font-size: 0.85em; }
+        .small { font-size: 0.8em; }
+        .empty-card { display: flex; flex-direction: column; align-items: center; gap: 0.5em; text-align: center; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 14px; padding: 2.5em 1.5em; color: var(--dp-muted); }
+        .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
+        .empty-card p { margin: 0; max-width: 34em; }
+        .empty-card a { min-height: 44px; }
     }
 }
 
 .form-container {
     padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    background: var(--dp-surface);
+    border: 1px solid var(--dp-line);
+    border-radius: var(--dp-radius);
     .flex-form {
         display: flex;
         flex-wrap: wrap;
@@ -174,12 +203,12 @@ styles: [`
 
 
 tr:hover {
-    background: whitesmoke;
+    background: var(--dp-gold-soft);
     cursor: pointer;
 }
 
 tr:active {
-    background: #efefef;
+    background: var(--dp-line);
 }
 
 @media (max-width: 600px) {
@@ -190,7 +219,7 @@ tr:active {
 
 `],
 changeDetection: ChangeDetectionStrategy.Eager,
-imports: [CommonModule, MatIconModule, TruncatePipe, MatPaginatorModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule,
+imports: [CommonModule, MatIconModule, TruncatePipe, MatPaginatorModule, RouterModule, MatButtonToggleModule, MatTableModule, MatIconModule, MatFormFieldModule, MatProgressBarModule, MatChipsModule,
         MatButtonModule, FormsModule, MatInputModule, MatSelectModule, MatCheckboxModule, ReactiveFormsModule]
 })
 export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
@@ -246,6 +275,36 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
   pages(characters: string): number {
     const messageLength = characters.length || 0;
     return Math.ceil(messageLength / 160);
+  }
+
+  statusTone(status: string): string {
+    switch (String(status ?? '').toLowerCase()) {
+      case 'success': return 'dp-status--ok';
+      case 'failed': return 'dp-status--bad';
+      default: return 'dp-status--warn';
+    }
+  }
+
+  totalRecipients(): number {
+    return this.dataSource.data.reduce((n: number, row: any) => {
+      const list = row?.prospect;
+      return n + (Array.isArray(list) ? list.length : 0);
+    }, 0);
+  }
+
+  /** Provider delivery rollup (x delivered · y failed) once reports land. */
+  deliverySummary(row: any): string | null {
+    const delivery = row?.delivery;
+    if (!delivery || typeof delivery !== 'object') return null;
+    const states = Object.values(delivery).map((s) => String(s));
+    if (states.length === 0) return null;
+    const delivered = states.filter((s) => s === 'delivered').length;
+    const failed = states.filter((s) => s === 'failed').length;
+    const pending = states.length - delivered - failed;
+    const bits = [`${delivered}/${states.length} delivered`];
+    if (failed > 0) bits.push(`${failed} failed`);
+    if (pending > 0) bits.push(`${pending} pending`);
+    return bits.join(' · ');
   }
 
   filterSMS(): void {

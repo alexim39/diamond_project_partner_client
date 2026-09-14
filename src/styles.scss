@@ -195,6 +195,33 @@ mat-chip[style] .mdc-evolution-chip__text-label {
   color: inherit;
 }
 
+/* SweetAlert2 dialogs are theme-blind (always light) — bind them to the
+ * app tokens so confirms and toasts follow light/dark like the rest. */
+html[data-theme="dark"] .swal2-popup {
+  background: var(--dp-surface);
+  color: var(--dp-text);
+  border: 1px solid var(--dp-line);
+}
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-content,
+html[data-theme="dark"] .swal2-html-container {
+  color: var(--dp-text);
+}
+html[data-theme="dark"] .swal2-footer {
+  color: var(--dp-muted);
+  border-top-color: var(--dp-line);
+}
+html[data-theme="dark"] .swal2-close {
+  color: var(--dp-muted);
+}
+html[data-theme="dark"] .swal2-input,
+html[data-theme="dark"] .swal2-textarea,
+html[data-theme="dark"] .swal2-select {
+  background: var(--dp-paper);
+  color: var(--dp-text);
+  border-color: var(--dp-line);
+}
+
 .breadcrumb-wrapper {
   border-top: 1px solid var(--dp-line);
   border-bottom: 1px solid var(--dp-line);

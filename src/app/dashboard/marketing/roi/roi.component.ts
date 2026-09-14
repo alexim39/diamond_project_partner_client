@@ -84,6 +84,13 @@ import { ApiError } from '../../../core/http/api-error';
           </mat-card>
           <mat-card>
             <mat-card-content>
+              <mat-icon>sms</mat-icon>
+              <span class="stat-value">{{ (t.outreachSpend ?? 0) | number }}</span>
+              <span class="stat-label">SMS spend</span>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
               <mat-icon>person_add</mat-icon>
               <span class="stat-value">{{ t.prospects | number }}</span>
               <span class="stat-label">Attributed recruits</span>
@@ -133,6 +140,10 @@ import { ApiError } from '../../../core/http/api-error';
             <ng-container matColumnDef="budget">
               <th mat-header-cell *matHeaderCellDef>Spend</th>
               <td mat-cell *matCellDef="let c" class="num-cell">{{ c.budget | number }}</td>
+            </ng-container>
+            <ng-container matColumnDef="sms">
+              <th mat-header-cell *matHeaderCellDef>SMS</th>
+              <td mat-cell *matCellDef="let c" class="num-cell">{{ (c.outreachSpend ?? 0) | number }}</td>
             </ng-container>
             <ng-container matColumnDef="prospects">
               <th mat-header-cell *matHeaderCellDef>Recruits</th>
@@ -195,7 +206,7 @@ export class CampaignRoiComponent implements OnInit {
   protected readonly totals = signal<RoiTotals | null>(null);
 
   protected readonly dayOptions = [7, 30, 90];
-  protected readonly displayedColumns = ['name', 'visits', 'budget', 'prospects', 'conversions', 'cpp'];
+  protected readonly displayedColumns = ['name', 'visits', 'budget', 'sms', 'prospects', 'conversions', 'cpp'];
 
   /** Cost-per-conversion bars — rebuilt on data or light/dark toggle. */
   protected readonly costChart = computed<EChartsCoreOption | null>(() => {

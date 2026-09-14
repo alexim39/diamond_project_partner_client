@@ -36,6 +36,7 @@ export class ImageDownloadComponent implements OnDestroy, OnInit {
   templates: Template[] = [];
   private templatesSubscription: Subscription | undefined;
   private dataUrl = './resource-templates/img/source.json'; // Adjust this path as needed
+  loadError: string | null = null;
 
 
   @Input() partner!: PartnerInterface;
@@ -55,22 +56,21 @@ export class ImageDownloadComponent implements OnDestroy, OnInit {
   }
 
   private loadTemplates(): void {
+    this.loadError = null;
     this.templatesSubscription = this.getTemplatesData()
       .pipe(
         map((templates: Template[]) => this.shuffleArray(templates))
       )
-      .subscribe(
-        (shuffledTemplates: Template[]) => {
+      .subscribe({
+        next: (shuffledTemplates: Template[]) => {
           this.templates = shuffledTemplates;
           this.filteredTemplates = shuffledTemplates; // Initialize filteredTemplates
           this.updatePlatformsList(); // Update platforms list
-          console.log('Templates loaded:', this.templates.length);
         },
-        (error: Error) => {
-          console.error('Error loading templates:', error);
-          // Handle error (e.g., show error message to user)
+        error: () => {
+          this.loadError = 'Could not load image templates. Please try again later.';
         }
-      );
+      });
   }
 
   private getTemplatesData(): Observable<Template[]> {
@@ -125,10 +125,11 @@ export class ImageDownloadComponent implements OnDestroy, OnInit {
         a.download = `${title}.jpg`; // Assume jpg, adjust if needed
         document.body.appendChild(a);
         a.click();
+        a.remove();
         window.URL.revokeObjectURL(url);
       })
-      .catch(error => {
-        console.error('Error downloading image:', error);
+      .catch(() => {
+        this.loadError = 'Could not download that image. Please try again.';
       });
   }
 

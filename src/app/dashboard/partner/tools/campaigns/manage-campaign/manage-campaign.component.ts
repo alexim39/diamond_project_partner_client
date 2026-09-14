@@ -22,16 +22,31 @@ styles: `
 
 
 .async-background {
-    margin: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-bottom: 2em;
+    .page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1em;
+        h2 { margin: 0; }
+        .head-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
+        .head-actions a { min-height: 44px; }
+    }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 44em; }
     .async-container {
-        background-color: #dcdbdb;
-        border-radius: 1%;
+        background: var(--dp-surface);
+        border: 1px solid var(--dp-line);
+        border-radius: var(--dp-radius);
         height: 100%;
         padding: 1em;
         .title {
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 1px solid var(--dp-line);
             padding: 1em;
             .action-area {
                 .action {
@@ -47,22 +62,39 @@ styles: `
             //flex-direction: center;
             text-align: center;
             mat-form-field {
-                width: 70%;
+                width: min(70%, 560px);
 
             }
         }
 
         .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
+            padding: 0.5em;
+            border-radius: var(--dp-radius);
+            background: var(--dp-paper);
+            border: 1px solid var(--dp-line);
+            overflow-x: auto;
         }
+
+        .table table.mat-mdc-table {
+            background: transparent;
+        }
+
+        .table .mat-mdc-header-cell {
+            color: var(--dp-muted);
+        }
+
+        .name-cell { font-weight: 600; cursor: pointer; }
 
         .no-campaign {
             text-align: center;
-            color: rgb(196, 129, 4);
+            color: var(--dp-gold-ink);
             font-weight: bold;
         }
+
+        .empty-card { display: flex; flex-direction: column; align-items: center; gap: 0.5em; text-align: center; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 14px; padding: 2.5em 1.5em; color: var(--dp-muted); }
+        .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
+        .empty-card p { margin: 0; max-width: 34em; }
+        .empty-card a { min-height: 44px; }
     }
 }
 
@@ -81,7 +113,7 @@ export class ManageCampaignComponent implements OnInit {
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['transactionId',  'deliveryStatus', 'budget', 'campaignDates', 'visits', 'progression', 'results', 'publishDate', 'action'];
+  displayedColumns: string[] = ['transactionId',  'deliveryStatus', 'budget', 'campaignDates', 'visits', 'progression', 'publishDate', 'action'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -122,6 +154,16 @@ export class ManageCampaignComponent implements OnInit {
     }  
     return 0; // Return 0% if the campaign is not active or budget is not defined  
   } 
+
+  statusTone(status: string): string {
+    switch (String(status ?? '').toLowerCase()) {
+      case 'active': return 'dp-status--ok';
+      case 'paused': return 'dp-status--warn';
+      case 'ended':
+      case 'rejected': return 'dp-status--bad';
+      default: return 'dp-status--info';
+    }
+  }
 
 
   // scroll to top when clicked

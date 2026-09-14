@@ -69,28 +69,26 @@ const NAV_GROUPS: NavGroup[] = [
       {
         label: 'Campaigns', title: 'Invites and campaigns',
         children: [
-          { label: 'Tell others', link: 'tools/campaigns/share', title: 'Tell others about the business' },
-          { label: 'My invites', link: 'tools/campaigns/manage', title: 'My invites and campaigns' },
-          { label: 'Link results', link: 'tools/campaigns/link', title: 'How your invite link is doing' },
+          { label: 'My campaigns', link: 'tools/campaigns/manage', title: 'My invites and campaigns' },
           { label: 'Start a campaign', link: 'tools/campaigns/new', title: 'Start an invite campaign' },
-          { label: 'Campaign results', link: 'tools/campaigns/analytics', title: 'How campaigns are doing' },
           { label: 'What campaigns earned', link: 'marketing/roi', title: 'What your campaigns earned back' },
         ],
       },
       {
         label: 'Share', title: 'Content worth sharing',
         children: [
-          { label: 'Things to share', link: 'resources/ads-contents', title: 'Pictures and words to share' },
-          { label: 'Prospecting guides', link: 'resources/prospecting-contents', title: 'Guides for meeting people' },
+          { label: 'Content library', link: 'resources/ads-contents', title: 'Texts and images to share' },
+          { label: 'Prospecting guides', link: 'resources/prospecting-contents', title: 'Framework and chat scripts' },
+          { label: 'Share invite link', link: 'tools/campaigns/share', title: 'Send your personal link outward' },
         ],
       },
       {
         label: 'Outreach', title: 'Texts and emails',
         children: [
-          { label: 'Send a text', link: 'tools/sms/new', title: 'Send a text message' },
-          { label: 'Sent texts', link: 'tools/sms/messages', title: 'Texts you sent' },
-          { label: 'Send an email', link: 'tools/email/new', title: 'Send an email' },
-          { label: 'Sent emails', link: 'tools/email/logs', title: 'Emails you sent' },
+          { label: 'Send SMS', link: 'tools/sms/new', title: 'Send an SMS message' },
+          { label: 'SMS inbox', link: 'tools/sms/messages', title: 'SMS messages you sent' },
+          { label: 'Send Email', link: 'tools/email/new', title: 'Send an email message' },
+          { label: 'Email inbox', link: 'tools/email/logs', title: 'Email messages you sent' },
         ],
       },
     ],

@@ -26,7 +26,7 @@ export const dashboardRoutes: Routes = [
             { path: 'search', redirectTo: '/dashboard/mentorship/partners/my-partners', pathMatch: 'full' },
 
             { path: 'settings', loadChildren: () => import('./settings/settings.routes').then(r => r.SettingsRoutes) }, 
-            { path: 'resources', loadChildren: () => import('./resources/resources.routes').then(r => r.RourcesRoutes) }, 
+            { path: 'resources', loadChildren: () => import('./resources/resources.routes').then(r => r.ResourcesRoutes) }, 
             { path: 'mentorship', loadChildren: () => import('./mentorship/mentorship.routes').then(r => r.MentorshipRoutes) }, 
             { path: 'products', loadChildren: () => import('./products/products.routes').then(r => r.ProductsRoutes) }, 
             { path: 'prospects', loadChildren: () => import('./prospects/prospects.routes').then(r => r.ProspectsRoutes) }, 
