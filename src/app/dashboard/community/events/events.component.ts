@@ -16,7 +16,7 @@ import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { AudienceScope, CommunityEvent, RsvpStatus } from '../../../core/events/event.models';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, validationDetail } from '../../../core/http/api-error';
 
 const toInputDateTime = (d: Date): string => {
   const pad = (v: number): string => String(v).padStart(2, '0');
@@ -42,6 +42,12 @@ const endsPairValidator = (group: AbstractControl): ValidationErrors | null => {
   const date = group.get('endsDate')?.value;
   const time = group.get('endsTime')?.value;
   return (date == null) === (time == null) ? null : { endsIncomplete: true };
+};
+
+/** Backend message plus the exact rejected field, so a 400 names its cause. */
+const withDetail = (err: ApiError): string => {
+  const detail = validationDetail(err);
+  return detail ? `${err.message} — ${detail}` : err.message;
 };
 
 /**
@@ -411,7 +417,7 @@ export class CommunityEventsComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.publishing.set(false);
-          this.publishError.set(err.message);
+          this.publishError.set(withDetail(err));
         },
       });
   }

@@ -14,6 +14,19 @@ export const STAGE_META: Record<ProspectStage, { label: string; color: string; t
   Closed: { label: 'Closed', color: '#ffcdd2', text: '#b71c1c' },
 };
 
+/**
+ * Dark-safe pill tones for stage chips (plain spans — MDC chip labels
+ * ignore host inline colors in dark mode, hiding the text).
+ */
+export const STAGE_TONE: Record<ProspectStage, string> = {
+  New: 'dp-status--neutral',
+  Contacted: 'dp-status--info',
+  Interested: 'dp-status--warn',
+  'In Negotiation': 'dp-status--purple',
+  Converted: 'dp-status--ok',
+  Closed: 'dp-status--bad',
+};
+
 export interface ProspectLead {
   id: string;
   prospectName: string;

@@ -14,7 +14,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ProspectService } from '../prospects.service';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { nextStage, ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, ProspectStage } from '../lead-pipeline/lead.models';
+import { nextStage, ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, STAGE_TONE, ProspectStage } from '../lead-pipeline/lead.models';
 import { ApiError } from '../../../../core/http/api-error';
 
 const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp'] as const;
@@ -116,9 +116,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
               via {{ prospect.prospectSource }}
             </p>
           </div>
-          <mat-chip [style.background]="chip().color" [style.color]="chip().text" highlighted>
-            {{ chip().label }}
-          </mat-chip>
+          <span class="dp-status {{ stageTone() }}">{{ chip().label }}</span>
         </div>
 
         @if (isDownline()) {
@@ -472,6 +470,11 @@ export class ProspectDetailComponent implements OnInit {
   protected readonly chip = computed(() => {
     const stage = (this.lead()?.status?.stage ?? 'New') as ProspectStage;
     return STAGE_META[stage] ?? STAGE_META.New;
+  });
+
+  protected readonly stageTone = computed(() => {
+    const stage = (this.lead()?.status?.stage ?? 'New') as ProspectStage;
+    return STAGE_TONE[stage] ?? STAGE_TONE.New;
   });
 
   protected readonly next = computed(() => nextStage(this.lead()?.status?.stage));

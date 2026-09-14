@@ -178,10 +178,14 @@ body {
 .dp-status--warn { background: var(--dp-warning-bg); color: var(--dp-warning); }
 .dp-status--bad { background: var(--dp-error-bg); color: var(--dp-error); }
 .dp-status--info { background: var(--dp-info-bg); color: var(--dp-info); }
+.dp-status--neutral { background: #e0e0e0; color: #424242; }
+.dp-status--purple { background: #e1bee7; color: #4a148c; }
 html[data-theme="dark"] .dp-status--ok { color: #9ccc9f; }
 html[data-theme="dark"] .dp-status--warn { color: #e3c878; }
 html[data-theme="dark"] .dp-status--bad { color: #e89a9a; }
 html[data-theme="dark"] .dp-status--info { color: #90caf9; }
+html[data-theme="dark"] .dp-status--neutral { background: #3a3733; color: #e8e2d6; }
+html[data-theme="dark"] .dp-status--purple { background: #3a2440; color: #d7b3e0; }
 
 /* Status chips painted via inline [style.background]/[style.color] (pipeline
  * stages, booking statuses): MDC renders the label in its own span with a

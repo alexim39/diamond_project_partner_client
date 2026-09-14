@@ -16,7 +16,7 @@ import { ExportContactAndEmailService } from '../../../../_common/services/expor
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
-import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, StuckEntry } from './lead.models';
+import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
 import { forkJoin } from 'rxjs';
 
 /**
@@ -164,11 +164,7 @@ import { forkJoin } from 'rxjs';
             <ng-container matColumnDef="stage">
               <th mat-header-cell *matHeaderCellDef>Stage</th>
               <td mat-cell *matCellDef="let lead">
-                <mat-chip
-                  [style.background]="chip(lead).color"
-                  [style.color]="chip(lead).text"
-                  highlighted
-                >{{ chip(lead).label }}</mat-chip>
+                <span class="dp-status {{ stageTone(lead) }}">{{ stageLabel(lead) }}</span>
                 @if (stuckOf(lead); as stuck) {
                   <div class="stuck-badge" title="No movement for {{ stuck.daysInStage }} days (threshold {{ stuck.limit }})">
                     ⚠ stuck {{ stuck.daysInStage }}d
@@ -470,6 +466,14 @@ export class LeadPipelineComponent implements OnInit {
 
   protected chip(lead: ProspectLead): { label: string; color: string; text: string } {
     return STAGE_META[((lead.status?.stage ?? 'New') as ProspectStage)] ?? STAGE_META.New;
+  }
+
+  protected stageTone(lead: ProspectLead): string {
+    return STAGE_TONE[((lead.status?.stage ?? 'New') as ProspectStage)] ?? STAGE_TONE.New;
+  }
+
+  protected stageLabel(lead: ProspectLead): string {
+    return this.chip(lead).label;
   }
 
   protected interest(lead: ProspectLead): string {

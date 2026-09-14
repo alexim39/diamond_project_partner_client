@@ -41,15 +41,15 @@ interface BookingSession {
   createdAt?: string;
 }
 
-const STATUS_META: Record<string, { color: string; text: string }> = {
-  Scheduled: { color: '#bbdefb', text: '#0d47a1' },
-  Completed: { color: '#c8e6c9', text: '#1b5e20' },
-  'No Show from Prospect': { color: '#ffecb3', text: '#7a5c00' },
-  'No Show from Partner': { color: '#ffecb3', text: '#7a5c00' },
-  Incomplete: { color: '#ffccbc', text: '#7a2e00' },
-  Rebooked: { color: '#e1bee7', text: '#4a148c' },
-  'In Progress': { color: '#d1c4e9', text: '#4527a0' },
-  Cancelled: { color: '#e0e0e0', text: '#424242' },
+const STATUS_TONE: Record<string, string> = {
+  Scheduled: 'dp-status--info',
+  Completed: 'dp-status--ok',
+  'No Show from Prospect': 'dp-status--warn',
+  'No Show from Partner': 'dp-status--warn',
+  Incomplete: 'dp-status--bad',
+  Rebooked: 'dp-status--purple',
+  'In Progress': 'dp-status--purple',
+  Cancelled: 'dp-status--neutral',
 };
 
 /**
@@ -147,9 +147,7 @@ const STATUS_META: Record<string, { color: string; text: string }> = {
                   } @else if (isDownline(s)) {
                     <span class="dp-status dp-status--warn" title="Prospect belongs to your downline — outcome mirrors to their timeline">Downline</span>
                   }
-                  <mat-chip [style.background]="chip(s.status).color" [style.color]="chip(s.status).text" highlighted>
-                    {{ s.status || 'Scheduled' }}
-                  </mat-chip>
+                  <span class="dp-status {{ statusTone(s.status) }}">{{ s.status || 'Scheduled' }}</span>
                 </div>
               </div>
               <div class="session-actions">
@@ -319,8 +317,8 @@ export class ProspectBookingComponent implements OnInit {
       );
   }
 
-  protected chip(status: string | undefined): { color: string; text: string } {
-    return STATUS_META[status ?? 'Scheduled'] ?? { color: '#e0e0e0', text: '#424242' };
+  protected statusTone(status: string | undefined): string {
+    return STATUS_TONE[status ?? 'Scheduled'] ?? 'dp-status--neutral';
   }
 
   protected isPastUnresolved(s: BookingSession): boolean {
