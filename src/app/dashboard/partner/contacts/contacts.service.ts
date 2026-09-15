@@ -87,6 +87,16 @@ export class ContactsService {
     return this.apiService.post<{status: {}; prospectId: string}>(`prospect/updateStatus`, payload, undefined, true);
   }
 
+  // convert prospect (records the business-issued reservation code,
+  // stamps Converted; ownership derives from prospect + session server-side)
+  promoteProspectToPartner(payload: { prospectId: string; code: string; by?: string; byName?: string }): Observable<any> {
+    const prospectId = String(payload?.prospectId ?? '').trim();
+    const body: Record<string, string> = { code: String(payload?.code ?? '').trim() };
+    if (payload?.by?.trim()) body['by'] = payload.by.trim().slice(0, 40);
+    if (payload?.byName?.trim()) body['byName'] = payload.byName.trim().slice(0, 120);
+    return this.apiService.post<any>(`v1/prospects/${prospectId}/convert`, body, undefined, true);
+  }
+
   // delete prospect 
   deleteProspect(id: string): Observable<any> {
     return this.apiService.get<string>(`prospect/delete/${id}`, undefined, undefined, true);

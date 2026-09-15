@@ -309,6 +309,43 @@ template: `
 
       </mat-expansion-panel>
 
+      <!-- Stage history (server-written on every stage move, incl. conversion) -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Stage History
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        @if (!prospectData?.stageHistory?.length) {
+
+          <div class="no-communiction">
+            <p>
+              No stage changes recorded yet
+            </p>
+          </div>
+
+        } @else {
+
+          @for (entry of stageHistoryNewestFirst(); track entry.id ?? entry) {
+            <div class="communication-card">
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title>
+                    {{ entry.from ?? '—' }} &rarr; {{ entry.to ?? '—' }}
+                  </mat-card-title>
+                  <mat-card-subtitle>
+                    {{ entry.at | date:'mediumDate' }}@if (entry.byName ?? entry.by) { · by {{ entry.byName ?? entry.by }} }
+                  </mat-card-subtitle>
+                </mat-card-header>
+              </mat-card>
+            </div>
+          }
+
+        }
+
+      </mat-expansion-panel>
+
     </mat-accordion>
 
   </article>
@@ -643,6 +680,13 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
    ngOnDestroy() {
     // unsubscribe list
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  }
+
+  /** Stage moves newest-first (copy — never mutates the loaded prospect). */
+  stageHistoryNewestFirst(): Array<{ id?: string; from?: string | null; to?: string | null; at?: string | Date | null; by?: string | null; byName?: string | null }> {
+    const history = this.prospectData?.stageHistory;
+    if (!Array.isArray(history)) return [];
+    return [...history].reverse();
   }
 
   onSubmit(): void {

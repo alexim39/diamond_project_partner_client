@@ -164,6 +164,15 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
 
             this.dialog.open(CollectCodeComponent, {
                 data: this.prospectData
+            }).afterClosed().subscribe((res: any) => {
+                // Reflect the conversion locally so the detail view updates
+                // without a manual reload; server remains source of truth.
+                if (res?.converted && this.prospectData) {
+                    this.prospectData = {
+                        ...this.prospectData,
+                        status: { ...(this.prospectData.status ?? {}), name: 'Converted', stage: 'Converted' },
+                    };
+                }
             });
         }
         });
