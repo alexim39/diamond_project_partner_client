@@ -125,6 +125,14 @@ styles: [`
     z-index: 1000;
 }
 
+/* Lift above the mobile bottom tab bar. */
+@media (max-width: 600px) {
+    .scroll-to-top {
+        bottom: 5.5em;
+        right: 0.75em;
+    }
+}
+
 `],
 changeDetection: ChangeDetectionStrategy.Eager,
 imports: [MatTabsModule, MatFormFieldModule, MatButtonModule, MatIconModule, FormsModule, MatInputModule, MatSelectModule]
