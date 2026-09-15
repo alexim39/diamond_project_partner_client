@@ -152,18 +152,18 @@ import { forkJoin } from 'rxjs';
             </ng-container>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let lead" class="name-cell"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a></td>
+              <td mat-cell *matCellDef="let lead" class="name-cell" data-label="Prospect"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a></td>
             </ng-container>
             <ng-container matColumnDef="contact">
               <th mat-header-cell *matHeaderCellDef>Contact</th>
-              <td mat-cell *matCellDef="let lead">
+              <td mat-cell *matCellDef="let lead" data-label="Contact">
                 <div>{{ lead.prospectPhone }}</div>
                 <div class="muted">{{ lead.prospectEmail || '—' }}</div>
               </td>
             </ng-container>
             <ng-container matColumnDef="stage">
               <th mat-header-cell *matHeaderCellDef>Stage</th>
-              <td mat-cell *matCellDef="let lead">
+              <td mat-cell *matCellDef="let lead" data-label="Stage">
                 <span class="dp-status {{ stageTone(lead) }}">{{ stageLabel(lead) }}</span>
                 @if (stuckOf(lead); as stuck) {
                   <div class="stuck-badge" title="No movement for {{ stuck.daysInStage }} days (threshold {{ stuck.limit }})">
@@ -174,11 +174,11 @@ import { forkJoin } from 'rxjs';
             </ng-container>
             <ng-container matColumnDef="interest">
               <th mat-header-cell *matHeaderCellDef>Interest</th>
-              <td mat-cell *matCellDef="let lead" class="interest-cell">{{ interest(lead) }}</td>
+              <td mat-cell *matCellDef="let lead" class="interest-cell" data-label="Interest">{{ interest(lead) }}</td>
             </ng-container>
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>
-              <td mat-cell *matCellDef="let lead">
+              <td mat-cell *matCellDef="let lead" class="action-cell" data-label="Actions">
                 @if (nextOf(lead); as next) {
                   <button mat-button (click)="advance(lead, next)" [disabled]="actingId() === lead.id">
                     Advance to {{ next }}
@@ -277,6 +277,28 @@ import { forkJoin } from 'rxjs';
       .mat-mdc-paginator-page-size { display: none; }
       .page-head mat-button-toggle-group { max-width: 100%; overflow-x: auto; }
       .stage-cards { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5em; }
+      /* Mobile card layout: rows become labeled cards, no sideways scroll. */
+      .table-wrap { overflow-x: visible; }
+      .mat-mdc-table thead { display: none; }
+      .mat-mdc-table tbody { display: flex; flex-direction: column; gap: 0.75em; background: transparent; }
+      .mat-mdc-table tr.mat-row {
+        display: block; background: var(--dp-surface);
+        border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.25em 0;
+      }
+      .mat-mdc-table td.mat-cell {
+        display: flex; align-items: center; gap: 0.75em;
+        border-bottom: 1px solid var(--dp-line); padding: 0.6em 0.9em;
+      }
+      .mat-mdc-table td.mat-cell:last-child { border-bottom: none; }
+      .mat-mdc-table td.mat-cell::before {
+        content: attr(data-label); flex: none; width: 6em;
+        color: var(--dp-muted); font-size: 0.75em; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.05em;
+      }
+      .mat-mdc-table td.mat-cell:not([data-label])::before { display: none; }
+      .mat-mdc-table td.action-cell { flex-wrap: wrap; row-gap: 0.5em; }
+      .mat-mdc-table td.action-cell .mat-mdc-button,
+      .mat-mdc-table td.action-cell .mat-mdc-flat-button { flex: 1 1 100%; }
     }
   `],
 })
