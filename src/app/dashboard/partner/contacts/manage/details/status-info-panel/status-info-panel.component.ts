@@ -380,7 +380,7 @@ styles: `
     font-size: 1em;
 
     .custom-textarea {
-      min-width: 500px;
+      min-width: min(500px, 100%);
       min-height: 300px;
     }
   }
