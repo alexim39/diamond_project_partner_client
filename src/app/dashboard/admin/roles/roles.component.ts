@@ -87,9 +87,9 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
             <ng-container matColumnDef="role">
               <th mat-header-cell *matHeaderCellDef>Role</th>
               <td mat-cell *matCellDef="let row">
-                <mat-chip [style.background]="meta(row.role).color" [style.color]="meta(row.role).text" highlighted>
+                <span [class]="roleClass(row.role)">
                   {{ meta(row.role).label }}
-                </mat-chip>
+                </span>
               </td>
             </ng-container>
             <ng-container matColumnDef="plan">
@@ -209,6 +209,14 @@ export class ManageRolesComponent implements OnInit {
 
   protected meta(role: UserRole): { label: string; color: string; text: string } {
     return ROLE_META[role] ?? ROLE_META.user;
+  }
+
+  /** Plain-span role pill — mat-chip repaints internals from theme tokens. */
+  protected roleClass(role: UserRole): string {
+    if (role === 'g8') return 'dp-status dp-status--purple';
+    if (role === 'leader') return 'dp-status dp-status--info';
+    if (role === 'admin') return 'dp-status dp-status--warn';
+    return 'dp-status dp-status--neutral';
   }
 
   protected displayName(row: ManagedPartner): string {

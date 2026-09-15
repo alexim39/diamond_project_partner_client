@@ -76,11 +76,8 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
         <ul class="action-list">
           @for (action of actions(); track action.id) {
             <li class="action-item" [class.action-item--high]="action.priority === 'high'">
-              <mat-chip
-                [style.background]="priority(action.priority).color"
-                [style.color]="priority(action.priority).text"
-                highlighted
-              >{{ priority(action.priority).label }}</mat-chip>
+                <span [class]="priorityClass(action.priority)"
+                >{{ priority(action.priority).label }}</span>
               <div class="action-body">
                 <strong>{{ action.title }}</strong>
                 <span class="muted">{{ action.detail }} · {{ action.category }}</span>
@@ -351,6 +348,13 @@ export class InsightsOverviewComponent implements OnInit {
 
   protected priority(p: ActionPriority): { label: string; color: string; text: string } {
     return PRIORITY_META[p] ?? PRIORITY_META['low'];
+  }
+
+  /** Plain-span priority pill — mat-chip repaints internals from theme tokens. */
+  protected priorityClass(p: ActionPriority): string {
+    if (p === 'high') return 'dp-status dp-status--bad';
+    if (p === 'medium') return 'dp-status dp-status--warn';
+    return 'dp-status dp-status--info';
   }
 
   protected delta(pct: number): string {

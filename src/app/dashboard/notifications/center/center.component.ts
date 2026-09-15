@@ -51,6 +51,19 @@ const GROUP_LABELS: Record<GroupKey, string> = {
   team: 'Team', commissions: 'Commissions', system: 'System',
 };
 
+/**
+ * dp-status variant per kind — plain spans, no MDC internals. mat-chip
+ * repaints its own container/label from theme tokens on inner elements,
+ * which covered our inline pastel pairs and hid the text in dark mode.
+ */
+const KIND_CLASS: Record<string, 'info' | 'warn' | 'ok' | 'purple' | 'bad' | 'neutral'> = {
+  followup: 'info', inactive: 'warn', conversion: 'ok', release: 'purple',
+  mention: 'warn', prospect: 'info', daily: 'info', goals: 'ok',
+  progression: 'ok', promotion: 'purple', commission: 'purple',
+  training: 'info', community: 'warn', recognition: 'warn', team: 'warn',
+  system: 'neutral', marketing: 'neutral',
+};
+
 interface DayBucket { label: string; items: StoredNotificationItem[]; }
 
 /**
@@ -174,7 +187,7 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                     {{ chip(item.kind).label }}
                   </mat-chip>
                   @if (item.origin === 'stored') {
-                    <mat-chip class="prio" highlighted>{{ item.priority }}</mat-chip>
+                    <span [class]="prioClass(item.priority)">{{ item.priority }}</span>
                   }
                 </div>
                 <p class="muted">{{ item.body }} · {{ item.tag }} · {{ timeAgo(item.at) }}</p>
@@ -251,9 +264,9 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                 <div class="feed-body">
                   <div class="feed-title-row">
                     <strong>{{ item.title }}</strong>
-                    <mat-chip [style.background]="chip(item.kind).color" [style.color]="chip(item.kind).text" highlighted>
+                    <span [class]="kindClass(item.kind)">
                       {{ chip(item.kind).label }}
-                    </mat-chip>
+                    </span>
                   </div>
                   <p class="muted">{{ item.body }} · {{ item.tag }} · {{ timeAgo(item.at) }}</p>
                   <div class="feed-actions">
@@ -588,6 +601,17 @@ export class NotificationsCenterComponent implements OnInit {
 
   protected chip(kind: string): { label: string; color: string; text: string } {
     return KIND_META[kind] ?? { label: kind, color: '#e0e0e0', text: '#424242' };
+  }
+
+  protected kindClass(kind: string): string {
+    return `dp-status dp-status--${KIND_CLASS[kind] ?? 'neutral'}`;
+  }
+
+  protected prioClass(priority: string): string {
+    const p = (priority ?? '').toLowerCase();
+    if (p === 'critical' || p === 'high') return 'dp-status dp-status--bad';
+    if (p === 'medium') return 'dp-status dp-status--warn';
+    return 'dp-status dp-status--neutral';
   }
 
   /** Stored open: click beacon first (engagement analytics), then navigate. */

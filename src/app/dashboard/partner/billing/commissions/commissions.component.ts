@@ -139,9 +139,9 @@ const naira = (n: number): string =>
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef>Status</th>
               <td mat-cell *matCellDef="let e">
-                <mat-chip [style.background]="chip(e.status).color" [style.color]="chip(e.status).text" highlighted>
+                <span [class]="statusClass(e.status)">
                   {{ chip(e.status).label }}
-                </mat-chip>
+                </span>
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -270,5 +270,13 @@ export class CommissionOverviewComponent implements OnInit {
 
   protected chip(status: CommissionStatus): { label: string; color: string; text: string } {
     return STATUS_META[status] ?? STATUS_META['Pending'];
+  }
+
+  /** Plain-span status pill — mat-chip repaints internals from theme tokens. */
+  protected statusClass(status: CommissionStatus): string {
+    if (status === 'Released') return 'dp-status dp-status--ok';
+    if (status === 'Reversed') return 'dp-status dp-status--bad';
+    if (status === 'Voided') return 'dp-status dp-status--neutral';
+    return 'dp-status dp-status--warn';
   }
 }

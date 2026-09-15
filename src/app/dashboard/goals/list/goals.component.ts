@@ -153,11 +153,8 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
                   <strong>{{ goal.title }}</strong>
                   <span class="muted"> · {{ kindLabel(goal.kind) }}</span>
                 </div>
-                <mat-chip
-                  [style.background]="status(goal).color"
-                  [style.color]="status(goal).text"
-                  highlighted
-                >{{ status(goal).label }}</mat-chip>
+                <span [class]="statusClass(goal)"
+                >{{ status(goal).label }}</span>
               </div>
               <mat-progress-bar mode="determinate" [value]="goal.progress.percent" />
               <div class="goal-meta">
@@ -520,6 +517,13 @@ export class GoalsComponent implements OnInit {
     return goal.progress.onTrack
       ? { label: 'On track', color: '#bbdefb', text: '#0d47a1' }
       : { label: 'Behind pace', color: '#ffcdd2', text: '#b71c1c' };
+  }
+
+  /** Plain-span status pill — mat-chip repaints internals from theme tokens. */
+  protected statusClass(goal: Goal): string {
+    if (goal.status === 'closed' || goal.progress.daysLeft === 0) return 'dp-status dp-status--neutral';
+    if (goal.progress.complete) return 'dp-status dp-status--ok';
+    return goal.progress.onTrack ? 'dp-status dp-status--info' : 'dp-status dp-status--bad';
   }
 
   /** Where the work for this goal kind actually happens. */
