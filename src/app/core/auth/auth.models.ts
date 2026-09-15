@@ -40,7 +40,7 @@ export interface ApiEnvelope<T = unknown> {
   code?: string;
 }
 
-export interface SigninResponse extends ApiEnvelope<{ user: AuthUser }> {
+export interface SigninResponse extends ApiEnvelope<{ user: AuthUser; token?: string }> {
   message: string;
   success: boolean;
 }

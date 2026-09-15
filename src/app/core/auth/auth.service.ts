@@ -10,9 +10,15 @@ export function normalizeRole(value: unknown): UserRole {
 }
 
 /**
- * Session authority for the app. The JWT lives in an httpOnly cookie
- * managed by the backend — this service NEVER touches `localStorage`
+ * Session authority for the app. Primary transport is the backend's
+ * httpOnly cookie — this service NEVER trusts `localStorage` for identity
  * (legacy stored `"[object Object]"` there and the old guard trusted it).
+ *
+ * Bearer fallback: cross-site third-party-cookie blocking can drop the
+ * Set-Cookie while login succeeds — the signin body then carries the JWT
+ * and we replay it as `Authorization: Bearer` (see authTokenInterceptor).
+ * The cookie stays first-class whenever the browser keeps it; identity
+ * itself always comes from `me()`, never from the stored token.
  *
  * State: `currentUser` signal (null = unknown/anonymous). `me()` hydrates
  * it server-side; the guard calls `resolve()` which uses the cache when warm.
@@ -20,6 +26,8 @@ export function normalizeRole(value: unknown): UserRole {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(ApiClient);
+
+  private static readonly TOKEN_KEY = 'dp_session_token';
 
   private readonly userSignal = signal<AuthUser | null>(null);
   private hydrated = false;
@@ -38,9 +46,33 @@ export class AuthService {
     this.hydrated = true;
   }
 
+  /**
+   * Bearer fallback transport (see class docs). Persisted so a refresh
+   * without the cookie still authenticates; cleared on sign-out and
+   * whenever a signin response carries no token. Never used for identity.
+   */
+  private setToken(token: string | null | undefined): void {
+    try {
+      if (token) localStorage.setItem(AuthService.TOKEN_KEY, token);
+      else localStorage.removeItem(AuthService.TOKEN_KEY);
+    } catch { /* private mode: cookie path still applies */ }
+  }
+
+  /** Current fallback token for the interceptor (null = cookie-only). */
+  token(): string | null {
+    try {
+      return localStorage.getItem(AuthService.TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+
   signin(credentials: SigninRequest): Observable<SigninResponse> {
     return this.api.post<SigninResponse>('v1/auth/signin', credentials).pipe(
-      tap((res) => this.track(res.data?.user)),
+      tap((res) => {
+        this.setToken(res.data?.token ?? null);
+        this.track(res.data?.user);
+      }),
     );
   }
 
@@ -51,6 +83,7 @@ export class AuthService {
   signOut(): Observable<unknown> {
     return this.api.post('v1/auth/signout', {}).pipe(
       tap(() => {
+        this.setToken(null);
         this.userSignal.set(null);
         this.hydrated = false;
       }),
@@ -71,6 +104,7 @@ export class AuthService {
     return this.me().pipe(
       map(() => true),
       catchError(() => {
+        this.setToken(null);
         this.userSignal.set(null);
         this.hydrated = false;
         return of(false);
