@@ -118,6 +118,16 @@ mat-sidenav-content > router-outlet + * {
   outline-offset: 2px;
 }
 
+/* Small screens: wide data tables scroll inside their cards instead of
+ * forcing page-level horizontal scroll. Long identifiers/codes wrap. */
+@media only screen and (max-width: 600px) {
+  .async-background .table,
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Senior-friendly touch + type (Phase 3): 44px targets, readable floors. */
 body {
   line-height: 1.55;
