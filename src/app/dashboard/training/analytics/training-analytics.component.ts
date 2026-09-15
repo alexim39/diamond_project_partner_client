@@ -197,6 +197,9 @@ import { ApiError } from '../../../core/http/api-error';
     .table-card td { padding: 0.5em; border-top: 1px solid var(--dp-line); }
     .bar-list { display: flex; flex-direction: column; gap: 0.5em; margin-top: 0.5em; }
     .bar-row { display: grid; grid-template-columns: 160px 1fr 40px; gap: 0.6em; align-items: center; }
+    @media only screen and (max-width: 600px) {
+      .bar-row { grid-template-columns: 110px 1fr 44px; }
+    }
     .bar-label { font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .bar-track { height: 14px; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 4px; overflow: hidden; }
     .bar-fill { height: 100%; background: var(--dp-gold); min-width: 2px; }
