@@ -271,6 +271,18 @@ html[data-theme="dark"] {
   async-partner-signup .panel-content p a {
     color: var(--dp-gold-ink) !important;
   }
+  /* Pipeline row highlights: pastel fills carry inherited (now light)
+   * text — wash out in dark. Deep tints keep the semantics. */
+  .partner {
+    background-color: #1d3a24 !important;
+  }
+  .member,
+  .not-interested {
+    background-color: #3f1d1d !important;
+  }
+  .closing {
+    background-color: #3a2f14 !important;
+  }
   /* New-style cards with hardcoded white + inherited text (ledger figures). */
   .commissions-page .card {
     background-color: var(--dp-surface) !important;

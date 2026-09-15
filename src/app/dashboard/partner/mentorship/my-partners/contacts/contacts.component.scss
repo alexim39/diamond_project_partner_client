@@ -91,6 +91,12 @@
     .form-group {
         flex: 1 1 100%;
     }
+    .async-container .search {
+        flex-direction: column;
+        mat-form-field {
+            width: 100%;
+        }
+    }
 }
 
 .partner {  
