@@ -35,8 +35,8 @@ template: `
       <div class="action-area">
         <!-- <a mat-list-item title="Import Numbers from Contact" mat-raised-button><mat-icon>cloud_download</mat-icon>Import Numbers from Contact</a> -->
         <!-- <mat-button-toggle-group>
-        <mat-button-toggle style="background: white" routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon>Contact List</mat-button-toggle>
-        <mat-button-toggle style="background: white" (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon>Import Prospect from Online</mat-button-toggle>
+        <mat-button-toggle routerLink="../manage-contacts" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>list</mat-icon>Contact List</mat-button-toggle>
+        <mat-button-toggle (click)="importContacts()" title="Import Contacts from campain prospect list"><mat-icon>cloud_download</mat-icon>Import Prospect from Online</mat-button-toggle>
       </mat-button-toggle-group> -->
 
     </div>

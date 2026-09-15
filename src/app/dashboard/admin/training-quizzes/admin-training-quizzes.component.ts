@@ -10,7 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
-import { AdminTrainingService, AdminQuizCatalog, AdminQuizRow } from './admin-training.service';
+import { AdminTrainingService, AdminQuizCatalog, AdminQuizRow, AdminTrainingMediaService } from './admin-training.service';
 import { ApiError } from '../../../core/http/api-error';
 
 interface EditQuestion {
@@ -75,7 +75,7 @@ interface EditQuestion {
           <mat-label>Lesson</mat-label>
           <mat-select [value]="lessonId()" (selectionChange)="lessonId.set($event.value); loadLesson()">
             @for (l of lessons(); track l.id) {
-              <mat-option [value]="l.id">{{ l.title }}</mat-option>
+              <mat-option [value]="l.id">{{ l.title }}{{ l.videoUrl ? ' · video' : '' }}{{ l.mediaOverridden ? ' · override' : '' }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -124,6 +124,43 @@ interface EditQuestion {
       }
 
       <p class="muted">Overrides layer over the code catalog — existing lessons keep working before the first save; certificates only gate future completions.</p>
+
+      @if (courseId() && lessonId()) {
+        <div class="dp-card edit-card">
+          <h3>Media for {{ lessonTitle() }}</h3>
+          <p class="muted">https URL (e.g. Cloudinary) or site path (e.g. /courses/ipo/lesson.mp4). Empty fields fall back to the code catalog.@if (mediaOverridden()) { Currently overridden. }</p>
+          <mat-form-field appearance="outline">
+            <mat-label>Video URL</mat-label>
+            <input matInput [value]="editMedia().videoUrl" (input)="setMedia('videoUrl', $any($event.target).value)" maxlength="500" placeholder="/courses/ipo/lesson.mp4" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Poster image URL (optional)</mat-label>
+            <input matInput [value]="editMedia().posterUrl" (input)="setMedia('posterUrl', $any($event.target).value)" maxlength="500" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Captions URL (.vtt, optional)</mat-label>
+            <input matInput [value]="editMedia().captionsUrl" (input)="setMedia('captionsUrl', $any($event.target).value)" maxlength="500" placeholder="/courses/ipo/lesson.vtt" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Duration (seconds, optional)</mat-label>
+            <input matInput type="number" [value]="editMedia().durationSec ?? ''" (input)="setMediaDuration($any($event.target).valueAsNumber)" min="0" max="86400" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Transcript (optional)</mat-label>
+            <textarea matInput rows="4" [value]="editMedia().transcript" (input)="setMedia('transcript', $any($event.target).value)" maxlength="8000"></textarea>
+          </mat-form-field>
+          <div class="edit-actions">
+            <span class="spacer"></span>
+            @if (mediaOverridden()) {
+              <button mat-button color="warn" (click)="resetMedia()" [disabled]="savingMedia()">Reset to catalog</button>
+            }
+            <button mat-flat-button color="primary" (click)="saveMedia()" [disabled]="savingMedia()">{{ savingMedia() ? 'Saving…' : 'Save media' }}</button>
+          </div>
+          @if (mediaError(); as err) {
+            <p class="error" role="alert">{{ err }}</p>
+          }
+        </div>
+      }
     </section>
   `,
   styles: [`
@@ -149,18 +186,24 @@ interface EditQuestion {
 })
 export class AdminTrainingQuizzesComponent implements OnInit {
   private readonly admin = inject(AdminTrainingService);
+  private readonly media = inject(AdminTrainingMediaService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly loadingQuiz = signal(false);
   protected readonly saving = signal(false);
+  protected readonly savingMedia = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly saveError = signal<string | null>(null);
+  protected readonly mediaError = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly catalog = signal<AdminQuizCatalog[]>([]);
   protected readonly courseId = signal('');
   protected readonly lessonId = signal('');
   protected readonly editQuiz = signal<EditQuestion[]>([]);
+  protected readonly editMedia = signal<{ videoUrl: string; posterUrl: string; captionsUrl: string; transcript: string; durationSec: number | null }>({
+    videoUrl: '', posterUrl: '', captionsUrl: '', transcript: '', durationSec: null,
+  });
 
   protected readonly lessons = computed(() => {
     const cid = this.courseId();
@@ -169,6 +212,10 @@ export class AdminTrainingQuizzesComponent implements OnInit {
 
   protected lessonTitle(): string {
     return this.lessons().find((l) => l.id === this.lessonId())?.title ?? '—';
+  }
+
+  protected mediaOverridden(): boolean {
+    return this.lessons().find((l) => l.id === this.lessonId())?.mediaOverridden ?? false;
   }
 
   ngOnInit(): void {
@@ -207,6 +254,7 @@ export class AdminTrainingQuizzesComponent implements OnInit {
     if (!cid || !lid) return;
     this.loadingQuiz.set(true);
     this.saveError.set(null);
+    this.mediaError.set(null);
     this.admin
       .list()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -224,6 +272,26 @@ export class AdminTrainingQuizzesComponent implements OnInit {
         error: (err: ApiError) => {
           this.saveError.set(err.message);
           this.loadingQuiz.set(false);
+        },
+      });
+    // Media override if present, else seed from the effective catalog values.
+    this.media
+      .list()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const row = (res.data ?? []).find((r) => r.courseId === cid && r.lessonId === lid);
+          const lesson = this.lessons().find((l) => l.id === lid);
+          this.editMedia.set({
+            videoUrl: row?.videoUrl ?? lesson?.videoUrl ?? '',
+            posterUrl: row?.posterUrl ?? lesson?.posterUrl ?? '',
+            captionsUrl: row?.captionsUrl ?? lesson?.captionsUrl ?? '',
+            transcript: row?.transcript ?? '',
+            durationSec: row?.durationSec ?? lesson?.durationSec ?? null,
+          });
+        },
+        error: (err: ApiError) => {
+          this.mediaError.set(err.message);
         },
       });
   }
@@ -271,8 +339,7 @@ export class AdminTrainingQuizzesComponent implements OnInit {
     });
   }
 
-  protected save(): void {
-    const cid = this.courseId();
+  protected save(): void {    const cid = this.courseId();
     const lid = this.lessonId();
     if (!cid || !lid || this.saving()) return;
     this.saving.set(true);
@@ -289,6 +356,70 @@ export class AdminTrainingQuizzesComponent implements OnInit {
         error: (err: ApiError) => {
           this.saving.set(false);
           this.saveError.set(err.message);
+        },
+      });
+  }
+
+  protected setMedia(field: 'videoUrl' | 'posterUrl' | 'captionsUrl' | 'transcript', value: string): void {
+    this.editMedia.update((m) => ({ ...m, [field]: value }));
+  }
+
+  protected setMediaDuration(value: number): void {
+    this.editMedia.update((m) => ({ ...m, durationSec: Number.isFinite(value) ? Math.round(value) : null }));
+  }
+
+  protected saveMedia(): void {
+    const cid = this.courseId();
+    const lid = this.lessonId();
+    if (!cid || !lid || this.savingMedia()) return;
+    this.savingMedia.set(true);
+    this.mediaError.set(null);
+    this.notice.set(null);
+    const m = this.editMedia();
+    this.media
+      .save(cid, lid, {
+        videoUrl: m.videoUrl.trim() || null,
+        posterUrl: m.posterUrl.trim() || null,
+        captionsUrl: m.captionsUrl.trim() || null,
+        transcript: m.transcript.trim() || null,
+        durationSec: m.durationSec,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingMedia.set(false);
+          this.notice.set('Media saved — learners see it on next load.');
+          this.reload();
+          this.loadLesson();
+        },
+        error: (err: ApiError) => {
+          this.savingMedia.set(false);
+          this.mediaError.set(err.message);
+        },
+      });
+  }
+
+  protected resetMedia(): void {
+    const cid = this.courseId();
+    const lid = this.lessonId();
+    if (!cid || !lid || this.savingMedia()) return;
+    if (!window.confirm('Reset this lesson\u2019s media to the code catalog?')) return;
+    this.savingMedia.set(true);
+    this.mediaError.set(null);
+    this.notice.set(null);
+    this.media
+      .reset(cid, lid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingMedia.set(false);
+          this.notice.set('Media reset — catalog values are live again.');
+          this.reload();
+          this.loadLesson();
+        },
+        error: (err: ApiError) => {
+          this.savingMedia.set(false);
+          this.mediaError.set(err.message);
         },
       });
   }

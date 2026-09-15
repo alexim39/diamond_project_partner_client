@@ -75,9 +75,13 @@ html[data-theme="dark"] {
   --dp-nav-icon: #d9b36a;
   --dp-gold-soft: #2c2417;
   --dp-gold-ink: #d9b36a;
+  --dp-success: #9ccc9f;
   --dp-success-bg: #1d3a24;
+  --dp-warning: #e3c878;
   --dp-warning-bg: #3a2f14;
+  --dp-error: #e89a9a;
   --dp-error-bg: #3f1d1d;
+  --dp-info: #90caf9;
   --dp-info-bg: #1c2f4d;
 
   color-scheme: dark;
@@ -180,10 +184,7 @@ body {
 .dp-status--info { background: var(--dp-info-bg); color: var(--dp-info); }
 .dp-status--neutral { background: #e0e0e0; color: #424242; }
 .dp-status--purple { background: #e1bee7; color: #4a148c; }
-html[data-theme="dark"] .dp-status--ok { color: #9ccc9f; }
-html[data-theme="dark"] .dp-status--warn { color: #e3c878; }
-html[data-theme="dark"] .dp-status--bad { color: #e89a9a; }
-html[data-theme="dark"] .dp-status--info { color: #90caf9; }
+/* Text tokens already flip above; only the fixed-grays need overrides. */
 html[data-theme="dark"] .dp-status--neutral { background: #3a3733; color: #e8e2d6; }
 html[data-theme="dark"] .dp-status--purple { background: #3a2440; color: #d7b3e0; }
 
@@ -193,6 +194,48 @@ html[data-theme="dark"] .dp-status--purple { background: #3a2440; color: #d7b3e0
  * pastel chips (invisible). Inherit the host color we set inline instead. */
 mat-chip[style] .mdc-evolution-chip__text-label {
   color: inherit;
+}
+
+/* Dark-mode hardening for legacy hardcoded palettes.
+ * The legacy scaffold paints #dcdbdb shells + white cards with inherited
+ * (theme-flipping) text and MDC components whose labels flip light — in
+ * dark mode that yields glare islands and invisible copy. Map the repeated
+ * scaffold classes to tokens. Self-consistent fixed cards (signup frosted
+ * panel, about card, step card, white-on-green buttons) stay untouched. */
+html[data-theme="dark"] {
+  .async-background .async-container {
+    background-color: var(--dp-paper);
+    border: 1px solid var(--dp-line);
+  }
+  .async-background .table,
+  .async-background .form-container,
+  .async-background .flex-container,
+  .async-background .flex-item,
+  .async-background .communication-form,
+  .async-background .communication-card mat-card,
+  .async-background .interest-level {
+    background-color: var(--dp-surface);
+    border-color: var(--dp-line);
+  }
+  .async-background .interest-level h4,
+  .async-background mat-radio-button {
+    color: var(--dp-text);
+  }
+  .async-background .refresh {
+    color: var(--dp-muted);
+  }
+  /* Response dialogs paint values fixed-black — invisible on dark dialog. */
+  .bolder {
+    color: var(--dp-text);
+  }
+  /* Landing band: #eee shell carries inherited (now light) text. */
+  async-be-partner .container {
+    background: var(--dp-gold-soft);
+  }
+  /* Banner underline accent, near-invisible on dark paper. */
+  async-banner .writeup p span {
+    border-bottom-color: var(--dp-nav-icon);
+  }
 }
 
 /* SweetAlert2 dialogs are theme-blind (always light) — bind them to the

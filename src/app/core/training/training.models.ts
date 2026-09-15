@@ -56,6 +56,48 @@ export interface TeamComplianceEnvelope extends ApiEnvelope<{
   };
 }
 
+export interface TeamMemberLesson {
+  lessonId: string;
+  title: string;
+  done: boolean;
+  hasVideo: boolean;
+}
+
+export interface TeamMemberCourse {
+  courseId: string;
+  title: string;
+  done: number;
+  total: number;
+  percent: number;
+  certified: boolean;
+  lessons: TeamMemberLesson[];
+}
+
+export interface TeamMemberDetail {
+  partnerId: string;
+  depth: number | null;
+  member: { username: string; name: string } | null;
+  courses: TeamMemberCourse[];
+  overallPercent: number;
+  certifiedCount: number;
+}
+
+export interface TeamMemberDetailEnvelope extends ApiEnvelope<TeamMemberDetail> {
+  data: TeamMemberDetail;
+}
+
+export interface NudgeResult {
+  status: 'notified' | 'skipped';
+  reason?: string;
+  deduped?: boolean;
+  overallPercent?: number;
+  nextCourseId?: string | null;
+}
+
+export interface NudgeEnvelope extends ApiEnvelope<NudgeResult> {
+  data: NudgeResult;
+}
+
 export interface CourseDetail extends Omit<CourseSummary, 'lessons'> {
   lessons: Lesson[];
   completedIds: string[];

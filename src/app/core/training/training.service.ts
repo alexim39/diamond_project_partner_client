@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { CertificatesEnvelope, CompleteEnvelope, CourseEnvelope, CoursesEnvelope, PathsEnvelope, ReadinessEnvelope, TeamComplianceEnvelope, WatchState } from './training.models';
+import { CertificatesEnvelope, CompleteEnvelope, CourseEnvelope, CoursesEnvelope, NudgeEnvelope, PathsEnvelope, ReadinessEnvelope, TeamComplianceEnvelope, TeamMemberDetailEnvelope, WatchState } from './training.models';
 import { ApiEnvelope } from '../../core/auth/auth.models';
 
 /** Training Center → backend `/v1/training/*`. Fully typed. */
@@ -33,6 +33,14 @@ export class TrainingService {
   teamCompliance(limit = 200): Observable<TeamComplianceEnvelope> {
     const params = new HttpParams().set('limit', String(limit));
     return this.api.get<TeamComplianceEnvelope>('v1/training/team/compliance', params);
+  }
+
+  teamMember(partnerId: string): Observable<TeamMemberDetailEnvelope> {
+    return this.api.get<TeamMemberDetailEnvelope>(`v1/training/team/compliance/${partnerId}`);
+  }
+
+  nudge(partnerId: string, note = ''): Observable<NudgeEnvelope> {
+    return this.api.post<NudgeEnvelope>('v1/training/team/nudge', { partnerId, note });
   }
 
   certificates(): Observable<CertificatesEnvelope> {

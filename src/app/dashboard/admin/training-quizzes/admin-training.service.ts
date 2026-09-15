@@ -6,7 +6,17 @@ import { ApiEnvelope } from '../../../core/auth/auth.models';
 export interface AdminQuizCatalog {
   id: string;
   title: string;
-  lessons: Array<{ id: string; title: string; quizCount: number }>;
+  lessons: Array<{
+    id: string;
+    title: string;
+    quizCount: number;
+    mediaOverridden?: boolean;
+    videoUrl?: string | null;
+    posterUrl?: string | null;
+    captionsUrl?: string | null;
+    hasTranscript?: boolean;
+    durationSec?: number | null;
+  }>;
 }
 
 export interface AdminQuizRow {
@@ -29,5 +39,40 @@ export class AdminTrainingService {
 
   save(courseId: string, lessonId: string, quiz: AdminQuizRow['quiz']): Observable<ApiEnvelope<AdminQuizRow>> {
     return this.api.put<ApiEnvelope<AdminQuizRow>>(`v1/admin/training/courses/${courseId}/lessons/${lessonId}/quiz`, quiz);
+  }
+}
+
+export interface AdminMedia {
+  videoUrl?: string | null;
+  posterUrl?: string | null;
+  captionsUrl?: string | null;
+  transcript?: string | null;
+  durationSec?: number | null;
+}
+
+export interface AdminMediaRow {
+  courseId: string;
+  lessonId: string;
+  videoUrl: string | null;
+  posterUrl: string | null;
+  captionsUrl: string | null;
+  transcript: string | null;
+  durationSec: number | null;
+}
+
+@Injectable({ providedIn: 'root' })
+export class AdminTrainingMediaService {
+  private readonly api = inject(ApiClient);
+
+  list(): Observable<ApiEnvelope<AdminMediaRow[]>> {
+    return this.api.get<ApiEnvelope<AdminMediaRow[]>>('v1/admin/training/media');
+  }
+
+  save(courseId: string, lessonId: string, media: AdminMedia): Observable<ApiEnvelope<AdminMediaRow>> {
+    return this.api.put<ApiEnvelope<AdminMediaRow>>(`v1/admin/training/courses/${courseId}/lessons/${lessonId}/media`, media);
+  }
+
+  reset(courseId: string, lessonId: string): Observable<ApiEnvelope<{ reverted: boolean }>> {
+    return this.api.delete<ApiEnvelope<{ reverted: boolean }>>(`v1/admin/training/courses/${courseId}/lessons/${lessonId}/media`);
   }
 }

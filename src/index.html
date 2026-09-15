@@ -46,12 +46,13 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script>
     // Apply the stored Diamond theme before Angular boots (no flash).
+    // Dark is the default; only an explicit 'light' choice opts out.
     try {
       document.documentElement.setAttribute(
         'data-theme',
-        localStorage.getItem('selectedTheme') === 'dark' ? 'dark' : 'light'
+        localStorage.getItem('selectedTheme') === 'light' ? 'light' : 'dark'
       );
-    } catch (e) { /* private mode: stay light */ }
+    } catch (e) { /* private mode: stay dark */ }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">

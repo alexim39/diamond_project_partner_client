@@ -124,8 +124,8 @@ import { ApiError } from '../../../core/http/api-error';
             <table>
               <tr><th>Member</th><th>Depth</th><th>Overall</th><th>Certs</th><th>IPO</th><th>QSG</th><th>SMO</th></tr>
               @for (m of team().slice(0, 50); track m.partnerId) {
-                <tr>
-                  <td>{{ m.member?.name ?? m.partnerId.slice(-6) }}</td>
+                <tr class="member-row" (click)="toggleMember(m)" (keydown.enter)="toggleMember(m)" tabindex="0">
+                  <td><button mat-button>{{ m.member?.name ?? m.partnerId.slice(-6) }}</button></td>
                   <td>L{{ m.depth ?? '–' }}</td>
                   <td><mat-progress-bar mode="determinate" [value]="m.overallPercent" /> {{ m.overallPercent }}%</td>
                   <td>{{ m.certifiedCount }}</td>
@@ -133,6 +133,41 @@ import { ApiError } from '../../../core/http/api-error';
                   <td>{{ coursePct(m, 'qsg') }}%</td>
                   <td>{{ coursePct(m, 'smo') }}%</td>
                 </tr>
+                @if (expandedId() === m.partnerId) {
+                  <tr class="detail-row">
+                    <td colspan="7">
+                      @if (detailLoading() === m.partnerId) {
+                        <mat-progress-bar mode="indeterminate" />
+                      } @else if (details()[m.partnerId]; as d) {
+                        <div class="member-detail">
+                          @for (c of d.courses; track c.courseId) {
+                            <div class="course-line">
+                              <strong>{{ c.title }}</strong>
+                              <span class="muted">{{ c.done }}/{{ c.total }} · {{ c.percent }}%@if (c.certified) { · Certified }</span>
+                              <ul>
+                                @for (l of c.lessons; track l.lessonId) {
+                                  <li [class.done]="l.done">
+                                    <mat-icon>{{ l.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                                    <span>{{ l.title }}</span>
+                                    @if (l.hasVideo) { <span class="muted"> · video</span> }
+                                  </li>
+                                }
+                              </ul>
+                            </div>
+                          }
+                          <div class="nudge-row">
+                            <button mat-flat-button color="primary" (click)="nudgeMember(m, $event)" [disabled]="nudging() === m.partnerId">
+                              {{ nudging() === m.partnerId ? 'Sending…' : 'Nudge to keep learning' }}
+                            </button>
+                            @if (nudgeMsg()[m.partnerId]; as msg) {
+                              <span class="muted">{{ msg }}</span>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
               }
             </table>
           } @else if (!loading()) {
@@ -166,6 +201,16 @@ import { ApiError } from '../../../core/http/api-error';
     .bar-track { height: 14px; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 4px; overflow: hidden; }
     .bar-fill { height: 100%; background: var(--dp-gold); min-width: 2px; }
     .bar-num { text-align: right; font-weight: 600; font-size: 0.9em; }
+    .member-row { cursor: pointer; }
+    .member-row:hover td { background: var(--dp-paper); }
+    .member-row button { min-height: 44px; }
+    .detail-row td { background: var(--dp-paper); }
+    .member-detail { display: flex; flex-direction: column; gap: 0.75em; padding: 0.5em 0; }
+    .course-line ul { list-style: none; margin: 0.3em 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.2em; }
+    .course-line li { display: flex; align-items: center; gap: 0.4em; font-size: 0.9em; }
+    .course-line li mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-muted); }
+    .course-line li.done mat-icon { color: var(--dp-success); }
+    .nudge-row { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     html[data-theme='dark'] .error { color: #e89a9a; }
@@ -185,9 +230,60 @@ export class TrainingAnalyticsComponent implements OnInit {
   protected readonly teamSummary = signal<{ notStarted: number; inProgress: number; fullyCertified: number } | null>(null);
   protected readonly teamCapped = signal(false);
   protected readonly teamTotal = signal(0);
+  protected readonly expandedId = signal<string | null>(null);
+  protected readonly details = signal<Record<string, import('../../../core/training/training.models').TeamMemberDetail>>({});
+  protected readonly detailLoading = signal<string | null>(null);
+  protected readonly nudging = signal<string | null>(null);
+  protected readonly nudgeMsg = signal<Record<string, string>>({});
 
   protected coursePct(m: { courses: Array<{ courseId: string; percent: number }> }, courseId: string): number {
     return m.courses.find((c) => c.courseId === courseId)?.percent ?? 0;
+  }
+
+  protected toggleMember(m: { partnerId: string }): void {
+    const id = m.partnerId;
+    if (this.expandedId() === id) {
+      this.expandedId.set(null);
+      return;
+    }
+    this.expandedId.set(id);
+    if (!this.details()[id] && this.detailLoading() !== id) {
+      this.detailLoading.set(id);
+      this.training.teamMember(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            this.details.update((d) => ({ ...d, [id]: res.data }));
+            this.detailLoading.set(null);
+          },
+          error: () => this.detailLoading.set(null),
+        });
+    }
+  }
+
+  protected nudgeMember(m: { partnerId: string }, event: Event): void {
+    event.stopPropagation();
+    const id = m.partnerId;
+    if (this.nudging() === id) return;
+    this.nudging.set(id);
+    this.training.nudge(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.nudging.set(null);
+          const d = res.data;
+          this.nudgeMsg.update((mm) => ({
+            ...mm,
+            [id]: d.status === 'notified'
+              ? `Nudge sent${d.deduped ? ' (already in inbox)' : ''} ✓`
+              : `Skipped: ${d.reason === 'already-complete' ? 'already fully certified' : d.reason === 'already-sent-today' ? 'already nudged today' : (d.reason ?? 'not sent')}`,
+          }));
+        },
+        error: (err: import('../../../core/http/api-error').ApiError) => {
+          this.nudging.set(null);
+          this.nudgeMsg.update((mm) => ({ ...mm, [id]: err.message ?? 'Failed to send' }));
+        },
+      });
   }
 
   protected readonly avgCompletion = computed(() => {

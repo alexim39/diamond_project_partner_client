@@ -22,10 +22,10 @@ export class ThemeTogglerService {
     this.theme.set(theme);
   }
 
+  /** Stored preference wins; fresh devices and private mode start dark. */
   getTheme(): 'dark' | 'light' {
-    return (
-      (localStorage.getItem(this.THEME_KEY) as 'dark' | 'light') || 'light'
-    );
+    const stored = localStorage.getItem(this.THEME_KEY);
+    return stored === 'light' ? 'light' : 'dark';
   }
 
   /** Apply the stored theme (call once at boot to avoid a flash). */
