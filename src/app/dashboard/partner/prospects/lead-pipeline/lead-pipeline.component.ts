@@ -272,6 +272,12 @@ import { forkJoin } from 'rxjs';
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
     .total { margin: 0; }
+    @media only screen and (max-width: 600px) {
+      /* Paginator controls overflow 360px viewports — page-size stays 50. */
+      .mat-mdc-paginator-page-size { display: none; }
+      .page-head mat-button-toggle-group { max-width: 100%; overflow-x: auto; }
+      .stage-cards { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5em; }
+    }
   `],
 })
 export class LeadPipelineComponent implements OnInit {

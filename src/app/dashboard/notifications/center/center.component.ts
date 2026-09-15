@@ -183,9 +183,9 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
               <div class="feed-body">
                 <div class="feed-title-row">
                   <strong>{{ item.title }}</strong>
-                  <mat-chip [style.background]="chip(item.kind).color" [style.color]="chip(item.kind).text" highlighted>
+                  <span [class]="kindClass(item.kind)">
                     {{ chip(item.kind).label }}
-                  </mat-chip>
+                  </span>
                   @if (item.origin === 'stored') {
                     <span [class]="prioClass(item.priority)">{{ item.priority }}</span>
                   }
