@@ -201,40 +201,74 @@ mat-chip[style] .mdc-evolution-chip__text-label {
  * (theme-flipping) text and MDC components whose labels flip light — in
  * dark mode that yields glare islands and invisible copy. Map the repeated
  * scaffold classes to tokens. Self-consistent fixed cards (signup frosted
- * panel, about card, step card, white-on-green buttons) stay untouched. */
+ * panel, about card, step card, white-on-green buttons) stay untouched.
+ *
+ * NOTE: every declaration below carries !important on purpose. Angular's
+ * emulated encapsulation appends scope attributes to component rules
+ * (e.g. `.panel-content[_ngcontent-x]` under nested classes), which
+ * outscores plain global selectors — without it these rules lose and the
+ * white shells stay white. All values are dark-scoped tokens, so this
+ * cannot leak into light mode. */
 html[data-theme="dark"] {
   .async-background .async-container {
-    background-color: var(--dp-paper);
-    border: 1px solid var(--dp-line);
+    background-color: var(--dp-paper) !important;
+    border: 1px solid var(--dp-line) !important;
   }
   .async-background .table,
   .async-background .form-container,
   .async-background .flex-container,
   .async-background .flex-item,
+  .async-background .cart-item,
+  .async-background .product-card,
   .async-background .communication-form,
   .async-background .communication-card mat-card,
   .async-background .interest-level {
-    background-color: var(--dp-surface);
-    border-color: var(--dp-line);
+    background-color: var(--dp-surface) !important;
+    border-color: var(--dp-line) !important;
   }
   .async-background .interest-level h4,
   .async-background mat-radio-button {
-    color: var(--dp-text);
+    color: var(--dp-text) !important;
   }
   .async-background .refresh {
-    color: var(--dp-muted);
+    color: var(--dp-muted) !important;
   }
   /* Response dialogs paint values fixed-black — invisible on dark dialog. */
   .bolder {
-    color: var(--dp-text);
+    color: var(--dp-text) !important;
   }
   /* Landing band: #eee shell carries inherited (now light) text. */
   async-be-partner .container {
-    background: var(--dp-gold-soft);
+    background: var(--dp-gold-soft) !important;
   }
   /* Banner underline accent, near-invisible on dark paper. */
   async-banner .writeup p span {
-    border-bottom-color: var(--dp-nav-icon);
+    border-bottom-color: var(--dp-nav-icon) !important;
+  }
+  /* Auth pages paint fixed-light form shells (#eee page, frosted white
+   * panel) while MDC inputs flip light — typed values vanish. Re-skin
+   * the shells dark; links and errors follow tokens. */
+  async-partner-signin .page {
+    background: var(--dp-paper) !important;
+  }
+  async-partner-signin .server-error {
+    color: var(--dp-error) !important;
+  }
+  async-partner-signup .panel-content {
+    background: rgba(30, 28, 24, 0.94) !important;
+    border: 1px solid var(--dp-line) !important;
+  }
+  async-partner-signup .panel-content p a {
+    color: var(--dp-gold-ink) !important;
+  }
+  /* New-style cards with hardcoded white + inherited text (ledger figures). */
+  .commissions-page .card {
+    background-color: var(--dp-surface) !important;
+    border-color: var(--dp-line) !important;
+  }
+  .commissions-page .card.accent {
+    background-color: var(--dp-gold-soft) !important;
+    border-color: var(--dp-line) !important;
   }
 }
 
