@@ -259,7 +259,7 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
           <div class="muted">{{ form.get('adObjective')?.value }} · {{ form.get('budgetType')?.value }} {{ budgetAmount() | currency:'₦':'symbol':'1.0-0' }}</div>
           <div class="muted">Targets: {{ reviewTargets() }}</div>
           <div class="muted">Leads land in your general contact list · held from wallet now, run by admin</div>
-          <div class="muted">Landing page: diamondprojectonline.com/{{ partner?.username ?? '' }}</div>
+          <div class="muted">Landing page: c21fg.online/{{ partner?.username ?? '' }}</div>
         </div>
 
         <div class="form-actions">

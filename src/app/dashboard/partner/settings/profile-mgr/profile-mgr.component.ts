@@ -191,7 +191,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
 
   protected publicPageUrl(): string | null {
     const username = String(this.profile()?.username ?? '').trim().toLowerCase();
-    return username ? `https://www.diamondprojectonline.com/${username}` : null;
+    return username ? `https://www.c21fg.online/${username}` : null;
   }
 
   protected onPhotoUploaded(url: string): void {
@@ -366,14 +366,14 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     this.dialog.open(HelpDialogComponent, {
       data: {help: `
         Make sure your username, which is part of your unique link, is meaningful and easy to remember.
-        For example, in diamondprojectonline.com/business, "business" is a meaninful and easy to remember username.
+        For example, in c21fg.online/business, "business" is a meaninful and easy to remember username.
 
         <p>Other examples of good unique link:
           <ul>
-            <li>diamondprojectonline.com/join</li>
-            <li>diamondprojectonline.com/connect</li>
-            <li>diamondprojectonline.com/link</li>
-            <li>diamondprojectonline.com/grow</li>
+            <li>c21fg.online/join</li>
+            <li>c21fg.online/connect</li>
+            <li>c21fg.online/link</li>
+            <li>c21fg.online/grow</li>
           </ul>
         </p>
 

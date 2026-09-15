@@ -25,7 +25,7 @@ template: `
         <h5> SMS</h5>
         <div class="copy-link">
             <p>
-                www.diamondprojectonline.com/{{partner.username}}
+                www.c21fg.online/{{partner.username}}
             </p>
             <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
         </div>
@@ -117,7 +117,7 @@ export class ProspectSMSComponent implements OnInit {
     }
 
     copyLink() {  
-        const link = `www.diamondprojectonline.com/${this.partner.username}`;  
+        const link = `www.c21fg.online/${this.partner.username}`;  
         navigator.clipboard.writeText(link).then(() => {  
         this.snackBar.open('Link copied to clipboard!', 'Close', {  
             duration: 2000,  

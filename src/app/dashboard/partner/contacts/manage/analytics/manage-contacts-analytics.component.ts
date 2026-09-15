@@ -201,7 +201,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
   }
 
   copyLink() {
-    const link = `www.diamondprojectonline.com/${this.partner.username}`;
+    const link = `www.c21fg.online/${this.partner.username}`;
     navigator.clipboard.writeText(link).then(() => {
       this.snackBar.open('Link copied to clipboard!', 'Close', {
         duration: 2000,

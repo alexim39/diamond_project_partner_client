@@ -104,7 +104,7 @@ export class InvitationComponent implements OnInit {
   ngOnInit() {}
 
   protected personalLink(): string {
-    return `https://diamondprojectonline.com/${this.partner?.username ?? ''}`;
+    return `https://c21fg.online/${this.partner?.username ?? ''}`;
   }
 
   protected copyLink(): void {

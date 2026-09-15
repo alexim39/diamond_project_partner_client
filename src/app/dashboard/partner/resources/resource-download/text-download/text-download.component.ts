@@ -166,7 +166,7 @@ export class TextDownloadComponent {
     }
 
     protected partnerLink(): string {
-      return `diamondprojectonline.com/${this.partner?.username ?? ''}`;
+      return `c21fg.online/${this.partner?.username ?? ''}`;
     }
 
     private fullContent(template: TextTemplate): string {

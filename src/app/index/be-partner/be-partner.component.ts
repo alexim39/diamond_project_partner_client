@@ -12,7 +12,7 @@ template: `
             <p>Visit our home page to understand more about our business</p>
         </div>
         <div class="call">
-            <a mat-flat-button href="http://diamondprojectonline.com/get-started" target="_blank">Join Us Now</a>
+            <a mat-flat-button href="https://c21fg.online/get-started" target="_blank">Join Us Now</a>
         </div>
     </div>
   </div>

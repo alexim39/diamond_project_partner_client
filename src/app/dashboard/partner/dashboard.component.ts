@@ -160,7 +160,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Ask Ora', link: 'ora', title: 'Chat with Ora, your growth coach' },
       { label: 'Get help', link: 'support/ticket', title: 'Ask for help' },
       { label: 'About', link: 'support/about/app', title: 'About this app' },
-      { label: 'Survey', external: 'https://survey.diamondprojectonline.com/', title: 'Partners survey' },
+      { label: 'Survey', external: 'https://survey.c21fg.online/', title: 'Partners survey' },
     ],
   },
 ];
