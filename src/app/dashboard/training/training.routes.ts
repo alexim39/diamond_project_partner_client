@@ -50,7 +50,7 @@ export const TrainingRoutes: Routes = [
   },
   {
     path: ':courseId',
-    component: TrainingDetailComponent,
-    title: 'Course - Lessons and certification',
+    redirectTo: 'courses/:courseId',
+    pathMatch: 'full',
   },
 ];

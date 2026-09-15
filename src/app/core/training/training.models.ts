@@ -18,13 +18,48 @@ export interface Lesson {
   title: string;
   body: string;
   takeaways: string[];
-  quiz?: Array<{ q: string; options: string[]; answer: number }>;
+  quiz?: Array<{ q: string; options: string[]; answer?: number }>;
   videoUrl?: string | null;
+  posterUrl?: string | null;
+  captionsUrl?: string | null;
+  transcript?: string | null;
+  durationSec?: number | null;
+}
+
+export interface WatchState {
+  lessonId: string;
+  percent: number;
+  seconds: number;
+  updatedAt: string | null;
+}
+
+export interface TeamComplianceRow {
+  partnerId: string;
+  depth: number;
+  member: { username: string; name: string } | null;
+  courses: Array<{ courseId: string; title: string; done: number; total: number; percent: number; certified: boolean }>;
+  overallPercent: number;
+  certifiedCount: number;
+}
+
+export interface TeamComplianceEnvelope extends ApiEnvelope<{
+  members: TeamComplianceRow[];
+  total: number;
+  capped: boolean;
+  summary: { notStarted: number; inProgress: number; fullyCertified: number };
+}> {
+  data: {
+    members: TeamComplianceRow[];
+    total: number;
+    capped: boolean;
+    summary: { notStarted: number; inProgress: number; fullyCertified: number };
+  };
 }
 
 export interface CourseDetail extends Omit<CourseSummary, 'lessons'> {
   lessons: Lesson[];
   completedIds: string[];
+  watch?: Record<string, WatchState>;
 }
 
 export interface CoursesEnvelope extends ApiEnvelope<CourseSummary[]> {

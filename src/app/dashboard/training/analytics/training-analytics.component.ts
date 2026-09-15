@@ -112,6 +112,33 @@ import { ApiError } from '../../../core/http/api-error';
             }
           </div>
         </div>
+
+        <div class="dp-card table-card">
+          <h3>Downline training compliance</h3>
+          @if (teamSummary(); as s) {
+            <p class="muted">{{ s.fullyCertified }} fully certified · {{ s.inProgress }} in progress · {{ s.notStarted }} not started@if (teamCapped()) { · showing first {{ team().length }} of {{ teamTotal() }} }</p>
+          } @else {
+            <p class="muted">Your downline — who has finished IPO / QSG / SMO / Leadership.</p>
+          }
+          @if (team().length > 0) {
+            <table>
+              <tr><th>Member</th><th>Depth</th><th>Overall</th><th>Certs</th><th>IPO</th><th>QSG</th><th>SMO</th></tr>
+              @for (m of team().slice(0, 50); track m.partnerId) {
+                <tr>
+                  <td>{{ m.member?.name ?? m.partnerId.slice(-6) }}</td>
+                  <td>L{{ m.depth ?? '–' }}</td>
+                  <td><mat-progress-bar mode="determinate" [value]="m.overallPercent" /> {{ m.overallPercent }}%</td>
+                  <td>{{ m.certifiedCount }}</td>
+                  <td>{{ coursePct(m, 'ipo') }}%</td>
+                  <td>{{ coursePct(m, 'qsg') }}%</td>
+                  <td>{{ coursePct(m, 'smo') }}%</td>
+                </tr>
+              }
+            </table>
+          } @else if (!loading()) {
+            <p class="muted">No downline members yet — your recruits will appear here with their course progress.</p>
+          }
+        </div>
       }
     </section>
   `,
@@ -154,6 +181,14 @@ export class TrainingAnalyticsComponent implements OnInit {
   protected readonly courses = signal<Array<{ id: string; title: string; percent: number; done: number; total: number; certified: boolean }>>([]);
   protected readonly certCount = signal(0);
   protected readonly pipelineBars = signal<Array<{ level: string; label: string; count: number; width: number }>>([]);
+  protected readonly team = signal<Array<{ partnerId: string; depth: number | null; member: { username: string; name: string } | null; courses: Array<{ courseId: string; percent: number }>; overallPercent: number; certifiedCount: number }>>([]);
+  protected readonly teamSummary = signal<{ notStarted: number; inProgress: number; fullyCertified: number } | null>(null);
+  protected readonly teamCapped = signal(false);
+  protected readonly teamTotal = signal(0);
+
+  protected coursePct(m: { courses: Array<{ courseId: string; percent: number }> }, courseId: string): number {
+    return m.courses.find((c) => c.courseId === courseId)?.percent ?? 0;
+  }
 
   protected readonly avgCompletion = computed(() => {
     const cs: Array<{ percent: number }> = this.courses() as unknown as Array<{ percent: number }>;
@@ -172,14 +207,16 @@ export class TrainingAnalyticsComponent implements OnInit {
       courses: this.training.courses().pipe(catchError(() => of(null))),
       certs: this.training.certificates().pipe(catchError(() => of(null))),
       oversight: this.progress.oversight().pipe(catchError(() => of(null))),
+      team: this.training.teamCompliance().pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (payload: { courses: unknown; certs: unknown; oversight: unknown }) => {
-          const { courses, certs, oversight } = payload as {
+        next: (payload: { courses: unknown; certs: unknown; oversight: unknown; team: unknown }) => {
+          const { courses, certs, oversight, team } = payload as {
             courses: { data?: Array<{ id: string; title: string; percent: number; done: number; total: number; certified: boolean }> } | null;
             certs: { data?: unknown[] } | null;
             oversight: { data?: { distribution?: Record<string, number> } } | null;
+            team: { data?: { members?: never[]; total?: number; capped?: boolean; summary?: { notStarted: number; inProgress: number; fullyCertified: number } } } | null;
           };
           const cs = courses?.data ?? [];
           this.courses.set(cs as never);
@@ -190,6 +227,11 @@ export class TrainingAnalyticsComponent implements OnInit {
           this.pipelineBars.set(Object.entries(dist).map(([level, count]) => ({
             level, label: labels[level] ?? level, count: Number(count), width: Math.max(Number(count) ? 2 : 0, Math.round((Number(count) / max) * 100)),
           })));
+          const t = team?.data;
+          this.team.set(((t?.members ?? []) as never[]).slice(0, 200) as never);
+          this.teamSummary.set((t?.summary ?? null) as never);
+          this.teamCapped.set(!!t?.capped);
+          this.teamTotal.set(Number(t?.total) || 0);
           this.loading.set(false);
         },
         error: (err: import('../../../core/http/api-error').ApiError) => {

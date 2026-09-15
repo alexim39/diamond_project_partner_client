@@ -71,7 +71,7 @@ import { ApiError } from '../../../core/http/api-error';
                 <mat-progress-bar mode="determinate" [value]="course.percent" />
                 <div class="course-foot">
                   <span class="muted">{{ course.done }}/{{ course.total }} lessons</span>
-                  <a mat-button [routerLink]="['/dashboard/training', course.id]">{{ course.done > 0 && !course.certified ? 'Continue' : course.certified ? 'Review' : 'Start' }}</a>
+                  <a mat-button [routerLink]="['/dashboard/training/courses', course.id]">{{ course.done > 0 && !course.certified ? 'Continue' : course.certified ? 'Review' : 'Start' }}</a>
                 </div>
               </mat-card-content>
             </mat-card>

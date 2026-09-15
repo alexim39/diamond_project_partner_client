@@ -8,7 +8,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TrainingService } from '../../../core/training/training.service';
-import { AuthService } from '../../../core/auth/auth.service';
 import { CourseDetail } from '../../../core/training/training.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -26,7 +25,7 @@ import { ApiError } from '../../../core/http/api-error';
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
-        <a routerLink="../">Training Center</a> &gt;
+        <a routerLink="/dashboard/training/courses">Training Center</a> &gt;
         <span>{{ course()?.title ?? 'Course' }}</span>
       </div>
     </section>
@@ -78,11 +77,25 @@ import { ApiError } from '../../../core/http/api-error';
                 <div class="video-wrap">
                   <video
                     [src]="lesson.videoUrl"
+                    [poster]="lesson.posterUrl ?? undefined"
                     controls
+                    playsinline
                     preload="metadata"
                     (timeupdate)="onVideoProgress(lesson.id, $event)"
                     (ended)="onVideoEnded(lesson.id)"
-                  ></video>
+                    (error)="onVideoError(lesson.id)"
+                  >
+                    @if (lesson.captionsUrl) {
+                      <track kind="captions" srclang="en" label="English" [src]="lesson.captionsUrl ?? ''" default />
+                    }
+                    Sorry, your browser can't play this video.
+                  </video>
+                  @if (videoError()[lesson.id]) {
+                    <p class="error" role="alert">
+                      Video failed to load. Check your connection and reload.
+                      <button mat-button (click)="reload()">Retry</button>
+                    </p>
+                  }
                   <div class="video-progress">
                     <mat-progress-bar mode="determinate" [value]="watchPercent(lesson.id)" />
                     <span class="muted">{{ watchPercent(lesson.id) | number:'1.0-0' }}% watched</span>
@@ -90,18 +103,27 @@ import { ApiError } from '../../../core/http/api-error';
                       <span class="muted"> · watch to 90% to unlock completion</span>
                     }
                   </div>
+                  <p class="muted audio-hint">No sound? Turn up your device volume and check the player's volume icon — if the track uses an unsupported codec your browser may play video silently. Transcript below covers the key points.</p>
+                  @if (lesson.transcript) {
+                    <details class="transcript">
+                      <summary>Read transcript</summary>
+                      <p>{{ lesson.transcript }}</p>
+                    </details>
+                  }
                 </div>
               } @else if (lesson.videoUrl) {
                 <div class="video-wrap">
-                  <video [src]="lesson.videoUrl" controls preload="metadata"></video>
+                  <video [src]="lesson.videoUrl" [poster]="lesson.posterUrl ?? undefined" controls playsinline preload="metadata"></video>
+                  @if (lesson.transcript) {
+                    <details class="transcript">
+                      <summary>Read transcript</summary>
+                      <p>{{ lesson.transcript }}</p>
+                    </details>
+                  }
                 </div>
               }
-              @if (!lesson.videoUrl || watchedEnough(lesson.id)) {
-                <p>{{ lesson.body }}</p>
-              } @else {
-                <p class="muted">Watch the video above first.</p>
-              }
-              @if ((!lesson.videoUrl || watchedEnough(lesson.id)) && lesson.takeaways.length > 0) {
+              <p>{{ lesson.body }}</p>
+              @if (lesson.takeaways.length > 0) {
                 <ul class="takeaways">
                   @for (point of lesson.takeaways; track point) {
                     <li>{{ point }}</li>
@@ -163,6 +185,10 @@ import { ApiError } from '../../../core/http/api-error';
     .video-wrap video { width: 100%; max-height: 420px; border-radius: 8px; background: #000; }
     .video-progress { display: flex; align-items: center; gap: 0.5em; }
     .video-progress mat-progress-bar { flex: 1; }
+    .audio-hint { margin: 0; }
+    .transcript { border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.8em; background: var(--dp-paper); }
+    .transcript summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+    .transcript p { margin: 0.5em 0 0; line-height: 1.6; }
     .quiz { margin-top: 0.75em; display: flex; flex-direction: column; gap: 0.75em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.9em; }
     .quiz-q { display: flex; flex-direction: column; gap: 0.35em; }
     .quiz-q mat-radio-group { display: flex; flex-direction: column; gap: 0.15em; }
@@ -181,7 +207,10 @@ export class TrainingDetailComponent implements OnInit {
   protected readonly openLessonId = signal<string | null>(null);
   protected readonly quizError = signal<string | null>(null);
   private readonly answers = new Map<string, Map<string, number>>();
+  private readonly lastWatchSent = new Map<string, number>();
+  private readonly lastWatchAt = new Map<string, number>();
   protected readonly videoProgress = signal<Record<string, number>>({});
+  protected readonly videoError = signal<Record<string, boolean>>({});
   protected readonly error = signal<string | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly course = signal<CourseDetail | null>(null);
@@ -216,11 +245,34 @@ export class TrainingDetailComponent implements OnInit {
       this.saveWatchPercent(lessonId, pct);
       this.videoProgress.update((m) => ({ ...m, [lessonId]: pct }));
     }
+    // Throttled server heartbeat: every new 10% step or 10s, whichever first.
+    const now = Date.now();
+    const sent = this.lastWatchSent.get(lessonId) ?? -10;
+    const at = this.lastWatchAt.get(lessonId) ?? 0;
+    if (pct >= sent + 10 || now - at > 10000) {
+      this.lastWatchSent.set(lessonId, pct);
+      this.lastWatchAt.set(lessonId, now);
+      this.training.watch(this.courseId(), lessonId, pct, Math.round(el.currentTime)).subscribe({
+        next: (res) => {
+          const serverPct = res.data?.percent ?? pct;
+          if (serverPct > this.watchPercent(lessonId)) {
+            this.saveWatchPercent(lessonId, serverPct);
+            this.videoProgress.update((m) => ({ ...m, [lessonId]: serverPct }));
+          }
+        },
+        error: () => {},
+      });
+    }
+  }
+
+  protected onVideoError(lessonId: string): void {
+    this.videoError.update((m) => ({ ...m, [lessonId]: true }));
   }
 
   protected onVideoEnded(lessonId: string): void {
     this.saveWatchPercent(lessonId, 100);
     this.videoProgress.update((m) => ({ ...m, [lessonId]: 100 }));
+    this.training.watch(this.courseId(), lessonId, 100, 0).subscribe({ error: () => {} });
     const c = this.course();
     const lesson = c?.lessons.find((l) => l.id === lessonId) as { quiz?: Array<unknown> } | undefined;
     if (!lesson?.quiz?.length && !this.isDone(lessonId)) {
@@ -281,14 +333,18 @@ export class TrainingDetailComponent implements OnInit {
         next: (res) => {
           const data = res.data ?? null;
           this.course.set(data);
-          // Restore per-lesson video progress from localStorage so the
-          // progress bar and unlock state survive navigations.
+          // Merge server watch attestation with device cache — take the max
+          // so progress survives across devices and can't be rewound.
           const restored: Record<string, number> = {};
+          const serverWatch = (data as { watch?: Record<string, { percent?: number }> } | null)?.watch ?? {};
           for (const lesson of data?.lessons ?? []) {
             const id = (lesson as { id?: string }).id;
             if (id) {
-              const pct = this.loadWatchPercent(id);
-              if (pct > 0) restored[id] = pct;
+              const pct = Math.max(this.loadWatchPercent(id), Math.round(Number(serverWatch[id]?.percent) || 0));
+              if (pct > 0) {
+                restored[id] = pct;
+                this.saveWatchPercent(id, pct);
+              }
             }
           }
           this.videoProgress.set(restored);
