@@ -1,0 +1,4 @@
+# SPA fallback (Netlify and compatible static hosts):
+# serve index.html for every route so Angular router owns deep links
+# and refreshes instead of the host returning 404.
+/*    /index.html   200

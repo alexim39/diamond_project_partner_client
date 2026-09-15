@@ -4,6 +4,7 @@ import { PartnerSigninComponent } from "../auth/signin/partner-signin.component"
 import { PartnerSignupComponent } from "../auth/signup/partner-signup.component";
 import { IndexBodyComponent } from "./index-body.component";
 import { PartnerForgotPasswordComponent } from "../auth/forgot-password/partner-forgot-password.component";
+import { PartnerResetPasswordComponent } from "../auth/reset-password/partner-reset-password.component";
 
 export const IndexRoutes: Routes = [
     {
@@ -36,6 +37,11 @@ export const IndexRoutes: Routes = [
                         path: 'forgot-password',
                         component: PartnerForgotPasswordComponent,
                         title: "Forgot Password - Partner reset password"
+                    },
+                    {
+                        path: 'reset-password',
+                        component: PartnerResetPasswordComponent,
+                        title: "Reset Password - Choose a new password"
                     },
                 ]
             },

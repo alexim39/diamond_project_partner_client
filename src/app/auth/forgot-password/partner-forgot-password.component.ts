@@ -127,32 +127,31 @@ export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
     this.markAllAsTouched();
 
     if (this.signInForm.valid) {
-      // Send the form value to your Node.js backend
+      // v1 request — always 200 (anti-enumeration)
      const formData: PartnerSignInInterface = this.signInForm.value;
       this.subscriptions.push(
-        this.partnerSignInService.resetPassword(formData).subscribe((res: any) => {
-          //localStorage.setItem('authToken', res); // Save token to localStorage
-          //this.router.navigateByUrl('dashboard');
-
-
-
-
-
-        }, error => {
-          if (error.code == 404) {// user not found
+        this.partnerSignInService.resetPassword(formData).subscribe({
+          next: (res: any) => {
             Swal.fire({
               position: 'bottom',
-              icon: 'warning',
-              text: "This email does not exist as a partner email",
-              showConfirmButton: false,
-              timer: 4000
+              icon: 'success',
+              text: res?.message ?? 'If an account exists for that email, a reset link is on its way. It expires in 60 minutes.',
+              showConfirmButton: true,
+              confirmButtonColor: '#ffab40',
             });
-          }
-          if (error.code == 400) {// invalid credentail
+            this.signInForm.reset();
+          },
+
+
+
+
+
+          error: (error: any) => {
+            const serverMessage: string | undefined = error?.error?.message;
             Swal.fire({
               position: 'bottom',
-              icon: 'warning',
-              text: "Check your email or password",
+              icon: 'error',
+              text: serverMessage ?? 'Could not send the reset link — check the email and try again.',
               showConfirmButton: false,
               timer: 4000
             });

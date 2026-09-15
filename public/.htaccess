@@ -1,0 +1,10 @@
+# SPA fallback (Apache / cPanel shared hosting):
+# rewrite every non-file, non-directory request to index.html so the
+# Angular router owns deep links and refreshes instead of 404ing.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^ index.html [L]
+</IfModule>

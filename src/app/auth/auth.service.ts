@@ -38,9 +38,16 @@ export class PartnerAuthService {
     return this.apiService.post<any>('auth/signout', formObject, undefined, true);
   }
 
-  // reset password
+  // reset password — v1 API (transactional token flow). The legacy
+  // `auth/reset-password-request` route is retired server-side: it never
+  // persisted the token, so mailed links could never be confirmed.
   resetPassword(formObject: PartnerSignInInterface): Observable<any> {
-    return this.apiService.post<PartnerSignInInterface>(`auth/reset-password-request`, formObject, undefined, true);
+    return this.apiService.post<PartnerSignInInterface>(`v1/auth/reset-password-request`, formObject, undefined, true);
+  }
+
+  // confirm reset — exchanges the emailed token for a new password.
+  confirmResetPassword(payload: { token: string; newPassword: string }): Observable<any> {
+    return this.apiService.post<any>(`v1/auth/reset-password`, payload, undefined, true);
   }
 
   
