@@ -109,8 +109,15 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
             <ng-container matColumnDef="issuer">
               <th mat-header-cell *matHeaderCellDef>Issuer</th>
               <td mat-cell *matCellDef="let row">
-                {{ row.issuer?.name ?? '—' }}
-                <span class="muted">@{{ row.issuer?.username ?? '—' }}</span>
+                @if (row.issuer) {
+                  {{ row.issuer?.name ?? '—' }}
+                  <span class="muted">@{{ row.issuer?.username ?? '—' }}</span>
+                } @else if (row.issuerUpline) {
+                  {{ row.issuerUpline.name }}
+                  <span class="muted">upline of @{{ row.issuerUpline.holderUsername ?? 'holder' }} · @{{ row.issuerUpline.username }}</span>
+                } @else {
+                  <span class="muted">—</span>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="prospect">
