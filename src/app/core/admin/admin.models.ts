@@ -19,3 +19,18 @@ export interface PartnerDirectoryEnvelope extends ApiEnvelope<ManagedPartner[]> 
   limit: number;
   skip: number;
 }
+
+export interface AuditEntry {
+  id: string;
+  actorId: string;
+  actorLabel: string | null;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  detail: Record<string, unknown> | null;
+  createdAt: string | null;
+}
+
+export interface AuditEnvelope extends ApiEnvelope<{ items: AuditEntry[]; total: number; limit: number; skip: number }> {
+  data: { items: AuditEntry[]; total: number; limit: number; skip: number };
+}
