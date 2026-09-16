@@ -47,6 +47,10 @@ export class AdminService {
     return this.api.post<ApiEnvelope<unknown>>(`v1/admin/partners/${partnerId}/reset-password`, {});
   }
 
+  erase(partnerId: string): Observable<ApiEnvelope<{ erased: ManagedPartner; removed: Record<string, number> }>> {
+    return this.api.delete<ApiEnvelope<{ erased: ManagedPartner; removed: Record<string, number> }>>(`v1/admin/partners/${partnerId}`);
+  }
+
   audit(params: { action?: string; actorId?: string; limit?: number; skip?: number } = {}): Observable<AuditEnvelope> {
     const query = new URLSearchParams({
       ...(params.action ? { action: params.action } : {}),

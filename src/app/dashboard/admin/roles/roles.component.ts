@@ -210,6 +210,14 @@ const RANK_ORDER = [
                   }
                   <button mat-button (click)="forceSignOut(row)" [disabled]="actingId() === row.id">Sign out</button>
                   <button mat-button (click)="resetOnBehalf(row)" [disabled]="actingId() === row.id">Reset password</button>
+                  @if (eraseId() === row.id) {
+                    <button mat-flat-button color="warn" (click)="erase(row)" [disabled]="actingId() === row.id">
+                      {{ actingId() === row.id ? 'Erasing…' : 'Confirm erase?' }}
+                    </button>
+                    <button mat-button (click)="eraseId.set(null)">Cancel</button>
+                  } @else {
+                    <button mat-button color="warn" (click)="eraseId.set(row.id)">Erase</button>
+                  }
                 }
               </td>
             </ng-container>
@@ -281,6 +289,7 @@ export class ManageRolesComponent implements OnInit {
   protected readonly pendingRole = signal<UserRole>('leader');
   protected readonly suspendId = signal<string | null>(null);
   protected readonly suspendReason = signal('');
+  protected readonly eraseId = signal<string | null>(null);
 
   protected readonly displayedColumns = ['name', 'contact', 'role', 'plan', 'action'];
 
@@ -305,6 +314,10 @@ export class ManageRolesComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+    this.refreshStats();
+  }
+
+  protected refreshStats(): void {
     this.admin
       .stats()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -459,6 +472,32 @@ export class ManageRolesComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected erase(row: ManagedPartner): void {
+    if (!window.confirm(
+      `PERMANENTLY erase ${this.displayName(row)} (${row.email})?\n\nProfile is anonymized, their prospects, tickets and codes are deleted. Ledger, orders and posts are kept for records. Their downline must already be reassigned.`,
+    )) return;
+    this.actingId.set(row.id);
+    this.admin
+      .erase(row.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          this.eraseId.set(null);
+          const removed = res.data?.removed;
+          const bits = removed ? Object.entries(removed).map(([k, v]) => `${v} ${k}`).join(', ') : '';
+          this.notice.set(`Account erased.${bits ? ` Removed: ${bits}.` : ''} Ledger, orders and posts retained.`);
+          this.reload();
+          this.refreshStats();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.eraseId.set(null);
           this.error.set(err.message);
         },
       });
