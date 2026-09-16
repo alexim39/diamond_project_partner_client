@@ -10,6 +10,8 @@ import { AdminAuditComponent } from './audit/admin-audit.component';
 import { AdminTicketsComponent } from './tickets/admin-tickets.component';
 import { AdminModerationComponent } from './moderation/admin-moderation.component';
 import { AdminBroadcastComponent } from './broadcast/admin-broadcast.component';
+import { AdminPlanComponent } from './plan/admin-plan.component';
+import { AdminProductsComponent } from './products/admin-products.component';
 import { OversightComponent } from './oversight/oversight.component';
 import { adminGuard, g8Guard } from '../../core/auth/role.guard';
 
@@ -72,6 +74,16 @@ export const AdminRoutes: Routes = [
         path: 'broadcast',
         component: AdminBroadcastComponent,
         title: 'Broadcast - Platform-wide notices',
+      },
+      {
+        path: 'plan',
+        component: AdminPlanComponent,
+        title: 'Commission Plan - Unilevel rates',
+      },
+      {
+        path: 'products',
+        component: AdminProductsComponent,
+        title: 'Products - Catalog editor',
       },
     ],
   },
