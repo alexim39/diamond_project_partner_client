@@ -7,6 +7,7 @@ import { EditTeamContainerComponent } from './team/edit-team/edit-team-container
 import { MyPartnerSupportContainerComponent } from './my-partners/support/support-container.component';
 import { MyPartnersContactsContainerComponent } from './my-partners/contacts/contacts-container.component';
 import { MyPartnerContactsDetailContainerComponent } from './my-partners/contacts/details/contacts-detail-container.component';
+import { MyCodesComponent } from './my-partners/my-codes/my-codes.component';
 import { TrainingConfirmationsComponent } from './team/training-confirmations/training-confirmations.component';
 
 export const MentorshipRoutes: Routes = [
@@ -93,6 +94,11 @@ export const MentorshipRoutes: Routes = [
                             path: 'detail/:id',
                             component: MyPartnerSupportContainerComponent,
                             title: "My Partners Support - Manage partners listing",
+                        },
+                        {
+                            path: 'my-codes',
+                            component: MyCodesComponent,
+                            title: "My Codes - Codes you recorded",
                         },
                     ]
                 },    
