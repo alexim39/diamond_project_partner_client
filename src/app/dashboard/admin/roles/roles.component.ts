@@ -72,6 +72,10 @@ const RANK_ORDER = [
         </div>
       </div>
 
+      @if (notice(); as note) {
+        <p class="notice" role="status">{{ note }}</p>
+      }
+
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Search partners</mat-label>
@@ -204,6 +208,8 @@ const RANK_ORDER = [
                   } @else {
                     <button mat-button color="warn" (click)="suspendId.set(row.id); suspendReason.set('')">Suspend</button>
                   }
+                  <button mat-button (click)="forceSignOut(row)" [disabled]="actingId() === row.id">Sign out</button>
+                  <button mat-button (click)="resetOnBehalf(row)" [disabled]="actingId() === row.id">Reset password</button>
                 }
               </td>
             </ng-container>
@@ -227,6 +233,7 @@ const RANK_ORDER = [
     .roles-page { display: flex; flex-direction: column; gap: 1.25em; }
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+    .notice { color: var(--dp-success); }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
     .loader { flex: 2; min-width: 120px; }
@@ -259,6 +266,7 @@ export class ManageRolesComponent implements OnInit {
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly notice = signal<string | null>(null);
   protected readonly rows = signal<ManagedPartner[]>([]);
   protected readonly total = signal(0);
   protected readonly stats = signal<PlatformStats | null>(null);
@@ -415,6 +423,42 @@ export class ManageRolesComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.suspendId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected forceSignOut(row: ManagedPartner): void {
+    if (!window.confirm(`Revoke all live sessions for ${this.displayName(row)}? They sign in again with their password.`)) return;
+    this.actingId.set(row.id);
+    this.admin
+      .forceSignOut(row.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.actingId.set(null);
+          this.notice.set(`Sessions revoked for ${this.displayName(row)}.`);
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected resetOnBehalf(row: ManagedPartner): void {
+    if (!window.confirm(`Send a password-reset link to ${row.email}? You will not see their password.`)) return;
+    this.actingId.set(row.id);
+    this.admin
+      .resetOnBehalf(row.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          this.notice.set(res.message ?? 'Reset link sent to the member email.');
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
           this.error.set(err.message);
         },
       });

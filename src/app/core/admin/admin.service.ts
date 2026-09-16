@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import { UserRole } from '../auth/auth.models';
 import { ManagedPartner, PartnerDirectoryEnvelope, AuditEnvelope, PlatformStatsEnvelope } from './admin.models';
+import { ApiEnvelope } from '../auth/auth.models';
 
 /**
  * Admin console data access → backend `/v1/admin/*`
@@ -36,6 +37,14 @@ export class AdminService {
 
   stats(): Observable<PlatformStatsEnvelope> {
     return this.api.get<PlatformStatsEnvelope>('v1/admin/stats');
+  }
+
+  forceSignOut(partnerId: string): Observable<ApiEnvelope<{ revoked: boolean }>> {
+    return this.api.post<ApiEnvelope<{ revoked: boolean }>>(`v1/admin/partners/${partnerId}/signout`, {});
+  }
+
+  resetOnBehalf(partnerId: string): Observable<ApiEnvelope<unknown>> {
+    return this.api.post<ApiEnvelope<unknown>>(`v1/admin/partners/${partnerId}/reset-password`, {});
   }
 
   audit(params: { action?: string; actorId?: string; limit?: number; skip?: number } = {}): Observable<AuditEnvelope> {
