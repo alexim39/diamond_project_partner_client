@@ -115,6 +115,12 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
                 } @else if (row.issuerUpline) {
                   {{ row.issuerUpline.name }}
                   <span class="muted">upline of @{{ row.issuerUpline.holderUsername ?? 'holder' }} · @{{ row.issuerUpline.username }}</span>
+                  @if ((row.issuerUpline.chain?.length ?? 0) > 1) {
+                    <span class="muted">chain: {{ chainTrail(row) }}</span>
+                  }
+                  @if (row.recordedBy) {
+                    <span class="muted">recorded by @{{ row.recordedBy.username }}</span>
+                  }
                 } @else {
                   <span class="muted">—</span>
                 }
@@ -249,7 +255,7 @@ export class AdminReservationsComponent implements OnInit {
   protected readonly searchText = signal('');
   protected readonly deletingId = signal<string | null>(null);
   protected readonly pageIndex = signal(0);
-  protected readonly pageSize = signal(25);
+  protected readonly pageSize = signal(50);
 
   protected readonly filters: QueueFilter[] = ['Pending', 'Approved', 'Rejected', 'Used', 'All'];
   protected readonly displayedColumns = ['code', 'issuer', 'prospect', 'age', 'status', 'use', 'action'];
@@ -307,6 +313,12 @@ export class AdminReservationsComponent implements OnInit {
       () => this.notice.set(`Code ${code} copied.`),
       () => this.error.set('Copy failed — select the code manually.'),
     );
+  }
+
+  /** Full ancestor trail, nearest first: @direct ← @next ← @root. */
+  protected chainTrail(row: ReviewCodeRow): string {
+    const chain = row.issuerUpline?.chain ?? [];
+    return chain.map((c) => `@${c.username}`).join(' ← ');
   }
 
   protected onPage(event: PageEvent): void {

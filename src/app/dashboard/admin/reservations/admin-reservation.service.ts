@@ -10,7 +10,8 @@ export interface ReviewCodeRow {
   issuer: { username: string; name: string } | null;
   prospect: { name: string; phone: string } | null;
   consumer: { username: string; name: string } | null;
-  issuerUpline: { username: string; name: string; holderUsername: string | null } | null;
+  issuerUpline: { username: string; name: string; holderUsername: string | null; chain: Array<{ username: string; name: string }> } | null;
+  recordedBy: { username: string; name: string } | null;
 }
 
 export interface ReviewQueueSummary {
