@@ -5,7 +5,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { CommonModule } from '@angular/common';
@@ -18,6 +18,8 @@ import { PartnerInterface, PartnerService } from '../../../../../_common/service
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../prospects/prospects.service';
+import { ProspectService } from '../../../prospects/prospects.service';
+import { CollectCodeComponent } from '../details/collect-code.component';
 import { ProspectResponseComponent } from '../../../mentorship/my-partners/contacts/details/prospect-response.component';
 import { SMSService } from '../../../sms/sms.service';
 
@@ -34,10 +36,10 @@ import { SMSService } from '../../../sms/sms.service';
         MatSelectModule,
         MatInputModule,
         MatIconModule, MatButtonModule,
-        MatDividerModule, MatListModule, CommonModule
+        MatDividerModule, MatListModule, CommonModule, RouterModule
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    providers: [ContactsService, SMSService, SMSGatewaysService]
+    providers: [ContactsService, SMSService, SMSGatewaysService, ProspectService]
 })
 export class ManageContactsAnalyticsComponent implements OnInit {
 
@@ -46,6 +48,8 @@ export class ManageContactsAnalyticsComponent implements OnInit {
   duration!: null | number;
   loadingContact = false;
   loadError: string | null = null;
+  sessions: any[] = [];
+  loadingSessions = false;
 
   selectedStatus: string;
   remark: string;
@@ -64,7 +68,8 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     private smsService: SMSService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsGatewayService: SMSGatewaysService
+    private smsGatewayService: SMSGatewaysService,
+    private prospectsService: ProspectService
   ) {
     // You can initialize selectedStatus if needed  
     this.selectedStatus = ''; // Default value or nothing 
@@ -76,7 +81,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
 
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-contacts');
+    this.router.navigateByUrl('/dashboard/prospects/pipeline');
   }
 
   /** Fetch the contact for direct navigation (?id=); input path skips this. */
@@ -89,6 +94,8 @@ export class ManageContactsAnalyticsComponent implements OnInit {
         if (!this.prospectData?._id) {
           this.prospectData = null;
           this.loadError = 'Contact not found.';
+        } else {
+          this.loadSessions();
         }
         this.loadingContact = false;
       },
@@ -100,11 +107,39 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     });
   }
 
+  /** Sessions booked for this contact's number (matched from own bookings). */
+  loadSessions(): void {
+    const phone = this.normalizePhone(this.prospectData?.prospectPhone);
+    if (!phone || !this.partner?._id) {
+      this.sessions = [];
+      return;
+    }
+    this.loadingSessions = true;
+    this.prospectsService.getSessionBookingsFor(this.partner._id).subscribe({
+      next: (res: any) => {
+        const rows: any[] = res?.data ?? (Array.isArray(res) ? res : []);
+        this.sessions = rows.filter((b) => this.normalizePhone(b?.phone) === phone);
+        this.loadingSessions = false;
+      },
+      error: () => {
+        this.sessions = [];
+        this.loadingSessions = false;
+      },
+    });
+  }
+
+  /** Last-10-digits comparison — tolerates 080… vs +234… formats. */
+  normalizePhone(phone: any): string {
+    const digits = String(phone ?? '').replace(/\D/g, '');
+    return digits.length > 10 ? digits.slice(-10) : digits;
+  }
+
 
   ngOnInit(): void {
     //console.log(this.prospect.data)
     if (this.prospect) {
       this.prospectData = this.prospect;
+      this.loadSessions();
     } else {
       // Routed directly (no @Input) — deep link via ?id=.
       this.route.queryParamMap
@@ -122,6 +157,8 @@ export class ManageContactsAnalyticsComponent implements OnInit {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           //console.log(this.partner)
+          // Partner can arrive after the contact — (re)load sessions then.
+          if (this.prospectData?._id) this.loadSessions();
         },
         error => {
           console.log(error)
@@ -221,14 +258,19 @@ export class ManageContactsAnalyticsComponent implements OnInit {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, promote!"
-    })/* .then((result) => {
+    }).then((result) => {
       if (result.isConfirmed) {
-
         this.dialog.open(CollectCodeComponent, {
           data: this.prospectData
+        }).afterClosed().subscribe((res: any) => {
+          // Reflect the conversion locally so the page updates
+          // without a manual reload; server remains source of truth.
+          if (res?.converted && this.prospectData?._id) {
+            this.loadContact(this.prospectData._id);
+          }
         });
       }
-    }); */
+    });
   }
 
   copyLink() {
@@ -369,13 +411,31 @@ export class ManageContactsAnalyticsComponent implements OnInit {
   }
 
   editProspectDetail() {
-    //this.router.navigateByUrl('dashboard/edit-contacts', );
-    this.router.navigate(['/dashboard/edit-contacts', this.prospectData._id]);
+    this.router.navigate(['/dashboard/prospects/edit', this.prospectData._id]);
   }
 
   bookProspectSession() {
-    //this.router.navigateByUrl('dashboard/edit-contacts', );
-    this.router.navigate(['/dashboard/book-prospect-session', this.prospectData._id]);
+    this.router.navigate(['/dashboard/prospects/booking', this.prospectData._id]);
+  }
+
+  /** Merged stage moves + logged touches, newest first. */
+  timeline(): Array<{ at: any; label: string; detail: string }> {
+    const items: Array<{ at: any; label: string; detail: string }> = [];
+    for (const h of this.prospectData?.stageHistory ?? []) {
+      items.push({
+        at: h?.at ?? null,
+        label: `Stage: ${h?.from ?? '—'} → ${h?.to ?? '—'}`,
+        detail: h?.byName ? `by ${h.byName}` : '',
+      });
+    }
+    for (const c of this.prospectData?.communications ?? []) {
+      items.push({
+        at: c?.date ?? null,
+        label: `${c?.type ?? 'touch'} — ${c?.description ?? ''}`,
+        detail: [c?.interestLevel, c?.outcome].filter(Boolean).join(' · '),
+      });
+    }
+    return items.sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime());
   }
 
   ViewResponse(prospect: ProspectListInterface) {

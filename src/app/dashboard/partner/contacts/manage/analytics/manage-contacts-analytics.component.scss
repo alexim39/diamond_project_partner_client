@@ -23,9 +23,18 @@
             border-bottom: 1px solid #ccc;
             padding: 1em;
             display: flex;
-            flex-direction: column;  
-            //align-items: center; /* Vertically center the items */  
-            justify-content: flex-start; 
+            flex-direction: column;
+            //align-items: center; /* Vertically center the items */
+            justify-content: flex-start;
+            .quick-actions {
+                display: flex;
+                gap: 0.5em;
+                flex-wrap: wrap;
+                margin-top: 0.75em;
+                a {
+                    text-decoration: none;
+                }
+            }
             .control {
                 display: flex;
                 justify-content: space-between;
@@ -99,6 +108,10 @@ p {
             min-width: min(500px, 100%);
             min-height: 300px; 
         }
+    }
+    .sub-data {
+        color: gray;
+        margin-top: 0.5em;
     }
     .wrap {
         word-wrap: break-word;

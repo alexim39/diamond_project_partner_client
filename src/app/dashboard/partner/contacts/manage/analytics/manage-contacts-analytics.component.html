@@ -10,6 +10,17 @@
         <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
       </div>
       <h3>{{prospectData?.prospectSurname | titlecase}} {{prospectData?.prospectName | titlecase}}'s Details</h3>
+      @if (prospectData) {
+        <div class="quick-actions">
+          @if (prospectData.prospectPhone) {
+            <a mat-raised-button [href]="'tel:' + prospectData.prospectPhone"><mat-icon>call</mat-icon>Call</a>
+            <a mat-raised-button [href]="'sms:' + prospectData.prospectPhone"><mat-icon>sms</mat-icon>Text</a>
+          }
+          @if (prospectData.prospectEmail) {
+            <a mat-raised-button [href]="'mailto:' + prospectData.prospectEmail"><mat-icon>mail</mat-icon>Email</a>
+          }
+        </div>
+      }
     </div>
 
 
@@ -64,6 +75,45 @@
           <h5> Modified Date </h5>
           <span class="data">{{prospectData.updatedAt | date}} </span>
         </div>
+
+      </article>
+
+      <article class="flex-item">
+        <h2>Timeline</h2>
+
+        @if (timeline().length > 0) {
+          @for (entry of timeline(); track $index) {
+            <div class="list">
+              <h5>{{ entry.label }}</h5>
+              <span class="data">{{ entry.at | date:'medium' }}</span>
+              @if (entry.detail) {
+                <div class="sub-data">{{ entry.detail }}</div>
+              }
+            </div>
+            <mat-divider></mat-divider>
+          }
+        } @else {
+          <p class="muted">No activity logged yet — touches you log and messages you send appear here.</p>
+        }
+
+      </article>
+
+      <article class="flex-item">
+        <h2>Sessions</h2>
+
+        @if (loadingSessions) {
+          <p class="muted">Loading sessions…</p>
+        } @else if (sessions.length > 0) {
+          @for (s of sessions; track $index) {
+            <div class="list">
+              <h5>{{ s.consultDate | date:'mediumDate' }}@if (s.consultTime) { · {{ s.consultTime }} }</h5>
+              <span class="data">{{ s.status ?? 'Booked' }}</span>
+            </div>
+            <mat-divider></mat-divider>
+          }
+        } @else {
+          <p class="muted">No sessions booked for this number yet.</p>
+        }
 
       </article>
 
@@ -256,8 +306,8 @@
       <p class="muted" style="padding: 2em; text-align: center;">Loading contact…</p>
     } @else {
       <div class="empty-state">
-        <p>{{ loadError ?? 'No contact selected yet.' }}</p>
-        <p class="muted">Open a contact from your pipeline or contact list — or pass its id like <code>?id=&lt;contactId&gt;</code>.</p>
+        <p>{{ loadError ?? 'Pick a contact to work them here.' }}</p>
+        <p class="muted">Open any contact from your <a routerLink="/dashboard/prospects/pipeline">pipeline</a> or board and choose “Work contact”.</p>
       </div>
     }
 
