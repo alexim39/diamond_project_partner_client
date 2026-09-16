@@ -130,6 +130,34 @@ import { ApiError } from '../../../core/http/api-error';
                   }
                 </ul>
               }
+              @if (isDone(lesson.id) && lesson.quiz?.length) {
+                <button mat-button (click)="toggleReview(lesson.id)">
+                  {{ reviewId() === lesson.id ? 'Hide results' : 'Review answers' }}
+                </button>
+                @if (reviewId() === lesson.id) {
+                  <div class="review">
+                    <p class="muted">{{ scoreLine(lesson) }}</p>
+                    @for (q of lesson.quiz; track q.q) {
+                      <div class="review-q">
+                        <strong>{{ q.q }}</strong>
+                        <ul>
+                          @for (opt of q.options; track opt; let oi = $index) {
+                            <li [class.opt-correct]="oi === q.answer" [class.opt-picked]="oi === pickedFor(lesson.id, q.q)">
+                              <mat-icon>{{ oi === q.answer ? 'check_circle' : oi === pickedFor(lesson.id, q.q) ? 'cancel' : 'radio_button_unchecked' }}</mat-icon>
+                              <span>{{ opt }}</span>
+                              @if (oi === q.answer) {
+                                <em class="tag">Correct answer</em>
+                              } @else if (oi === pickedFor(lesson.id, q.q)) {
+                                <em class="tag">Your answer</em>
+                              }
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  </div>
+                }
+              }
               @if (!isDone(lesson.id) && (watchedEnough(lesson.id) || !lesson.videoUrl)) {
                 @if (openLessonId() === lesson.id && lesson.quiz?.length) {
                   <div class="quiz">
@@ -192,6 +220,14 @@ import { ApiError } from '../../../core/http/api-error';
     .quiz { margin-top: 0.75em; display: flex; flex-direction: column; gap: 0.75em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.9em; }
     .quiz-q { display: flex; flex-direction: column; gap: 0.35em; }
     .quiz-q mat-radio-group { display: flex; flex-direction: column; gap: 0.15em; }
+    .review { margin-top: 0.75em; display: flex; flex-direction: column; gap: 0.75em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.9em; }
+    .review-q ul { list-style: none; margin: 0.35em 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.2em; }
+    .review-q li { display: flex; align-items: center; gap: 0.5em; padding: 0.3em 0.5em; border-radius: 6px; }
+    .review-q li mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-muted); }
+    .review-q li.opt-correct { background: var(--dp-success-bg); }
+    .review-q li.opt-correct mat-icon { color: var(--dp-success); }
+    .review-q li.opt-picked:not(.opt-correct) mat-icon { color: var(--dp-error); }
+    .review-q .tag { font-style: normal; font-size: 0.75em; font-weight: 700; color: var(--dp-muted); margin-left: auto; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .notice { color: var(--dp-success); }
@@ -209,6 +245,8 @@ export class TrainingDetailComponent implements OnInit {
   private readonly answers = new Map<string, Map<string, number>>();
   private readonly lastWatchSent = new Map<string, number>();
   private readonly lastWatchAt = new Map<string, number>();
+  private pendingReview: string | null = null;
+  protected readonly reviewId = signal<string | null>(null);
   protected readonly videoProgress = signal<Record<string, number>>({});
   protected readonly videoError = signal<Record<string, boolean>>({});
   protected readonly error = signal<string | null>(null);
@@ -304,9 +342,57 @@ export class TrainingDetailComponent implements OnInit {
     this.quizError.set(null);
   }
 
+  protected toggleReview(lessonId: string): void {
+    this.reviewId.set(this.reviewId() === lessonId ? null : lessonId);
+  }
+
+  protected pickedFor(lessonId: string, question: string): number | null {
+    const live = this.answerFor(lessonId, question);
+    if (live !== null) return live;
+    return this.loadPick(lessonId, question);
+  }
+
+  protected scoreLine(lesson: { id: string; quiz?: Array<{ q: string; answer?: number }> }): string {
+    const quiz = lesson.quiz ?? [];
+    if (quiz.length === 0) return '';
+    let known = 0;
+    let right = 0;
+    for (const q of quiz) {
+      const picked = this.pickedFor(lesson.id, q.q);
+      if (picked === null || q.answer === undefined) continue;
+      known += 1;
+      if (picked === q.answer) right += 1;
+    }
+    if (known === 0) return 'Correct answers shown — your picks were not saved on this device.';
+    return `You got ${right} of ${quiz.length} right.`;
+  }
+
+  private answerKey(lessonId: string): string {
+    return `dp-training-answers:${this.courseId()}:${lessonId}`;
+  }
+
+  private loadPick(lessonId: string, question: string): number | null {
+    try {
+      const raw = localStorage.getItem(this.answerKey(lessonId));
+      if (!raw) return null;
+      const v = (JSON.parse(raw) as Record<string, unknown>)[question];
+      return typeof v === 'number' && Number.isInteger(v) ? v : null;
+    } catch { return null; }
+  }
+
+  private savePick(lessonId: string, question: string, value: number): void {
+    try {
+      const raw = localStorage.getItem(this.answerKey(lessonId));
+      const map = raw ? (JSON.parse(raw) as Record<string, number>) : {};
+      map[question] = value;
+      localStorage.setItem(this.answerKey(lessonId), JSON.stringify(map));
+    } catch { /* private mode: in-memory picks still work for this visit */ }
+  }
+
   protected pickAnswer(lessonId: string, question: string, value: number): void {
     if (!this.answers.has(lessonId)) this.answers.set(lessonId, new Map());
     this.answers.get(lessonId)?.set(question, Number(value));
+    this.savePick(lessonId, question, Number(value));
     this.quizError.set(null);
   }
 
@@ -348,6 +434,23 @@ export class TrainingDetailComponent implements OnInit {
             }
           }
           this.videoProgress.set(restored);
+          // Restore saved quiz picks (review + retry continuity on this device).
+          for (const lesson of data?.lessons ?? []) {
+            const lid = (lesson as { id?: string }).id;
+            const quiz = (lesson as { quiz?: Array<{ q: string }> }).quiz ?? [];
+            if (!lid || quiz.length === 0 || this.answers.has(lid)) continue;
+            const map = new Map<string, number>();
+            for (const q of quiz) {
+              const v = this.loadPick(lid, q.q);
+              if (v !== null) map.set(q.q, v);
+            }
+            if (map.size > 0) this.answers.set(lid, map);
+          }
+          // Freshly completed lesson opens its results automatically.
+          if (this.pendingReview && this.isDone(this.pendingReview)) {
+            this.reviewId.set(this.pendingReview);
+          }
+          this.pendingReview = null;
           this.loading.set(false);
         },
         error: (err: ApiError) => {
@@ -393,6 +496,7 @@ export class TrainingDetailComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.completing.set(null);
+          this.pendingReview = lessonId;
           if (res.data?.certified) {
             this.notice.set(
               res.data.milestoneChecked
