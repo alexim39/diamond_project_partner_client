@@ -8,6 +8,7 @@ import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
 import { AdminAuditComponent } from './audit/admin-audit.component';
 import { AdminTicketsComponent } from './tickets/admin-tickets.component';
+import { AdminModerationComponent } from './moderation/admin-moderation.component';
 import { OversightComponent } from './oversight/oversight.component';
 import { adminGuard, g8Guard } from '../../core/auth/role.guard';
 
@@ -60,6 +61,11 @@ export const AdminRoutes: Routes = [
         path: 'tickets',
         component: AdminTicketsComponent,
         title: 'Support Tickets - Member request inbox',
+      },
+      {
+        path: 'moderation',
+        component: AdminModerationComponent,
+        title: 'Moderation - Reported community posts',
       },
     ],
   },
