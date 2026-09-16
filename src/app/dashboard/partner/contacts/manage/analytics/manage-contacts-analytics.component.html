@@ -9,11 +9,12 @@
         </div>
         <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
       </div>
-      <h3>{{prospectData.prospectSurname | titlecase}} {{prospectData.prospectName | titlecase}}'s Details</h3>
+      <h3>{{prospectData?.prospectSurname | titlecase}} {{prospectData?.prospectName | titlecase}}'s Details</h3>
     </div>
 
 
 
+    @if (prospectData) {
     <section class="flex-container">
 
       <article class="flex-item">
@@ -201,7 +202,7 @@
 
           <div class="copy-link">
             <p>
-              www.c21fg.online/{{partner.username}}
+              www.c21fg.online/{{partner?.username}}
             </p>
             <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
           </div>
@@ -228,7 +229,7 @@
           <h5> SMS</h5>
           <div class="copy-link">
             <p>
-              www.c21fg.online/{{partner.username}}
+              www.c21fg.online/{{partner?.username}}
             </p>
             <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
           </div>
@@ -250,6 +251,15 @@
 
 
     </section>
+
+    } @else if (loadingContact) {
+      <p class="muted" style="padding: 2em; text-align: center;">Loading contact…</p>
+    } @else {
+      <div class="empty-state">
+        <p>{{ loadError ?? 'No contact selected yet.' }}</p>
+        <p class="muted">Open a contact from your pipeline or contact list — or pass its id like <code>?id=&lt;contactId&gt;</code>.</p>
+      </div>
+    }
 
   </section>
 

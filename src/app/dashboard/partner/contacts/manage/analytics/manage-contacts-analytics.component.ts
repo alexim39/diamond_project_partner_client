@@ -44,6 +44,8 @@ export class ManageContactsAnalyticsComponent implements OnInit {
   @Input() prospect!: ContactsInterface;
   prospectData!: any;
   duration!: null | number;
+  loadingContact = false;
+  loadError: string | null = null;
 
   selectedStatus: string;
   remark: string;
@@ -77,11 +79,40 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     this.router.navigateByUrl('dashboard/manage-contacts');
   }
 
+  /** Fetch the contact for direct navigation (?id=); input path skips this. */
+  loadContact(id: string): void {
+    this.loadingContact = true;
+    this.loadError = null;
+    this.contactsService.getProspectById(id).subscribe({
+      next: (res: any) => {
+        this.prospectData = res?.data ?? res ?? null;
+        if (!this.prospectData?._id) {
+          this.prospectData = null;
+          this.loadError = 'Contact not found.';
+        }
+        this.loadingContact = false;
+      },
+      error: () => {
+        this.prospectData = null;
+        this.loadError = 'Could not load this contact.';
+        this.loadingContact = false;
+      },
+    });
+  }
+
 
   ngOnInit(): void {
     //console.log(this.prospect.data)
     if (this.prospect) {
       this.prospectData = this.prospect;
+    } else {
+      // Routed directly (no @Input) — deep link via ?id=.
+      this.route.queryParamMap
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((params) => {
+          const id = params.get('id');
+          if (id && !this.prospectData) this.loadContact(id);
+        });
     }
 
     // get current signed in user (shared subject — tracked)

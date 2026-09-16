@@ -1,5 +1,18 @@
 .async-background {
     margin: 2em;
+    .empty-state {
+        text-align: center;
+        padding: 2.5em 1em;
+        color: rgb(196, 129, 4);
+        font-weight: bold;
+        .muted {
+            color: var(--dp-muted);
+            font-weight: normal;
+        }
+        code {
+            font-size: 0.85em;
+        }
+    }
     .async-container {
         background-color: #dcdbdb;
         border-radius: 1%;
