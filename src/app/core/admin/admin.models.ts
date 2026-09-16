@@ -36,6 +36,8 @@ export interface PlatformStats {
   new30d: number;
   roles: { user: number; leader: number; g8: number; admin: number };
   suspended: number;
+  levels?: Record<string, number>;
+  unranked?: number;
 }
 
 export interface PlatformStatsEnvelope extends ApiEnvelope<PlatformStats> {

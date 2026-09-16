@@ -151,19 +151,43 @@
 </mat-sidenav-container>
 
 <mat-menu #admin="matMenu">
+  <button mat-menu-item [matMenuTriggerFor]="adminMembers"><mat-icon>group</mat-icon> Members</button>
+  <button mat-menu-item [matMenuTriggerFor]="adminMoney"><mat-icon>payments</mat-icon> Money</button>
+  <button mat-menu-item [matMenuTriggerFor]="adminGrowth"><mat-icon>trending_up</mat-icon> Growth</button>
+  <button mat-menu-item [matMenuTriggerFor]="adminLearning"><mat-icon>school</mat-icon> Learning</button>
+  <button mat-menu-item [matMenuTriggerFor]="adminCatalog"><mat-icon>inventory_2</mat-icon> Catalog</button>
+  <button mat-menu-item [matMenuTriggerFor]="adminInsight"><mat-icon>insights</mat-icon> Insight</button>
+</mat-menu>
+
+<mat-menu #adminMembers="matMenu">
   <a mat-menu-item routerLink="admin/roles" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>badge</mat-icon> Manage Roles</a>
-  <a mat-menu-item routerLink="admin/payouts" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>payments</mat-icon> Payout Queue</a>
-  <a mat-menu-item routerLink="admin/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Ad campaigns</a>
-  <a mat-menu-item routerLink="admin/withdrawals" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>account_balance</mat-icon> Withdrawals</a>
-  <a mat-menu-item routerLink="admin/reservations" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>confirmation_number</mat-icon> Reservation codes</a>
-  <a mat-menu-item routerLink="admin/orders" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>shopping_bag</mat-icon> Product orders</a>
-  <a mat-menu-item routerLink="admin/training-quizzes" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>quiz</mat-icon> Training quizzes</a>
-  <a mat-menu-item routerLink="admin/audit" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>history</mat-icon> Audit log</a>
   <a mat-menu-item routerLink="admin/tickets" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>support_agent</mat-icon> Support tickets</a>
   <a mat-menu-item routerLink="admin/moderation" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>flag</mat-icon> Moderation</a>
+  <a mat-menu-item routerLink="admin/audit" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>history</mat-icon> Audit log</a>
+</mat-menu>
+
+<mat-menu #adminMoney="matMenu">
+  <a mat-menu-item routerLink="admin/payouts" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>payments</mat-icon> Payout Queue</a>
+  <a mat-menu-item routerLink="admin/withdrawals" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>account_balance</mat-icon> Withdrawals</a>
+  <a mat-menu-item routerLink="admin/orders" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>shopping_bag</mat-icon> Product orders</a>
+</mat-menu>
+
+<mat-menu #adminGrowth="matMenu">
+  <a mat-menu-item routerLink="admin/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Ad campaigns</a>
+  <a mat-menu-item routerLink="admin/reservations" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>confirmation_number</mat-icon> Reservation codes</a>
   <a mat-menu-item routerLink="admin/broadcast" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Broadcast</a>
+</mat-menu>
+
+<mat-menu #adminLearning="matMenu">
+  <a mat-menu-item routerLink="admin/training-quizzes" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>quiz</mat-icon> Training quizzes</a>
   <a mat-menu-item routerLink="admin/plan" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>percent</mat-icon> Commission plan</a>
+</mat-menu>
+
+<mat-menu #adminCatalog="matMenu">
   <a mat-menu-item routerLink="admin/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>inventory_2</mat-icon> Products</a>
+</mat-menu>
+
+<mat-menu #adminInsight="matMenu">
   <a mat-menu-item routerLink="admin/oversight" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>military_tech</mat-icon> Oversight</a>
 </mat-menu>
 

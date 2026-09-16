@@ -23,6 +23,24 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
   admin: { label: 'Admin', color: '#ffccbc', text: '#bf360c' },
 };
 
+/** Journey-rank labels — mirrors the backend ladder (Progression.levels). */
+const RANK_LABELS: Record<string, string> = {
+  prospect: 'Prospect',
+  partner: 'Partner',
+  emerging_active: 'Emerging Active',
+  qualified_active: 'Qualified Active',
+  active: 'Active',
+  kingsman: 'Kingsman',
+  ecl: 'ECL',
+  cell_leader: 'Cell Leader',
+  g_leader: 'G Leader',
+  g8: 'G8',
+};
+const RANK_ORDER = [
+  'prospect', 'partner', 'emerging_active', 'qualified_active', 'active',
+  'kingsman', 'ecl', 'cell_leader', 'g_leader', 'g8',
+];
+
 /**
  * @title Manage roles — admin console.
  *
@@ -95,6 +113,22 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
           <div class="dp-card stat"><span class="stat-value">{{ s.roles.leader | number }}</span><span class="muted">Leaders</span></div>
           <div class="dp-card stat"><span class="stat-value">{{ s.roles.g8 | number }}</span><span class="muted">G8</span></div>
           <div class="dp-card stat"><span class="stat-value">{{ s.suspended | number }}</span><span class="muted">Suspended</span></div>
+        </div>
+      }
+
+      @if (rankBars().length > 0) {
+        <div class="dp-card ranks-card">
+          <h3>Journey ranks</h3>
+          <p class="muted">Members per ladder rank — from stored journey records.{{ unrankedNote() }}</p>
+          <div class="bar-list">
+            @for (r of rankBars(); track r.level) {
+              <div class="bar-row">
+                <span class="bar-label">{{ r.label }}</span>
+                <div class="bar-track"><div class="bar-fill" [style.width.%]="r.width"></div></div>
+                <span class="bar-num">{{ r.count | number }}</span>
+              </div>
+            }
+          </div>
         </div>
       }
 
@@ -199,6 +233,17 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6em; }
     .stat { display: flex; flex-direction: column; gap: 0.1em; padding: 0.7em 0.9em; }
     .stat-value { font-size: 1.4em; font-weight: 700; }
+    .ranks-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
+    .ranks-card h3 { margin: 0; }
+    .bar-list { display: flex; flex-direction: column; gap: 0.5em; margin-top: 0.25em; }
+    .bar-row { display: grid; grid-template-columns: 160px 1fr 60px; gap: 0.6em; align-items: center; }
+    .bar-label { font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { height: 14px; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--dp-gold); min-width: 2px; }
+    .bar-num { text-align: right; font-weight: 600; font-size: 0.9em; }
+    @media only screen and (max-width: 600px) {
+      .bar-row { grid-template-columns: 110px 1fr 48px; }
+    }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
@@ -230,6 +275,23 @@ export class ManageRolesComponent implements OnInit {
   protected readonly suspendReason = signal('');
 
   protected readonly displayedColumns = ['name', 'contact', 'role', 'plan', 'action'];
+
+  /** Journey-rank bars (ladder order, nonzero only) with proportional widths. */
+  protected rankBars(): Array<{ level: string; label: string; count: number; width: number }> {
+    const levels = this.stats()?.levels ?? {};
+    const entries = RANK_ORDER.map((level) => ({
+      level,
+      label: RANK_LABELS[level] ?? level,
+      count: Number(levels[level]) || 0,
+    })).filter((r) => r.count > 0);
+    const max = Math.max(1, ...entries.map((r) => r.count));
+    return entries.map((r) => ({ ...r, width: Math.max(2, Math.round((r.count / max) * 100)) }));
+  }
+
+  protected unrankedNote(): string {
+    const unranked = this.stats()?.unranked ?? 0;
+    return unranked > 0 ? ` ${unranked} member${unranked === 1 ? '' : 's'} have no journey record yet.` : '';
+  }
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
