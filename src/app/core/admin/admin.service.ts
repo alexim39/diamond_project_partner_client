@@ -25,6 +25,13 @@ export class AdminService {
     return this.api.patch<{ data: ManagedPartner }>(`v1/admin/partners/${partnerId}/role`, { role });
   }
 
+  setSuspended(partnerId: string, suspended: boolean, reason?: string): Observable<{ data: ManagedPartner }> {
+    return this.api.patch<{ data: ManagedPartner }>(`v1/admin/partners/${partnerId}/suspend`, {
+      suspended,
+      ...(reason?.trim() ? { reason: reason.trim() } : {}),
+    });
+  }
+
   audit(params: { action?: string; actorId?: string; limit?: number; skip?: number } = {}): Observable<AuditEnvelope> {
     const query = new URLSearchParams({
       ...(params.action ? { action: params.action } : {}),

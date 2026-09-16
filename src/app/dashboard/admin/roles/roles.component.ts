@@ -90,6 +90,9 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
                 <span [class]="roleClass(row.role)">
                   {{ meta(row.role).label }}
                 </span>
+                @if (row.suspended) {
+                  <span class="dp-status dp-status--bad" [matTooltip]="row.suspendReason || 'Suspended'">Suspended</span>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="plan">
@@ -107,6 +110,18 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
                     [disabled]="actingId() === row.id"
                   >Confirm {{ pendingRole() }}?</button>
                   <button mat-button (click)="confirmId.set(null)">Cancel</button>
+                } @else if (suspendId() === row.id) {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Reason (optional)</mat-label>
+                    <input matInput [value]="suspendReason()" (input)="suspendReason.set($any($event.target).value)" maxlength="500" />
+                  </mat-form-field>
+                  <button
+                    mat-flat-button
+                    color="warn"
+                    (click)="applySuspend(row, true)"
+                    [disabled]="actingId() === row.id"
+                  >Confirm suspend?</button>
+                  <button mat-button (click)="suspendId.set(null)">Cancel</button>
                 } @else {
                   @for (target of transitions(row.role); track target) {
                     <button
@@ -114,6 +129,11 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
                       [matTooltip]="'Change role to ' + target"
                       (click)="arm(row.id, target)"
                     >Make {{ target }}</button>
+                  }
+                  @if (row.suspended) {
+                    <button mat-button (click)="applySuspend(row, false)" [disabled]="actingId() === row.id">Reactivate</button>
+                  } @else {
+                    <button mat-button color="warn" (click)="suspendId.set(row.id); suspendReason.set('')">Suspend</button>
                   }
                 }
               </td>
@@ -164,6 +184,8 @@ export class ManageRolesComponent implements OnInit {
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly pendingRole = signal<UserRole>('leader');
+  protected readonly suspendId = signal<string | null>(null);
+  protected readonly suspendReason = signal('');
 
   protected readonly displayedColumns = ['name', 'contact', 'role', 'plan', 'action'];
 
@@ -230,6 +252,7 @@ export class ManageRolesComponent implements OnInit {
 
   protected arm(partnerId: string, role: UserRole): void {
     this.confirmId.set(partnerId);
+    this.suspendId.set(null);
     this.pendingRole.set(role);
   }
 
@@ -247,6 +270,26 @@ export class ManageRolesComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.confirmId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected applySuspend(row: ManagedPartner, suspended: boolean): void {
+    this.actingId.set(row.id);
+    this.admin
+      .setSuspended(row.id, suspended, this.suspendReason())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          this.suspendId.set(null);
+          this.suspendReason.set('');
+          this.rows.set(this.rows().map((r) => (r.id === row.id ? res.data : r)));
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.suspendId.set(null);
           this.error.set(err.message);
         },
       });

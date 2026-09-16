@@ -9,6 +9,8 @@ export interface ManagedPartner {
   email: string;
   phone?: string;
   role: UserRole;
+  suspended?: boolean;
+  suspendReason?: string | null;
   subscription?: { plan?: string; status?: string };
   createdAt?: string;
 }
