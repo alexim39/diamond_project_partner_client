@@ -9,6 +9,7 @@ export interface ReviewCodeRow {
   createdAt: string | null;
   issuer: { username: string; name: string } | null;
   prospect: { name: string; phone: string } | null;
+  consumer: { username: string; name: string } | null;
 }
 
 export interface ReviewQueueSummary {

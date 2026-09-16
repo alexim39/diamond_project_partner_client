@@ -119,6 +119,9 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
                 @if (row.prospect) {
                   {{ row.prospect.name }}
                   <span class="muted">{{ row.prospect.phone }}</span>
+                } @else if (row.consumer) {
+                  {{ row.consumer.name }}
+                  <span class="muted">used by @{{ row.consumer.username }}</span>
                 } @else {
                   <span class="muted">—</span>
                 }
