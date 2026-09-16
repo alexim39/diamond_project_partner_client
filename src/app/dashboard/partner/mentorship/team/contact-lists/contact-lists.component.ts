@@ -47,6 +47,7 @@ const PREVIEW_COUNT = 5;
         </div>
         <div class="head-actions">
           <a mat-button routerLink="../activation">Activation board</a>
+          <a mat-button routerLink="/dashboard/mentorship/partners/my-partners/my-codes" title="Codes you recorded">View activation codes</a>
           <button mat-button (click)="reload()" [disabled]="loading()">Refresh</button>
         </div>
       </div>
