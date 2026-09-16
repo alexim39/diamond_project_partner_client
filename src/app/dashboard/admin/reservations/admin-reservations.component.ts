@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,7 +28,7 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
   selector: 'async-admin-reservations',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatButtonModule, MatChipsModule, MatFormFieldModule,
+    DecimalPipe, MatButtonModule, MatChipsModule, MatFormFieldModule,
     MatIconModule, MatInputModule, MatPaginatorModule, MatProgressBarModule, MatSelectModule,
     MatTableModule, RouterModule,
   ],
@@ -74,17 +75,36 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
             }
           </mat-select>
         </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Search code</mat-label>
+          <input matInput type="search" placeholder="NV012652…" [value]="searchText()" (input)="onSearch($any($event.target).value)" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        @if (hasFilters()) {
+          <button mat-button (click)="clearFilters()">Clear</button>
+        }
         @if (total() > 0) {
           <mat-chip highlighted>{{ total() }} code{{ total() === 1 ? '' : 's' }}</mat-chip>
         }
       </div>
+
+      @if (summary(); as s) {
+        <div class="stat-grid" role="group" aria-label="Codes by status">
+          <div class="dp-card stat"><span class="stat-value">{{ s.Pending | number }}</span><span class="muted">Pending</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.Approved | number }}</span><span class="muted">Approved</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.Used | number }}</span><span class="muted">Used</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.Rejected | number }}</span><span class="muted">Rejected</span></div>
+        </div>
+      }
 
       @if (rows().length > 0) {
         <div class="table-wrap">
           <table mat-table [dataSource]="rows()" class="mat-elevation-z2">
             <ng-container matColumnDef="code">
               <th mat-header-cell *matHeaderCellDef>Code</th>
-              <td mat-cell *matCellDef="let row" class="name-cell"><code>{{ row.code }}</code></td>
+              <td mat-cell *matCellDef="let row" class="name-cell">
+                <code class="copyable" (click)="copyCode(row.code)" (keydown.enter)="copyCode(row.code)" tabindex="0" title="Copy code">{{ row.code }}</code>
+              </td>
             </ng-container>
             <ng-container matColumnDef="issuer">
               <th mat-header-cell *matHeaderCellDef>Issuer</th>
@@ -130,6 +150,16 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
                     <button mat-flat-button color="primary" (click)="arm(row.id, 'approve')" [disabled]="actingId() === row.id">Approve</button>
                     <button mat-button color="warn" (click)="arm(row.id, 'reject')" [disabled]="actingId() === row.id">Reject</button>
                   }
+                  @if (deletingId() === row.id) {
+                    <button mat-flat-button color="warn" (click)="remove(row)" [disabled]="actingId() === row.id">
+                      {{ actingId() === row.id ? 'Deleting…' : 'Confirm delete?' }}
+                    </button>
+                    <button mat-button (click)="deletingId.set(null)">Cancel</button>
+                  } @else if (row.status !== 'Used') {
+                    <button mat-button color="warn" (click)="deletingId.set(row.id)" [disabled]="actingId() === row.id" title="Permanently delete this code">Delete</button>
+                  } @else {
+                    <span class="muted" title="Used codes are signup history and cannot be deleted">Locked</span>
+                  }
                 }
               </td>
             </ng-container>
@@ -158,10 +188,15 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
     .notice { display: flex; align-items: center; gap: 0.5em; background: var(--dp-success-bg); color: var(--dp-success); border-radius: 8px; padding: 0.7em 1em; margin: 0; }
     html[data-theme='dark'] .notice { color: #9ccc9f; }
     .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
+    .toolbar mat-form-field { min-width: 200px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6em; }
+    .stat { display: flex; flex-direction: column; gap: 0.1em; padding: 0.7em 0.9em; }
+    .stat-value { font-size: 1.4em; font-weight: 700; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; }
     .name-cell code { font-size: 1.05em; letter-spacing: 0.05em; }
+    .copyable { cursor: pointer; border-bottom: 1px dashed var(--dp-muted); }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     html[data-theme='dark'] .error { color: #e89a9a; }
@@ -180,12 +215,18 @@ export class AdminReservationsComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<ReviewCodeRow[]>([]);
   protected readonly total = signal(0);
+  protected readonly summary = signal<{ Pending: number; Approved: number; Rejected: number; Used: number } | null>(null);
   protected readonly filter = signal<QueueFilter>('Pending');
+  protected readonly query = signal('');
+  protected readonly searchText = signal('');
+  protected readonly deletingId = signal<string | null>(null);
   protected readonly pageIndex = signal(0);
   protected readonly pageSize = signal(25);
 
   protected readonly filters: QueueFilter[] = ['Pending', 'Approved', 'Rejected', 'Used', 'All'];
   protected readonly displayedColumns = ['code', 'issuer', 'prospect', 'age', 'status', 'action'];
+
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.reload();
@@ -195,12 +236,13 @@ export class AdminReservationsComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.admin
-      .queue(this.filter(), this.pageIndex() * this.pageSize(), this.pageSize())
+      .queue(this.filter(), this.pageIndex() * this.pageSize(), this.pageSize(), this.query())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.rows.set(res.data?.items ?? []);
           this.total.set(res.data?.total ?? 0);
+          this.summary.set(res.data?.summary ?? null);
           this.loading.set(false);
         },
         error: (err: ApiError) => {
@@ -208,6 +250,35 @@ export class AdminReservationsComponent implements OnInit {
           this.loading.set(false);
         },
       });
+  }
+
+  protected onSearch(value: string): void {
+    this.searchText.set(value);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.query.set(value.trim());
+      this.pageIndex.set(0);
+      this.reload();
+    }, 300);
+  }
+
+  protected hasFilters(): boolean {
+    return this.query().trim() !== '' || this.filter() !== 'Pending';
+  }
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.searchText.set('');
+    this.filter.set('Pending');
+    this.pageIndex.set(0);
+    this.reload();
+  }
+
+  protected copyCode(code: string): void {
+    navigator.clipboard?.writeText(code).then(
+      () => this.notice.set(`Code ${code} copied.`),
+      () => this.error.set('Copy failed — select the code manually.'),
+    );
   }
 
   protected onPage(event: PageEvent): void {
@@ -221,18 +292,23 @@ export class AdminReservationsComponent implements OnInit {
     if (Number.isNaN(ms) || ms < 0) return '—';
     const minutes = Math.floor(ms / 60000);
     if (minutes < 1) return 'just now';
-    const units: Array<[string, number]> = [['y', 525600], ['mo', 43200], ['w', 10080], ['d', 1440], ['h', 60], ['m', 1]];
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+    // Full year / month / week / day breakdown for long waits.
+    let days = Math.floor(hours / 24);
     const parts: string[] = [];
-    let rest = minutes;
-    for (const [label, size] of units) {
-      const n = Math.floor(rest / size);
-      if (n > 0) {
-        parts.push(`${n}${label}`);
-        rest -= n * size;
-      }
-      if (parts.length === 2) break;
-    }
-    return parts.join(' ');
+    const years = Math.floor(days / 365);
+    days -= years * 365;
+    const months = Math.floor(days / 30);
+    days -= months * 30;
+    const weeks = Math.floor(days / 7);
+    days -= weeks * 7;
+    if (years > 0) parts.push(`${years}y`);
+    if (months > 0) parts.push(`${months}m`);
+    if (weeks > 0) parts.push(`${weeks}w`);
+    if (days > 0) parts.push(`${days}d`);
+    return parts.length > 0 ? parts.join(' ') : `${hours}h`;
   }
 
   protected statusTone(status: string): string {
@@ -253,6 +329,28 @@ export class AdminReservationsComponent implements OnInit {
   protected actingLabel(row: ReviewCodeRow): string {
     if (this.actingId() === row.id) return 'Working…';
     return this.confirming()?.kind === 'approve' ? 'Confirm approve?' : 'Confirm reject?';
+  }
+
+  protected remove(row: ReviewCodeRow): void {
+    if (this.actingId()) return;
+    this.actingId.set(row.id);
+    this.error.set(null);
+    this.admin
+      .remove(row.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          this.deletingId.set(null);
+          this.notice.set(res.message ?? `Code ${row.code} deleted permanently.`);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.deletingId.set(null);
+          this.error.set(err.message);
+        },
+      });
   }
 
   protected apply(row: ReviewCodeRow): void {
