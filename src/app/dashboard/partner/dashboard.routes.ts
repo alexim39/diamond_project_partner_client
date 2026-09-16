@@ -60,9 +60,10 @@ export const dashboardRoutes: Routes = [
 
 
             {
+                // Moved under Insights — kept as a redirect for old links.
                 path: 'contact-analytics',
-                loadComponent: () => import('./contacts/manage/analytics/manage-contacts-analytics.component').then(r => r.ManageContactsAnalyticsComponent),
-                title: "Contact Summary & Analytics",
+                redirectTo: '/dashboard/insights/contact-analytics',
+                pathMatch: 'full',
             },
         ]
     },

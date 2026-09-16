@@ -37,7 +37,7 @@ import { SMSService } from '../../../sms/sms.service';
         MatDividerModule, MatListModule, CommonModule
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    providers: [ContactsService, SMSService]
+    providers: [ContactsService, SMSService, SMSGatewaysService]
 })
 export class ManageContactsAnalyticsComponent implements OnInit {
 
