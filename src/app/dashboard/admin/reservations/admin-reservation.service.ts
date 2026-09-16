@@ -36,7 +36,7 @@ export class AdminReservationService {
     return this.api.get<ReviewQueueEnvelope>(`v1/reservations/queue?${query.toString()}`);
   }
 
-  decide(id: string, status: 'Approved' | 'Rejected'): Observable<unknown> {
+  decide(id: string, status: 'Pending' | 'Approved' | 'Rejected'): Observable<unknown> {
     return this.api.patch(`v1/reservations/${id}`, { status });
   }
 

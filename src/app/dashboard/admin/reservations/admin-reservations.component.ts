@@ -134,13 +134,23 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
                 <span class="dp-status {{ statusTone(row.status) }}">{{ row.status }}</span>
               </td>
             </ng-container>
+            <ng-container matColumnDef="use">
+              <th mat-header-cell *matHeaderCellDef>Use</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.status === 'Used') {
+                  <span class="dp-status dp-status--ok">Used</span>
+                } @else {
+                  <span class="muted">Unused</span>
+                }
+              </td>
+            </ng-container>
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>
               <td mat-cell *matCellDef="let row">
                 @if (confirming()?.id === row.id) {
                   <button
                     mat-flat-button
-                    [color]="confirming()?.kind === 'approve' ? 'primary' : 'warn'"
+                    [color]="confirming()?.kind === 'reject' ? 'warn' : 'primary'"
                     (click)="apply(row)"
                     [disabled]="actingId() === row.id"
                   >{{ actingLabel(row) }}</button>
@@ -149,6 +159,14 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
                   @if (row.status === 'Pending') {
                     <button mat-flat-button color="primary" (click)="arm(row.id, 'approve')" [disabled]="actingId() === row.id">Approve</button>
                     <button mat-button color="warn" (click)="arm(row.id, 'reject')" [disabled]="actingId() === row.id">Reject</button>
+                  }
+                  @if (row.status === 'Approved') {
+                    <button mat-button (click)="arm(row.id, 'topending')" [disabled]="actingId() === row.id">To pending</button>
+                    <button mat-button color="warn" (click)="arm(row.id, 'reject')" [disabled]="actingId() === row.id">Reject</button>
+                  }
+                  @if (row.status === 'Rejected') {
+                    <button mat-button (click)="arm(row.id, 'topending')" [disabled]="actingId() === row.id">To pending</button>
+                    <button mat-flat-button color="primary" (click)="arm(row.id, 'approve')" [disabled]="actingId() === row.id">Approve</button>
                   }
                   @if (deletingId() === row.id) {
                     <button mat-flat-button color="warn" (click)="remove(row)" [disabled]="actingId() === row.id">
@@ -210,13 +228,13 @@ export class AdminReservationsComponent implements OnInit {
 
   protected readonly loading = signal(true);
   protected readonly actingId = signal<string | null>(null);
-  protected readonly confirming = signal<{ id: string; kind: 'approve' | 'reject' } | null>(null);
+  protected readonly confirming = signal<{ id: string; kind: 'approve' | 'reject' | 'topending' } | null>(null);
   protected readonly notice = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<ReviewCodeRow[]>([]);
   protected readonly total = signal(0);
   protected readonly summary = signal<{ Pending: number; Approved: number; Rejected: number; Used: number } | null>(null);
-  protected readonly filter = signal<QueueFilter>('Pending');
+  protected readonly filter = signal<QueueFilter>('Approved');
   protected readonly query = signal('');
   protected readonly searchText = signal('');
   protected readonly deletingId = signal<string | null>(null);
@@ -224,7 +242,7 @@ export class AdminReservationsComponent implements OnInit {
   protected readonly pageSize = signal(25);
 
   protected readonly filters: QueueFilter[] = ['Pending', 'Approved', 'Rejected', 'Used', 'All'];
-  protected readonly displayedColumns = ['code', 'issuer', 'prospect', 'age', 'status', 'action'];
+  protected readonly displayedColumns = ['code', 'issuer', 'prospect', 'age', 'status', 'use', 'action'];
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -263,13 +281,13 @@ export class AdminReservationsComponent implements OnInit {
   }
 
   protected hasFilters(): boolean {
-    return this.query().trim() !== '' || this.filter() !== 'Pending';
+    return this.query().trim() !== '' || this.filter() !== 'Approved';
   }
 
   protected clearFilters(): void {
     this.query.set('');
     this.searchText.set('');
-    this.filter.set('Pending');
+    this.filter.set('Approved');
     this.pageIndex.set(0);
     this.reload();
   }
@@ -321,14 +339,16 @@ export class AdminReservationsComponent implements OnInit {
     }
   }
 
-  protected arm(id: string, kind: 'approve' | 'reject'): void {
+  protected arm(id: string, kind: 'approve' | 'reject' | 'topending'): void {
     this.confirming.set({ id, kind });
     this.notice.set(null);
   }
 
   protected actingLabel(row: ReviewCodeRow): string {
     if (this.actingId() === row.id) return 'Working…';
-    return this.confirming()?.kind === 'approve' ? 'Confirm approve?' : 'Confirm reject?';
+    const kind = this.confirming()?.kind;
+    if (kind === 'topending') return 'Confirm move to pending?';
+    return kind === 'approve' ? 'Confirm approve?' : 'Confirm reject?';
   }
 
   protected remove(row: ReviewCodeRow): void {
@@ -356,18 +376,21 @@ export class AdminReservationsComponent implements OnInit {
   protected apply(row: ReviewCodeRow): void {
     const c = this.confirming();
     if (!c || this.actingId()) return;
+    const target = c.kind === 'approve' ? 'Approved' : c.kind === 'reject' ? 'Rejected' : 'Pending';
     this.actingId.set(row.id);
     this.admin
-      .decide(row.id, c.kind === 'approve' ? 'Approved' : 'Rejected')
+      .decide(row.id, target)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.actingId.set(null);
           this.confirming.set(null);
           this.notice.set(
-            c.kind === 'approve'
+            target === 'Approved'
               ? `Code ${row.code} approved — usable at signup, issuer notified.`
-              : `Code ${row.code} rejected — dead everywhere, issuer notified.`,
+              : target === 'Rejected'
+                ? `Code ${row.code} rejected — dead everywhere, issuer notified.`
+                : `Code ${row.code} moved back to pending review.`,
           );
           this.reload();
         },
