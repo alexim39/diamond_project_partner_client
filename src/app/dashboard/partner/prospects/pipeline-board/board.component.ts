@@ -12,7 +12,9 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
-import { ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, StuckEntry } from '../lead-pipeline/lead.models';
+import { ProspectLead, ProspectStage,
+STAGE_META, STAGE_ORDER, StuckEntry } from '../lead-pipeline/lead.models';
+import { formatStuckDuration } from '../stuck-duration';
 
 /**
  * @title Pipeline board — drag-and-drop Kanban over the canonical stages.
@@ -109,7 +111,7 @@ import { ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, StuckEntry } from
                   <a class="card-name" [routerLink]="['../detail', lead.id]">{{ names(lead) }}</a>
                   <span class="muted">{{ lead.prospectPhone }}</span>
                   @if (stuckOf(lead); as stuck) {
-                    <span class="stuck-badge">⚠ stuck {{ stuck.daysInStage }}d</span>
+                    <span class="stuck-badge" [title]="'No movement for ' + stuckDuration(stuck.daysInStage) + ' (threshold ' + stuck.limit + 'd)'">⚠ stuck {{ stuckDuration(stuck.daysInStage) }}</span>
                   }
                 </div>
               } @empty {
@@ -224,6 +226,8 @@ export class PipelineBoardComponent implements OnInit {
   protected stuckOf(lead: ProspectLead): StuckEntry | null {
     return this.stuckDays()[lead.id] ?? null;
   }
+
+  protected readonly stuckDuration = formatStuckDuration;
 
   protected drop(event: CdkDragDrop<ProspectLead[]>, target: ProspectStage): void {
     if (event.previousContainer === event.container) return;

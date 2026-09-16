@@ -17,6 +17,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
 import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
+import { formatStuckDuration } from '../stuck-duration';
 import { forkJoin } from 'rxjs';
 
 /**
@@ -166,8 +167,8 @@ import { forkJoin } from 'rxjs';
               <td mat-cell *matCellDef="let lead" data-label="Stage">
                 <span class="dp-status {{ stageTone(lead) }}">{{ stageLabel(lead) }}</span>
                 @if (stuckOf(lead); as stuck) {
-                  <div class="stuck-badge" title="No movement for {{ stuck.daysInStage }} days (threshold {{ stuck.limit }})">
-                    ⚠ stuck {{ stuck.daysInStage }}d
+                  <div class="stuck-badge" title="No movement for {{ stuckDuration(stuck.daysInStage) }} (threshold {{ stuck.limit }}d)">
+                    ⚠ stuck {{ stuckDuration(stuck.daysInStage) }}
                   </div>
                 }
               </td>
@@ -487,6 +488,8 @@ export class LeadPipelineComponent implements OnInit {
   protected stuckOf(lead: ProspectLead): StuckEntry | null {
     return this.stuckDays()[lead.id] ?? null;
   }
+
+  protected readonly stuckDuration = formatStuckDuration;
 
   protected names(lead: ProspectLead): string {
     return this.leads.prospectName(lead);

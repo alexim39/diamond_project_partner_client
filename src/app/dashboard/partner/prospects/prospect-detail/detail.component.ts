@@ -14,7 +14,10 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ProspectService } from '../prospects.service';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { nextStage, ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, STAGE_TONE, ProspectStage } from '../lead-pipeline/lead.models';
+import { nextStage,
+ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, STAGE_TONE, ProspectStage } from
+'../lead-pipeline/lead.models';
+import { formatStuckDuration } from '../stuck-duration';
 import { ApiError } from '../../../../core/http/api-error';
 
 const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp'] as const;
@@ -131,7 +134,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
 
         <div class="journey dp-card">
           <div><strong>Journey:</strong> joined {{ prospect.createdAt | date:'mediumDate' }}</div>
-          <div>{{ daysInStage() }} days in current stage</div>
+          <div [title]="daysInStage() + ' days in current stage'">{{ stuckDuration(daysInStage()) }} in current stage</div>
           <div>{{ touchCount() }} logged touches</div>
         </div>
 
@@ -492,6 +495,8 @@ export class ProspectDetailComponent implements OnInit {
     if (!raw) return 0;
     return Math.max(0, Math.floor((Date.now() - new Date(raw).getTime()) / 86400000));
   });
+
+  protected readonly stuckDuration = formatStuckDuration;
 
   ngOnInit(): void {
     this.routes.paramMap
