@@ -49,7 +49,11 @@ export interface Address {
   country: string;
 }
 
-@Injectable()
+@Injectable({
+  // App-wide singleton (was dashboard-scoped): MatDialog content resolves
+  // from the root injector, so dialogs never saw the shared subject.
+  providedIn: 'root',
+})
 export class PartnerService {
   constructor(private apiService: ApiService) {}
   

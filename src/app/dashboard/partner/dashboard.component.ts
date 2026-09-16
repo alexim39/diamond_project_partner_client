@@ -442,7 +442,7 @@ mat-sidenav-content {
 
 
 `],
-providers: [PartnerService, PartnerAuthService],
+providers: [PartnerAuthService],
 imports: [
     MatToolbarModule, MatMenuModule, MatButtonModule, ProfileComponent, MatSidenavModule,
     MatListModule, MatIconModule, AsyncPipe, RouterModule, NotificationBellComponent, OraWidgetComponent,
