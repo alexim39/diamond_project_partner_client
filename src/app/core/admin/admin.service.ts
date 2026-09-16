@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import { UserRole } from '../auth/auth.models';
-import { ManagedPartner, PartnerDirectoryEnvelope, AuditEnvelope } from './admin.models';
+import { ManagedPartner, PartnerDirectoryEnvelope, AuditEnvelope, PlatformStatsEnvelope } from './admin.models';
 
 /**
  * Admin console data access → backend `/v1/admin/*`
@@ -30,6 +30,10 @@ export class AdminService {
       suspended,
       ...(reason?.trim() ? { reason: reason.trim() } : {}),
     });
+  }
+
+  stats(): Observable<PlatformStatsEnvelope> {
+    return this.api.get<PlatformStatsEnvelope>('v1/admin/stats');
   }
 
   audit(params: { action?: string; actorId?: string; limit?: number; skip?: number } = {}): Observable<AuditEnvelope> {

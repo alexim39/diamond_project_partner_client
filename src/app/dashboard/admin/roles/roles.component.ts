@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
-import { ManagedPartner } from '../../../core/admin/admin.models';
+import { ManagedPartner, PlatformStats } from '../../../core/admin/admin.models';
 import { ApiError } from '../../../core/http/api-error';
 import { UserRole } from '../../../core/auth/auth.models';
 
@@ -32,7 +33,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
   selector: 'async-manage-roles',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
+    DecimalPipe, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressBarModule, MatTooltipModule, RouterModule,
   ],
   template: `
@@ -62,6 +63,18 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
           <mat-progress-bar mode="indeterminate" class="loader" />
         }
       </div>
+
+      @if (stats(); as s) {
+        <div class="stat-grid" role="group" aria-label="Platform totals">
+          <div class="dp-card stat"><span class="stat-value">{{ s.total | number }}</span><span class="muted">Partners</span></div>
+          <div class="dp-card stat"><span class="stat-value">+{{ s.new7d | number }}</span><span class="muted">New 7d</span></div>
+          <div class="dp-card stat"><span class="stat-value">+{{ s.new30d | number }}</span><span class="muted">New 30d</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.roles.admin | number }}</span><span class="muted">Admins</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.roles.leader | number }}</span><span class="muted">Leaders</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.roles.g8 | number }}</span><span class="muted">G8</span></div>
+          <div class="dp-card stat"><span class="stat-value">{{ s.suspended | number }}</span><span class="muted">Suspended</span></div>
+        </div>
+      }
 
       @if (error(); as err) {
         <p class="error" role="alert">
@@ -161,6 +174,9 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
     .loader { flex: 2; min-width: 120px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6em; }
+    .stat { display: flex; flex-direction: column; gap: 0.1em; padding: 0.7em 0.9em; }
+    .stat-value { font-size: 1.4em; font-weight: 700; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
@@ -178,6 +194,7 @@ export class ManageRolesComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<ManagedPartner[]>([]);
   protected readonly total = signal(0);
+  protected readonly stats = signal<PlatformStats | null>(null);
   protected readonly limit = signal(25);
   protected readonly skip = signal(0);
   protected readonly query = signal('');
@@ -193,6 +210,13 @@ export class ManageRolesComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+    this.admin
+      .stats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.stats.set(res.data ?? null),
+        error: () => this.stats.set(null),
+      });
   }
 
   protected onSearch(event: Event): void {

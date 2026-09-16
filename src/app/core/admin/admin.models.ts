@@ -33,6 +33,18 @@ export interface AuditEntry {
   createdAt: string | null;
 }
 
+export interface PlatformStats {
+  total: number;
+  new7d: number;
+  new30d: number;
+  roles: { user: number; leader: number; g8: number; admin: number };
+  suspended: number;
+}
+
+export interface PlatformStatsEnvelope extends ApiEnvelope<PlatformStats> {
+  data: PlatformStats;
+}
+
 export interface AuditEnvelope extends ApiEnvelope<{ items: AuditEntry[]; total: number; limit: number; skip: number }> {
   data: { items: AuditEntry[]; total: number; limit: number; skip: number };
 }
