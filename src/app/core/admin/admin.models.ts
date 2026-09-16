@@ -15,11 +15,8 @@ export interface ManagedPartner {
   createdAt?: string;
 }
 
-export interface PartnerDirectoryEnvelope extends ApiEnvelope<ManagedPartner[]> {
-  data: ManagedPartner[];
-  total: number;
-  limit: number;
-  skip: number;
+export interface PartnerDirectoryEnvelope extends ApiEnvelope<{ items: ManagedPartner[]; total: number; limit: number; skip: number }> {
+  data: { items: ManagedPartner[]; total: number; limit: number; skip: number };
 }
 
 export interface AuditEntry {

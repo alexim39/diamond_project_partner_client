@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
@@ -34,7 +35,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatTooltipModule, RouterModule,
+    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTooltipModule, RouterModule,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -56,9 +57,30 @@ const ROLE_META: Record<UserRole, { label: string; color: string; text: string }
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Search partners</mat-label>
-          <input matInput type="search" placeholder="Name, username or email" (input)="onSearch($event)" />
+          <input matInput type="search" placeholder="Name, username or email" [value]="searchText()" (input)="onSearch($event)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Role</mat-label>
+          <mat-select [value]="roleFilter()" (selectionChange)="roleFilter.set($event.value); skip.set(0); reload()">
+            <mat-option value="all">All roles</mat-option>
+            <mat-option value="user">Partner</mat-option>
+            <mat-option value="leader">Leader</mat-option>
+            <mat-option value="g8">G8 Leader</mat-option>
+            <mat-option value="admin">Admin</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Status</mat-label>
+          <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value); skip.set(0); reload()">
+            <mat-option value="all">Active + suspended</mat-option>
+            <mat-option value="no">Active only</mat-option>
+            <mat-option value="yes">Suspended only</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (hasFilters()) {
+          <button mat-button (click)="clearFilters()">Clear</button>
+        }
         @if (loading()) {
           <mat-progress-bar mode="indeterminate" class="loader" />
         }
@@ -198,6 +220,9 @@ export class ManageRolesComponent implements OnInit {
   protected readonly limit = signal(25);
   protected readonly skip = signal(0);
   protected readonly query = signal('');
+  protected readonly searchText = signal('');
+  protected readonly roleFilter = signal('all');
+  protected readonly statusFilter = signal('all');
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly pendingRole = signal<UserRole>('leader');
@@ -221,6 +246,7 @@ export class ManageRolesComponent implements OnInit {
 
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
+    this.searchText.set(value);
     if (this.searchTimer) clearTimeout(this.searchTimer);
     this.searchTimer = setTimeout(() => {
       this.query.set(value.trim());
@@ -229,16 +255,29 @@ export class ManageRolesComponent implements OnInit {
     }, 300);
   }
 
+  protected hasFilters(): boolean {
+    return this.query().trim() !== '' || this.roleFilter() !== 'all' || this.statusFilter() !== 'all';
+  }
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.searchText.set('');
+    this.roleFilter.set('all');
+    this.statusFilter.set('all');
+    this.skip.set(0);
+    this.reload();
+  }
+
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
     this.admin
-      .directory({ q: this.query(), limit: this.limit(), skip: this.skip() })
+      .directory({ q: this.query(), role: this.roleFilter(), suspended: this.statusFilter(), limit: this.limit(), skip: this.skip() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.rows.set(res.data ?? []);
-          this.total.set(res.total ?? 0);
+          this.rows.set(res.data?.items ?? []);
+          this.total.set(res.data?.total ?? 0);
           this.loading.set(false);
         },
         error: (err: ApiError) => {

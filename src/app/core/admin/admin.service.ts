@@ -12,9 +12,11 @@ import { ManagedPartner, PartnerDirectoryEnvelope, AuditEnvelope, PlatformStatsE
 export class AdminService {
   private readonly api = inject(ApiClient);
 
-  directory(params: { q?: string; limit?: number; skip?: number } = {}): Observable<PartnerDirectoryEnvelope> {
+  directory(params: { q?: string; role?: string; suspended?: string; limit?: number; skip?: number } = {}): Observable<PartnerDirectoryEnvelope> {
     const query = new URLSearchParams({
       q: params.q ?? '',
+      role: params.role ?? 'all',
+      suspended: params.suspended ?? 'all',
       limit: String(params.limit ?? 25),
       skip: String(params.skip ?? 0),
     });
