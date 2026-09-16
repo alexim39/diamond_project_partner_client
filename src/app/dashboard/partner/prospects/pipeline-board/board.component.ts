@@ -12,6 +12,8 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
+import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
+import { MatDialog } from '@angular/material/dialog';
 import { ProspectLead, ProspectStage,
 STAGE_META, STAGE_ORDER, StuckEntry } from '../lead-pipeline/lead.models';
 import { formatStuckDuration } from '../stuck-duration';
@@ -20,8 +22,8 @@ import { formatStuckDuration } from '../stuck-duration';
  * @title Pipeline board — drag-and-drop Kanban over the canonical stages.
  *
  * Drop a card to advance it; dropping on Converted asks for confirm then
- * issues the enrollment code. Server stays source of truth (reload after
- * every move). OnPush + signals, fully typed.
+ * records the business-issued enrollment code via dialog. Server stays
+ * source of truth (reload after every move). OnPush + signals, fully typed.
  */
 @Component({
   selector: 'async-pipeline-board',
@@ -67,7 +69,7 @@ import { formatStuckDuration } from '../stuck-duration';
       @if (pendingConvert(); as pending) {
         <div class="confirm-banner" role="alertdialog" aria-label="Confirm conversion">
           <mat-icon>help</mat-icon>
-          <div>Convert <strong>{{ names(pending) }}</strong> and issue an enrollment code?</div>
+          <div>Convert <strong>{{ names(pending) }}</strong> — enter their business reservation code to enroll them.</div>
           <button mat-flat-button color="primary" (click)="confirmConvert()" [disabled]="actingId() !== null">Confirm</button>
           <button mat-button (click)="pendingConvert.set(null)">Cancel</button>
         </div>
@@ -161,6 +163,7 @@ export class PipelineBoardComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -263,20 +266,17 @@ export class PipelineBoardComponent implements OnInit {
     const lead = this.pendingConvert();
     if (!lead) return;
     this.pendingConvert.set(null);
-    this.actingId.set(lead.id);
-    this.leads
-      .convert(lead.id)
+    // Business-issued code is typed in the dialog (the convert endpoint
+    // records it — it never invents one).
+    this.dialog.open(CollectCodeComponent, {
+      data: { ...lead, _id: lead.id },
+    }).afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.actingId.set(null);
-          this.issuedCode.set({ name: this.names(lead), code: res.data.code });
+      .subscribe((res: any) => {
+        if (res?.converted) {
+          this.issuedCode.set({ name: this.names(lead), code: res.code });
           this.reload();
-        },
-        error: (err: ApiError) => {
-          this.actingId.set(null);
-          this.error.set(err.message);
-        },
+        }
       });
   }
 }

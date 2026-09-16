@@ -18,6 +18,8 @@ import { ApiError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
 import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
 import { formatStuckDuration } from '../stuck-duration';
+import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
+import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 
 /**
@@ -308,6 +310,7 @@ export class LeadPipelineComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
   private readonly exportContacts = inject(ExportContactAndEmailService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -543,22 +546,18 @@ export class LeadPipelineComponent implements OnInit {
   }
 
   protected convert(lead: ProspectLead): void {
-    this.actingId.set(lead.id);
-    this.leads
-      .convert(lead.id)
+    this.confirmId.set(null);
+    // Business-issued code is typed in the dialog (the convert endpoint
+    // records it — it never invents one).
+    this.dialog.open(CollectCodeComponent, {
+      data: { ...lead, _id: lead.id },
+    }).afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.actingId.set(null);
-          this.confirmId.set(null);
-          this.issuedCode.set({ name: this.names(lead), code: res.data.code });
+      .subscribe((res: any) => {
+        if (res?.converted) {
+          this.issuedCode.set({ name: this.names(lead), code: res.code });
           this.reload();
-        },
-        error: (err: ApiError) => {
-          this.actingId.set(null);
-          this.confirmId.set(null);
-          this.error.set(err.message);
-        },
+        }
       });
   }
 }
