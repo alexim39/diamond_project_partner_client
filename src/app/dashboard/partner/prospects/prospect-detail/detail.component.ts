@@ -14,6 +14,8 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
 import { ProspectService } from '../prospects.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
+import { MatDialog } from '@angular/material/dialog';
 import { nextStage,
 ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, STAGE_TONE, ProspectStage } from
 '../lead-pipeline/lead.models';
@@ -427,6 +429,7 @@ export class ProspectDetailComponent implements OnInit {
   private readonly routes = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly loading = signal(true);
   protected readonly acting = signal(false);
@@ -743,22 +746,24 @@ export class ProspectDetailComponent implements OnInit {
 
   protected convert(): void {
     const id = this.prospectId();
+    const lead = this.lead();
     if (!id) return;
     this.confirming.set(false);
-    this.acting.set(true);
-    this.leads
-      .convert(id, this.actor())
+    // Business-issued code is typed in the dialog (the convert endpoint
+    // records it — it never invents one).
+    this.dialog.open(CollectCodeComponent, {
+      data: {
+        _id: (lead as { _id?: string } | null)?._id ?? id,
+        prospectName: (lead as { prospectName?: string } | null)?.prospectName ?? '',
+        prospectSurname: (lead as { prospectSurname?: string } | null)?.prospectSurname ?? '',
+      },
+    }).afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.acting.set(false);
-          this.issuedCode.set({ name: this.names(), code: res.data.code });
+      .subscribe((res: any) => {
+        if (res?.converted) {
+          this.issuedCode.set({ name: this.names(), code: res.code });
           this.reload();
-        },
-        error: (err: ApiError) => {
-          this.acting.set(false);
-          this.error.set(err.message);
-        },
+        }
       });
   }
 
