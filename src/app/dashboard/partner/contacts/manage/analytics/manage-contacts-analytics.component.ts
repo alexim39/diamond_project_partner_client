@@ -4,6 +4,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
@@ -36,7 +37,7 @@ import { SMSService } from '../../../sms/sms.service';
         MatSelectModule,
         MatInputModule,
         MatIconModule, MatButtonModule,
-        MatDividerModule, MatListModule, CommonModule, RouterModule
+        MatDividerModule, MatListModule, CommonModule, RouterModule, MatProgressBarModule
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     providers: [ContactsService, SMSService, SMSGatewaysService, ProspectService]
@@ -416,6 +417,23 @@ export class ManageContactsAnalyticsComponent implements OnInit {
 
   bookProspectSession() {
     this.router.navigate(['/dashboard/prospects/booking', this.prospectData._id]);
+  }
+
+  /** Displayed pipeline stage (legacy free-text on this record). */
+  currentStage(): string {
+    const s = this.prospectData?.status;
+    const name = typeof s === 'string' ? s : (s?.name ?? s?.stage ?? '');
+    return this.selectedStatus || name || 'New';
+  }
+
+  /** dp-status tone for the current stage. */
+  stageTone(): string {
+    const s = this.currentStage().toLowerCase();
+    if (/partner|member|converted/.test(s)) return 'dp-status dp-status--ok';
+    if (/closing|booked|promised|interested/.test(s)) return 'dp-status dp-status--warn';
+    if (/nurturing|engaged|contacted|follow|sent|awaiting|thinking/.test(s)) return 'dp-status dp-status--info';
+    if (/not interested|disqualified|inactive|archiv|lost|closed/.test(s)) return 'dp-status dp-status--bad';
+    return 'dp-status dp-status--neutral';
   }
 
   /** Merged stage moves + logged touches, newest first. */
