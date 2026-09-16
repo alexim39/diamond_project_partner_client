@@ -199,6 +199,7 @@ import { forkJoin } from 'rxjs';
                 @if (!isConverted(lead)) {
                   <a mat-button [routerLink]="['../booking', lead.id]" title="Book a chat with {{ names(lead) }}">Book</a>
                 }
+                <a mat-button [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }} — status, outreach and history in one place">Work contact</a>
                 @if (canConvert(lead)) {
                   @if (confirmId() === lead.id) {
                     <button mat-flat-button color="primary" (click)="convert(lead)" [disabled]="actingId() === lead.id">

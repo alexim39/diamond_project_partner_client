@@ -110,6 +110,7 @@ import { formatStuckDuration } from '../stuck-duration';
                 <div class="card" cdkDrag [cdkDragData]="lead" [cdkDragDisabled]="actingId() !== null">
                   <a class="card-name" [routerLink]="['../detail', lead.id]">{{ names(lead) }}</a>
                   <span class="muted">{{ lead.prospectPhone }}</span>
+                  <a class="card-work" [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }}">Work contact →</a>
                   @if (stuckOf(lead); as stuck) {
                     <span class="stuck-badge" [title]="'No movement for ' + stuckDuration(stuck.daysInStage) + ' (threshold ' + stuck.limit + 'd)'">⚠ stuck {{ stuckDuration(stuck.daysInStage) }}</span>
                   }
@@ -147,6 +148,7 @@ import { formatStuckDuration } from '../stuck-duration';
     .card:active { cursor: grabbing; }
     .card-name { font-weight: 600; text-decoration: none; color: inherit; }
     .card-name:hover { color: var(--dp-gold-ink); }
+    .card-work { font-size: 0.85em; text-decoration: none; color: var(--dp-gold-ink); align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; }
     .stuck-badge { color: var(--dp-error); font-size: 0.85em; font-weight: 600; }
     .drop-hint { text-align: center; margin: 0.5em 0; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
