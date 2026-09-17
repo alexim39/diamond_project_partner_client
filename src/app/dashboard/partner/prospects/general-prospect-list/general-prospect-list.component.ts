@@ -304,9 +304,12 @@ export class GeneralProspectListComponent implements OnInit, AfterViewInit {
     return timeAgo(new Date(element.createdAt));
   }
 
- ViewResponse(prospect: ProspectListInterface) {
+  ViewResponse(prospect: ProspectListInterface) {
     this.dialog.open(MaskedProspectResponseComponent, {
-      data: {prospect, partner: this.partner}
+      data: { prospect, partnerState: this.partner?.address?.state ?? '' },
+    }).afterClosed().subscribe((result: unknown) => {
+      const id = (result as { claim?: string } | null)?.claim;
+      if (typeof id === 'string' && id) this.claimLead(id);
     });
   }
 
