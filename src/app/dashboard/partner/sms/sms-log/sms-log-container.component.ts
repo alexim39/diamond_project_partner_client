@@ -40,11 +40,13 @@ export class smsLogContainerComponent implements OnInit {
   ngOnInit() {
 
     // get current signed in user, then their SMS logs — one stream.
+    // Inbox is session-owned server-side: no id travels, so a stale client
+    // id can never render an empty (or someone else's) inbox.
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef),
       filter((partner): partner is PartnerInterface => !!partner),
       tap(partner => { this.partner = partner; }),
-      switchMap(partner => this.sms.getSMSCreatedBy(partner._id))
+      switchMap(() => this.sms.mySms())
     ).subscribe({
         next: (response) => {
           if (response.success) {

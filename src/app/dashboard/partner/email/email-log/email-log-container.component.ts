@@ -43,11 +43,13 @@ export class EmailLogContainerComponent implements OnInit {
   ngOnInit() {
 
     // get current signed in user, then their emails — one stream.
+    // Inbox is session-owned server-side: no id travels, so a stale client
+    // id can never render an empty (or someone else's) inbox.
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef),
       filter((partner): partner is PartnerInterface => !!partner),
       tap(partner => { this.partner = partner; }),
-      switchMap(partner => this.email.getEmailsCreatedBy(partner._id))
+      switchMap(() => this.email.myEmails())
     ).subscribe({
         next: (response) => {
           if (response.success) {

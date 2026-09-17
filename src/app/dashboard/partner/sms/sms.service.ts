@@ -40,9 +40,9 @@ export class SMSService {
     return this.apiService.post<smsInterface>(`billing/bulk-sms-charge`, formObject, undefined, true);
   }
 
-  // get sms byId
-  getSMSCreatedBy(partnerId: string): Observable<any> {
-    return this.apiService.get<smsInterface>(`sms/getById/${partnerId}`, undefined, undefined, true);
+  // own SMS batches, newest first — session-owned (no id plumbing).
+  mySms(): Observable<{ data: Array<Record<string, unknown>>; success: boolean }> {
+    return this.apiService.get(`v1/outreach/sms/mine`, undefined, undefined, true);
   }
 
   // detele single sms

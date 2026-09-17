@@ -13,9 +13,9 @@ export interface EmailInterface {
 export class EmailService {
   constructor(private apiService: ApiService) {}
 
-  // get sms byId
-  getEmailsCreatedBy(partnerId: string): Observable<any> {
-    return this.apiService.get<EmailInterface>(`emails/getById/${partnerId}`, undefined, undefined, true);
+  // own email batches, newest first — session-owned (no id plumbing).
+  myEmails(): Observable<{ data: Array<Record<string, unknown>>; success: boolean }> {
+    return this.apiService.get(`v1/outreach/email/mine`, undefined, undefined, true);
   }
 
   // send bulk email now — session-owned v1 route (validated, capped,
