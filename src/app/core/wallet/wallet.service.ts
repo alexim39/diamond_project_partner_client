@@ -4,6 +4,23 @@ import { ApiClient } from '../http/api-client.service';
 import { WalletHistoryEnvelope, WalletTransaction } from './wallet.models';
 import { AuthService } from '../auth/auth.service';
 
+export interface DepositInit {
+  reference: string;
+  orderNo: string | null;
+  cashierUrl: string;
+  amountNgn: number;
+  expiresInMinutes: number;
+}
+
+export interface DepositState {
+  reference: string;
+  status: string;
+  amountNgn: number;
+  orderNo: string | null;
+  creditedAt: string | null;
+  liveStatus: string | null;
+}
+
 const num = (v: unknown): number => {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
@@ -32,6 +49,16 @@ export class WalletService {
     return this.api
       .get<WalletHistoryEnvelope>(`billing/transaction/${id}`)
       .pipe(map((res) => ((res.data ?? []) as unknown[]).map((r) => this.shape(r))));
+  }
+
+  /** Open an Opay cashier session — the response carries the redirect URL. */
+  initDeposit(amountNgn: number): Observable<{ data: DepositInit }> {
+    return this.api.post<{ data: DepositInit }>('v1/billing/deposit/init', { amountNgn });
+  }
+
+  /** Owner-scoped intent state (+ live Opay cross-check while pending). */
+  depositStatus(reference: string): Observable<{ data: DepositState }> {
+    return this.api.get<{ data: DepositState }>(`v1/billing/deposit/status?reference=${encodeURIComponent(reference)}`);
   }
 
   private shape(r: unknown): WalletTransaction {

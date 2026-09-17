@@ -93,6 +93,7 @@ export const DTC_URL = 'https://ec5.empoweredconsumerism.com/index.html#/sign-in
       <div class="dp-card actions-card">
         <h3>Quick actions</h3>
         <div class="actions-row">
+          <a mat-flat-button color="primary" routerLink="/dashboard/wallet/deposit"><mat-icon>add_card</mat-icon> Deposit funds</a>
           <a mat-button routerLink="/dashboard/products/eshop"><mat-icon>shopping_bag</mat-icon> Buy products</a>
           <a mat-button routerLink="/dashboard/products/order-history"><mat-icon>package_2</mat-icon> View orders</a>
           <a mat-button routerLink="/dashboard/wallet/history"><mat-icon>history</mat-icon> Full history</a>
