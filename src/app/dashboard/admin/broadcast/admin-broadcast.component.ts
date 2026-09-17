@@ -306,6 +306,15 @@ import { ApiError } from '../../../core/http/api-error';
                 }
               </td>
             </ng-container>
+            <ng-container matColumnDef="recipients">
+              <th mat-header-cell *matHeaderCellDef>Recipients</th>
+              <td mat-cell *matCellDef="let row" class="num-cell">
+                {{ recipientTotal(row) | number }}@if (row.capped || row.stats?.capped) {*}
+                @if (row.capped || row.stats?.capped) {
+                  <span class="muted">capped</span>
+                }
+              </td>
+            </ng-container>
             <ng-container matColumnDef="priority">
               <th mat-header-cell *matHeaderCellDef>Priority</th>
               <td mat-cell *matCellDef="let row"><span [class]="row.priority === 'high' ? 'dp-status dp-status--bad' : 'dp-status dp-status--warn'">{{ row.priority }}</span></td>
@@ -403,6 +412,8 @@ import { ApiError } from '../../../core/http/api-error';
     .detail-card h3 { margin: 0; }
     .full-body { white-space: pre-wrap; }
     .notice-cell { display: flex; flex-direction: column; gap: 0.15em; max-width: 520px; }
+    .num-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .num-cell .muted { display: block; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .empty { color: var(--dp-muted); }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
@@ -455,7 +466,7 @@ export class AdminBroadcastComponent implements OnInit {
   protected readonly queuing = signal(false);
   protected readonly campaignError = signal<string | null>(null);
 
-  protected readonly displayedColumns = ['notice', 'channels', 'priority', 'manage'];
+  protected readonly displayedColumns = ['notice', 'recipients', 'channels', 'priority', 'manage'];
   protected readonly expandedId = signal<string | null>(null);
   protected readonly detailCache = signal<Record<string, Record<string, unknown>>>({});
   protected readonly acting = signal(false);
@@ -701,6 +712,13 @@ export class AdminBroadcastComponent implements OnInit {
   protected str(detail: Record<string, unknown>, key: string): string {
     const v = detail[key];
     return v === undefined || v === null ? '' : String(v);
+  }
+
+  /** Recipient audience size: campaign stats total, else the v1 delivered count. */
+  protected recipientTotal(row: BroadcastRow): number {
+    const fromStats = (row.stats as { total?: unknown } | null)?.total;
+    if (typeof fromStats === 'number' && Number.isFinite(fromStats)) return fromStats;
+    return Number(row.recipientCount ?? 0);
   }
 
   protected statLine(detail: Record<string, unknown>): string {
