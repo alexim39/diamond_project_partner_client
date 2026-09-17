@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
-import { WalletService } from '../../../core/wallet/wallet.service';
+import { DepositMethod, WalletService } from '../../../core/wallet/wallet.service';
+import { ManualDepositComponent } from './manual-deposit.component';
 import { ApiError } from '../../../core/http/api-error';
 
 const PRESETS = [1000, 2500, 5000, 10000, 25000];
@@ -16,17 +17,17 @@ const MIN_NGN = 100;
 const MAX_NGN = 1000000;
 
 /**
- * @title Deposit funds — Opay cashier top-up.
+ * @title Deposit funds — method switcher.
  *
- * Amount is validated here for UX and re-validated server-side (the only
- * number Opay ever sees comes from the backend in kobo). Success hands
- * the member to the Opay cashier page in the same tab; the return landing
- * confirms the credit. OnPush + signals, mobile-first.
+ * The page renders whatever `GET deposit/methods` lists, so a future
+ * gateway (Paystack…) needs only a backend registry entry plus one
+ * section here — no redesign. Opay = instant checkout handoff; bank
+ * transfer = pay-first manual claim confirmed by an admin.
  */
 @Component({
   selector: 'async-wallet-deposit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, RouterModule],
+  imports: [DecimalPipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, ManualDepositComponent, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -40,10 +41,25 @@ const MAX_NGN = 1000000;
       <div class="page-head">
         <div>
           <h2>Deposit funds</h2>
-          <p class="subtitle">Top up with card, transfer or USSD through Opay — credit lands on confirmation.</p>
+          <p class="subtitle">Instant checkout or bank transfer — pick whichever suits you.</p>
         </div>
       </div>
 
+      @if (loadingMethods()) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+      <div class="methods" role="group" aria-label="Deposit method">
+        @for (m of methods(); track m.id) {
+          <button mat-button [class.active]="method() === m.id" [disabled]="!m.enabled" (click)="method.set(m.id)">{{ m.label }}</button>
+        }
+      </div>
+      @if (opayDisabled()) {
+        <p class="error" role="alert">Instant checkout is unavailable right now — please use bank transfer.</p>
+      }
+
+      @if (method() === 'manual' && manualMethod(); as manual) {
+        <async-manual-deposit [accounts]="manual.accounts ?? []" />
+      } @else {
       <div class="dp-card deposit-card">
         <h3>How much?</h3>
         <div class="presets" role="group" aria-label="Quick amounts">
@@ -72,6 +88,7 @@ const MAX_NGN = 1000000;
         </button>
         <p class="muted">You leave Diamond Project for Opay's secure checkout and return automatically after paying.</p>
       </div>
+      }
     </section>
   `,
   styles: [`
@@ -84,12 +101,14 @@ const MAX_NGN = 1000000;
     .deposit-card h3 { margin: 0; }
     .presets { display: flex; gap: 0.5em; flex-wrap: wrap; }
     .presets button.active { border: 1px solid var(--dp-gold); font-weight: 700; }
+    .methods { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .methods button.active { border: 1px solid var(--dp-gold); font-weight: 700; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); }
     button { min-height: 44px; }
   `],
 })
-export class WalletDepositComponent {
+export class WalletDepositComponent implements OnInit {
   private readonly wallet = inject(WalletService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -99,6 +118,40 @@ export class WalletDepositComponent {
   protected readonly amount = signal<number>(2500);
   protected readonly starting = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly methods = signal<DepositMethod[]>([]);
+  protected readonly method = signal<string>('opay');
+  protected readonly loadingMethods = signal(true);
+
+  ngOnInit(): void {
+    this.wallet
+      .depositMethods()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const list = (res.data ?? []).filter((m) => m && m.id);
+          this.methods.set(list);
+          // Default to the first enabled method; keep Opay first when live.
+          const first = list.find((m) => m.enabled) ?? list[0];
+          if (first) this.method.set(first.id);
+          this.loadingMethods.set(false);
+        },
+        error: () => {
+          // Registry unreachable — fall back to the Opay form alone.
+          this.methods.set([{ id: 'opay', kind: 'gateway', label: 'Pay with Opay', detail: '', enabled: true }]);
+          this.method.set('opay');
+          this.loadingMethods.set(false);
+        },
+      });
+  }
+
+  protected manualMethod(): DepositMethod | null {
+    return this.methods().find((m) => m.id === 'manual') ?? null;
+  }
+
+  protected opayDisabled(): boolean {
+    const opay = this.methods().find((m) => m.id === 'opay');
+    return !!opay && !opay.enabled && this.method() === 'opay';
+  }
 
   protected valid(): boolean {
     const a = Number(this.amount());

@@ -3,6 +3,7 @@ import { ManageRolesComponent } from './roles/roles.component';
 import { PayoutQueueComponent } from './payouts/payouts.component';
 import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
 import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
+import { AdminDepositsComponent } from './deposits/admin-deposits.component';
 import { AdminReservationsComponent } from './reservations/admin-reservations.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
@@ -39,6 +40,11 @@ export const AdminRoutes: Routes = [
         path: 'withdrawals',
         component: AdminWithdrawalsComponent,
         title: 'Withdrawals - Pay or refund requests',
+      },
+      {
+        path: 'deposits',
+        component: AdminDepositsComponent,
+        title: 'Manual Deposits - Confirm transfers and credit wallets',
       },
       {
         path: 'reservations',
