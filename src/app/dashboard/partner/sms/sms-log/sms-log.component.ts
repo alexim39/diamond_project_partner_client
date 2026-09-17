@@ -66,7 +66,7 @@ template: `
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
           <ng-container matColumnDef="reference">
             <th mat-header-cell *matHeaderCellDef> Reference </th>
-            <td mat-cell *matCellDef="let element"> {{ element.transaction.reference }} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.transaction?.reference ?? '—' }} </td>
           </ng-container>
           <ng-container matColumnDef="message">
             <th mat-header-cell *matHeaderCellDef> Message </th>
@@ -78,7 +78,7 @@ template: `
           </ng-container>
           <ng-container matColumnDef="cost">
             <th mat-header-cell *matHeaderCellDef> Cost </th>
-            <td mat-cell *matCellDef="let element"> {{ element.transaction.amount | currency:'₦':'symbol':'1.2-2' }} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.transaction ? (element.transaction.amount | currency:'₦':'symbol':'1.2-2') : '—' }} </td>
           </ng-container>
           <ng-container matColumnDef="pages">
             <th mat-header-cell *matHeaderCellDef> Pages </th>
