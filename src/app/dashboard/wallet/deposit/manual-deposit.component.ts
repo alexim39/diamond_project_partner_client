@@ -7,9 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { ManualAccount, ManualClaimRow, WalletService } from '../../../core/wallet/wallet.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 
 const MIN_NGN = 100;
@@ -26,7 +29,7 @@ const MAX_NGN = 1000000;
 @Component({
   selector: 'async-manual-deposit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, NgClass, RouterModule],
+  imports: [DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatDatepickerModule, MatFormFieldModule, MatIconModule, MatInputModule, MatNativeDateModule, MatProgressBarModule, MatSelectModule, NgClass, RouterModule],
   template: `
     <div class="dp-card manual-card">
       <h3>Step 1 · Send the money</h3>
@@ -59,6 +62,7 @@ const MAX_NGN = 1000000;
       <mat-form-field appearance="outline">
         <mat-label>Sender name (on the transfer)</mat-label>
         <input matInput [(ngModel)]="senderName" maxlength="120" />
+        <mat-hint>Pre-filled with your profile name — change it if someone else sent for you</mat-hint>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Account number you sent from</mat-label>
@@ -66,7 +70,9 @@ const MAX_NGN = 1000000;
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Date of transfer</mat-label>
-        <input matInput type="date" [(ngModel)]="paidAt" />
+        <input matInput [matDatepicker]="paidPicker" [(ngModel)]="paidAt" [max]="today" />
+        <mat-datepicker-toggle matSuffix [for]="paidPicker" />
+        <mat-datepicker #paidPicker />
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Bank reference / session ID</mat-label>
@@ -127,17 +133,19 @@ const MAX_NGN = 1000000;
 })
 export class ManualDepositComponent implements OnInit {
   private readonly wallet = inject(WalletService);
+  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly accounts = input.required<ManualAccount[]>();
 
   protected readonly min = MIN_NGN;
   protected readonly max = MAX_NGN;
+  protected readonly today = new Date();
   protected amount: number | null = 2500;
   protected destination = '';
   protected senderName = '';
   protected senderAccount = '';
-  protected paidAt = '';
+  protected paidAt: Date | null = new Date();
   protected bankReference = '';
   protected readonly sending = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -149,6 +157,13 @@ export class ManualDepositComponent implements OnInit {
   ngOnInit(): void {
     const first = this.accounts()?.[0]?.number;
     if (first) this.destination = first;
+    // The profile owner is the sender in the overwhelmingly common case —
+    // pre-fill, still editable for the "someone paid for me" exception.
+    if (!this.senderName.trim()) {
+      const me = this.auth.currentUser();
+      const full = [me?.name, me?.surname].filter(Boolean).join(' ').trim();
+      if (full) this.senderName = full;
+    }
     this.reloadClaims();
   }
 
@@ -158,13 +173,24 @@ export class ManualDepositComponent implements OnInit {
     setTimeout(() => this.copied.set(null), 2000);
   }
 
+  protected validDate(): boolean {
+    return this.paidAt instanceof Date && !Number.isNaN(this.paidAt.getTime());
+  }
+
+  /** Local YYYY-MM-DD (no UTC shift — the date the member picked). */
+  protected paidAtIso(): string {
+    const d = this.paidAt as Date;
+    const pad = (n: number): string => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
   protected valid(): boolean {
     const a = Number(this.amount);
     return Number.isFinite(a) && a >= MIN_NGN && a <= MAX_NGN
       && !!this.destination
       && this.senderName.trim().length >= 2
       && this.senderAccount.replace(/\D/g, '').length >= 10
-      && !!this.paidAt
+      && this.validDate()
       && this.bankReference.trim().length >= 4;
   }
 
@@ -175,7 +201,7 @@ export class ManualDepositComponent implements OnInit {
     if (!this.destination) return 'Choose the account you paid into.';
     if (this.senderName.trim().length < 2) return 'Enter the sender name on the transfer.';
     if (this.senderAccount.replace(/\D/g, '').length < 10) return 'Enter the account number you sent from.';
-    if (!this.paidAt) return 'Enter the transfer date.';
+    if (!this.validDate()) return 'Pick the transfer date from the calendar.';
     if (this.bankReference.trim().length < 4) return 'Enter the bank reference / session ID.';
     return null;
   }
@@ -190,7 +216,7 @@ export class ManualDepositComponent implements OnInit {
         destinationAccount: this.destination,
         senderName: this.senderName.trim(),
         senderAccount: this.senderAccount.replace(/\D/g, ''),
-        paidAt: this.paidAt,
+        paidAt: this.paidAtIso(),
         bankReference: this.bankReference.trim(),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
