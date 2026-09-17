@@ -13,6 +13,49 @@ export interface BroadcastRow {
   recipientCount: number;
   capped: boolean;
   createdAt: string | null;
+  channels?: { inApp: boolean; email: boolean; sms: boolean } | null;
+  kind?: 'system' | 'marketing' | null;
+  status?: string | null;
+  stats?: {
+    total: number;
+    capped: boolean;
+    inApp: { sent: number; failed: number };
+    email: { sent: number; failed: number };
+    sms: { sent: number; failed: number };
+    estimatedSmsSpend: number;
+  } | null;
+  sendAt?: string | null;
+  estimatedSmsSpend?: number | null;
+}
+
+export interface CampaignAudience {
+  mode: 'all' | 'segment' | 'picked';
+  segment?: { role?: string; active?: boolean; excludeSuspended?: boolean; joinedAfter?: string; joinedBefore?: string };
+  ids?: string[];
+}
+
+export interface CampaignPayload {
+  title: string;
+  body: string;
+  link?: string;
+  priority?: 'high' | 'medium';
+  subject?: string;
+  smsBody?: string;
+  channels?: { inApp?: boolean; email?: boolean; sms?: boolean };
+  kind?: 'system' | 'marketing';
+  audience?: CampaignAudience;
+  sendAt?: string;
+  confirmSpend?: boolean;
+}
+
+export interface AudienceEstimate {
+  total: number;
+  capped: boolean;
+  inApp: number;
+  email: number;
+  sms: number;
+  smsPages: number;
+  estimatedSmsSpend: number;
 }
 
 export interface BroadcastListEnvelope extends ApiEnvelope<{ items: BroadcastRow[]; total: number; limit: number; skip: number }> {
@@ -42,5 +85,20 @@ export class AdminBroadcastService {
 
   send(payload: { title: string; body: string; link?: string; priority?: 'high' | 'medium' }): Observable<ApiEnvelope<BroadcastResult>> {
     return this.api.post<ApiEnvelope<BroadcastResult>>('v1/admin/broadcast', payload);
+  }
+
+  /** Audience + spend preview — zero sends. */
+  estimate(payload: CampaignPayload): Observable<ApiEnvelope<AudienceEstimate>> {
+    return this.api.post<ApiEnvelope<AudienceEstimate>>('v1/admin/broadcast/campaigns/estimate', payload);
+  }
+
+  /** Queue now or schedule — the minute worker fires when due. */
+  queueCampaign(payload: CampaignPayload): Observable<ApiEnvelope<{ id: string; status: string; sendAt: string }>> {
+    return this.api.post('v1/admin/broadcast/campaigns', payload);
+  }
+
+  /** Member lookup for hand-picked audiences (email/username). */
+  lookupMember(q: string): Observable<ApiEnvelope<{ exact: unknown | null; matches: unknown[] }>> {
+    return this.api.get(`v1/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
   }
 }

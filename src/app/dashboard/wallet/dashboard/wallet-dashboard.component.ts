@@ -19,9 +19,10 @@ export const DTC_URL = 'https://ec5.empoweredconsumerism.com/index.html#/sign-in
  * @title Wallet dashboard — balance, flows and doors.
  *
  * Read-only over existing records: live `partner.balance` carried forward
- * as the wallet balance, in/out summed from transaction history. Deposits
- * land in Slice 2 (Opay); until then no money moves from this page.
- * OnPush + signals, token-blind dark shells, mobile-first grid.
+ * as the wallet balance, in/out summed from transaction history. Money
+ * moves via the deposit page (Opay checkout, bank-transfer claims) and is
+ * spent on SMS, products and withdrawals. OnPush + signals, token-blind
+ * dark shells, mobile-first grid.
  */
 @Component({
   selector: 'async-wallet-dashboard',

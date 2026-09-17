@@ -1,29 +1,39 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
-import { AdminBroadcastService, BroadcastRow } from './admin-broadcast.service';
+import {
+  AdminBroadcastService, AudienceEstimate, BroadcastRow, CampaignAudience, CampaignPayload,
+} from './admin-broadcast.service';
 import { ApiError } from '../../../core/http/api-error';
 
 /**
- * @title Broadcast — platform-wide admin notices.
+ * @title Broadcast desk — notices, campaigns and receipts.
  *
- * Composer writes one in-app notice per member (bounded server-side,
- * deduped by broadcast id); history below shows reach. Email-at-scale
- * is deliberately out — members read these in the notification center.
- * OnPush + signals, token-blind dark shells.
+ * Top: the legacy quick in-app notice (unchanged behavior). Below: the
+ * campaign composer — audience (all / segment / hand-picked), kind
+ * (system reaches everyone; marketing honors channel opt-outs), channels
+ * (in-app free, email free, SMS platform-funded with a spend estimate +
+ * explicit confirmation), now-or-scheduled. History shows per-channel
+ * stats. OnPush + signals.
  */
 @Component({
   selector: 'async-admin-broadcast',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTableModule, RouterModule],
+  imports: [
+    DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatCheckboxModule,
+    MatFormFieldModule, MatInputModule, MatProgressBarModule, MatRadioModule,
+    MatSelectModule, MatTableModule, RouterModule,
+  ],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -37,7 +47,7 @@ import { ApiError } from '../../../core/http/api-error';
       <div class="page-head">
         <div>
           <h2>Broadcast</h2>
-          <p class="subtitle">One notice to every member's notification center — maintenance, policy, events. Use sparingly.</p>
+          <p class="subtitle">Reach members where they are — app inbox, email, SMS. Use sparingly; every send is audited.</p>
         </div>
       </div>
 
@@ -46,7 +56,7 @@ import { ApiError } from '../../../core/http/api-error';
       }
 
       <div class="dp-card compose-card">
-        <h3>New broadcast</h3>
+        <h3>Quick in-app notice</h3>
         <mat-form-field appearance="outline">
           <mat-label>Title</mat-label>
           <input matInput [value]="title()" (input)="title.set($any($event.target).value)" maxlength="140" placeholder="Scheduled maintenance tonight" />
@@ -81,6 +91,125 @@ import { ApiError } from '../../../core/http/api-error';
         }
       </div>
 
+      <div class="dp-card compose-card">
+        <h3>Email + SMS campaign</h3>
+        <p class="muted">System reaches everyone on every enabled channel. Marketing honors each member's channel opt-outs.</p>
+
+        <mat-radio-group [(ngModel)]="kind" aria-label="Campaign kind">
+          <mat-radio-button value="system">System (urgent — all members)</mat-radio-button>
+          <mat-radio-button value="marketing">Marketing (announcements, newsletters — opt-outs honored)</mat-radio-button>
+        </mat-radio-group>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Audience</mat-label>
+          <mat-select [(ngModel)]="audienceMode">
+            <mat-option value="all">All members</mat-option>
+            <mat-option value="segment">Segment (filters)</mat-option>
+            <mat-option value="picked">Hand-picked members</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (audienceMode === 'segment') {
+          <div class="compose-row">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Role contains (optional)</mat-label>
+              <input matInput [(ngModel)]="segRole" maxlength="40" placeholder="User" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Account status</mat-label>
+              <mat-select [(ngModel)]="segActive">
+                <mat-option [value]="">Any</mat-option>
+                <mat-option [value]="true">Active only</mat-option>
+                <mat-option [value]="false">Inactive only</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+
+        @if (audienceMode === 'picked') {
+          <mat-form-field appearance="outline">
+            <mat-label>Find member (email or username)</mat-label>
+            <input matInput [(ngModel)]="lookup" (keyup.enter)="searchMember()" minlength="2" />
+          </mat-form-field>
+          <div class="compose-row">
+            <button mat-button (click)="searchMember()" [disabled]="lookup.trim().length < 2 || searching()">Search</button>
+          </div>
+          @if (candidates().length > 0) {
+            <div class="hits">
+              @for (h of candidates(); track h.id) {
+                <button mat-button (click)="pick(h)">{{ h.name }} · {{ h.username ?? h.email }}</button>
+              }
+            </div>
+          }
+          @if (picked().length > 0) {
+            <div class="hits">
+              @for (h of picked(); track h.id) {
+                <button mat-button class="active" (click)="unpick(h)">{{ h.name }} ✕</button>
+              }
+            </div>
+          }
+        }
+
+        <div class="compose-row">
+          <mat-checkbox [(ngModel)]="chInApp">App inbox (free)</mat-checkbox>
+          <mat-checkbox [(ngModel)]="chEmail">Email (free)</mat-checkbox>
+          <mat-checkbox [(ngModel)]="chSms">SMS (gateway credit)</mat-checkbox>
+        </div>
+
+        @if (chEmail) {
+          <mat-form-field appearance="outline">
+            <mat-label>Email subject (defaults to title)</mat-label>
+            <input matInput [(ngModel)]="subject" maxlength="120" />
+          </mat-form-field>
+        }
+        @if (chSms) {
+          <mat-form-field appearance="outline">
+            <mat-label>SMS text (defaults to title + message)</mat-label>
+            <textarea matInput rows="2" [(ngModel)]="smsBody" maxlength="459"></textarea>
+            <mat-hint>{{ smsBody.length || (title() + ' — ' + body()).length }} / 459 chars</mat-hint>
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>Send</mat-label>
+          <mat-select [(ngModel)]="when">
+            <mat-option value="now">Now (within a minute)</mat-option>
+            <mat-option value="later">Schedule for later</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (when === 'later') {
+          <mat-form-field appearance="outline">
+            <mat-label>Scheduled date & time</mat-label>
+            <input matInput type="datetime-local" [(ngModel)]="sendAt" />
+          </mat-form-field>
+        }
+
+        @if (estimate(); as est) {
+          <div class="dp-card estimate" role="status">
+            <div><strong>{{ est.total | number }}</strong> members{{ est.capped ? ' (capped at 5,000)' : '' }}</div>
+            <div class="muted">App inbox {{ est.inApp | number }} · Email {{ est.email | number }} · SMS {{ est.sms | number }} ({{ est.smsPages }} page{{ est.smsPages === 1 ? '' : 's' }})</div>
+            @if (chSms) {
+              <div><strong>≈ ₦{{ est.estimatedSmsSpend | number:'1.0-2' }}</strong> gateway credit for SMS</div>
+              <mat-checkbox [(ngModel)]="confirmSpend">I confirm this gateway spend</mat-checkbox>
+            }
+          </div>
+        }
+        @if (campaignError(); as err) {
+          <p class="error" role="alert">{{ err }}</p>
+        }
+        <div class="compose-row">
+          <button mat-button (click)="preview()" [disabled]="!canQueue() || estimating()">
+            {{ estimating() ? 'Counting…' : (estimate() ? 'Refresh estimate' : 'Preview reach + cost') }}
+          </button>
+          <button
+            mat-flat-button color="primary"
+            (click)="queue()"
+            [disabled]="!canQueue() || !estimate() || queuing() || (chSms && !confirmSpend)">
+            {{ queuing() ? 'Queueing…' : (when === 'later' ? 'Schedule campaign' : 'Queue campaign') }}
+          </button>
+        </div>
+      </div>
+
       <h3>History</h3>
 
       @if (loading()) {
@@ -102,7 +231,29 @@ import { ApiError } from '../../../core/http/api-error';
               <td mat-cell *matCellDef="let row" class="notice-cell">
                 <strong>{{ row.title }}</strong>
                 <span class="muted">{{ row.body }}</span>
-                <span class="muted">{{ row.createdAt | date:'medium' }} · reached {{ row.recipientCount }}@if (row.capped) { (capped) }</span>
+                <span class="muted">
+                  {{ row.createdAt | date:'medium' }} ·
+                  @if (row.stats) {
+                    app {{ row.stats.inApp.sent }}/{{ row.stats.inApp.failed }} ·
+                    mail {{ row.stats.email.sent }}/{{ row.stats.email.failed }} ·
+                    sms {{ row.stats.sms.sent }}/{{ row.stats.sms.failed }}
+                  } @else {
+                    reached {{ row.recipientCount }}@if (row.capped) { (capped) }
+                  }
+                </span>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="channels">
+              <th mat-header-cell *matHeaderCellDef>Channels</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.channels) {
+                  @if (row.channels.inApp) { <span class="dp-status dp-status--info">app</span> }
+                  @if (row.channels.email) { <span class="dp-status dp-status--info">mail</span> }
+                  @if (row.channels.sms) { <span class="dp-status dp-status--warn">sms</span> }
+                  <span class="muted">{{ row.kind }} · {{ row.status }}</span>
+                } @else {
+                  <span class="dp-status dp-status--info">app</span>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="priority">
@@ -134,6 +285,9 @@ import { ApiError } from '../../../core/http/api-error';
     .compose-card h3 { margin: 0; }
     .compose-row { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
     .compose-row mat-form-field { min-width: 200px; }
+    .hits { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .hits button.active { border: 1px solid var(--dp-gold); font-weight: 700; }
+    .estimate { padding: 0.8em; display: flex; flex-direction: column; gap: 0.4em; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .notice-cell { display: flex; flex-direction: column; gap: 0.15em; max-width: 520px; }
@@ -163,7 +317,29 @@ export class AdminBroadcastComponent implements OnInit {
   protected readonly confirming = signal(false);
   protected readonly sending = signal(false);
 
-  protected readonly displayedColumns = ['notice', 'priority'];
+  // Campaign composer state (plain fields — template-driven, matches page style).
+  protected kind: 'system' | 'marketing' = 'system';
+  protected audienceMode: 'all' | 'segment' | 'picked' = 'all';
+  protected segRole = '';
+  protected segActive: '' | boolean = '';
+  protected chInApp = true;
+  protected chEmail = false;
+  protected chSms = false;
+  protected subject = '';
+  protected smsBody = '';
+  protected when: 'now' | 'later' = 'now';
+  protected sendAt = '';
+  protected confirmSpend = false;
+  protected lookup = '';
+  protected readonly searching = signal(false);
+  protected readonly candidates = signal<Array<{ id: string; name: string; username: string | null; email: string | null }>>([]);
+  protected readonly picked = signal<Array<{ id: string; name: string; username: string | null; email: string | null }>>([]);
+  protected readonly estimate = signal<AudienceEstimate | null>(null);
+  protected readonly estimating = signal(false);
+  protected readonly queuing = signal(false);
+  protected readonly campaignError = signal<string | null>(null);
+
+  protected readonly displayedColumns = ['notice', 'channels', 'priority'];
 
   ngOnInit(): void {
     this.reload();
@@ -226,5 +402,127 @@ export class AdminBroadcastComponent implements OnInit {
           this.sendError.set(err.message);
         },
       });
+  }
+
+  protected audience(): CampaignAudience {
+    if (this.audienceMode === 'picked') {
+      return { mode: 'picked', ids: this.picked().map((p) => p.id) };
+    }
+    if (this.audienceMode === 'segment') {
+      return {
+        mode: 'segment',
+        segment: {
+          ...(this.segRole.trim() ? { role: this.segRole.trim() } : {}),
+          ...(this.segActive === '' ? {} : { active: this.segActive }),
+          excludeSuspended: true,
+        },
+      };
+    }
+    return { mode: 'all' };
+  }
+
+  protected campaignPayload(): CampaignPayload {
+    return {
+      title: this.title().trim() || 'Untitled campaign',
+      body: this.body().trim() || 'See details inside.',
+      ...(this.link().trim() ? { link: this.link().trim() } : {}),
+      priority: this.priority(),
+      ...(this.subject.trim() ? { subject: this.subject.trim() } : {}),
+      ...(this.smsBody.trim() ? { smsBody: this.smsBody.trim() } : {}),
+      channels: { inApp: this.chInApp, email: this.chEmail, sms: this.chSms },
+      kind: this.kind,
+      audience: this.audience(),
+      ...(this.when === 'later' && this.sendAt ? { sendAt: new Date(this.sendAt).toISOString() } : {}),
+    };
+  }
+
+  protected canQueue(): boolean {
+    if (!this.canSend()) return false;
+    if (!this.chInApp && !this.chEmail && !this.chSms) return false;
+    if (this.audienceMode === 'picked' && this.picked().length === 0) return false;
+    if (this.when === 'later') {
+      const at = new Date(this.sendAt).getTime();
+      if (!Number.isFinite(at) || at <= Date.now()) return false;
+    }
+    return true;
+  }
+
+  protected preview(): void {
+    if (!this.canQueue() || this.estimating()) return;
+    this.estimating.set(true);
+    this.campaignError.set(null);
+    this.cast
+      .estimate(this.campaignPayload())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.estimate.set(res.data ?? null);
+          this.estimating.set(false);
+          this.confirmSpend = false;
+        },
+        error: (err: ApiError) => {
+          this.estimating.set(false);
+          this.campaignError.set(err.message);
+        },
+      });
+  }
+
+  protected queue(): void {
+    if (!this.canQueue() || !this.estimate() || this.queuing()) return;
+    if (this.chSms && !this.confirmSpend) return;
+    this.queuing.set(true);
+    this.campaignError.set(null);
+    this.cast
+      .queueCampaign({
+        ...this.campaignPayload(),
+        confirmSpend: true,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.queuing.set(false);
+          this.estimate.set(null);
+          this.confirmSpend = false;
+          this.smsBody = '';
+          this.subject = '';
+          this.picked.set([]);
+          this.notice.set(res.message ?? 'Campaign queued.');
+          this.skip.set(0);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.queuing.set(false);
+          this.campaignError.set(err.message);
+        },
+      });
+  }
+
+  protected searchMember(): void {
+    const q = this.lookup.trim();
+    if (q.length < 2 || this.searching()) return;
+    this.searching.set(true);
+    this.cast
+      .lookupMember(q)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const data = (res.data ?? {}) as { exact?: { id: string; name: string; username: string | null; email: string | null } | null; matches?: Array<{ id: string; name: string; username: string | null; email: string | null }> };
+          const list = [...(data.exact ? [data.exact] : []), ...(data.matches ?? [])];
+          this.candidates.set(list.filter((h) => !this.picked().some((p) => p.id === h.id)).slice(0, 8));
+          this.searching.set(false);
+        },
+        error: () => this.searching.set(false),
+      });
+  }
+
+  protected pick(h: { id: string; name: string; username: string | null; email: string | null }): void {
+    if (!this.picked().some((p) => p.id === h.id)) this.picked.set([...this.picked(), h]);
+    this.candidates.set(this.candidates().filter((c) => c.id !== h.id));
+    this.estimate.set(null);
+  }
+
+  protected unpick(h: { id: string }): void {
+    this.picked.set(this.picked().filter((p) => p.id !== h.id));
+    this.estimate.set(null);
   }
 }
