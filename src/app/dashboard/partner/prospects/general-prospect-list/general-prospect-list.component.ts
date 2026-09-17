@@ -315,7 +315,7 @@ export class GeneralProspectListComponent implements OnInit, AfterViewInit {
       const lead = this.dataSource.data.find((item: ProspectListInterface) => item._id === prospectId);
       if (!lead) return;
       this.dialog.open(ClaimLeadDialogComponent, {
-        data: { lead, partnerId: this.partner._id },
+        data: { lead, partnerId: this.partner._id, partnerState: this.partner?.address?.state ?? '' },
       }).afterClosed().subscribe((claimed: unknown) => {
         if (claimed !== true) return;
         this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
