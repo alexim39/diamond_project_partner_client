@@ -227,6 +227,41 @@ import { ApiError } from '../../../core/http/api-error';
 
       <h3>History</h3>
 
+      <div class="toolbar">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Status</mat-label>
+          <mat-select [value]="histStatus()" (selectionChange)="histStatus.set($event.value); skip.set(0); reload()">
+            <mat-option value="">All statuses</mat-option>
+            <mat-option value="scheduled">Scheduled</mat-option>
+            <mat-option value="sending">Sending</mat-option>
+            <mat-option value="sent">Sent</mat-option>
+            <mat-option value="failed">Failed</mat-option>
+            <mat-option value="cancelled">Cancelled</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Kind</mat-label>
+          <mat-select [value]="histKind()" (selectionChange)="histKind.set($event.value); skip.set(0); reload()">
+            <mat-option value="">System + marketing</mat-option>
+            <mat-option value="system">System</mat-option>
+            <mat-option value="marketing">Marketing</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+          <mat-label>Search title / message</mat-label>
+          <input matInput [(ngModel)]="histQuery" (keyup.enter)="skip.set(0); reload()" maxlength="120" />
+        </mat-form-field>
+        <button mat-button (click)="skip.set(0); reload()">Apply</button>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Per page</mat-label>
+          <mat-select [value]="limit()" (selectionChange)="limit.set($event.value); skip.set(0); reload()">
+            <mat-option [value]="25">25</mat-option>
+            <mat-option [value]="50">50</mat-option>
+            <mat-option [value]="100">100</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
       @if (loading()) {
         <mat-progress-bar mode="indeterminate" />
       }
@@ -275,8 +310,14 @@ import { ApiError } from '../../../core/http/api-error';
               <th mat-header-cell *matHeaderCellDef>Priority</th>
               <td mat-cell *matCellDef="let row"><span [class]="row.priority === 'high' ? 'dp-status dp-status--bad' : 'dp-status dp-status--warn'">{{ row.priority }}</span></td>
             </ng-container>
+            <ng-container matColumnDef="manage">
+              <th mat-header-cell *matHeaderCellDef>Manage</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-button (click)="toggleDetail(row); $event.stopPropagation()">Details</button>
+              </td>
+            </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="toggleDetail(row)"></tr>
           </table>
         </div>
         <div class="pager">
@@ -285,7 +326,53 @@ import { ApiError } from '../../../core/http/api-error';
           <button mat-button (click)="page(1)" [disabled]="skip() + limit() >= total() || loading()">Next</button>
         </div>
       } @else if (!loading() && !error()) {
-        <p class="empty">No broadcasts yet.</p>
+        <p class="empty">No broadcasts match — clear the filters.</p>
+      }
+
+      @if (expanded(); as detail) {
+        <div class="dp-card detail-card" role="region" aria-label="Broadcast details">
+          <h3>{{ str(detail, 'title') }}</h3>
+          <p class="muted">{{ str(detail, 'status') || 'sent' }} · {{ str(detail, 'kind') || 'system' }} · {{ str(detail, 'createdAt') | date:'medium' }}</p>
+          <p class="full-body">{{ str(detail, 'body') }}</p>
+          @if (str(detail, 'link')) {
+            <p class="muted">Link: {{ str(detail, 'link') }}</p>
+          }
+          @if (detail['audience']) {
+            <p class="muted">Audience: {{ audienceLabel(detail['audience']) }}</p>
+          }
+          @if (statLine(detail); as stat) {
+            <p class="muted">{{ stat }}</p>
+          }
+          @if (str(detail, 'error')) {
+            <p class="error" role="alert">Failed: {{ str(detail, 'error') }}</p>
+          }
+          @if (actionError(); as aerr) {
+            <p class="error" role="alert">{{ aerr }}</p>
+          }
+          <div class="compose-row">
+            @if (detail['status'] === 'scheduled') {
+              <button mat-flat-button color="warn" (click)="cancel(detail)" [disabled]="acting()">Cancel send</button>
+            }
+            @if (detail['status'] === 'failed') {
+              <button mat-flat-button color="primary" (click)="retry(detail)" [disabled]="acting()">Retry now</button>
+            }
+            <button mat-button (click)="cloneToComposer(detail)">Edit & resend as new</button>
+            @if (confirmResend() === str(detail, 'id')) {
+              <button mat-flat-button color="warn" (click)="resendNow(detail)" [disabled]="acting()">Confirm resend as-is?</button>
+              <button mat-button (click)="confirmResend.set(null)">Back</button>
+            } @else {
+              <button mat-button (click)="confirmResend.set(str(detail, 'id'))">Resend as-is</button>
+            }
+            @if (confirmDelete() === str(detail, 'id')) {
+              <span class="muted">Deletes the record + inbox copies. Delivered mail/SMS stay delivered.</span>
+              <button mat-flat-button color="warn" (click)="remove(detail)" [disabled]="acting()">Confirm delete</button>
+              <button mat-button (click)="confirmDelete.set(null)">Back</button>
+            } @else {
+              <button mat-button (click)="confirmDelete.set(str(detail, 'id'))">Delete</button>
+            }
+            <button mat-button (click)="expandedId.set(null)">Close</button>
+          </div>
+        </div>
       }
     </section>
   `,
@@ -309,6 +396,12 @@ import { ApiError } from '../../../core/http/api-error';
     .estimate { padding: 0.8em; display: flex; flex-direction: column; gap: 0.4em; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
+    .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
+    .toolbar mat-form-field { min-width: 160px; }
+    .toolbar .search-field { flex: 1 1 200px; }
+    .detail-card { padding: 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .detail-card h3 { margin: 0; }
+    .full-body { white-space: pre-wrap; }
     .notice-cell { display: flex; flex-direction: column; gap: 0.15em; max-width: 520px; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .empty { color: var(--dp-muted); }
@@ -329,6 +422,9 @@ export class AdminBroadcastComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly limit = signal(25);
   protected readonly skip = signal(0);
+  protected readonly histStatus = signal('');
+  protected readonly histKind = signal('');
+  protected histQuery = '';
   protected readonly title = signal('');
   protected readonly body = signal('');
   protected readonly link = signal('');
@@ -359,7 +455,18 @@ export class AdminBroadcastComponent implements OnInit {
   protected readonly queuing = signal(false);
   protected readonly campaignError = signal<string | null>(null);
 
-  protected readonly displayedColumns = ['notice', 'channels', 'priority'];
+  protected readonly displayedColumns = ['notice', 'channels', 'priority', 'manage'];
+  protected readonly expandedId = signal<string | null>(null);
+  protected readonly detailCache = signal<Record<string, Record<string, unknown>>>({});
+  protected readonly acting = signal(false);
+  protected readonly actionError = signal<string | null>(null);
+  protected readonly confirmDelete = signal<string | null>(null);
+  protected readonly confirmResend = signal<string | null>(null);
+
+  protected expanded(): Record<string, unknown> | null {
+    const id = this.expandedId();
+    return id ? (this.detailCache()[id] ?? null) : null;
+  }
 
   ngOnInit(): void {
     this.reload();
@@ -373,7 +480,13 @@ export class AdminBroadcastComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.cast
-      .history({ limit: this.limit(), skip: this.skip() })
+      .history({
+        limit: this.limit(),
+        skip: this.skip(),
+        ...(this.histStatus() ? { status: this.histStatus() } : {}),
+        ...(this.histKind() ? { kind: this.histKind() } : {}),
+        ...(this.histQuery.trim() ? { q: this.histQuery.trim() } : {}),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -569,5 +682,167 @@ export class AdminBroadcastComponent implements OnInit {
   protected unpick(h: { id: string }): void {
     this.picked.set(this.picked().filter((p) => p.id !== h.id));
     this.estimate.set(null);
+  }
+
+  protected audienceLabel(audience: unknown): string {
+    const a = (audience ?? {}) as { mode?: string; segment?: Record<string, unknown>; ids?: string[] };
+    if (a.mode === 'picked') return `hand-picked (${(a.ids ?? []).length} members)`;
+    if (a.mode === 'segment') {
+      const seg = a.segment ?? {};
+      const bits: string[] = [];
+      if (seg['role']) bits.push(`role ${seg['role']}`);
+      if (seg['active'] === true) bits.push('active');
+      if (seg['active'] === false) bits.push('inactive');
+      return `segment${bits.length ? ': ' + bits.join(', ') : ''}`;
+    }
+    return 'all members';
+  }
+
+  protected str(detail: Record<string, unknown>, key: string): string {
+    const v = detail[key];
+    return v === undefined || v === null ? '' : String(v);
+  }
+
+  protected statLine(detail: Record<string, unknown>): string {
+    const s = detail['stats'] as {
+      inApp?: { sent?: number; failed?: number };
+      email?: { sent?: number; failed?: number };
+      sms?: { sent?: number; failed?: number };
+      estimatedSmsSpend?: number;
+    } | null;
+    if (!s) return '';
+    const n = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+    return `App ${n(s.inApp?.sent)}/${n(s.inApp?.failed)} · Mail ${n(s.email?.sent)}/${n(s.email?.failed)} · SMS ${n(s.sms?.sent)}/${n(s.sms?.failed)} · spend ≈ ₦${n(s.estimatedSmsSpend).toFixed(2)}`;
+  }
+
+  protected toggleDetail(row: BroadcastRow): void {
+    if (this.expandedId() === row.id) {
+      this.expandedId.set(null);
+      return;
+    }
+    this.expandedId.set(row.id);
+    this.actionError.set(null);
+    this.confirmDelete.set(null);
+    this.confirmResend.set(null);
+    if (this.detailCache()[row.id]) return;
+    this.cast
+      .campaignDetail(row.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const data = (res.data ?? {}) as Record<string, unknown>;
+          this.detailCache.set({ ...this.detailCache(), [row.id]: { ...row, ...data } });
+        },
+        error: (err: ApiError) => this.actionError.set(err.message),
+      });
+  }
+
+  protected cancel(detail: Record<string, unknown>): void {
+    this.actOn(String(detail['id'] ?? ''), (id) => this.cast.cancelCampaign(id), 'Scheduled campaign cancelled.');
+  }
+
+  protected retry(detail: Record<string, unknown>): void {
+    this.actOn(String(detail['id'] ?? ''), (id) => this.cast.retryCampaign(id), 'Campaign requeued — sending restarts within a minute.');
+  }
+
+  protected remove(detail: Record<string, unknown>): void {
+    this.actOn(
+      String(detail['id'] ?? ''),
+      (id) => this.cast.deleteBroadcast(id),
+      'Broadcast deleted.',
+      () => this.confirmDelete.set(null),
+    );
+  }
+
+  private actOn(id: string, call: (id: string) => { subscribe: (o: object) => void }, done: string, after?: () => void): void {
+    if (!id || this.acting()) return;
+    this.acting.set(true);
+    this.actionError.set(null);
+    call(id).subscribe({
+      next: (res: unknown) => {
+        this.acting.set(false);
+        after?.();
+        this.expandedId.set(null);
+        this.notice.set((res as { message?: string })?.message ?? done);
+        this.skip.set(0);
+        this.reload();
+      },
+      error: (err: ApiError) => {
+        this.acting.set(false);
+        this.actionError.set(err.message);
+      },
+    });
+  }
+
+  /** Load a past broadcast into the composer for editing — queues as NEW. */
+  protected cloneToComposer(detail: Record<string, unknown>): void {
+    this.title.set(String(detail['title'] ?? ''));
+    this.body.set(String(detail['body'] ?? ''));
+    this.link.set(String(detail['link'] ?? ''));
+    const prio = detail['priority'];
+    this.priority.set(prio === 'medium' ? 'medium' : 'high');
+    this.subject = String(detail['subject'] ?? '');
+    this.smsBody = String(detail['smsBody'] ?? '');
+    const kind = detail['kind'];
+    this.kind = kind === 'marketing' ? 'marketing' : 'system';
+    const channels = (detail['channels'] ?? {}) as Record<string, unknown>;
+    this.chInApp = channels['inApp'] !== false;
+    this.chEmail = channels['email'] === true;
+    this.chSms = channels['sms'] === true;
+    const audience = (detail['audience'] ?? {}) as { mode?: string; segment?: { role?: string; active?: boolean } };
+    if (audience.mode === 'segment') {
+      this.audienceMode = 'segment';
+      this.segRole = String(audience.segment?.role ?? '');
+      this.segActive = audience.segment?.active === undefined ? '' : !!audience.segment.active;
+    } else if (audience.mode === 'all' || !audience.mode) {
+      this.audienceMode = 'all';
+    } else {
+      // Hand-picked lists go stale — re-pick against live lookup.
+      this.audienceMode = 'picked';
+      this.picked.set([]);
+    }
+    this.estimate.set(null);
+    this.confirmSpend = false;
+    this.when = 'now';
+    this.expandedId.set(null);
+    this.notice.set('Loaded into the composer — review, estimate, then queue as new.');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /** Resend exactly as stored (new row, fresh stats) — two-step confirmed. */
+  protected resendNow(detail: Record<string, unknown>): void {
+    if (this.acting()) return;
+    const channels = (detail['channels'] ?? { inApp: true }) as Record<string, boolean>;
+    const audience = (detail['audience'] ?? { mode: 'all' }) as CampaignAudience;
+    this.acting.set(true);
+    this.actionError.set(null);
+    this.cast
+      .queueCampaign({
+        title: String(detail['title'] ?? ''),
+        body: String(detail['body'] ?? ''),
+        ...(detail['link'] ? { link: String(detail['link']) } : {}),
+        priority: detail['priority'] === 'medium' ? 'medium' : 'high',
+        ...(detail['subject'] ? { subject: String(detail['subject']) } : {}),
+        ...(detail['smsBody'] ? { smsBody: String(detail['smsBody']) } : {}),
+        channels: { inApp: !!channels['inApp'], email: !!channels['email'], sms: !!channels['sms'] },
+        kind: detail['kind'] === 'marketing' ? 'marketing' : 'system',
+        audience,
+        confirmSpend: true,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.acting.set(false);
+          this.confirmResend.set(null);
+          this.expandedId.set(null);
+          this.notice.set(res.message ?? 'Campaign requeued.');
+          this.skip.set(0);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.acting.set(false);
+          this.actionError.set(err.message);
+        },
+      });
   }
 }

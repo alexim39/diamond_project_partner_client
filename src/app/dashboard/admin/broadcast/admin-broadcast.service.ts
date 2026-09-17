@@ -75,11 +75,14 @@ export interface BroadcastResult {
 export class AdminBroadcastService {
   private readonly api = inject(ApiClient);
 
-  history(params: { limit?: number; skip?: number } = {}): Observable<BroadcastListEnvelope> {
+  history(params: { limit?: number; skip?: number; status?: string; kind?: string; q?: string } = {}): Observable<BroadcastListEnvelope> {
     const query = new URLSearchParams({
       limit: String(params.limit ?? 25),
       skip: String(params.skip ?? 0),
     });
+    if (params.status) query.set('status', params.status);
+    if (params.kind) query.set('kind', params.kind);
+    if (params.q?.trim()) query.set('q', params.q.trim());
     return this.api.get<BroadcastListEnvelope>(`v1/admin/broadcast?${query.toString()}`);
   }
 
@@ -100,5 +103,25 @@ export class AdminBroadcastService {
   /** Member lookup for hand-picked audiences (email/username). */
   lookupMember(q: string): Observable<ApiEnvelope<{ exact: unknown | null; matches: unknown[] }>> {
     return this.api.get(`v1/billing/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
+  }
+
+  /** Full campaign detail for the history drill-down. */
+  campaignDetail(id: string): Observable<ApiEnvelope<Record<string, unknown>>> {
+    return this.api.get(`v1/admin/broadcast/campaigns/${encodeURIComponent(id)}`);
+  }
+
+  /** Cancel a scheduled campaign before it fires. */
+  cancelCampaign(id: string): Observable<ApiEnvelope<unknown>> {
+    return this.api.post(`v1/admin/broadcast/campaigns/${encodeURIComponent(id)}/cancel`, {});
+  }
+
+  /** Requeue a failed campaign (same row, fresh stats on success). */
+  retryCampaign(id: string): Observable<ApiEnvelope<unknown>> {
+    return this.api.post(`v1/admin/broadcast/campaigns/${encodeURIComponent(id)}/retry`, {});
+  }
+
+  /** Hard delete a record + its fanned-out inbox copies (never unsends mail/SMS). */
+  deleteBroadcast(id: string): Observable<ApiEnvelope<unknown>> {
+    return this.api.delete(`v1/admin/broadcast/campaigns/${encodeURIComponent(id)}`);
   }
 }
