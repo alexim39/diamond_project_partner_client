@@ -55,8 +55,8 @@ import { forkJoin } from 'rxjs';
           <mat-button-toggle routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
             <mat-icon>person_add</mat-icon> Add someone
           </mat-button-toggle>
-          <mat-button-toggle routerLink="../general-list" title="General prospect list">
-            <mat-icon>groups</mat-icon> General List
+          <mat-button-toggle routerLink="../general-list" title="Buy prospect">
+            <mat-icon>groups</mat-icon> Buy Prospect
           </mat-button-toggle>
         </mat-button-toggle-group>
       </div>

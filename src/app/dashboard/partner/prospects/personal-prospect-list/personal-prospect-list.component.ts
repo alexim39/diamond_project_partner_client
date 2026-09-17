@@ -50,7 +50,7 @@ template: `
         <mat-button-toggle-group>
           <mat-button-toggle routerLink="../../tools/contacts/list" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
           <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
-          <mat-button-toggle routerLink="../../prospects/general-list" routerLinkActive="active" (click)="scrollToTop()" title="General Prospect List"><mat-icon>groups</mat-icon> General Prospect List</mat-button-toggle>
+          <mat-button-toggle routerLink="../../prospects/general-list" routerLinkActive="active" (click)="scrollToTop()" title="Buy Prospect"><mat-icon>groups</mat-icon> Buy Prospect</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
 
