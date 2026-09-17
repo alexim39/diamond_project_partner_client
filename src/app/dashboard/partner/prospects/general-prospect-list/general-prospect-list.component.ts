@@ -1,26 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, inject, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
+import { ClaimLeadDialogComponent } from './claim-lead-dialog.component';
 import { MatSelectModule } from '@angular/material/select';
-import { Subscription } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, RouterModule } from '@angular/router';
-import { ProspectService, ProspectListInterface } from '../prospects.service';
+import { RouterModule } from '@angular/router';
+import type { ProspectListInterface } from '../prospects.service';
 import { timeAgo } from '../../../../_common/date-util';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MaskedProspectResponseComponent } from './masked-prospect-response.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
@@ -33,10 +31,9 @@ template: `
 
 <section class="breadcrumb-wrapper">
   <div class="breadcrumb">
-    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
-    <a>Prospect Analytics</a> &gt;
-    <a>Converstion Analytics</a> &gt;
-    <span>Prospect list</span>
+    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">Dashboard</a> &gt;
+    <a>Prospects</a> &gt;
+    <span>Buy Prospect</span>
   </div>
 </section>
 
@@ -77,6 +74,10 @@ template: `
               {{element.name | titlecase }} {{element.surname | titlecase}}
             </td>
           </ng-container>
+          <ng-container matColumnDef="state">
+            <th mat-header-cell *matHeaderCellDef> State </th>
+            <td mat-cell *matCellDef="let element"> {{ element.state || '—' }} </td>
+          </ng-container>
           <ng-container matColumnDef="phone">
             <th mat-header-cell *matHeaderCellDef> Phone </th>
             <td mat-cell *matCellDef="let element"> {{ maskPhoneNumber(element.phoneNumber) }} </td>
@@ -89,23 +90,16 @@ template: `
           </ng-container>
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              [ngClass]="{'bold-text': element.prospectStatus === 'Moved to Contact'}">
-              {{element.prospectStatus}}
+            <td mat-cell *matCellDef="let element">
+              @if (element.prospectStatus == 'Moved to Contact') {
+                <span class="dp-status dp-status--neutral">Claimed</span>
+              } @else {
+                <span class="dp-status dp-status--ok">Available</span>
+              }
             </td>
           </ng-container>
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>
-              @if (badgeValue > 0) {
-                <span matTooltip="Today's prospect" [matBadge]="todaysProsect" matBadgeOverlap="false">Date</span>
-              }
-            </th>
-            <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
-          </ng-container>
           <ng-container matColumnDef="dateAgo">
-            <th mat-header-cell *matHeaderCellDef> Duration </th>
+            <th mat-header-cell *matHeaderCellDef> Age </th>
             <td mat-cell *matCellDef="let element"> {{ getDateAgo(element) }}  </td>
           </ng-container>
           <ng-container matColumnDef="action">
@@ -237,25 +231,23 @@ styles: [`
 }
 
 `],
-providers: [ProspectService],
+providers: [],
 changeDetection: ChangeDetectionStrategy.Eager,
 imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsModule, MatTableModule, MatBadgeModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule,
   MatButtonToggleModule
 ]
 })
-export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class GeneralProspectListComponent implements OnInit, AfterViewInit {
   @Input() partner!: PartnerInterface;
   readonly dialog = inject(MatDialog);
   @Input() prospectList!: ProspectListInterface[];
-
-  subscriptions: Array<Subscription> = [];
 
   dataSource = new MatTableDataSource<any>([]);
   isEmptyRecord = false;
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'dateAgo', 'action'];
+  displayedColumns: string[] = ['name', 'state', 'phone', 'email', 'status', 'dateAgo', 'action'];
   timeAgoList: string[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -263,10 +255,7 @@ export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterVie
   todaysProsect: number = 0; // Set this value dynamically as needed
   badgeValue: number = 0; // Set this value dynamically as needed
 
-  constructor(
-    private prospectService: ProspectService,
-    private router: Router,
-  ) { }
+  constructor() { }
 
  ngOnInit(): void {
     if (this.prospectList) {
@@ -323,55 +312,15 @@ export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterVie
 
 
     claimLead(prospectId: string): void {
-      Swal.fire({
-        title: "Claim this lead for your pipeline?",
-        text: "The lead moves to My pipeline. Work it within 7 days or return it to the pool.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, claim it!"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.scrollToTop();
-
-          const partnerId = this.partner._id;
-
-          this.subscriptions.push(
-            this.prospectService.importSingle({ partnerId, prospectId, source: 'website' }).subscribe({
-             next: (response) => {
-                this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
-
-                  this.calculateNewBookings();
-                  this.calculateBadgeValue();
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: response.message,
-                  showConfirmButton: true,
-                  confirmButtonColor: "#ffab40",
-                  confirmButtonText: "OK",
-                  timer: 15000,
-                });
-              },
-
-              error: (error: HttpErrorResponse) => {
-                let errorMessage = 'Server error occurred, please try again.';
-                if (error.error && error.error.message) {
-                  errorMessage = error.error.message;
-                }
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'error',
-                  text: errorMessage,
-                  showConfirmButton: false,
-                  timer: 4000
-                });  
-              }
-            })
-          )
-        }
+      const lead = this.dataSource.data.find((item: ProspectListInterface) => item._id === prospectId);
+      if (!lead) return;
+      this.dialog.open(ClaimLeadDialogComponent, {
+        data: { lead, partnerId: this.partner._id },
+      }).afterClosed().subscribe((claimed: unknown) => {
+        if (claimed !== true) return;
+        this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
+        this.calculateNewBookings();
+        this.calculateBadgeValue();
       });
     }
 
@@ -385,10 +334,6 @@ export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterVie
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
   maskPhoneNumber(phone: string): string {
