@@ -45,6 +45,9 @@ export interface ProspectLead {
   communications?: Array<{ interestLevel?: string; date?: string }>;
   createdAt?: string;
   updatedAt?: string;
+  /** Buy Prospect origin (pool restores need it) + pickup time (7-day return window). */
+  surverId?: string | null;
+  claimedAt?: string | null;
 }
 
 export interface ProspectListEnvelope extends ApiEnvelope<ProspectLead[]> {

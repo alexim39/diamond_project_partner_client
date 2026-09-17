@@ -49,7 +49,7 @@ import { forkJoin } from 'rxjs';
       <div class="page-head">
         <div>
           <h2>Lead Pipeline</h2>
-          <p class="subtitle">Track every prospect from first contact to converted partner.</p>
+          <p class="subtitle">Work your claimed Buy Prospect leads from first contact to converted partner.</p>
         </div>
         <mat-button-toggle-group>
           <mat-button-toggle routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
@@ -201,6 +201,14 @@ import { forkJoin } from 'rxjs';
                 @if (!isConverted(lead)) {
                   <a mat-button [routerLink]="['../booking', lead.id]" title="Book a chat with {{ names(lead) }}">Book</a>
                 }
+                @if (canRelease(lead)) {
+                  @if (releaseConfirmId() === lead.id) {
+                    <button mat-button color="warn" (click)="release(lead)" [disabled]="actingId() === lead.id">Return to pool?</button>
+                    <button mat-button (click)="releaseConfirmId.set(null)">Cancel</button>
+                  } @else {
+                    <button mat-button (click)="releaseConfirmId.set(lead.id)" [title]="releaseHint(lead)">Return to pool</button>
+                  }
+                }
                 <a mat-button [routerLink]="['/dashboard/insights/contact-analytics']" [queryParams]="{ id: lead.id }" title="Work {{ names(lead) }} — status, outreach and history in one place">Work contact</a>
                 @if (canConvert(lead)) {
                   @if (confirmId() === lead.id) {
@@ -331,6 +339,7 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly displayedColumns = ['select', 'name', 'contact', 'stage', 'interest', 'action'];
   protected readonly selected = signal<Set<string>>(new Set());
   protected readonly deleteConfirmId = signal<string | null>(null);
+  protected readonly releaseConfirmId = signal<string | null>(null);
 
   protected readonly selectionCount = computed(() => this.selected().size);
 
@@ -423,6 +432,36 @@ export class LeadPipelineComponent implements OnInit {
       .subscribe({
         next: () => {
           this.deleteConfirmId.set(null);
+          this.actingId.set(null);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  /** Pool-origin leads (Buy Prospect pickups) can return within 7 days. */
+  protected canRelease(lead: ProspectLead): boolean {
+    return !!lead.surverId && !this.isConverted(lead);
+  }
+
+  protected releaseHint(lead: ProspectLead): string {
+    if (!lead.claimedAt) return 'Return this Buy Prospect lead to the pool for others to claim';
+    const left = 7 - (Date.now() - new Date(lead.claimedAt).getTime()) / 86400000;
+    if (left <= 0) return 'Return window closed (7 days from pickup)';
+    return `Return this lead to the pool — ${Math.ceil(left)} of 7 days left`;
+  }
+
+  protected release(lead: ProspectLead): void {
+    this.actingId.set(lead.id);
+    this.leads
+      .releaseProspect(lead.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.releaseConfirmId.set(null);
           this.actingId.set(null);
           this.reload();
         },

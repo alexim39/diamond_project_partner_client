@@ -41,11 +41,11 @@ template: `
 </section>
 
 <section class="async-background ">
-  <h2>Manage General Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <h2>Buy Prospect <mat-icon (click)="showDescription()">help</mat-icon></h2>
 
   <section class="async-container">
     <div class="title">
-      <h3>General Online Survey List</h3>
+      <h3>Fresh leads pool</h3>
       <div class="action-area">
         <mat-button-toggle-group>
           <mat-button-toggle routerLink="/dashboard/tools/contacts/new" (click)="scrollToTop()" title="Add someone to your contact list"><mat-icon>person_add</mat-icon> Add someone</mat-button-toggle>
@@ -66,7 +66,7 @@ template: `
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>
               @if (badgeValue > 0) {
-                <span matTooltip="Not yet moved contact" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
+                <span matTooltip="Not yet claimed" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
               }
               @if (badgeValue === 0) {
                 <span>Name</span>
@@ -111,7 +111,7 @@ template: `
           <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef> Action </th>
             <td mat-cell *matCellDef="let element" style="cursor: pointer;">
-              <button (click)="moveToContact(element._id)" mat-button [disabled]="element.prospectStatus == 'Moved to Contact'">Move to Contact</button>
+              <button (click)="claimLead(element._id)" mat-button [disabled]="element.prospectStatus == 'Moved to Contact'">{{ element.prospectStatus == 'Moved to Contact' ? 'Claimed' : 'Claim lead' }}</button>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -322,14 +322,15 @@ export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterVie
   }
 
 
-    moveToContact(prospectId: string): void {
+    claimLead(prospectId: string): void {
       Swal.fire({
-        title: "Are you sure of moving prospect to contact list?",
+        title: "Claim this lead for your pipeline?",
+        text: "The lead moves to My pipeline. Work it within 7 days or return it to the pool.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, move it!"
+        confirmButtonText: "Yes, claim it!"
       }).then((result) => {
         if (result.isConfirmed) {
           this.scrollToTop();
@@ -377,7 +378,7 @@ export class GeneralProspectListComponent implements OnInit, OnDestroy, AfterVie
   showDescription() {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: `View and manage the general online list of your potential prospect`
+        help: `Buy Prospect: claim fresh leads into your pipeline. Claimed leads leave the pool — work them within 7 days or return them.`
       },
     });
   }

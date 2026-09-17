@@ -54,6 +54,11 @@ export class LeadPipelineService {
     return this.api.delete(`v1/prospects/${prospectId}`);
   }
 
+  /** Return a Buy Prospect lead to the pool (7-day window, server-enforced). */
+  releaseProspect(prospectId: string): Observable<{ message: string; success: boolean }> {
+    return this.api.post(`v1/prospects/${prospectId}/release`, {});
+  }
+
   contactListMine(): Observable<ContactListMineEnvelope> {
     return this.api.get<ContactListMineEnvelope>('v1/prospects/contact-list/mine');
   }

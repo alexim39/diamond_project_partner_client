@@ -20,7 +20,7 @@ export const ProspectsRoutes: Routes = [
         {
             path: 'general-list',
             component: GeneralProspectListContainerComponent,
-            title: "General Prospects List - View all prospects",
+            title: "Buy Prospect - Claim fresh leads for your pipeline",
         },   
         {
             path: 'bookings',
