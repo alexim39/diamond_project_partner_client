@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +11,11 @@ export interface ClaimLeadData {
   lead: Record<string, unknown>;
   partnerId: string;
   partnerState?: string;
+  walletBalance?: number;
 }
+
+export const CLAIM_FEE_NGN = 250;
+export const CLAIM_REFUND_NGN = 120;
 
 const str = (v: unknown): string => (v === undefined || v === null ? '' : String(v));
 
@@ -35,7 +40,7 @@ interface SignalRow {
   // Own instance: dialogs resolve outside the opener's injector, and this
   // service is a stateless HTTP wrapper (no shared state to preserve).
   providers: [ProspectService],
-  imports: [MatButtonModule, MatDialogModule, MatIconModule, MatProgressBarModule, RouterModule],
+  imports: [DecimalPipe, MatButtonModule, MatDialogModule, MatIconModule, MatProgressBarModule, RouterModule],
   template: `
     <h2 mat-dialog-title>Claim this lead?</h2>
     <div mat-dialog-content class="claim-body">
@@ -100,6 +105,20 @@ interface SignalRow {
       }
 
       @if (!done() && !failed()) {
+        <div class="fee panel" role="status">
+          <div class="signal">
+            <mat-icon>payments</mat-icon>
+            <span class="muted">Claim fee</span>
+            <strong>₦{{ fee() | number }}</strong>
+          </div>
+          <p class="muted">₦{{ refund() | number }} back if you return it within 7 days · wallet ₦{{ balance() | number }}</p>
+        </div>
+        @if (!canAfford()) {
+          <p class="error" role="alert">
+            Insufficient wallet balance.
+            <a mat-button routerLink="/dashboard/wallet/deposit" (click)="close(false)">Fund wallet</a>
+          </p>
+        }
         <ul class="rules">
           <li>Moves to <strong>My pipeline</strong> and leaves the pool — others can't claim it.</li>
           <li>Work it within <strong>7 days</strong>, or return it from the pipeline for others.</li>
@@ -129,7 +148,7 @@ interface SignalRow {
         <button mat-button (click)="close(true)">Close</button>
       } @else {
         <button mat-button mat-dialog-close [disabled]="sending()">Not now</button>
-        <button mat-flat-button color="primary" (click)="confirm()" [disabled]="sending()">Yes, claim it</button>
+        <button mat-flat-button color="primary" (click)="confirm()" [disabled]="sending() || !canAfford()">Yes, claim it · ₦{{ fee() | number }}</button>
       }
     </div>
   `,
@@ -296,16 +315,29 @@ export class ClaimLeadDialogComponent {
     this.dialogRef.close(result);
   }
 
+  protected fee(): number {
+    return CLAIM_FEE_NGN;
+  }
+
+  protected refund(): number {
+    return CLAIM_REFUND_NGN;
+  }
+
+  protected balance(): number {
+    const b = Number(this.data.walletBalance);
+    return Number.isFinite(b) ? b : 0;
+  }
+
+  protected canAfford(): boolean {
+    return this.balance() >= CLAIM_FEE_NGN;
+  }
+
   protected confirm(): void {
-    if (this.sending() || this.done()) return;
+    if (this.sending() || this.done() || !this.canAfford()) return;
     this.sending.set(true);
     this.failed.set(null);
     this.dialogRef.disableClose = true;
-    this.prospects.importSingle({
-      partnerId: this.data.partnerId,
-      prospectId: str(this.lead['_id']),
-      source: 'website',
-    }).subscribe({
+    this.prospects.claimLead(str(this.lead['_id'])).subscribe({
       next: () => {
         this.sending.set(false);
         this.done.set(true);

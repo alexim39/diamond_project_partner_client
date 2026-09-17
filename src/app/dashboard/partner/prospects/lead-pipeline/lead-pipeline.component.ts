@@ -448,10 +448,10 @@ export class LeadPipelineComponent implements OnInit {
   }
 
   protected releaseHint(lead: ProspectLead): string {
-    if (!lead.claimedAt) return 'Return this Buy Prospect lead to the pool for others to claim';
+    if (!lead.claimedAt) return 'Return this Buy Prospect lead to the pool for others to claim · ₦120 back';
     const left = 7 - (Date.now() - new Date(lead.claimedAt).getTime()) / 86400000;
     if (left <= 0) return 'Return window closed (7 days from pickup)';
-    return `Return this lead to the pool — ${Math.ceil(left)} of 7 days left`;
+    return `Return this lead to the pool — ${Math.ceil(left)} of 7 days left · ₦120 back`;
   }
 
   protected release(lead: ProspectLead): void {
