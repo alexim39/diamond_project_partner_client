@@ -107,9 +107,16 @@ export class ContactsService {
     return this.apiService.get<ContactsInterface>(`billing/single-sms-charge/${partnerId}`, undefined, undefined, true);
   }
 
-  // send single email
-  sendProspectEmail(formData: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<any> {
-    return this.apiService.post<ContactsInterface>(`emails/send-emails`, formData, undefined, true);
+  // single email to one prospect — session-owned v1 route (validated,
+  // recorded, honest per-recipient outcome). Replaces legacy
+  // emails/send-emails (no auth, fragile nested body, receipt ignored).
+  sendProspectEmail(formData: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string, emailSubject?: string}): Observable<any> {
+    const to = [String((formData.prospect as any)?.prospectEmail ?? '').trim().toLowerCase()].filter(Boolean);
+    return this.apiService.post<any>(`v1/outreach/email`, {
+      to,
+      subject: String((formData as any)?.emailSubject ?? 'Message from your Diamond Project partner'),
+      body: String(formData.emailBody ?? ''),
+    }, undefined, true);
   }
    
   // submit booking session

@@ -16,8 +16,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { CollectCodeComponent } from './collect-code.component';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
-import { MatSnackBar } from '@angular/material/snack-bar';  
-import { SMSGatewaysService } from '../../../../../../_common/services/sms.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SMSService } from '../../../../sms/sms.service';
 import { ProspectListInterface } from '../../../../prospects/prospects.service';
 import { ProspectResponseComponent } from './prospect-response.component';
 import { Location } from '@angular/common';  
@@ -27,7 +27,7 @@ import { Location } from '@angular/common';
     selector: 'async-my-partner-contacts-detail',
     templateUrl: 'contacts-detail.component.html',
     styleUrls: ['contacts-detail.component.scss'],
-    providers: [ContactsService, SMSGatewaysService],
+    providers: [ContactsService, SMSService],
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         MatCheckboxModule,
@@ -65,7 +65,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     private contactsService: ContactsService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsGatewayService: SMSGatewaysService,
+    private smsService: SMSService,
   ) {
      // You can initialize selectedStatus if needed  
      this.selectedStatus = ''; // Default value or nothing 
@@ -265,107 +265,43 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     });  
   }  
 
+  // Session-owned single send (v1/outreach/sms): charge + gateway +
+  // record server-side. Retires the legacy charge-then-browser-gateway
+  // chain (leaked gateway secret, client-forged records).
   sendSMS() {
-
+    const body = String(this.sms ?? '').trim();
+    if (!body) {
+      Swal.fire({
+        position: "bottom",
+        icon: 'info',
+        text: 'Write a message first.',
+        showConfirmButton: false,
+        timer: 4000
+      });
+      return;
+    }
     this.subscriptions.push(
-      this.contactsService.signleSMSCharge(this.partner._id ).subscribe((smsCharge: any) => {
-        //console.log('sms ',smsCharge)
-        const transactionId = smsCharge?.data._id;
-
-        // call sms gateway
-        this.callSMSGate(transactionId)
-  
-      }, (error: any) => {
-        //console.log(error)
-        if (error.code == 401) {
+      this.smsService.sendBulkSMS({ to: [this.prospectData.prospectPhone], body }).subscribe({
+        next: (res: any) => {
+          this.sms = '';
+          Swal.fire({
+            position: "bottom",
+            icon: res?.data?.failed?.length ? 'info' : 'success',
+            text: res?.message ?? 'SMS sent successfully',
+            showConfirmButton: false,
+            timer: 4000
+          });
+        },
+        error: (error: any) => {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: 'Insufficient balance for transaction, please fund your account.',
+            text: error?.error?.message ?? 'SMS not sent, there was an error sending SMS',
             showConfirmButton: false,
             timer: 4000
-          })
-        } else {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
+          });
         }
-        
       })
-    )
-  }  
-
-  private callSMSGate(transactionId: string) {
-
-   this.subscriptions.push(
-
-      this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(  
-        response => {  
-          //console.log('SMS sent successfully:', response);  
-
-          if (response.data.status == 'success') {
-            const smsObject = {
-              partner: this.partner._id, 
-              prospect: this.prospectData.prospectPhone, 
-              smsBody: this.sms,
-              transactionId: transactionId,
-              status: "success"
-            }
-            // record sms to database
-            this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: 'SMS sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-            )
-          } else {
-            const smsObject = {
-              partner: this.partner._id, 
-              prospect: this.prospectData.prospectPhone, 
-              smsBody: this.sms,
-              transactionId: transactionId,
-              status: "failed"
-            }
-            // record sms to database
-            this.subscriptions.push(
-              this.contactsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'info',
-                  text: 'SMS was not sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-            )
-          }
-         
-          
-        },  
-        (error) => {  
-          //console.error('Error sending SMS:', error);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'SMS not sent, there was an error sending SMS',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }  
-      )
     );
   }
 

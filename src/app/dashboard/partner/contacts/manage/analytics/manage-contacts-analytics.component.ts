@@ -17,7 +17,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
 import { ProspectListInterface } from '../../../prospects/prospects.service';
 import { ProspectService } from '../../../prospects/prospects.service';
 import { CollectCodeComponent } from '../details/collect-code.component';
@@ -40,7 +39,7 @@ import { SMSService } from '../../../sms/sms.service';
         MatDividerModule, MatListModule, CommonModule, RouterModule, MatProgressBarModule
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    providers: [ContactsService, SMSService, SMSGatewaysService, ProspectService]
+    providers: [ContactsService, SMSService, ProspectService]
 })
 export class ManageContactsAnalyticsComponent implements OnInit {
 
@@ -69,7 +68,6 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     private smsService: SMSService,
     private partnerService: PartnerService,
     private snackBar: MatSnackBar,
-    private smsGatewayService: SMSGatewaysService,
     private prospectsService: ProspectService
   ) {
     // You can initialize selectedStatus if needed  
@@ -285,99 +283,42 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     });
   }
 
+  // Session-owned single send (v1/outreach/sms): charge + gateway +
+  // record server-side. Retires the legacy charge-then-browser-gateway
+  // chain (leaked gateway secret, client-forged records).
   sendSMS() {
-
-    this.contactsService.signleSMSCharge(this.partner._id).subscribe((smsCharge: any) => {
-        //console.log('sms ',smsCharge)
-        const transactionId = smsCharge?.data._id;
-
-        // call sms gateway
-        this.callSMSGate(transactionId)
-
-      }, (error: any) => {
-        //console.log(error)
-        if (error.code == 401) {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Insufficient balance for transaction, please fund your account.',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        } else {
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-            text: 'Server error occured, please and try again',
-            showConfirmButton: false,
-            timer: 4000
-          })
-        }
-
-      })
-  }
-
-  private callSMSGate(transactionId: string) {
-
-    this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe(
-        response => {
-          //console.log('SMS sent successfully:', response);  
-
-          if (response.data.status == 'success') {
-            const smsObject = {
-              partner: this.partner._id,
-              prospect: this.prospectData.prospectPhone,
-              smsBody: this.sms,
-              transactionId: transactionId,
-              status: "success"
-            }
-            // record sms to database
-            this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: 'SMS sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-          } else {
-            const smsObject = {
-              partner: this.partner._id,
-              prospect: this.prospectData.prospectPhone,
-              smsBody: this.sms,
-              transactionId: transactionId,
-              status: "failed"
-            }
-            // record sms to database
-            this.smsService.saveSMSRecord(smsObject).subscribe((smsSave: ContactsInterface) => {
-                //console.log('smsSave ',smsSave)
-
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'info',
-                  text: 'SMS was not sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              })
-          }
-
-
-        },
-        (error) => {
-          //console.error('Error sending SMS:', error);  
-          Swal.fire({
-            position: "bottom",
-            icon: 'info',
-          text: 'SMS not sent, there was an error sending SMS',
+    const body = String(this.sms ?? '').trim();
+    if (!body) {
+      Swal.fire({
+        position: "bottom",
+        icon: 'info',
+        text: 'Write a message first.',
+        showConfirmButton: false,
+        timer: 4000
+      });
+      return;
+    }
+    this.smsService.sendBulkSMS({ to: [this.prospectData.prospectPhone], body }).subscribe({
+      next: (res: any) => {
+        this.sms = '';
+        Swal.fire({
+          position: "bottom",
+          icon: res?.data?.failed?.length ? 'info' : 'success',
+          text: res?.message ?? 'SMS sent successfully',
           showConfirmButton: false,
           timer: 4000
-          })
-        }
-      );
+        });
+      },
+      error: (error: any) => {
+        Swal.fire({
+          position: "bottom",
+          icon: 'info',
+          text: error?.error?.message ?? 'SMS not sent, there was an error sending SMS',
+          showConfirmButton: false,
+          timer: 4000
+        });
+      }
+    });
   }
 
   sendEmail() {

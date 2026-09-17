@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
-import { SMSGatewaysService } from '../../../../../_common/services/sms.service';
 import { SMSService } from '../../../sms/sms.service';
 import { ProspectBasicInformationComponent } from './basic-info-panel/basic-info-panel.component';
 import { ProspectStatusInformationComponent } from './status-info-panel/status-info-panel.component';
@@ -140,7 +139,7 @@ imports: [
   ProspectBasicInformationComponent, ProspectStatusInformationComponent, ProspectActionsComponent, ProspectEmailPanelComponent, ProspectSMSComponent
 ],
 changeDetection: ChangeDetectionStrategy.Eager,
-providers: [ContactsService , SMSService, SMSGatewaysService]
+providers: [ContactsService , SMSService]
 })
 export class ManageContactsDetailComponent implements OnInit {
 

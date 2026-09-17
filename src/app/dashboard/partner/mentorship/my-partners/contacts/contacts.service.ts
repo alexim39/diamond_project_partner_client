@@ -135,11 +135,17 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // send single email
-  sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string}): Observable<ContactsInterface> {
+  // send single email — session-owned v1 route (validated, recorded,
+  // honest per-recipient outcome). Replaces legacy emails/send-emails.
+  sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string, emailSubject?: string}): Observable<any> {
     //console.log('record', emailObject);
+    const to = [String((emailObject.prospect as any)?.prospectEmail ?? '').trim().toLowerCase()].filter(Boolean);
     return this.http
-      .post<ContactsInterface>(this.apiURL + `/emails/send-emails/`, emailObject, { withCredentials: true })
+      .post<any>(this.apiURL + `/v1/outreach/email`, {
+        to,
+        subject: String((emailObject as any)?.emailSubject ?? 'Message from your Diamond Project partner'),
+        body: String(emailObject.emailBody ?? ''),
+      }, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 

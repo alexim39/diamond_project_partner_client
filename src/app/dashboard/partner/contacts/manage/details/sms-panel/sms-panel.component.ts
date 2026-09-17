@@ -1,5 +1,5 @@
 import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
-import { ContactsInterface, ContactsService } from '../../../contacts.service';
+import type { ContactsInterface } from '../../../contacts.service';
 
 import { PartnerInterface } from '../../../../../../_common/services/partner.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { SMSGatewaysService } from '../../../../../../_common/services/sms.service';
 import { SMSService } from '../../../../sms/sms.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -103,10 +102,8 @@ export class ProspectSMSComponent implements OnInit {
     subscriptions: Array<Subscription> = [];
 
     constructor(
-    private contactsService: ContactsService,
     private smsService: SMSService,
     private snackBar: MatSnackBar,
-    private smsGatewayService: SMSGatewaysService
   ) {}
 
     ngOnInit(): void {     
@@ -127,15 +124,32 @@ export class ProspectSMSComponent implements OnInit {
         });  
     }
 
+     // Session-owned single send: charge + gateway + record happen
+     // server-side (v1/outreach/sms). Retires the legacy
+     // charge-then-browser-gateway chain (leaked gateway secret).
      sendSMS() {
-    
+        const body = String(this.sms ?? '').trim();
+        if (!body) {
+          Swal.fire({
+            position: "bottom",
+            icon: 'info',
+            text: 'Write a message first.',
+            showConfirmButton: false,
+            timer: 4000
+          });
+          return;
+        }
         this.subscriptions.push(
-          this.contactsService.signleSMSCharge(this.partner._id ).subscribe({
-
-            next: (response) => {
-              const transactionId = response?.data._id;
-              // call sms gateway
-              this.callSMSGate(transactionId)
+          this.smsService.sendBulkSMS({ to: [this.prospectData.prospectPhone], body }).subscribe({
+            next: (res) => {
+              this.sms = '';
+              Swal.fire({
+                position: "bottom",
+                icon: res?.data?.failed?.length ? 'info' : 'success',
+                text: res?.message ?? 'SMS sent successfully',
+                showConfirmButton: false,
+                timer: 4000
+              });
             },
             error: (error: HttpErrorResponse) => {
               let errorMessage = 'Server error occurred, please try again.'; // default error message.
@@ -148,82 +162,14 @@ export class ProspectSMSComponent implements OnInit {
                     text: errorMessage,
                     showConfirmButton: false,
                     timer: 4000
-                });  
+                });
             }
-            
           })
         )
-     } 
+     }
 
 
-  private callSMSGate(transactionId: string) {
-
-   this.subscriptions.push(
-
-      this.smsGatewayService.send(this.prospectData.prospectPhone, this.sms).subscribe({  
-          //console.log('SMS sent successfully:', response);  
-        next: (response) =>{
-          let status = '';
-          if (response.data.status == 'success') {
-            status = 'success';
-          } else {
-             status = 'failed';
-          }
-
-          const smsObject = {
-            partner: this.partner._id, 
-            prospect: this.prospectData.prospectPhone, 
-            smsBody: this.sms,
-            transactionId: transactionId,
-            status
-          }
-
-          this.subscriptions.push(
-            this.smsService.saveSMSRecord(smsObject).subscribe({
-              next: (response) => {
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'info',
-                  text: response.message,//'SMS was not sent successfully',
-                  showConfirmButton: false,
-                  timer: 4000
-                })
-              },
-              error: (error: HttpErrorResponse) => {
-                let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                if (error.error && error.error.message) {
-                    errorMessage = error.error.message; // Use backend's error message if available.
-                }
-                Swal.fire({
-                    position: "bottom",
-                    icon: 'error',
-                    text: errorMessage,
-                    showConfirmButton: false,
-                    timer: 4000
-                });  
-              }  
-            })
-          )
-         
-        },  
-         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-          }
-              Swal.fire({
-                  position: "bottom",
-                  icon: 'error',
-                  text: errorMessage,
-                  showConfirmButton: false,
-                  timer: 4000
-              });  
-          }  
-      })
-    );
-  }
-
-  ngOnDestroy() {
+   ngOnDestroy() {
     // unsubscribe list
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }

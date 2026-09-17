@@ -18,7 +18,10 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { CampaignService } from '../../tools/campaigns/manage-campaign/manage-campaign.service';
 import { ApiError } from '../../../../core/http/api-error';
 
-const SMS_CHARGE_PER_PAGE = 4.56;
+// Preview-only mirror of the server rate (api Outreach.entity
+// SMS_CHARGE_PER_PAGE, env SMS_PRICE_PER_PAGE). The wallet is charged
+// server-side — this constant only feeds the "≈ ₦X" estimate.
+const SMS_CHARGE_PER_PAGE = 10;
 const MAX_LOG_MIRROR = 50;
 
 const TEMPLATES = [

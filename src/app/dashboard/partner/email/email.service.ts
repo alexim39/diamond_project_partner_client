@@ -18,9 +18,10 @@ export class EmailService {
     return this.apiService.get<EmailInterface>(`emails/getById/${partnerId}`, undefined, undefined, true);
   }
 
-  // send bulk email
-  sendEmail(formObject: FormGroup): Observable<EmailInterface> {
-    return this.apiService.post<EmailInterface>(`emails/send-email`, formObject, undefined, true);
+  // send bulk email now — session-owned v1 route (validated, capped,
+  // recorded, per-recipient outcomes). Replaces legacy emails/send-email.
+  sendEmail(formObject: { to: Array<string>; subject: string; body: string }): Observable<EmailInterface> {
+    return this.apiService.post<EmailInterface>(`v1/outreach/email`, formObject, undefined, true);
   }
 
   // schedule a bulk email for later (free channel, cancellable)

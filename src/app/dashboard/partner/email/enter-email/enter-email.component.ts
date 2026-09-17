@@ -330,7 +330,6 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
         }
         this.formError = null;
         if (this.sendMode === 'later') return this.schedule(to, subject, body);
-        const emailObject = this.bulckEmailForm.value;
         const mirrorTo = [...to];
         const mirrorSubject = subject;
         const mirrorBody = body;
@@ -338,7 +337,7 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
         this.sending = true;
 
         this.subscriptions.push(
-            this.emailService.sendEmail(emailObject).subscribe({
+            this.emailService.sendEmail({ to, subject, body }).subscribe({
 
               next: (response) => {
                 this.sending = false;
@@ -346,7 +345,7 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
                 this.mirrorToTimelines(mirrorTo, mirrorSubject, mirrorBody);
                 Swal.fire({
                   position: "bottom",
-                  icon: 'success',
+                  icon: response?.data?.failed?.length ? 'warning' : 'success',
                   text: response.message,
                   showConfirmButton: true,
                   timer: 10000,
