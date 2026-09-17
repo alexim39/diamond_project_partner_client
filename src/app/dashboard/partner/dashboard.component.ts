@@ -126,11 +126,10 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    key: 'money', label: 'Money', icon: 'payments', title: 'Earnings, payouts and orders',
+    key: 'money', label: 'Wallet & Marketplace', icon: 'payments', title: 'Wallet, orders and history',
     children: [
-      { label: 'My money', link: 'earnings', title: 'Money in and out' },
-      { label: 'Commission records', link: 'settings/billing/commissions', title: 'Commission records' },
-      { label: 'Payments', link: 'settings/billing', title: 'Payments and billing' },
+      { label: 'Wallet dashboard', link: 'wallet', title: 'Balance, flows and doors' },
+      { label: 'Transaction history', link: 'wallet/history', title: 'Every naira, filterable' },
       { label: 'Buy products', link: 'products/eshop', title: 'Buy products' },
       { label: 'My orders', link: 'products/order-history', title: 'What you ordered' },
     ],
