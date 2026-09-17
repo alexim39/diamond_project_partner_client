@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, LogCommunicationPayload, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
+import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, LogCommunicationPayload, PoolEnvelope, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -11,8 +11,7 @@ import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, Activat
 export class LeadPipelineService {
   private readonly api = inject(ApiClient);
 
-  listByPartner(partnerId: string, opts: number | { limit?: number; skip?: number; q?: string; stage?: string } = {}): Observable<ProspectListEnvelope> {
-    const o = typeof opts === 'number' ? { limit: opts } : opts;
+  listByPartner(partnerId: string, opts: number | { limit?: number; skip?: number; q?: string; stage?: string } = {}): Observable<ProspectListEnvelope> {    const o = typeof opts === 'number' ? { limit: opts } : opts;
     const params = new URLSearchParams();
     if (o.limit != null) params.set('limit', String(o.limit));
     if (o.skip != null) params.set('skip', String(o.skip));
@@ -20,6 +19,17 @@ export class LeadPipelineService {
     if (o.stage) params.set('stage', o.stage);
     const qs = params.toString();
     return this.api.get<ProspectListEnvelope>(`v1/prospects/by-partner/${partnerId}${qs ? `?${qs}` : ''}`);
+  }
+
+  /** Buy Prospect pool — geo-fenced, scored, with header KPIs. */
+  pool(opts: { state?: string; limit?: number; skip?: number; q?: string } = {}): Observable<PoolEnvelope> {
+    const params = new URLSearchParams();
+    if (opts.state?.trim()) params.set('state', opts.state.trim());
+    if (opts.limit != null) params.set('limit', String(opts.limit));
+    if (opts.skip != null) params.set('skip', String(opts.skip));
+    if (opts.q?.trim()) params.set('q', opts.q.trim());
+    const qs = params.toString();
+    return this.api.get<PoolEnvelope>(`v1/prospects/pool${qs ? `?${qs}` : ''}`);
   }
 
   stuck(partnerId: string): Observable<StuckEnvelope> {
@@ -57,6 +67,16 @@ export class LeadPipelineService {
   /** Return a Buy Prospect lead to the pool (7-day window, server-enforced). */
   releaseProspect(prospectId: string): Observable<{ message: string; success: boolean }> {
     return this.api.post(`v1/prospects/${prospectId}/release`, {});
+  }
+
+  /** 1–5 star quality vote on a worked lead (feeds pool prioritization). */
+  rateLead(prospectId: string, score: number, note = ''): Observable<{ message: string; success: boolean }> {
+    return this.api.post(`v1/prospects/${prospectId}/rate`, { score, note });
+  }
+
+  /** Admin: bulk-seed the pool from parsed rows. */
+  importLeads(rows: Array<Record<string, string>>): Observable<{ message: string; success: boolean; data: { inserted: number; failed: Array<unknown>; total: number } }> {
+    return this.api.post('v1/prospects/admin/leads/import', { rows });
   }
 
   contactListMine(): Observable<ContactListMineEnvelope> {

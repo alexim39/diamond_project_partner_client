@@ -216,8 +216,7 @@ export interface LogCommunicationPayload {
 }
 
 /** Stuck-in-pipeline entry — mirrors backend `stuckAnalysis`. */
-export interface StuckEntry {
-  prospectId: string;
+export interface StuckEntry {  prospectId: string;
   name: string;
   stage: ProspectStage;
   daysInStage: number;
@@ -230,9 +229,56 @@ export interface StuckEnvelope extends ApiEnvelope<StuckEntry[]> {
 }
 
 /** Next forward step in the pipeline, or null at terminal stages. */
-export function nextStage(stage: ProspectStage | undefined): ProspectStage | null {
-  const current = stage ?? 'New';
+export function nextStage(stage: ProspectStage | undefined): ProspectStage | null {  const current = stage ?? 'New';
   if (current === 'Converted' || current === 'Closed') return null;
   const idx = STAGE_ORDER.indexOf(current as ProspectStage);
   return idx < 0 ? 'Contacted' : (STAGE_ORDER[idx + 1] ?? null);
+}
+
+/** Buy Prospect pool — geo-fenced scored shelf + header KPIs. */
+export interface PoolLead {
+  id: string;
+  name: string;
+  surname: string;
+  phoneNumber: string;
+  email: string;
+  state: string;
+  source: string;
+  createdAt: string;
+  badges: string[];
+  reasons: string[];
+  ageRange?: string;
+  socialMedia?: string[];
+  employedStatus?: string;
+  importanceOfPassiveIncome?: string;
+  onlinePurchaseSchedule?: string;
+  primaryOnlineBusinessMotivation?: string;
+  comfortWithTech?: string;
+  onlineBusinessTimeDedication?: string;
+  referral?: string;
+  country?: string;
+}
+
+export interface PoolMeta {
+  available: number;
+  claimedToday: number;
+  dailyLimit: number;
+  activeClaims: number;
+  nearestDeadlineMs: number | null;
+}
+
+export interface PoolEnvelope extends ApiEnvelope<{
+  requiresState: boolean;
+  partnerState: string | null;
+  items: PoolLead[];
+  total: number;
+  meta: PoolMeta | null;
+}> {
+  data: {
+    requiresState: boolean;
+    partnerState: string | null;
+    items: PoolLead[];
+    total: number;
+    meta: PoolMeta | null;
+  };
 }

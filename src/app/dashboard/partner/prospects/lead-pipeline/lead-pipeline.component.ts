@@ -19,6 +19,7 @@ import { LeadPipelineService } from './lead-pipeline.service';
 import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
 import { formatStuckDuration } from '../stuck-duration';
 import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
+import { RateLeadDialogComponent } from './rate-lead-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
 
@@ -464,6 +465,7 @@ export class LeadPipelineComponent implements OnInit {
           this.releaseConfirmId.set(null);
           this.actingId.set(null);
           this.reload();
+          this.askRating(lead, 'released');
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
@@ -596,7 +598,15 @@ export class LeadPipelineComponent implements OnInit {
         if (res?.converted) {
           this.issuedCode.set({ name: this.names(lead), code: res.code });
           this.reload();
+          this.askRating(lead, 'converted');
         }
       });
+  }
+
+  /** Quality vote after convert/release — skippable, feeds pool ranking. */
+  protected askRating(lead: ProspectLead, context: 'converted' | 'released' | 'expired'): void {
+    this.dialog.open(RateLeadDialogComponent, {
+      data: { prospectId: lead.id, leadName: this.names(lead), context },
+    });
   }
 }
