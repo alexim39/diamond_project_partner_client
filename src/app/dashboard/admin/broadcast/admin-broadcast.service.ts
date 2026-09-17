@@ -99,6 +99,6 @@ export class AdminBroadcastService {
 
   /** Member lookup for hand-picked audiences (email/username). */
   lookupMember(q: string): Observable<ApiEnvelope<{ exact: unknown | null; matches: unknown[] }>> {
-    return this.api.get(`v1/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
+    return this.api.get(`v1/billing/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
   }
 }

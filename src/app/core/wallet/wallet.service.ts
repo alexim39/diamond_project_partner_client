@@ -136,12 +136,12 @@ export class WalletService {
 
   /** Admin: find a partner to credit (email/username). */
   lookupPartner(q: string): Observable<{ data: { exact: LookupHit | null; matches: LookupHit[] } }> {
-    return this.api.get(`v1/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
+    return this.api.get(`v1/billing/admin/wallet/lookup?q=${encodeURIComponent(q)}`);
   }
 
   /** Admin: direct wallet top-up (mandatory reason, audited). */
   adminCredit(partnerId: string, amountNgn: number, reason: string): Observable<{ message: string; data: unknown }> {
-    return this.api.post('v1/admin/wallet/credit', { partnerId, amountNgn, reason });
+    return this.api.post('v1/billing/admin/wallet/credit', { partnerId, amountNgn, reason });
   }
 
   private shape(r: unknown): WalletTransaction {

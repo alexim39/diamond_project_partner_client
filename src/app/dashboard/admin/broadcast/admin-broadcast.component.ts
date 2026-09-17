@@ -56,7 +56,8 @@ import { ApiError } from '../../../core/http/api-error';
       }
 
       <div class="dp-card compose-card">
-        <h3>Quick in-app notice</h3>
+        <h3>Quick in-app notice <span class="muted">— app inbox only</span></h3>
+        <p class="muted">For email or SMS, use the campaign composer below.</p>
         <mat-form-field appearance="outline">
           <mat-label>Title</mat-label>
           <input matInput [value]="title()" (input)="title.set($any($event.target).value)" maxlength="140" placeholder="Scheduled maintenance tonight" />
@@ -64,6 +65,7 @@ import { ApiError } from '../../../core/http/api-error';
         <mat-form-field appearance="outline">
           <mat-label>Message</mat-label>
           <textarea matInput rows="3" [value]="body()" (input)="body.set($any($event.target).value)" maxlength="2000" placeholder="What members need to know"></textarea>
+          <mat-hint>{{ body().length }} / 2000 chars · {{ pages(body()) }} SMS page{{ pages(body()) === 1 ? '' : 's' }}</mat-hint>
         </mat-form-field>
         <div class="compose-row">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -95,6 +97,7 @@ import { ApiError } from '../../../core/http/api-error';
         <h3>Email + SMS campaign</h3>
         <p class="muted">System reaches everyone on every enabled channel. Marketing honors each member's channel opt-outs.</p>
 
+        <p class="form-section-label">Step 1 · Who receives it</p>
         <mat-radio-group [(ngModel)]="kind" aria-label="Campaign kind">
           <mat-radio-button value="system">System (urgent — all members)</mat-radio-button>
           <mat-radio-button value="marketing">Marketing (announcements, newsletters — opt-outs honored)</mat-radio-button>
@@ -134,6 +137,9 @@ import { ApiError } from '../../../core/http/api-error';
           <div class="compose-row">
             <button mat-button (click)="searchMember()" [disabled]="lookup.trim().length < 2 || searching()">Search</button>
           </div>
+          @if (searchError(); as serr) {
+            <p class="error" role="alert">{{ serr }}</p>
+          }
           @if (candidates().length > 0) {
             <div class="hits">
               @for (h of candidates(); track h.id) {
@@ -150,25 +156,32 @@ import { ApiError } from '../../../core/http/api-error';
           }
         }
 
-        <div class="compose-row">
-          <mat-checkbox [(ngModel)]="chInApp">App inbox (free)</mat-checkbox>
-          <mat-checkbox [(ngModel)]="chEmail">Email (free)</mat-checkbox>
-          <mat-checkbox [(ngModel)]="chSms">SMS (gateway credit)</mat-checkbox>
+        <p class="form-section-label">Step 2 · How it travels (pick at least one)</p>
+        <div class="compose-row channels">
+          <mat-checkbox [(ngModel)]="chInApp">App inbox <span class="muted">free · appears in the notification bell</span></mat-checkbox>
+          <mat-checkbox [(ngModel)]="chEmail">Email <span class="muted">free · needs the member's email address</span></mat-checkbox>
+          <mat-checkbox [(ngModel)]="chSms">SMS <span class="muted">gateway credit · needs the member's phone number</span></mat-checkbox>
         </div>
+
+        <p class="form-section-label">Step 3 · What it says</p>
+        <p class="muted echo">Shared message (edit above): <strong>{{ title().trim() || '—' }}</strong> — {{ body().trim().slice(0, 120) || '—' }}{{ body().trim().length > 120 ? '…' : '' }}</p>
 
         @if (chEmail) {
           <mat-form-field appearance="outline">
-            <mat-label>Email subject (defaults to title)</mat-label>
+            <mat-label>Email subject (defaults to title above)</mat-label>
             <input matInput [(ngModel)]="subject" maxlength="120" />
+            <mat-hint>{{ subject.length }} / 120</mat-hint>
           </mat-form-field>
         }
         @if (chSms) {
           <mat-form-field appearance="outline">
-            <mat-label>SMS text (defaults to title + message)</mat-label>
+            <mat-label>SMS text (defaults to title + message above)</mat-label>
             <textarea matInput rows="2" [(ngModel)]="smsBody" maxlength="459"></textarea>
-            <mat-hint>{{ smsBody.length || (title() + ' — ' + body()).length }} / 459 chars</mat-hint>
+            <mat-hint>{{ (smsBody || (title() + ' — ' + body())).length }} / 459 chars · {{ pages(smsBody || (title() + ' — ' + body())) }} page{{ pages(smsBody || (title() + ' — ' + body())) === 1 ? '' : 's' }}</mat-hint>
           </mat-form-field>
         }
+
+        <p class="form-section-label">Step 4 · When it goes out</p>
 
         <mat-form-field appearance="outline">
           <mat-label>Send</mat-label>
@@ -197,6 +210,8 @@ import { ApiError } from '../../../core/http/api-error';
         @if (campaignError(); as err) {
           <p class="error" role="alert">{{ err }}</p>
         }
+        <p class="form-section-label">Step 5 · Review & send</p>
+        <p class="send-summary" role="status">{{ sendSummary() }}</p>
         <div class="compose-row">
           <button mat-button (click)="preview()" [disabled]="!canQueue() || estimating()">
             {{ estimating() ? 'Counting…' : (estimate() ? 'Refresh estimate' : 'Preview reach + cost') }}
@@ -285,6 +300,10 @@ import { ApiError } from '../../../core/http/api-error';
     .compose-card h3 { margin: 0; }
     .compose-row { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
     .compose-row mat-form-field { min-width: 200px; }
+    .form-section-label { font-size: 0.78em; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dp-gold-ink); margin: 0.4em 0 -0.3em; }
+    .echo { border-left: 3px solid var(--dp-line); padding-left: 0.6em; }
+    .send-summary { background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.8em; }
+    .channels mat-checkbox { margin-right: 0.5em; }
     .hits { display: flex; gap: 0.5em; flex-wrap: wrap; }
     .hits button.active { border: 1px solid var(--dp-gold); font-weight: 700; }
     .estimate { padding: 0.8em; display: flex; flex-direction: column; gap: 0.4em; }
@@ -332,6 +351,7 @@ export class AdminBroadcastComponent implements OnInit {
   protected confirmSpend = false;
   protected lookup = '';
   protected readonly searching = signal(false);
+  protected readonly searchError = signal<string | null>(null);
   protected readonly candidates = signal<Array<{ id: string; name: string; username: string | null; email: string | null }>>([]);
   protected readonly picked = signal<Array<{ id: string; name: string; username: string | null; email: string | null }>>([]);
   protected readonly estimate = signal<AudienceEstimate | null>(null);
@@ -402,6 +422,27 @@ export class AdminBroadcastComponent implements OnInit {
           this.sendError.set(err.message);
         },
       });
+  }
+
+  protected pages(text: string): number {
+    return Math.max(1, Math.ceil(String(text ?? '').length / 160));
+  }
+
+  protected sendSummary(): string {
+    const chans: string[] = [];
+    if (this.chInApp) chans.push('app inbox');
+    if (this.chEmail) chans.push('email');
+    if (this.chSms) chans.push('SMS');
+    const who = this.audienceMode === 'all'
+      ? 'all members'
+      : this.audienceMode === 'segment'
+        ? 'the filtered segment'
+        : `${this.picked().length} picked member${this.picked().length === 1 ? '' : 's'}`;
+    const est = this.estimate();
+    const reach = est
+      ? ` — reach ~${est.total} (${est.inApp} app, ${est.email} mail, ${est.sms} sms${this.chSms ? `, ≈₦${est.estimatedSmsSpend.toFixed(2)}` : ''})`
+      : ' — preview reach & cost before sending';
+    return `You are queueing a ${this.kind} campaign to ${who} via ${chans.length ? chans.join(' + ') : 'no channels'}${reach}.`;
   }
 
   protected audience(): CampaignAudience {
@@ -501,6 +542,7 @@ export class AdminBroadcastComponent implements OnInit {
     const q = this.lookup.trim();
     if (q.length < 2 || this.searching()) return;
     this.searching.set(true);
+    this.searchError.set(null);
     this.cast
       .lookupMember(q)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -511,7 +553,10 @@ export class AdminBroadcastComponent implements OnInit {
           this.candidates.set(list.filter((h) => !this.picked().some((p) => p.id === h.id)).slice(0, 8));
           this.searching.set(false);
         },
-        error: () => this.searching.set(false),
+        error: (err: ApiError) => {
+          this.searching.set(false);
+          this.searchError.set(err.message ?? 'Member search failed — try again.');
+        },
       });
   }
 
