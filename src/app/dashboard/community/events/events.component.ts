@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -182,34 +182,15 @@ const withDetail = (err: ApiError): string => {
         <p class="error" role="alert">{{ ferr }}</p>
       }
 
-      @if (tab() === 'upcoming' && featuredEvents().length > 0) {
-        <div class="featured-tray" role="region" aria-label="Featured event">
-          @for (event of featuredEvents(); track event.id) {
-            <div class="dp-card featured-card">
-              <mat-icon title="Featured">star</mat-icon>
-              <div class="featured-body">
-                <strong>{{ event.title }}</strong>
-                <span class="muted">{{ event.startsAt | date:'medium' }}</span>
-                @if (event.location) {
-                  <span class="muted">{{ event.location }}</span>
-                }
-              </div>
-              @if (canFeature(event)) {
-                <button mat-button (click)="toggleFeature(event)" [disabled]="actingId() === event.id" title="Remove highlight">Unfeature</button>
-              } @else {
-                <button mat-button (click)="rsvp(event, 'going')" [disabled]="actingId() === event.id">Going ({{ event.rsvps.going ?? 0 }})</button>
-              }
-            </div>
-          }
-        </div>
-      }
-
-      @if (visible().length + (tab() === 'upcoming' ? featuredEvents().length : 0) > 0) {
+      @if (visible().length > 0) {
         <ol class="event-list">
           @for (event of visible(); track event.id) {
-            <li class="dp-card event-card">
+            <li class="dp-card event-card" [class.event-card--featured]="event.featured">
               <div class="event-top">
                 <div>
+                  @if (event.featured) {
+                    <span class="dp-status dp-status--warn"><mat-icon>star</mat-icon> Featured</span>
+                  }
                   <strong>{{ event.title }}</strong>
                   <span class="muted byline"> · <async-avatar [photo]="event.author?.profileImage" [name]="event.author?.name ?? 'Teammate'" size="xs" />{{ event.author?.name ?? 'Teammate' }}</span>
                 </div>
@@ -276,11 +257,8 @@ const withDetail = (err: ApiError): string => {
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
     .event-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
-    .featured-tray { display: flex; flex-direction: column; gap: 0.5em; margin-bottom: 0.75em; }
-    .featured-card { padding: 0.7em 0.9em; display: flex; align-items: center; gap: 0.7em; border-left: 4px solid var(--dp-gold); }
-    .featured-card mat-icon { color: var(--dp-gold); }
-    .featured-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; min-width: 0; }
     .event-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
+    .event-card--featured { border-left: 4px solid var(--dp-gold); }
     .event-card p { margin: 0; }
     .event-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
     .byline { display: inline-flex; align-items: center; gap: 0.4em; }
@@ -320,10 +298,6 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly mine = signal<CommunityEvent[]>([]);
   protected readonly featureError = signal<string | null>(null);
 
-  /** Featured tray (server caps 1 per scope) + date-sorted rest. */
-  protected readonly featuredEvents = computed(() => this.upcoming().filter((e) => e.featured));
-  protected readonly regularEvents = computed(() => this.upcoming().filter((e) => !e.featured));
-
   protected readonly rsvpOptions: Array<{ label: string; value: RsvpStatus }> = [
     { label: 'Going', value: 'going' },
     { label: 'Interested', value: 'interested' },
@@ -345,8 +319,7 @@ export class CommunityEventsComponent implements OnInit {
   );
 
   protected visible(): CommunityEvent[] {
-    if (this.tab() === 'mine') return this.mine();
-    return this.regularEvents();
+    return this.tab() === 'upcoming' ? this.upcoming() : this.mine();
   }
 
   /** Feature-eligible: own event or admin (past events excluded server-side). */

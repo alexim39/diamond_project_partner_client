@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DatePipe, SlicePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -46,7 +46,7 @@ const KIND_STYLES: Record<PostKind, string> = {
   selector: 'async-community-feed',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AvatarComponent, DatePipe, SlicePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
+    AvatarComponent, DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
     MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -167,32 +167,16 @@ const KIND_STYLES: Record<PostKind, string> = {
         @if (pinError(); as perr) {
           <p class="error" role="alert">{{ perr }}</p>
         }
-        @if (pinnedPosts().length > 0) {
-          <div class="pinned-tray" role="region" aria-label="Pinned posts">
-            @for (post of pinnedPosts(); track post.id) {
-              <div class="dp-card pinned-card">
-                <mat-icon title="Pinned">push_pin</mat-icon>
-                <div class="pinned-body">
-                  <strong>{{ post.title || (post.kind === 'event' ? 'Pinned event' : 'Pinned announcement') }}</strong>
-                  <span class="muted">{{ post.body | slice:0:120 }}{{ post.body.length > 120 ? '…' : '' }}</span>
-                </div>
-                @if (canPin(post)) {
-                  <button mat-button (click)="togglePin(post)" [disabled]="actingId() === post.id" title="Unpin">Unpin</button>
-                }
-              </div>
-            }
-          </div>
-        }
         <ol class="feed">
-          @for (post of regularPosts(); track post.id) {
-            <li class="dp-card post" [class.post--recognition]="post.kind === 'recognition'">
+          @for (post of posts(); track post.id) {
+            <li class="dp-card post" [class.post--recognition]="post.kind === 'recognition'" [class.post--pinned]="post.pinned">
               <div class="post-top">
                 <span class="dp-status" [class]="kindStyle(post.kind)">{{ kindLabel(post.kind) }}</span>
                 @if (post.auto) {
                   <span class="muted">automatic</span>
                 }
                 @if (post.pinned) {
-                  <mat-icon title="Pinned">push_pin</mat-icon>
+                  <span class="dp-status dp-status--warn"><mat-icon>push_pin</mat-icon> Pinned</span>
                 }
                 <span class="muted byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
                 @if (isMine(post)) {
@@ -352,11 +336,8 @@ const KIND_STYLES: Record<PostKind, string> = {
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
     .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
-    .pinned-tray { display: flex; flex-direction: column; gap: 0.5em; margin-bottom: 0.75em; }
-    .pinned-card { padding: 0.7em 0.9em; display: flex; align-items: center; gap: 0.7em; border-left: 4px solid var(--dp-gold); }
-    .pinned-card mat-icon { color: var(--dp-gold); }
-    .pinned-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; min-width: 0; }
     .post { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
+    .post--pinned { border-left: 4px solid var(--dp-gold); }
     .post p { margin: 0; }
     .post--recognition { border-left: 4px solid var(--dp-success); }
     .post-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
@@ -439,10 +420,6 @@ export class CommunityFeedComponent implements OnInit {
   protected readonly confirmingDeleteId = signal<string | null>(null);
   protected readonly deleting = signal(false);
   protected readonly pinError = signal<string | null>(null);
-
-  /** Pinned tray (max 3, server-enforced) + chronological rest — no duplication. */
-  protected readonly pinnedPosts = computed(() => this.posts().filter((p) => p.pinned).slice(0, 3));
-  protected readonly regularPosts = computed(() => this.posts().filter((p) => !p.pinned));
 
   protected readonly kinds: PostKind[] = ['standard', 'announcement', 'recognition', 'training', 'event'];
 
@@ -557,7 +534,11 @@ export class CommunityFeedComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.loadingMore.set(false);
-          this.posts.set([...this.posts(), ...(res.data?.items ?? [])]);
+          // Pinned-first server sort breaks chronological cursors: an old
+          // pinned post can rank on both pages. Dedupe by id as the guard.
+          const seen = new Set(this.posts().map((p) => p.id));
+          const fresh = (res.data?.items ?? []).filter((p) => !seen.has(p.id));
+          this.posts.set([...this.posts(), ...fresh]);
           this.nextCursor.set(res.data?.nextCursor ?? null);
         },
         error: (err: ApiError) => {
