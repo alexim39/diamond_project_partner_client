@@ -31,4 +31,9 @@ export class EventService {
   cancel(eventId: string): Observable<unknown> {
     return this.api.post(`v1/events/${eventId}/cancel`, {});
   }
+
+  /** Feature/unfeature at top (1 slot per scope, server-enforced). */
+  feature(eventId: string, featured: boolean): Observable<EventEnvelope> {
+    return this.api.post<EventEnvelope>(`v1/events/${eventId}/feature`, { featured });
+  }
 }

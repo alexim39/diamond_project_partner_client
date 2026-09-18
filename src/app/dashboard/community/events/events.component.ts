@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { AudienceScope, CommunityEvent, RsvpStatus } from '../../../core/events/event.models';
 import { ApiError, validationDetail } from '../../../core/http/api-error';
@@ -177,7 +178,33 @@ const withDetail = (err: ApiError): string => {
         </form>
       }
 
-      @if (visible().length > 0) {
+      @if (featureError(); as ferr) {
+        <p class="error" role="alert">{{ ferr }}</p>
+      }
+
+      @if (tab() === 'upcoming' && featuredEvents().length > 0) {
+        <div class="featured-tray" role="region" aria-label="Featured event">
+          @for (event of featuredEvents(); track event.id) {
+            <div class="dp-card featured-card">
+              <mat-icon title="Featured">star</mat-icon>
+              <div class="featured-body">
+                <strong>{{ event.title }}</strong>
+                <span class="muted">{{ event.startsAt | date:'medium' }}</span>
+                @if (event.location) {
+                  <span class="muted">{{ event.location }}</span>
+                }
+              </div>
+              @if (canFeature(event)) {
+                <button mat-button (click)="toggleFeature(event)" [disabled]="actingId() === event.id" title="Remove highlight">Unfeature</button>
+              } @else {
+                <button mat-button (click)="rsvp(event, 'going')" [disabled]="actingId() === event.id">Going ({{ event.rsvps.going ?? 0 }})</button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (visible().length + (tab() === 'upcoming' ? featuredEvents().length : 0) > 0) {
         <ol class="event-list">
           @for (event of visible(); track event.id) {
             <li class="dp-card event-card">
@@ -202,6 +229,12 @@ const withDetail = (err: ApiError): string => {
                   >{{ opt.label }} ({{ event.rsvps[opt.value] ?? 0 }})</button>
                 }
                 <span class="spacer"></span>
+                @if (canFeature(event)) {
+                  <button mat-button (click)="toggleFeature(event)" [disabled]="actingId() === event.id" [title]="event.featured ? 'Remove highlight' : 'Highlight at top'">
+                    <mat-icon>{{ event.featured ? 'star' : 'star_border' }}</mat-icon>
+                    {{ event.featured ? 'Unfeature' : 'Feature' }}
+                  </button>
+                }
                 @if (isMine(event)) {
                   <button mat-button (click)="startEdit(event)" [disabled]="actingId() === event.id">Edit</button>
                   @if (confirmingCancelId() === event.id) {
@@ -243,6 +276,10 @@ const withDetail = (err: ApiError): string => {
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
     .event-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
+    .featured-tray { display: flex; flex-direction: column; gap: 0.5em; margin-bottom: 0.75em; }
+    .featured-card { padding: 0.7em 0.9em; display: flex; align-items: center; gap: 0.7em; border-left: 4px solid var(--dp-gold); }
+    .featured-card mat-icon { color: var(--dp-gold); }
+    .featured-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; min-width: 0; }
     .event-card { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
     .event-card p { margin: 0; }
     .event-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
@@ -263,6 +300,7 @@ const withDetail = (err: ApiError): string => {
 })
 export class CommunityEventsComponent implements OnInit {
   private readonly events = inject(EventService);
+  private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
@@ -280,6 +318,11 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly tab = signal<'upcoming' | 'mine'>('upcoming');
   protected readonly upcoming = signal<CommunityEvent[]>([]);
   protected readonly mine = signal<CommunityEvent[]>([]);
+  protected readonly featureError = signal<string | null>(null);
+
+  /** Featured tray (server caps 1 per scope) + date-sorted rest. */
+  protected readonly featuredEvents = computed(() => this.upcoming().filter((e) => e.featured));
+  protected readonly regularEvents = computed(() => this.upcoming().filter((e) => !e.featured));
 
   protected readonly rsvpOptions: Array<{ label: string; value: RsvpStatus }> = [
     { label: 'Going', value: 'going' },
@@ -302,7 +345,55 @@ export class CommunityEventsComponent implements OnInit {
   );
 
   protected visible(): CommunityEvent[] {
-    return this.tab() === 'upcoming' ? this.upcoming() : this.mine();
+    if (this.tab() === 'mine') return this.mine();
+    return this.regularEvents();
+  }
+
+  /** Feature-eligible: own event or admin (past events excluded server-side). */
+  protected canFeature(event: CommunityEvent): boolean {
+    if (this.isMine(event)) return true;
+    try {
+      return this.auth.isAdmin();
+    } catch {
+      return false;
+    }
+  }
+
+  /** Optimistic feature toggle — rolls back on cap/perm errors. */
+  protected toggleFeature(event: CommunityEvent): void {
+    if (this.actingId() === event.id) return;
+    const want = !event.featured;
+    const prevUpcoming = this.upcoming();
+    const prevMine = this.mine();
+    this.actingId.set(event.id);
+    this.featureError.set(null);
+    const patch = (list: CommunityEvent[]): CommunityEvent[] =>
+      list.map((e) => (e.id === event.id ? { ...e, featured: want } : e));
+    this.upcoming.set(patch(prevUpcoming));
+    this.mine.set(patch(prevMine));
+    this.events
+      .feature(event.id, want)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          const updated = res.data ?? null;
+          if (updated) {
+            const apply = (list: CommunityEvent[]): CommunityEvent[] =>
+              list.map((e) => (e.id === event.id ? { ...e, ...updated } : e));
+            this.upcoming.set(apply(this.upcoming()));
+            this.mine.set(apply(this.mine()));
+          } else {
+            this.reload();
+          }
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.upcoming.set(prevUpcoming);
+          this.mine.set(prevMine);
+          this.featureError.set(err.message);
+        },
+      });
   }
 
   ngOnInit(): void {
