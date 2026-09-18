@@ -77,6 +77,18 @@ export const TRAINING_CONFIRM_KEYS = ['ipo', 'qsg', 'smo'];
 
 export const TRAINING_KEY_LABELS: Record<string, string> = { ipo: 'IPO', qsg: 'QSG', smo: 'SMO' };
 
+/** All upline-confirmed legs — training plus trust legs (office/full-time/onboarding). */
+export const CONFIRMABLE_KEYS = ['ipo', 'qsg', 'smo', 'fullTime', 'office', 'onboardingSession'];
+
+export const CONFIRM_KEY_LABELS: Record<string, string> = {
+  ipo: 'IPO',
+  qsg: 'QSG',
+  smo: 'SMO',
+  fullTime: 'Full-time',
+  office: 'Office',
+  onboardingSession: 'Onboarding session',
+};
+
 export interface Oversight {
   level: string;
   isAdmin: boolean;

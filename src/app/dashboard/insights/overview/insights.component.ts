@@ -164,6 +164,20 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
               <span class="stat-label">Goals complete</span>
             </mat-card-content>
           </mat-card>
+          @if (t.forecast) {
+            <mat-card>
+              <mat-card-content>
+                <span class="stat-value">+{{ t.forecast.recruitsNext | number }}</span>
+                <span class="stat-label">Recruits next (at pace)</span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-content>
+                <span class="stat-value">{{ t.forecast.teamVolumeNext | number }}</span>
+                <span class="stat-label">Volume next (at pace)</span>
+              </mat-card-content>
+            </mat-card>
+          }
         </div>
         @if (t.health.recommendations.length > 0) {
           <ul class="reco-list">
@@ -172,6 +186,10 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
             }
           </ul>
         }
+      }
+      @if (bench(); as b) {
+        <h3>Leadership bench</h3>
+        <p class="muted">{{ b.leaders | number }} leaders in {{ b.total | number }} downline · {{ b.pendingConfirmations | number }} confirmations pending · {{ b.pendingNominations | number }} nominations pending</p>
       }
 
       <h3>Take your data</h3>
@@ -248,6 +266,7 @@ export class InsightsOverviewComponent implements OnInit {
   protected readonly funnel = signal<Funnel | null>(null);
   protected readonly team = signal<TeamAnalytics | null>(null);
   protected readonly goalSummary = signal<{ total: number; complete: number; behind: number } | null>(null);
+  protected readonly bench = signal<import('../../../core/analytics/analytics.models').BenchAnalytics | null>(null);
 
   /** Funnel chart — rebuilt on data or light/dark toggle. */
   protected readonly funnelChart = computed<EChartsCoreOption | null>(() => {
@@ -343,6 +362,13 @@ export class InsightsOverviewComponent implements OnInit {
           this.error.set(err.message);
           this.loading.set(false);
         },
+      });
+    this.analytics
+      .bench()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.bench.set(res.data ?? null),
+        error: () => {},
       });
   }
 

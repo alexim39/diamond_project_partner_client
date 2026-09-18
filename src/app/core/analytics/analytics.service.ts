@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { ActionsEnvelope, ActivationEnvelope, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
+import { ActionsEnvelope, ActivationEnvelope, BenchAnalytics, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
+import { ApiEnvelope } from '../auth/auth.models';
 
 /** Read-only analytics → backend `/v1/analytics/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -28,5 +29,10 @@ export class AnalyticsService {
   /** 7-day onboarding activation over the trailing signup cohort. */
   activation(days = 90): Observable<ActivationEnvelope> {
     return this.api.get<ActivationEnvelope>(`v1/analytics/activation?days=${days}`);
+  }
+
+  /** Leadership bench — distribution plus confirmation/nomination pressure. */
+  bench(): Observable<ApiEnvelope<BenchAnalytics>> {
+    return this.api.get<ApiEnvelope<BenchAnalytics>>(`v1/analytics/bench`);
   }
 }

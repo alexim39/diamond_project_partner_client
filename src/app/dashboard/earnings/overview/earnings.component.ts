@@ -16,6 +16,8 @@ import { BillingService } from '../../../core/billing/billing.service';
 import { CommissionEntry, CommissionStatus, CommissionSums, EarningsTrendBucket } from '../../../core/billing/billing.models';
 import { ApiError } from '../../../core/http/api-error';
 
+export const DTC_URL = 'https://ec5.empoweredconsumerism.com/index.html#/sign-in-ec';
+
 const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> = [
   { label: 'All', value: null },
   { label: 'Pending', value: 'Pending' },
@@ -49,12 +51,18 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
       <div class="page-head">
         <div>
           <h2>My Earnings</h2>
-          <p class="subtitle">Released, pending and every ledger entry behind them.</p>
+          <p class="subtitle">Live earnings live on DTC — below is your in-app history.</p>
         </div>
         <div class="head-actions">
+          <a mat-flat-button color="primary" [href]="dtcUrl" target="_blank" rel="noopener"><mat-icon>open_in_new</mat-icon> Open DTC earnings</a>
           <a mat-button routerLink="/dashboard/insights">Exports</a>
           <button mat-button (click)="print()">Print / PDF</button>
         </div>
+      </div>
+
+      <div class="dp-card dtc-card">
+        <mat-icon>info</mat-icon>
+        <div><strong>Commissions moved to DTC.</strong><span class="muted"> This ledger is history kept for records — check live balances on the DTC platform.</span></div>
       </div>
 
       @if (loading()) {
@@ -166,8 +174,11 @@ const STATUS_FILTERS: Array<{ label: string; value: CommissionStatus | null }> =
     table { width: 100%; }
     .num-cell { font-weight: 600; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .dtc-card { padding: 1em; display: flex; gap: 0.6em; align-items: flex-start; }
+    .dtc-card mat-icon { color: var(--dp-gold); }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
+    button, a[mat-button], a[mat-flat-button] { min-height: 44px; }
   `],
 })
 export class EarningsComponent implements OnInit {
@@ -182,9 +193,10 @@ export class EarningsComponent implements OnInit {
   protected readonly trend = signal<EarningsTrendBucket[]>([]);  protected readonly entries = signal<CommissionEntry[]>([]);
   protected readonly total = signal(0);
   protected readonly statusFilter = signal<CommissionStatus | null>(null);
-
   protected readonly displayedColumns = ['amount', 'status', 'released', 'recorded'];
+
   protected readonly statusFilters = STATUS_FILTERS;
+  protected readonly dtcUrl = DTC_URL;
   protected readonly thisMonth = computed(() => this.trend()[this.trend().length - 1]?.total ?? 0);
 
   /** Released-earnings chart — rebuilt on data or light/dark toggle. */

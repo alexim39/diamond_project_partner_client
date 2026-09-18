@@ -52,6 +52,16 @@ export interface TeamAnalytics {
   conversions: number;
   goals: { total: number; complete: number; rate: number | null };
   health: { score: number | null; recommendations: string[] };
+  forecast?: { basis: string; recruitsNext: number; teamVolumeNext: number } | null;
+}
+
+export interface BenchAnalytics {
+  total: number;
+  capped: boolean;
+  distribution: Record<string, number>;
+  pendingConfirmations: number;
+  pendingNominations: number;
+  leaders: number;
 }
 
 export interface TeamEnvelope extends ApiEnvelope<TeamAnalytics> {

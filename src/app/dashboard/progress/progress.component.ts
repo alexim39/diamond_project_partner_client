@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../core/progression/progression.service';
-import { Journey, LADDER, TRAINING_CONFIRM_KEYS, levelRank, MissingRequirement } from '../../core/progression/progression.models';
+import { Journey, LADDER, CONFIRMABLE_KEYS, levelRank, MissingRequirement } from '../../core/progression/progression.models';
 import { ApiError } from '../../core/http/api-error';
 
 const BOOLEAN_STAMPS = new Set([
@@ -279,11 +279,12 @@ export class ProgressComponent implements OnInit {
   }
 
   /**
-   * Training marked done but awaiting upline verification — show the
-   * pending message instead of another Mark done button.
+   * Marked done but awaiting upline verification — show the pending
+   * message instead of another Mark done button. Covers training plus
+   * trust legs (office / full-time / onboarding).
    */
   protected pendingNote(req: MissingRequirement): string | null {
-    if (!TRAINING_CONFIRM_KEYS.includes(req.key)) return null;
+    if (!CONFIRMABLE_KEYS.includes(req.key)) return null;
     const stamp = (this.journey()?.milestones?.[req.key] ?? {}) as { done?: boolean; confirmedAt?: string | null };
     if (stamp.done === true && !stamp.confirmedAt) {
       return 'Thank you for taking the next step — your upline will confirm this activity.';
@@ -293,7 +294,7 @@ export class ProgressComponent implements OnInit {
 
   protected act(req: MissingRequirement): void {
     if (BOOLEAN_STAMPS.has(req.key)) {
-      const note = TRAINING_CONFIRM_KEYS.includes(req.key)
+      const note = CONFIRMABLE_KEYS.includes(req.key)
         ? `"${req.label}" recorded — thank you for taking the next step. Your upline will confirm this activity.`
         : `"${req.label}" recorded.`;
       this.mutate({ [req.key]: { done: true } }, note);
