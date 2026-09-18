@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { Countries, States } from '../../../../_common/services/countries';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../core/http/api-error';
 
 interface MeterItem {
   label: string;
@@ -237,14 +238,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           });
         },
         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
           Swal.fire({
             position: "bottom",
             icon: 'error',
-            text: errorMessage,
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           });
@@ -277,14 +274,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           });
         },
         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
           Swal.fire({
             position: "bottom",
             icon: 'error',
-            text: errorMessage,
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           });
@@ -312,14 +305,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           });
         },
         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
           Swal.fire({
             position: "bottom",
             icon: 'error',
-            text: errorMessage,
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           });
@@ -346,14 +335,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
           });
         },
         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
-          }
           Swal.fire({
             position: "bottom",
             icon: 'error',
-            text: errorMessage,
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           });

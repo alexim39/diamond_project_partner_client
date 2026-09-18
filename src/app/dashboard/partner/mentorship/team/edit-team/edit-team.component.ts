@@ -16,6 +16,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // For native date adapter
 import { TeamInterface, TeamService } from '../team.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../../core/http/api-error';
 
 /** Purpose clusters mirror the Start-a-team groups. */
 const PURPOSE_GROUPS: Array<{ label: string; options: string[] }> = [
@@ -196,7 +197,7 @@ export class EditTeamComponent implements OnInit {
             },
             error: (error: HttpErrorResponse) => {
               this.saving = false;
-              this.formError = (error.error && error.error.message) || 'Server error occurred, please try again.';
+              this.formError = userError(error);
             }
         })
     )

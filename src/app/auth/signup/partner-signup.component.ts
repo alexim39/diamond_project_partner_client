@@ -9,6 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import { userError } from '../../core/http/api-error';
 import { AuthService } from '../../core/auth/auth.service';
 import { PartnerSignUpInterface } from '../auth.service';
 
@@ -87,21 +88,13 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
             });
           },
           error: (error: unknown) => {
-            // Failures arrive normalized as ApiError {status, code, message}
-            // via apiErrorInterceptor — read message directly (legacy
-            // HttpErrorResponse shape kept as fallback).
-            const body = (error as { error?: { message?: unknown } } | null)?.error;
-            const raw = (error as { message?: unknown } | null)?.message ?? body?.message;
-            const errorMessage = typeof raw === 'string' && raw.length > 0
-              ? raw
-              : 'Server error occurred, please try again.';
             Swal.fire({
               position: "bottom",
               icon: 'error',
-              text: errorMessage,
+              text: userError(error),
               showConfirmButton: false,
               timer: 4000
-            });  
+            });
           }
         })      
       )

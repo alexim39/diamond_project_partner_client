@@ -62,5 +62,52 @@ export function userError(error: unknown): string {
     : (typeof nested?.message === 'string' ? nested.message : '');
   const message = rawMessage || 'Server error occurred, please try again.';
   const detail = validationDetail({ ...api, message });
-  return detail ? `${message} — ${detail}` : message;
+  const withField = detail ? `${message} — ${detail}` : message;
+  const step = nextStep(api);
+  return step ? joinSentence(withField, step) : withField;
+}
+
+/**
+ * What-to-do-next for the failures users actually hit — matched on the
+ * machine `code` first (v1 API), then on message text (legacy backends
+ * without codes). Keep entries to one plain sentence each.
+ */
+const NEXT_STEP_BY_CODE: Record<string, string> = {
+  INSUFFICIENT_BALANCE: 'Fund your wallet from the Wallet page, then retry.',
+  SMS_NOT_CONFIGURED: 'SMS sending is off right now — try email instead or contact support.',
+  DEPOSITS_DISABLED: 'Deposits are unavailable right now — try again later.',
+};
+
+const NEXT_STEP_BY_TEXT: Array<[RegExp, string]> = [
+  [/at least 8 characters/i, 'Add a few more characters and try again.'],
+  [/daily claim limit/i, 'Come back tomorrow for 3 fresh claims.'],
+  [/already in your contacts|already exists in your contacts/i, 'That lead is already in your contacts — pick another one.'],
+  [/just claimed/i, 'Someone just claimed it — pick another lead.'],
+  [/return window closed/i, 'The 7-day return window has passed for this lead.'],
+  [/current password is incorrect/i, 'Check caps lock and retry, or use Forgot password.'],
+  [/cannot be the same/i, 'Pick a password different from the current one.'],
+  [/fund your wallet to claim/i, 'Fund your wallet from the Wallet page, then retry.'],
+  [/insufficient balance/i, 'Fund your wallet from the Wallet page, then retry.'],
+];
+
+function nextStep(api: ApiError): string | null {
+  const hay = typeof api.message === 'string' ? api.message : '';
+  let step: string | null = null;
+  if (typeof api.code === 'string' && NEXT_STEP_BY_CODE[api.code]) {
+    step = NEXT_STEP_BY_CODE[api.code];
+  } else {
+    for (const [re, s] of NEXT_STEP_BY_TEXT) {
+      if (re.test(hay)) { step = s; break; }
+    }
+  }
+  // Skip when the backend message already carries the guidance.
+  if (step && hay.toLowerCase().includes('fund your wallet') && step.toLowerCase().includes('fund your wallet')) {
+    return null;
+  }
+  return step;
+}
+
+function joinSentence(message: string, step: string): string {
+  const base = message.trim();
+  return (base.endsWith('.') || base.endsWith('!') || base.endsWith('?') ? base : `${base}.`) + ` ${step}`;
 }

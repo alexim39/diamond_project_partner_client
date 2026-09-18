@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { ProspectListInterface } from '../../../../prospects/prospects.service';
 import { ProspectResponseComponent } from '../../../../mentorship/my-partners/contacts/details/prospect-response.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../../../core/http/api-error';
 import { Subscription } from 'rxjs';
 
 
@@ -222,17 +223,13 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
                 })
                 },
                 error: (error: HttpErrorResponse) => {
-                    let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                    if (error.error && error.error.message) {
-                        errorMessage = error.error.message; // Use backend's error message if available.
-                    }
                     Swal.fire({
                         position: "bottom",
                         icon: 'error',
-                        text: errorMessage,
+                        text: userError(error),
                         showConfirmButton: false,
                         timer: 4000
-                    }); 
+                    });
                 }
             })
             )
@@ -269,14 +266,10 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
                   });
                 },
                 error: (error: HttpErrorResponse) => {
-                  let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                  if (error.error && error.error.message) {
-                    errorMessage = error.error.message; // Use backend's error message if available.
-                  }
                   Swal.fire({
                     position: "bottom",
                     icon: 'error',
-                    text: errorMessage,
+                    text: userError(error),
                     showConfirmButton: false,
                     timer: 4000
                   });  

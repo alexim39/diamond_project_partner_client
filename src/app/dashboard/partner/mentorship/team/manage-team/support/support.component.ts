@@ -15,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
 import { TeamInterface, TeamService } from '../../team.service';
+import { userError } from '../../../../../../core/http/api-error';
 import { AddMemberComponent } from './add-member/add-member.component';
 
 /** @title Teams details */
@@ -79,7 +80,7 @@ export class TeamSupportComponent implements OnDestroy {
         },
         error: (error: unknown) => {
           this.deleting = false;
-          this.deleteError = (error as { message?: string })?.message ?? 'Server error occurred, please try again.';
+          this.deleteError = userError(error);
         }
       })
     );
@@ -165,7 +166,7 @@ export class TeamSupportComponent implements OnDestroy {
         },
         error: (error: unknown) => {
           this.removing = false;
-          this.actionError = (error as { message?: string })?.message ?? 'Server error occurred, please try again.';
+          this.actionError = userError(error);
         }
       })
     );

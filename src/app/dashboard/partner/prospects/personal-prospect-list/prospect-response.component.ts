@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { ProspectService } from '../prospects.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../core/http/api-error';
 
 /**
  * @title Prospect Detail 
@@ -201,17 +202,13 @@ export class ProspectResponseComponent implements OnDestroy {
                 });
               },
               error: (error: HttpErrorResponse) => {
-                let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                if (error.error && error.error.message) {
-                  errorMessage = error.error.message; // Use backend's error message if available.
-                }
                 Swal.fire({
                   position: "bottom",
                   icon: 'error',
-                  text: errorMessage,
+                  text: userError(error),
                   showConfirmButton: false,
                   timer: 4000
-                }); 
+                });
               }
             })
           )

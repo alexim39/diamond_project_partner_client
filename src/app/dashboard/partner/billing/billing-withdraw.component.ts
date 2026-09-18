@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { PaystackService } from './paystack.service';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
+import { userError } from '../../../core/http/api-error';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 
@@ -285,7 +286,7 @@ export class BillingWithdrawComponent implements OnInit {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })

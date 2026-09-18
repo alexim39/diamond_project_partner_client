@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 import { CreateCampaignService } from '../create-campaign.service';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import { userError } from '../../../../../../core/http/api-error';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 /**
@@ -186,7 +187,7 @@ export class LinkedinComponent implements OnInit, OnDestroy {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please and try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })

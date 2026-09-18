@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { SocialMediaSettingsService } from './social-media.service';
 import Swal from 'sweetalert2';
+import { userError } from '../../../../../core/http/api-error';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -112,7 +113,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -155,7 +156,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -197,7 +198,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -238,7 +239,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -279,7 +280,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -320,7 +321,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -361,7 +362,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })
@@ -402,7 +403,7 @@ export class SocialMediaSettingsComponent {
               Swal.fire({
                 position: "bottom",
                 icon: 'info',
-                text: 'Server error occured, please try again',
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
               })

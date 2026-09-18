@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../core/http/api-error';
 import Swal from 'sweetalert2';
 import { ApiClient } from '../../../../core/http/api-client.service';
 import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
@@ -137,7 +138,9 @@ export class ActivateNewPartnerComponent implements OnInit {
         error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
           const status = error?.status;
-          const text = (error?.error as { message?: string } | undefined)?.message
+          const text = userError(error) !== 'Server error occurred, please try again.'
+            ? userError(error)
+            : (error?.error as { message?: string } | undefined)?.message
             ?? (status === 409
               ? 'This code is already recorded by another partner'
               : status === 401

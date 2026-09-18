@@ -12,6 +12,7 @@ import { TruncatePipe } from '../../../../_common/pipes/truncate.pipe';
 import Swal from 'sweetalert2';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../core/http/api-error';
 import { BillingService } from '../../../../core/billing/billing.service';
 
 @Component({
@@ -141,14 +142,10 @@ export class CheckoutComponent implements OnInit  {
         })
       ).subscribe({
         error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.';
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message;
-            }
             Swal.fire({
               position: 'bottom',
               icon: 'error',
-              text: errorMessage,
+              text: userError(error),
               showConfirmButton: false,
               timer: 4000,
             });

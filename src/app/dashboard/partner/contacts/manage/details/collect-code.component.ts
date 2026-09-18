@@ -9,6 +9,7 @@ import { ContactsInterface, codeData, ContactsService } from '../../contacts.ser
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { userError } from '../../../../../core/http/api-error';
 import { Subscription } from 'rxjs';
 
 
@@ -142,7 +143,7 @@ export class CollectCodeComponent implements OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: serverMessage ?? 'This code has not been approved yet',
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           })
@@ -150,7 +151,7 @@ export class CollectCodeComponent implements OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: serverMessage ?? 'Server error occured, please and try again',
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           })

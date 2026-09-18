@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../../../core/http/api-error';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -661,14 +662,10 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
             })
           },
           error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-            }
             Swal.fire({
               position: "bottom",
               icon: 'error',
-              text: errorMessage,
+              text: userError(error),
               showConfirmButton: false,
               timer: 4000
             });  
@@ -727,14 +724,10 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
               this.communicationForm.reset({ date: new Date(), type: 'call' });
           },
           error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message; // Use backend's error message if available.
-            }
             Swal.fire({
               position: "bottom",
               icon: 'error',
-              text: errorMessage,
+              text: userError(error),
               showConfirmButton: false,
               timer: 4000
             });  
@@ -778,14 +771,10 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
               );
             },
             error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.';
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message;
-              }
               Swal.fire({
                 position: 'bottom',
                 icon: 'error',
-                text: errorMessage,
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000,
               });

@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../settings.service';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import Swal from 'sweetalert2';
+import { userError } from '../../../../core/http/api-error';
 
 @Component({
 selector: 'async-notifications-settings',
@@ -123,14 +124,10 @@ export class NotificationsSettingsComponent implements OnInit {
         });
       },
       error: (error) => {
-        let errorMessage = 'Server error occurred, please try again.';
-        if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        }
         Swal.fire({
           position: 'bottom',
           icon: 'error',
-          text: errorMessage,
+          text: userError(error),
           showConfirmButton: false,
           timer: 4000,
         });
@@ -155,14 +152,10 @@ export class NotificationsSettingsComponent implements OnInit {
         });
       },
       error: (error) => {
-        let errorMessage = 'Server error occurred, please try again.';
-        if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        }
         Swal.fire({
           position: 'bottom',
           icon: 'error',
-          text: errorMessage,
+          text: userError(error),
           showConfirmButton: false,
           timer: 4000,
         });

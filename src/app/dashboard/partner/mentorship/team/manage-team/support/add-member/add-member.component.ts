@@ -23,6 +23,7 @@ import { MatChipInputEvent, } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { TeamService } from '../../../team.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { userError } from '../../../../../../../core/http/api-error';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
@@ -182,7 +183,7 @@ export class AddMemberComponent implements OnInit, OnDestroy {
         this.dialogRef.close([...this.selectedPartners]);
 
       }, (error: Error) => {
-        this.snackBar.open('Server error occured, please try again', 'Close', {
+        this.snackBar.open(userError(error), 'Close', {
           duration: 4000,
         });
       })

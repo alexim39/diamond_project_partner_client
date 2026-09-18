@@ -22,6 +22,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../core/http/api-error';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 /**
@@ -328,17 +329,13 @@ export class MyProspectListComponent implements OnInit, OnDestroy, AfterViewInit
               })
             },
             error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Use backend's error message if available.
-              }
               Swal.fire({
                 position: "bottom",
                 icon: 'error',
-                text: errorMessage,
+                text: userError(error),
                 showConfirmButton: false,
                 timer: 4000
-              });  
+              });
             }
           })
         )

@@ -138,7 +138,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
         Swal.fire({
           position: "bottom",
           icon: 'info',
-          text: 'Server error occured, please and try again',
+          text: userError(error),
           showConfirmButton: false,
           timer: 4000
         })
@@ -178,7 +178,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
         Swal.fire({
           position: "bottom",
           icon: 'info',
-          text: 'Server error occured, please and try again',
+          text: userError(error),
           showConfirmButton: false,
           timer: 4000
         })
@@ -222,7 +222,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
             Swal.fire({
               position: "bottom",
               icon: 'info',
-              text: 'Server error occured, please and try again',
+              text: userError(error),
               showConfirmButton: false,
               timer: 4000
             })

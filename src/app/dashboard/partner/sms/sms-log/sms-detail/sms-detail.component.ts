@@ -6,6 +6,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import Swal from 'sweetalert2';
+import { userError } from '../../../../../core/http/api-error';
 import { Subscription } from 'rxjs';
 import { SMSService } from '../../sms.service';
 
@@ -123,7 +124,7 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
                         Swal.fire({
                             position: "bottom",
                             icon: 'info',
-                            text: 'Server error occured, please try again',
+                            text: userError(error),
                             showConfirmButton: false,
                             timer: 4000
                         })

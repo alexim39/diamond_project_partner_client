@@ -9,6 +9,7 @@ import { PushNotificationInterface, PushNotificationService } from '../../index/
 import { MatButtonModule } from '@angular/material/button';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../core/http/api-error';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -296,17 +297,13 @@ export class PushNotificationListComponent implements OnDestroy {
                             });
                         },
                         error: (error: HttpErrorResponse) => {
-                            let errorMessage = 'Server error occurred, please try again.'; // default error message.
-                            if (error.error && error.error.message) {
-                                errorMessage = error.error.message; // Use backend's error message if available.
-                            }
                             Swal.fire({
                                 position: "bottom",
                                 icon: 'error',
-                                text: errorMessage,
+                                text: userError(error),
                                 showConfirmButton: false,
                                 timer: 4000
-                            });  
+                            });
                         }
                     })
                 )

@@ -20,6 +20,7 @@ import { MatNativeDateModule } from '@angular/material/core'; // For native date
 import { TeamService } from '../team.service';
 import { SearchService } from '../../../index/search/search.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../../core/http/api-error';
 
 /** Purpose clusters — same stored values, grouped so creators pick with intent. */
 const PURPOSE_GROUPS: Array<{ label: string; options: string[] }> = [
@@ -162,7 +163,7 @@ export class CreateTeamComponent implements OnInit {
           },
           error: (error: HttpErrorResponse) => {
             this.saving = false;
-            this.formError = (error.error && error.error.message) || 'Server error occurred, please try again.';
+            this.formError = userError(error);
           }
         })
       );

@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { userError } from '../../../../core/http/api-error';
 import {MatSelectModule} from '@angular/material/select';
 import { Subscription } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';  
@@ -134,7 +135,7 @@ export class EmailListComponent implements OnInit, OnDestroy  {
                 Swal.fire({
                   position: "bottom",
                   icon: 'info',
-                  text: 'Server error occured, check if prospect has been moved before and try again',
+                  text: userError(error),
                   showConfirmButton: false,
                   timer: 4000
                 })
@@ -189,7 +190,7 @@ export class EmailListComponent implements OnInit, OnDestroy  {
                 Swal.fire({
                   position: "bottom",
                   icon: 'info',
-                  text: 'Server error occured, please try again',
+                  text: userError(error),
                   showConfirmButton: false,
                   timer: 4000
                 })
