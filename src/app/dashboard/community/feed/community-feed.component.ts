@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, SlicePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -46,7 +46,7 @@ const KIND_STYLES: Record<PostKind, string> = {
   selector: 'async-community-feed',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AvatarComponent, DatePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
+    AvatarComponent, DatePipe, SlicePipe, MatButtonModule, MatChipsModule, MatIconModule, MatInputModule,
     MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -164,8 +164,27 @@ const KIND_STYLES: Record<PostKind, string> = {
       }
 
       @if (posts().length > 0) {
+        @if (pinError(); as perr) {
+          <p class="error" role="alert">{{ perr }}</p>
+        }
+        @if (pinnedPosts().length > 0) {
+          <div class="pinned-tray" role="region" aria-label="Pinned posts">
+            @for (post of pinnedPosts(); track post.id) {
+              <div class="dp-card pinned-card">
+                <mat-icon title="Pinned">push_pin</mat-icon>
+                <div class="pinned-body">
+                  <strong>{{ post.title || (post.kind === 'event' ? 'Pinned event' : 'Pinned announcement') }}</strong>
+                  <span class="muted">{{ post.body | slice:0:120 }}{{ post.body.length > 120 ? '…' : '' }}</span>
+                </div>
+                @if (canPin(post)) {
+                  <button mat-button (click)="togglePin(post)" [disabled]="actingId() === post.id" title="Unpin">Unpin</button>
+                }
+              </div>
+            }
+          </div>
+        }
         <ol class="feed">
-          @for (post of posts(); track post.id) {
+          @for (post of regularPosts(); track post.id) {
             <li class="dp-card post" [class.post--recognition]="post.kind === 'recognition'">
               <div class="post-top">
                 <span class="dp-status" [class]="kindStyle(post.kind)">{{ kindLabel(post.kind) }}</span>
@@ -178,6 +197,11 @@ const KIND_STYLES: Record<PostKind, string> = {
                 <span class="muted byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
                 @if (isMine(post)) {
                   <span class="spacer"></span>
+                  @if (canPin(post)) {
+                    <button mat-icon-button (click)="togglePin(post)" [disabled]="actingId() === post.id" [title]="post.pinned ? 'Unpin from top' : 'Pin to top'" [aria-label]="post.pinned ? 'Unpin from top' : 'Pin to top'">
+                      <mat-icon>{{ post.pinned ? 'push_pin' : 'pin_drop' }}</mat-icon>
+                    </button>
+                  }
                   @if (!post.auto) {
                     <button mat-icon-button (click)="startEdit(post)" [disabled]="savingEdit()" title="Edit post" aria-label="Edit post">
                       <mat-icon>edit</mat-icon>
@@ -255,6 +279,12 @@ const KIND_STYLES: Record<PostKind, string> = {
                   {{ post.saveCount ?? 0 }}
                 </button>
                 <span class="spacer"></span>
+                @if (!isMine(post) && canPin(post)) {
+                  <button mat-button (click)="togglePin(post)" [disabled]="actingId() === post.id" [title]="post.pinned ? 'Unpin from top' : 'Pin to top'">
+                    <mat-icon>{{ post.pinned ? 'push_pin' : 'pin_drop' }}</mat-icon>
+                    {{ post.pinned ? 'Unpin' : 'Pin' }}
+                  </button>
+                }
                 <button mat-button (click)="report(post)" [disabled]="actingId() === post.id" title="Hide this post">Hide</button>
               </div>
               @if (openThread() === post.id) {
@@ -322,6 +352,10 @@ const KIND_STYLES: Record<PostKind, string> = {
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75em; }
     .form-actions { display: flex; align-items: center; gap: 0.75em; }
     .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; }
+    .pinned-tray { display: flex; flex-direction: column; gap: 0.5em; margin-bottom: 0.75em; }
+    .pinned-card { padding: 0.7em 0.9em; display: flex; align-items: center; gap: 0.7em; border-left: 4px solid var(--dp-gold); }
+    .pinned-card mat-icon { color: var(--dp-gold); }
+    .pinned-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; min-width: 0; }
     .post { padding: 1em; display: flex; flex-direction: column; gap: 0.5em; }
     .post p { margin: 0; }
     .post--recognition { border-left: 4px solid var(--dp-success); }
@@ -404,6 +438,11 @@ export class CommunityFeedComponent implements OnInit {
   protected readonly editError = signal<string | null>(null);
   protected readonly confirmingDeleteId = signal<string | null>(null);
   protected readonly deleting = signal(false);
+  protected readonly pinError = signal<string | null>(null);
+
+  /** Pinned tray (max 3, server-enforced) + chronological rest — no duplication. */
+  protected readonly pinnedPosts = computed(() => this.posts().filter((p) => p.pinned).slice(0, 3));
+  protected readonly regularPosts = computed(() => this.posts().filter((p) => !p.pinned));
 
   protected readonly kinds: PostKind[] = ['standard', 'announcement', 'recognition', 'training', 'event'];
 
@@ -697,6 +736,45 @@ export class CommunityFeedComponent implements OnInit {
   protected isMine(post: FeedPost): boolean {
     const me = this.auth.currentUser()?.id;
     return !!me && String(post.authorId) === String(me);
+  }
+
+  /** Pin-eligible: own announcement/event (or admin), never auto posts. */
+  protected canPin(post: FeedPost): boolean {
+    if (post.auto) return false;
+    if (post.kind !== 'announcement' && post.kind !== 'event') return false;
+    if (this.isMine(post)) return true;
+    try {
+      return this.auth.isAdmin();
+    } catch {
+      return false;
+    }
+  }
+
+  /** Optimistic pin toggle — rolls back on 403/409 so cap errors read plainly. */
+  protected togglePin(post: FeedPost): void {
+    if (this.actingId() === post.id) return;
+    const want = !post.pinned;
+    const prev = this.posts();
+    this.actingId.set(post.id);
+    this.pinError.set(null);
+    this.posts.set(prev.map((p) => (p.id === post.id ? { ...p, pinned: want } : p)));
+    this.community
+      .pin(post.id, want)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          const updated = res.data ?? null;
+          if (updated) {
+            this.posts.set(this.posts().map((p) => (p.id === post.id ? { ...p, ...updated } : p)));
+          }
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.posts.set(prev);
+          this.pinError.set(err.message);
+        },
+      });
   }
 
   protected startEdit(post: FeedPost): void {

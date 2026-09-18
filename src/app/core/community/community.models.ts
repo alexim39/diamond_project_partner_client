@@ -36,6 +36,7 @@ export interface FeedPost {
   link: string;
   scope: AudienceScope;
   pinned: boolean;
+  pinnedUntil?: string | null;
   auto: boolean;
   createdAt: string;
   mentions?: string[];

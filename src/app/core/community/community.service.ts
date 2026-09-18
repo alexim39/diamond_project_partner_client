@@ -63,6 +63,11 @@ export class CommunityService {
     return this.api.post<PostEnvelope>(`v1/community/${postId}/save`, {});
   }
 
+  /** Pin/unpin to top (announcements + events; 3-pin cap server-enforced). */
+  pin(postId: string, pinned: boolean): Observable<PostEnvelope> {
+    return this.api.post<PostEnvelope>(`v1/community/${postId}/pin`, { pinned });
+  }
+
   report(postId: string, reason = ''): Observable<unknown> {
     return this.api.post(`v1/community/${postId}/report`, { reason });
   }
