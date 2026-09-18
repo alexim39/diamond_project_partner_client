@@ -13,6 +13,44 @@ export interface ManagedPartner {
   suspendReason?: string | null;
   subscription?: { plan?: string; status?: string };
   createdAt?: string;
+  lastLoginAt?: string | null;
+  loginCount?: number;
+}
+
+export interface MemberLogin {
+  lastLoginAt: string | null;
+  daysSinceLogin: number | null;
+  neverSeen: boolean;
+  loginCount: number;
+  lastIp: string | null;
+  lastAgent: string | null;
+  dormant30: boolean;
+}
+
+export interface Member360 {
+  identity: {
+    id: string;
+    name: string;
+    username: string | null;
+    email: string | null;
+    phone: string | null;
+    state: string | null;
+    role: UserRole;
+    suspended: boolean;
+    suspendReason: string | null;
+    createdAt: string | null;
+  };
+  login: MemberLogin;
+  money: {
+    balance: number;
+    in30d: number | null;
+    txCount: number | null;
+    recent: Array<{ amount: number; kind: string; method: string; status: string; at: string | null }>;
+  };
+  growth: { activeLeads: number | null; claims7d: number | null; rating: number | null; ratingCount: number; deposits: number | null };
+  journey: { level: string | null; rankAt: string | null };
+  upline: { id: string; name: string; username: string | null } | null;
+  risks: Array<{ tone: string; label: string }>;
 }
 
 export interface PartnerDirectoryEnvelope extends ApiEnvelope<{ items: ManagedPartner[]; total: number; limit: number; skip: number }> {

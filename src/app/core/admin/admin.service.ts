@@ -13,11 +13,12 @@ import { ApiEnvelope } from '../auth/auth.models';
 export class AdminService {
   private readonly api = inject(ApiClient);
 
-  directory(params: { q?: string; role?: string; suspended?: string; limit?: number; skip?: number } = {}): Observable<PartnerDirectoryEnvelope> {
+  directory(params: { q?: string; role?: string; suspended?: string; login?: string; limit?: number; skip?: number } = {}): Observable<PartnerDirectoryEnvelope> {
     const query = new URLSearchParams({
       q: params.q ?? '',
       role: params.role ?? 'all',
       suspended: params.suspended ?? 'all',
+      login: params.login ?? 'all',
       limit: String(params.limit ?? 25),
       skip: String(params.skip ?? 0),
     });
@@ -51,8 +52,12 @@ export class AdminService {
     return this.api.delete<ApiEnvelope<{ erased: ManagedPartner; removed: Record<string, number> }>>(`v1/admin/partners/${partnerId}`);
   }
 
-  audit(params: { action?: string; actorId?: string; limit?: number; skip?: number } = {}): Observable<AuditEnvelope> {
-    const query = new URLSearchParams({
+  /** Member 360 — the admin's single read for "who is this member". */
+  member360(partnerId: string): Observable<ApiEnvelope<import('./admin.models').Member360>> {
+    return this.api.get(`v1/admin/members/${partnerId}/360`);
+  }
+
+  audit(params: { action?: string; actorId?: string; limit?: number; skip?: number } = {}): Observable<AuditEnvelope> {    const query = new URLSearchParams({
       ...(params.action ? { action: params.action } : {}),
       ...(params.actorId ? { actorId: params.actorId } : {}),
       limit: String(params.limit ?? 50),

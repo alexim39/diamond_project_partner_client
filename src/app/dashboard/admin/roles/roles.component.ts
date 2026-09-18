@@ -15,6 +15,8 @@ import { AdminService } from '../../../core/admin/admin.service';
 import { ManagedPartner, PlatformStats } from '../../../core/admin/admin.models';
 import { ApiError } from '../../../core/http/api-error';
 import { UserRole } from '../../../core/auth/auth.models';
+import { MatDialog } from '@angular/material/dialog';
+import { Member360DialogComponent } from './member-360-dialog.component';
 
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
@@ -79,7 +81,7 @@ const RANK_ORDER = [
       <div class="toolbar">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Search partners</mat-label>
-          <input matInput type="search" placeholder="Name, username or email" [value]="searchText()" (input)="onSearch($event)" />
+          <input matInput type="search" placeholder="Name, username, email or phone" [value]="searchText()" (input)="onSearch($event)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -98,6 +100,14 @@ const RANK_ORDER = [
             <mat-option value="all">Active + suspended</mat-option>
             <mat-option value="no">Active only</mat-option>
             <mat-option value="yes">Suspended only</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Activity</mat-label>
+          <mat-select [value]="loginFilter()" (selectionChange)="loginFilter.set($event.value); skip.set(0); reload()">
+            <mat-option value="all">Any activity</mat-option>
+            <mat-option value="dormant30">Dormant 30d+</mat-option>
+            <mat-option value="new7">Joined 7d</mat-option>
           </mat-select>
         </mat-form-field>
         @if (hasFilters()) {
@@ -148,13 +158,24 @@ const RANK_ORDER = [
           <table mat-table [dataSource]="rows()" class="mat-elevation-z2">
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Partner</th>
-              <td mat-cell *matCellDef="let row" class="name-cell">{{ displayName(row) }}</td>
+              <td mat-cell *matCellDef="let row" class="name-cell">
+                <button mat-button (click)="open360(row)" [matTooltip]="'Open member 360 for ' + displayName(row)">{{ displayName(row) }}</button>
+              </td>
             </ng-container>
             <ng-container matColumnDef="contact">
               <th mat-header-cell *matHeaderCellDef>Contact</th>
               <td mat-cell *matCellDef="let row">
                 <div>{{ row.email }}</div>
                 <div class="muted">{{ row.phone || '—' }}</div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="login">
+              <th mat-header-cell *matHeaderCellDef>Last login</th>
+              <td mat-cell *matCellDef="let row">
+                {{ loginLabel(row) }}
+                @if (isDormant(row)) {
+                  <span class="dp-status dp-status--warn">dormant</span>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="role">
@@ -270,6 +291,7 @@ const RANK_ORDER = [
 })
 export class ManageRolesComponent implements OnInit {
   private readonly admin = inject(AdminService);
+  private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -284,6 +306,7 @@ export class ManageRolesComponent implements OnInit {
   protected readonly searchText = signal('');
   protected readonly roleFilter = signal('all');
   protected readonly statusFilter = signal('all');
+  protected readonly loginFilter = signal('all');
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly pendingRole = signal<UserRole>('leader');
@@ -291,7 +314,7 @@ export class ManageRolesComponent implements OnInit {
   protected readonly suspendReason = signal('');
   protected readonly eraseId = signal<string | null>(null);
 
-  protected readonly displayedColumns = ['name', 'contact', 'role', 'plan', 'action'];
+  protected readonly displayedColumns = ['name', 'contact', 'login', 'role', 'plan', 'action'];
 
   /** Journey-rank bars (ladder order, nonzero only) with proportional widths. */
   protected rankBars(): Array<{ level: string; label: string; count: number; width: number }> {
@@ -339,7 +362,7 @@ export class ManageRolesComponent implements OnInit {
   }
 
   protected hasFilters(): boolean {
-    return this.query().trim() !== '' || this.roleFilter() !== 'all' || this.statusFilter() !== 'all';
+    return this.query().trim() !== '' || this.roleFilter() !== 'all' || this.statusFilter() !== 'all' || this.loginFilter() !== 'all';
   }
 
   protected clearFilters(): void {
@@ -347,6 +370,7 @@ export class ManageRolesComponent implements OnInit {
     this.searchText.set('');
     this.roleFilter.set('all');
     this.statusFilter.set('all');
+    this.loginFilter.set('all');
     this.skip.set(0);
     this.reload();
   }
@@ -355,7 +379,7 @@ export class ManageRolesComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.admin
-      .directory({ q: this.query(), role: this.roleFilter(), suspended: this.statusFilter(), limit: this.limit(), skip: this.skip() })
+      .directory({ q: this.query(), role: this.roleFilter(), suspended: this.statusFilter(), login: this.loginFilter(), limit: this.limit(), skip: this.skip() })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -389,6 +413,37 @@ export class ManageRolesComponent implements OnInit {
 
   protected displayName(row: ManagedPartner): string {
     return `${row.name ?? ''} ${row.surname ?? ''}`.trim() || row.username;
+  }
+
+  /** Directory login cell: never-seen vs relative age from the telemetry. */
+  protected loginLabel(row: ManagedPartner): string {
+    const at = row.lastLoginAt ? new Date(row.lastLoginAt).getTime() : NaN;
+    if (!Number.isFinite(at)) return 'never';
+    const days = Math.floor((Date.now() - at) / 86400000);
+    if (days <= 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 30) return `${days}d ago`;
+    return `${Math.floor(days / 30)}mo ago`;
+  }
+
+  protected isDormant(row: ManagedPartner): boolean {
+    const at = row.lastLoginAt ? new Date(row.lastLoginAt).getTime() : NaN;
+    if (!Number.isFinite(at)) return true;
+    return Date.now() - at >= 30 * 86400000;
+  }
+
+  /** Row → 360 dialog; dialog actions drive the row's own handlers. */
+  protected open360(row: ManagedPartner): void {
+    this.dialog.open(Member360DialogComponent, {
+      data: {
+        partnerId: row.id,
+        onAction: (kind: 'reset' | 'signout' | 'suspend') => {
+          if (kind === 'reset') this.resetOnBehalf(row);
+          else if (kind === 'signout') this.forceSignOut(row);
+          else this.applySuspend(row, !row.suspended);
+        },
+      },
+    });
   }
 
   /** Valid transitions from a role (same-role excluded; G8 is admin-bestowed). */
