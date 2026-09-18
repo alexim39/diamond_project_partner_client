@@ -147,7 +147,7 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
       });
       this.passwordForm = new FormGroup({
         currentPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
-        newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
+        newPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
         id: new FormControl(this.partner._id),
       });
       this.professionalForm = new FormGroup({

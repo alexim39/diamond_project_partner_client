@@ -299,7 +299,7 @@
             }
             @if (passwordForm.get('currentPassword')?.errors?.['minlength'] && passwordForm.get('currentPassword')?.touched) {
               <mat-error>
-                Password must be at least 6 characters long.
+                Password must be at least 8 characters long.
               </mat-error>
             }
           </mat-form-field>
@@ -324,7 +324,7 @@
             }
             @if (passwordForm.get('newPassword')?.errors?.['minlength'] && passwordForm.get('newPassword')?.touched) {
               <mat-error>
-                Password must be at least 6 characters long.
+                Password must be at least 8 characters long.
               </mat-error>
             }
           </mat-form-field>
