@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AdminService } from '../../../core/admin/admin.service';
 import { Member360 } from '../../../core/admin/admin.models';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 const num = (v: unknown): number => {
   const n = Number(v);
@@ -136,7 +136,7 @@ export class Member360DialogComponent {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });

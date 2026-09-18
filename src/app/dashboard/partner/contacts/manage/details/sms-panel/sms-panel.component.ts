@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SMSService } from '../../../../sms/sms.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { userError } from '../../../../../../core/http/api-error';
 
 
 
@@ -152,14 +153,10 @@ export class ProspectSMSComponent implements OnInit {
               });
             },
             error: (error: HttpErrorResponse) => {
-              let errorMessage = 'Server error occurred, please try again.'; // default error message.
-              if (error.error && error.error.message) {
-                  errorMessage = error.error.message; // Use backend's error message if available.
-              }
                 Swal.fire({
                     position: "bottom",
                     icon: 'error',
-                    text: errorMessage,
+                    text: userError(error),
                     showConfirmButton: false,
                     timer: 4000
                 });

@@ -43,3 +43,24 @@ export function validationDetail(error: ApiError): string | null {
   if (!path && !msg) return null;
   return path ? `${path}: ${msg}` : msg;
 }
+
+/**
+ * User-facing error text: backend message plus the exact rejected field,
+ * so a 400 names its cause ("Invalid request data — body: Message must
+ * be 1–960 characters") instead of leaving the user guessing.
+ * Tolerant of both shapes in the codebase: normalized `ApiError` (from
+ * the interceptor) and raw `HttpErrorResponse` (legacy handlers).
+ */
+export function userError(error: unknown): string {
+  const api = error instanceof HttpErrorResponse
+    ? toApiError(error)
+    : ((error ?? {}) as ApiError & { error?: { message?: unknown } });
+  // Legacy handlers pass the raw response envelope (`{ error: { message } }`).
+  const nested = (api as { error?: { message?: unknown } }).error;
+  const rawMessage = typeof api.message === 'string' && api.message.length > 0
+    ? api.message
+    : (typeof nested?.message === 'string' ? nested.message : '');
+  const message = rawMessage || 'Server error occurred, please try again.';
+  const detail = validationDetail({ ...api, message });
+  return detail ? `${message} — ${detail}` : message;
+}

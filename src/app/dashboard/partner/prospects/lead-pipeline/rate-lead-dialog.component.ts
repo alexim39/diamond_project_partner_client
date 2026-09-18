@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FormsModule } from '@angular/forms';
 import { LeadPipelineService } from './lead-pipeline.service';
-import { ApiError } from '../../../../core/http/api-error';
+import { ApiError, userError } from '../../../../core/http/api-error';
 
 export interface RateLeadData {
   prospectId: string;
@@ -95,7 +95,7 @@ export class RateLeadDialogComponent {
         next: () => this.dialogRef.close(true),
         error: (err: ApiError) => {
           this.sending.set(false);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }

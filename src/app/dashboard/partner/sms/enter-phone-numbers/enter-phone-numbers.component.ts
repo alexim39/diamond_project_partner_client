@@ -16,7 +16,7 @@ import { TemplateHandoffService } from '../../../../_common/services/template-ha
 import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CampaignService } from '../../tools/campaigns/manage-campaign/manage-campaign.service';
-import { ApiError } from '../../../../core/http/api-error';
+import { ApiError, userError } from '../../../../core/http/api-error';
 
 // Preview-only mirror of the server rate (api Outreach.entity
 // SMS_CHARGE_PER_PAGE, env SMS_PRICE_PER_PAGE). The wallet is charged
@@ -424,7 +424,7 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
           },
           error: (error: ApiError) => {
             this.sending = false;
-            this.formError = error.message;
+            this.formError = userError(error);
           },
         })
       );
@@ -462,7 +462,7 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
         },
         error: (error: ApiError) => {
           this.sending = false;
-          this.formError = error.message;
+          this.formError = userError(error);
         },
       })
     );
@@ -479,7 +479,7 @@ export class EnterPhoneNumbersComponent implements OnInit, OnDestroy {
         },
         error: (error: ApiError) => {
           this.cancellingId = null;
-          this.formError = error.message;
+          this.formError = userError(error);
         },
       })
     );

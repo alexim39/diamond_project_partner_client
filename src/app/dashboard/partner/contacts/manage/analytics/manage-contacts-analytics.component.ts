@@ -22,6 +22,7 @@ import { ProspectService } from '../../../prospects/prospects.service';
 import { CollectCodeComponent } from '../details/collect-code.component';
 import { ProspectResponseComponent } from '../../../mentorship/my-partners/contacts/details/prospect-response.component';
 import { SMSService } from '../../../sms/sms.service';
+import { userError } from '../../../../../core/http/api-error';
 
 /** @title Prospect details */
 @Component({
@@ -313,7 +314,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
         Swal.fire({
           position: "bottom",
           icon: 'info',
-          text: error?.error?.message ?? 'SMS not sent, there was an error sending SMS',
+          text: userError(error),
           showConfirmButton: false,
           timer: 4000
         });
@@ -344,7 +345,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: 'Email not sent, there was an error sending SMS',
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           })

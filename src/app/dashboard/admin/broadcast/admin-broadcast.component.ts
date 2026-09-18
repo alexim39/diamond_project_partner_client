@@ -14,7 +14,7 @@ import { RouterModule } from '@angular/router';
 import {
   AdminBroadcastService, AudienceEstimate, BroadcastRow, CampaignAudience, CampaignPayload,
 } from './admin-broadcast.service';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 /**
  * @title Broadcast desk — notices, campaigns and receipts.
@@ -506,7 +506,7 @@ export class AdminBroadcastComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });
@@ -543,7 +543,7 @@ export class AdminBroadcastComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.sending.set(false);
-          this.sendError.set(err.message);
+          this.sendError.set(userError(err));
         },
       });
   }
@@ -627,7 +627,7 @@ export class AdminBroadcastComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.estimating.set(false);
-          this.campaignError.set(err.message);
+          this.campaignError.set(userError(err));
         },
       });
   }
@@ -657,7 +657,7 @@ export class AdminBroadcastComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.queuing.set(false);
-          this.campaignError.set(err.message);
+          this.campaignError.set(userError(err));
         },
       });
   }
@@ -679,7 +679,7 @@ export class AdminBroadcastComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.searching.set(false);
-          this.searchError.set(err.message ?? 'Member search failed — try again.');
+          this.searchError.set(userError(err));
         },
       });
   }
@@ -751,7 +751,7 @@ export class AdminBroadcastComponent implements OnInit {
           const data = (res.data ?? {}) as Record<string, unknown>;
           this.detailCache.set({ ...this.detailCache(), [row.id]: { ...row, ...data } });
         },
-        error: (err: ApiError) => this.actionError.set(err.message),
+        error: (err: ApiError) => this.actionError.set(userError(err)),
       });
   }
 
@@ -787,7 +787,7 @@ export class AdminBroadcastComponent implements OnInit {
       },
       error: (err: ApiError) => {
         this.acting.set(false);
-        this.actionError.set(err.message);
+        this.actionError.set(userError(err));
       },
     });
   }
@@ -859,7 +859,7 @@ export class AdminBroadcastComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.acting.set(false);
-          this.actionError.set(err.message);
+          this.actionError.set(userError(err));
         },
       });
   }

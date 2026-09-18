@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProspectService } from '../prospects.service';
+import { ApiError, userError } from '../../../../core/http/api-error';
 
 export interface ClaimLeadData {
   lead: Record<string, unknown>;
@@ -343,10 +344,10 @@ export class ClaimLeadDialogComponent {
         this.done.set(true);
         this.dialogRef.disableClose = false;
       },
-      error: (err: { error?: { message?: string } }) => {
+      error: (err: ApiError) => {
         this.sending.set(false);
         this.dialogRef.disableClose = false;
-        this.failed.set(err?.error?.message ?? 'Server error occurred, please try again.');
+        this.failed.set(userError(err));
       },
     });
   }

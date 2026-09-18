@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { ManualAccount, ManualClaimRow, WalletService } from '../../../core/wallet/wallet.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 const MIN_NGN = 100;
 const MAX_NGN = 1000000;
@@ -228,7 +228,7 @@ export class ManualDepositComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.sending.set(false);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }

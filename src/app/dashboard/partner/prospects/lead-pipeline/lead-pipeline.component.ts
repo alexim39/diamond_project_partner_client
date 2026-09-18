@@ -14,7 +14,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Router, RouterModule } from '@angular/router';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { ApiError } from '../../../../core/http/api-error';
+import { ApiError, userError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
 import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
 import { formatStuckDuration } from '../stuck-duration';
@@ -438,7 +438,7 @@ export class LeadPipelineComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -469,7 +469,7 @@ export class LeadPipelineComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -505,7 +505,7 @@ export class LeadPipelineComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });
@@ -581,7 +581,7 @@ export class LeadPipelineComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }

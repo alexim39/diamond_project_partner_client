@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { LookupHit, ManualClaimRow, WalletService } from '../../../core/wallet/wallet.service';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 type QueueFilter = 'awaiting-review' | 'approved' | 'rejected' | 'all';
 
@@ -247,7 +247,7 @@ export class AdminDepositsComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });
@@ -291,7 +291,7 @@ export class AdminDepositsComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.acting.set(false);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -318,7 +318,7 @@ export class AdminDepositsComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.searching.set(false);
-          this.creditError.set(err.message);
+          this.creditError.set(userError(err));
         },
       });
   }
@@ -348,7 +348,7 @@ export class AdminDepositsComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.crediting.set(false);
-          this.creditError.set(err.message);
+          this.creditError.set(userError(err));
         },
       });
   }

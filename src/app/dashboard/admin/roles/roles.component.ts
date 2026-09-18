@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { ManagedPartner, PlatformStats } from '../../../core/admin/admin.models';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 import { UserRole } from '../../../core/auth/auth.models';
 import { MatDialog } from '@angular/material/dialog';
 import { Member360DialogComponent } from './member-360-dialog.component';
@@ -388,7 +388,7 @@ export class ManageRolesComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });
@@ -471,7 +471,7 @@ export class ManageRolesComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.confirmId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -491,7 +491,7 @@ export class ManageRolesComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.suspendId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -509,7 +509,7 @@ export class ManageRolesComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -527,7 +527,7 @@ export class ManageRolesComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }
@@ -553,7 +553,7 @@ export class ManageRolesComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.eraseId.set(null);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }

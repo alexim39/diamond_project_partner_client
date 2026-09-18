@@ -10,7 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { DepositMethod, WalletService } from '../../../core/wallet/wallet.service';
 import { ManualDepositComponent } from './manual-deposit.component';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 const PRESETS = [1000, 2500, 5000, 10000, 25000];
 const MIN_NGN = 100;
@@ -185,7 +185,7 @@ export class WalletDepositComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.starting.set(false);
-          this.error.set(err.message);
+          this.error.set(userError(err));
         },
       });
   }

@@ -7,7 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { switchMap, take, takeWhile, timer } from 'rxjs';
 import { WalletService } from '../../../core/wallet/wallet.service';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 /**
  * @title Deposit result — return landing from Opay cashier.
@@ -113,7 +113,7 @@ export class WalletDepositResultComponent implements OnInit {
       )
       .subscribe({
         error: (err: ApiError) => {
-          this.detail.set(err.message ?? 'Could not confirm the payment yet — check history in a minute.');
+          this.detail.set(userError(err));
           this.state.set('failed');
         },
         complete: () => {

@@ -94,10 +94,7 @@
               Password is required
             </mat-error>
           }
-          <!-- <mat-error *ngIf="signUpForm.get('password')?.errors?.['minlength'] && signUpForm.get('password')?.touched">
-          Password must be at least 6 characters long.
-        </mat-error> -->
-        @if (signUpForm.get('password')?.errors?.['minDigits']) {
+          @if (signUpForm.get('password')?.errors?.['minDigits']) {
           <mat-error>
             Password must have at least 8 characters.
           </mat-error>

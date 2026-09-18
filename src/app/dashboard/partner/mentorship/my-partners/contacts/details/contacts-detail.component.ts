@@ -18,6 +18,7 @@ import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SMSService } from '../../../../sms/sms.service';
+import { userError } from '../../../../../../core/http/api-error';
 import { ProspectListInterface } from '../../../../prospects/prospects.service';
 import { ProspectResponseComponent } from './prospect-response.component';
 import { Location } from '@angular/common';  
@@ -296,7 +297,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: error?.error?.message ?? 'SMS not sent, there was an error sending SMS',
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           });
@@ -330,7 +331,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
           Swal.fire({
             position: "bottom",
             icon: 'info',
-            text: 'Email not sent, there was an error sending SMS',
+            text: userError(error),
             showConfirmButton: false,
             timer: 4000
           })

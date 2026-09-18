@@ -14,7 +14,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AnnounceEnvelope, Contact, Message, MessageEnvelope, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 type ComposeKind = 'direct' | 'announcement' | 'team';
 
@@ -375,7 +375,7 @@ export class MessagesComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });
@@ -516,7 +516,7 @@ export class MessagesComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.threadLoading.set(false);
-          this.threadError.set(err.message);
+          this.threadError.set(userError(err));
         },
       });
   }
@@ -539,7 +539,7 @@ export class MessagesComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.threadSending.set(false);
-          this.threadSendError.set(err.message);
+          this.threadSendError.set(userError(err));
         },
       });
   }
@@ -573,7 +573,7 @@ export class MessagesComponent implements OnInit {
           this.inbox.set(this.inbox().map((m) => (m.id === msg.id ? { ...m, readAt: new Date().toISOString() } : m)));
           this.unread.set(Math.max(0, this.unread() - 1));
         },
-        error: (err: ApiError) => this.error.set(err.message),
+        error: (err: ApiError) => this.error.set(userError(err)),
       });
   }
 
@@ -626,7 +626,7 @@ export class MessagesComponent implements OnInit {
       },
       error: (err: ApiError) => {
         this.sending.set(false);
-        this.sendError.set(err.message);
+        this.sendError.set(userError(err));
       },
     });
   }

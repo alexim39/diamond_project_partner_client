@@ -15,7 +15,7 @@ import { ContactsService } from '../../contacts/contacts.service';
 import { ExportContactAndEmailService } from '../../../../_common/services/exportContactAndEmail.service';
 import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
 import { TemplateHandoffService } from '../../../../_common/services/template-handoff.service';
-import { ApiError } from '../../../../core/http/api-error';
+import { ApiError, userError } from '../../../../core/http/api-error';
 
 const MAX_LOG_MIRROR = 50;
 
@@ -354,11 +354,11 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
               },
               error: (error: ApiError) => {
                 this.sending = false;
-                this.formError = error.message;
+                this.formError = userError(error);
                 Swal.fire({
                   position: "bottom",
                   icon: 'error',
-                  text: error.message,
+                  text: userError(error),
                   showConfirmButton: false,
                   timer: 4000
                 });
@@ -408,7 +408,7 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
           },
           error: (error: ApiError) => {
             this.sending = false;
-            this.formError = error.message;
+            this.formError = userError(error);
           },
         })
       );
@@ -419,7 +419,7 @@ export class EnterEmailComponent implements OnInit, OnDestroy {
         this.emailService.cancelScheduledEmail(id).subscribe({
           next: () => this.reloadScheduled(),
           error: (error: ApiError) => {
-            this.formError = error.message;
+            this.formError = userError(error);
           },
         })
       );

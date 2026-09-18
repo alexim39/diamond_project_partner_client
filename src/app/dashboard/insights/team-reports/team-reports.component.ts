@@ -15,7 +15,7 @@ import { forkJoin } from 'rxjs';
 import { ReportService } from '../../../core/reports/report.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { DownlineOption, PeriodReport, ReportRequest } from '../../../core/reports/report.models';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
 
@@ -318,7 +318,7 @@ export class TeamReportsComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: ApiError) => {
-          this.error.set(err.message);
+          this.error.set(userError(err));
           this.loading.set(false);
         },
       });
@@ -379,7 +379,7 @@ export class TeamReportsComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.saving.set(false);
-          this.submitError.set(err.message);
+          this.submitError.set(userError(err));
         },
       });
   }
@@ -400,7 +400,7 @@ export class TeamReportsComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.requesting.set(false);
-          this.requestError.set(err.message);
+          this.requestError.set(userError(err));
         },
       });
   }
