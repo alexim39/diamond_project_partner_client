@@ -152,7 +152,8 @@ import { timeAgo } from '../../../_common/date-util';
           <div class="reassign">
             <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Move to @username</mat-label>
-              <input matInput [(ngModel)]="reassignTo" maxlength="80" placeholder="correct owner" />
+              <input matInput [(ngModel)]="reassignTo" maxlength="80" placeholder="e.g. market (not business)" />
+              <mat-hint>Enter a real partner username — business is the shared pool and cannot own page leads.</mat-hint>
             </mat-form-field>
             <button mat-flat-button color="primary" (click)="reassign(lead)" [disabled]="acting() || !reassignTo.trim()">Reassign</button>
           </div>
