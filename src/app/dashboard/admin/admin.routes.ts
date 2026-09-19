@@ -12,6 +12,7 @@ import { AdminAuditComponent } from './audit/admin-audit.component';
 import { AdminTicketsComponent } from './tickets/admin-tickets.component';
 import { AdminModerationComponent } from './moderation/admin-moderation.component';
 import { AdminBroadcastComponent } from './broadcast/admin-broadcast.component';
+import { AdminSubscriptionsComponent } from './subscriptions/admin-subscriptions.component';
 import { AdminPlanComponent } from './plan/admin-plan.component';
 import { AdminProductsComponent } from './products/admin-products.component';
 import { OversightComponent } from './oversight/oversight.component';
@@ -86,6 +87,11 @@ export const AdminRoutes: Routes = [
         path: 'broadcast',
         component: AdminBroadcastComponent,
         title: 'Broadcast - Platform-wide notices',
+      },
+      {
+        path: 'subscriptions',
+        component: AdminSubscriptionsComponent,
+        title: 'Email List - Newsletter subscriptions',
       },
       {
         path: 'plan',

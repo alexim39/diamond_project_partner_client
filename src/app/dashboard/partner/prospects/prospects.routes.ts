@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { GeneralProspectListContainerComponent } from './general-prospect-list/general-prospect-list-container.component';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
-import { EmailListContainerComponent } from './email-list/email-list-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
 import { ProspectDetailComponent } from './prospect-detail/detail.component';
@@ -26,11 +25,13 @@ export const ProspectsRoutes: Routes = [
             path: 'bookings',
             component: ProspectBookingContainerComponent,
             title: "General Prospects Bookings - View all bookings",
-        },  
-         {
+        },
+        {
+            // Retired: the newsletter email list is managed by admins now
+            // (Admin → Growth → Email list). Old links land on the pipeline.
             path: 'email-list',
-            component: EmailListContainerComponent,
-            title: "General Prospects Email List - View all email list",
+            redirectTo: 'pipeline',
+            pathMatch: 'full',
         }, 
         {
             // Consolidated into the pipeline table (same mine-scoped data

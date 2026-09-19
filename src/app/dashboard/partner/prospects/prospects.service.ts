@@ -63,15 +63,4 @@ export class ProspectService {
     return this.apiService.put<any>(`booking/update`, formData, undefined, true);
   }
 
-  // get partner email
-  getEmailList(createdBy: string): Observable<any> {
-    return this.apiService.get<ProspectListInterface>(`booking/email-list/${createdBy}`, undefined, undefined, true);
-  }
-    
-
-  // detele single prospect email
-  deleteSingleEmailFromEmailList(emailId: string): Observable<any> {
-    return this.apiService.get<ProspectListInterface>(`emailSubscription/delete-email/${emailId}`, undefined, undefined, true);
-  }
-   
 }

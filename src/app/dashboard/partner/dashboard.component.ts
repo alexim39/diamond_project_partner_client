@@ -59,7 +59,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'My follow-ups', link: 'prospects/pipeline', title: 'People waiting on you — select rows to message them in bulk' },
       { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
       { label: 'My sessions', link: 'prospects/bookings', title: 'Booked chats and their outcomes' },
-      { label: 'Email list', link: 'prospects/email-list', title: 'Email list' },
       { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
     ],
   },
