@@ -166,11 +166,11 @@ export class TextDownloadComponent {
     }
 
     protected partnerLink(): string {
-      return `c21fg.online/${this.partner?.username ?? ''}`;
+      return `https://diamondproject.c21fg.online/${this.partner?.username ?? ''}`;
     }
 
     private fullContent(template: TextTemplate): string {
-      return `${template.description}\n\nVisit https://${this.partnerLink()} to get started`;
+      return `${template.description}\n\nVisit ${this.partnerLink()} to get started`;
     }
 
     copyContent(template: TextTemplate): void {

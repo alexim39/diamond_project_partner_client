@@ -5,6 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatCardModule} from '@angular/material/card';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
+import { environment } from '../../../../../../environments/environment';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -104,7 +105,8 @@ export class InvitationComponent implements OnInit {
   ngOnInit() {}
 
   protected personalLink(): string {
-    return `https://c21fg.online/${this.partner?.username ?? ''}`;
+    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://diamondproject.c21fg.online';
+    return `${String(base).replace(/\/+$/, '')}/${this.partner?.username ?? ''}`;
   }
 
   protected copyLink(): void {

@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { LandingPageService } from './landing-page.service';
+import { environment } from '../../../../../environments/environment';
 import { userError } from '../../../../core/http/api-error';
 
 /**
@@ -272,14 +273,10 @@ export class LandingPageSettingComponent implements OnChanges, OnDestroy {
   protected publicUrl(): string | null {
     const u = this.partner?.username;
     if (!u) return null;
-    try {
-      const { protocol, hostname, port } = window.location;
-      // Local dev: partner app :4200 → public site :4201. Prod: same origin.
-      const host = port === '4200' ? `${hostname}:4201` : window.location.host;
-      return `${protocol}//${host}/${u}`;
-    } catch {
-      return `/${u}`;
-    }
+    // Prod share domain is diamondproject.c21fg.online (public site), not
+    // diamondproject.c21fg.online (partner dashboard). Dev keeps localhost:4201.
+    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://diamondproject.c21fg.online';
+    return `${String(base).replace(/\/+$/, '')}/${u}`;
   }
 
   protected copyLink(): void {

@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
+import { environment } from '../../../../../environments/environment';
 import { Subscription } from 'rxjs';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ProfileService } from '../../profile/profile.service';
@@ -191,8 +192,10 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
   }
 
   protected publicPageUrl(): string | null {
-    const username = String(this.profile()?.username ?? '').trim().toLowerCase();
-    return username ? `https://www.c21fg.online/${username}` : null;
+    const username = String(this.profile()?.username ?? '').trim();
+    if (!username) return null;
+    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://diamondproject.c21fg.online';
+    return `${String(base).replace(/\/+$/, '')}/${username.toLowerCase()}`;
   }
 
   protected onPhotoUploaded(url: string): void {
@@ -351,14 +354,14 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     this.dialog.open(HelpDialogComponent, {
       data: {help: `
         Make sure your username, which is part of your unique link, is meaningful and easy to remember.
-        For example, in c21fg.online/business, "business" is a meaninful and easy to remember username.
+        For example, in diamondproject.c21fg.online/business, "business" is a meaninful and easy to remember username.
 
         <p>Other examples of good unique link:
           <ul>
-            <li>c21fg.online/join</li>
-            <li>c21fg.online/connect</li>
-            <li>c21fg.online/link</li>
-            <li>c21fg.online/grow</li>
+            <li>diamondproject.c21fg.online/join</li>
+            <li>diamondproject.c21fg.online/connect</li>
+            <li>diamondproject.c21fg.online/link</li>
+            <li>diamondproject.c21fg.online/grow</li>
           </ul>
         </p>
 

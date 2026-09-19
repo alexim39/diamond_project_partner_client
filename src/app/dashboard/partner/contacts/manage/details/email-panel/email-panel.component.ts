@@ -34,7 +34,7 @@ template: `
         
         <div class="copy-link">
             <p>
-                www.c21fg.online/{{partner.username}}
+                diamondproject.c21fg.online/{{partner.username}}
             </p>
             <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
         </div>
@@ -126,7 +126,7 @@ export class ProspectEmailPanelComponent implements OnInit {
     }
 
     copyLink() {  
-        const link = `www.c21fg.online/${this.partner.username}`;  
+        const link = `https://diamondproject.c21fg.online/${this.partner.username}`;  
         navigator.clipboard.writeText(link).then(() => {  
         this.snackBar.open('Link copied to clipboard!', 'Close', {  
             duration: 2000,  

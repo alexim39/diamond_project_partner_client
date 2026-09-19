@@ -256,7 +256,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
   }
 
   copyLink() {  
-    const link = `www.c21fg.online/${this.partner.username}`;  
+    const link = `https://diamondproject.c21fg.online/${this.partner.username}`;  
     navigator.clipboard.writeText(link).then(() => {  
       this.snackBar.open('Link copied to clipboard!', 'Close', {  
         duration: 2000,  
