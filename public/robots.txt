@@ -1,0 +1,4 @@
+# Partner dashboard sits behind login — keep crawlers out so crawl
+# budget and indexed URLs concentrate on the public marketing site.
+User-agent: *
+Disallow: /
