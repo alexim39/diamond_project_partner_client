@@ -30,7 +30,7 @@ interface MyClaim {
  * @title Buy Prospect — the fair lead shelf.
  *
  * Geo-fenced scored pool (server ranks Hot/New/Complete; members never see
- * numbers), KPI header (available · claimed today x/3 · active claims with
+ * numbers), KPI header (available · claimed today x/5 · active claims with
  * nearest deadline), masked cards with dossier + claim flow, My-claims
  * countdowns, no-state gate, admin CSV import. Mobile-first cards,
  * server pagination, no images — built for low bandwidth.
@@ -262,7 +262,7 @@ export class GeneralProspectListComponent implements OnInit {
   }
 
   protected dailyLimit(): number {
-    return this.meta()?.dailyLimit ?? 3;
+    return this.meta()?.dailyLimit ?? 5;
   }
 
   protected canClaimMore(): boolean {
