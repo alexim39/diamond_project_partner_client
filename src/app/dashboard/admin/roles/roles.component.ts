@@ -160,6 +160,7 @@ const RANK_ORDER = [
               <th mat-header-cell *matHeaderCellDef>Partner</th>
               <td mat-cell *matCellDef="let row" class="name-cell">
                 <button mat-button (click)="open360(row)" [matTooltip]="'Open member 360 for ' + displayName(row)">{{ displayName(row) }}</button>
+                <div class="muted">@{{ row.username || '—' }}</div>
               </td>
             </ng-container>
             <ng-container matColumnDef="contact">
