@@ -4,6 +4,7 @@ import { PayoutQueueComponent } from './payouts/payouts.component';
 import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
 import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
 import { AdminDepositsComponent } from './deposits/admin-deposits.component';
+import { AdminLeadsComponent } from './leads/admin-leads.component';
 import { AdminReservationsComponent } from './reservations/admin-reservations.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
@@ -45,6 +46,11 @@ export const AdminRoutes: Routes = [
         path: 'deposits',
         component: AdminDepositsComponent,
         title: 'Manual Deposits - Confirm transfers and credit wallets',
+      },
+      {
+        path: 'leads',
+        component: AdminLeadsComponent,
+        title: 'Lead Pool - Manage Buy Prospect supply',
       },
       {
         path: 'reservations',
