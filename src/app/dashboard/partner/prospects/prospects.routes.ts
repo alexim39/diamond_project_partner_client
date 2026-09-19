@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { GeneralProspectListContainerComponent } from './general-prospect-list/general-prospect-list-container.component';
+import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
@@ -34,11 +35,12 @@ export const ProspectsRoutes: Routes = [
             pathMatch: 'full',
         }, 
         {
-            // Consolidated into the pipeline table (same mine-scoped data
-            // over the validated v1 API). Component file kept for rollback.
+            // My Page Leads — private inbox for leads submitted via this
+            // partner's public page (/:partnerUsername). Never part of the
+            // shared Buy Prospect pool (username='business').
             path: 'personal-list',
-            redirectTo: 'pipeline',
-            pathMatch: 'full',
+            component: MyProspectListContainerComponent,
+            title: "My Page Leads - Leads from your public page",
         },
         {
             path: 'pipeline',

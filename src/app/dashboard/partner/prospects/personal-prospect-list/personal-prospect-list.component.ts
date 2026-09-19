@@ -1,362 +1,317 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { PartnerInterface } from '../../../../_common/services/partner.service';
-import { MatIconModule } from '@angular/material/icon';
-import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { MatSelectModule } from '@angular/material/select';
-import { Subscription } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router, RouterModule } from '@angular/router';
-import { ProspectService, ProspectListInterface } from '../prospects.service';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
+import { PartnerInterface } from '../../../../_common/services/partner.service';
+import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
+import { ProspectListInterface } from '../prospects.service';
 import { ProspectResponseComponent } from './prospect-response.component';
+import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
+import { ApiError, userError } from '../../../../core/http/api-error';
 import { timeAgo } from '../../../../_common/date-util';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import { HttpErrorResponse } from '@angular/common/http';
-import { userError } from '../../../../core/http/api-error';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
+interface InboxRow extends ProspectListInterface {
+  _id: string;
+  name: string;
+  surname: string;
+  email: string;
+  phoneNumber: string;
+  createdAt: Date;
+  prospectStatus?: string;
+  referral?: string;
+  referralCode?: string;
+  state?: string;
+}
 
 /**
- * @title Prospect listing
+ * @title My Page Leads — private inbox for /:partnerUsername submissions.
+ *
+ * Diamond design language (dp-card, gold accents, mobile card rows like the
+ * pipeline). One job: accept each submission into My follow-ups (free,
+ * session-owned, no wallet movement) or inspect full answers first.
+ * Private rows never appear in Buy Prospect — the subtitle says so.
  */
 @Component({
-selector: 'async-my-prospect-list',
-template: `
+  selector: 'async-my-prospect-list',
+  template: `
+    <section class="breadcrumb-wrapper">
+      <div class="breadcrumb">
+        <a routerLink="/dashboard" (click)="scrollToTop()">Dashboard</a> &gt;
+        <a>Prospects</a> &gt;
+        <span>My Page Leads</span>
+      </div>
+    </section>
 
-<section class="breadcrumb-wrapper">
-  <div class="breadcrumb">
-    <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Dashboard</a> &gt;
-    <a>Prospect Analytics</a> &gt;
-    <a>Converstion Analytics</a> &gt;
-    <span>Prospect list</span>
-  </div>
-</section>
-
-<section class="async-background ">
-  <h2>Manage My Prospect List <mat-icon (click)="showDescription()">help</mat-icon></h2>
-
-  <section class="async-container">
-    <div class="title">
-      <h3>My Online Survey List</h3>
-      <div class="action-area">
+    <section class="inbox-page">
+      <div class="page-head">
+        <div>
+          <h2>My Page Leads <mat-icon class="help" (click)="showDescription()">help</mat-icon></h2>
+          <p class="subtitle">
+            Private submissions via your public page
+            @if (partner?.username) { <strong>/{{ partner.username }}</strong> }
+            — accept each to work it in My follow-ups. Never in Buy Prospect.
+          </p>
+        </div>
         <mat-button-toggle-group>
-          <mat-button-toggle routerLink="../../tools/contacts/list" routerLinkActive="active" (click)="scrollToTop()" title="View contact list"><mat-icon>view_list</mat-icon> Contact List</mat-button-toggle>
-          <!-- <mat-button-toggle routerLink="../prospect-list" routerLinkActive="active" (click)="scrollToTop()" title="Prospect List"><mat-icon>view_list</mat-icon> Online Prospect Contact</mat-button-toggle> -->
-          <mat-button-toggle routerLink="../../prospects/general-list" routerLinkActive="active" (click)="scrollToTop()" title="Buy Prospect"><mat-icon>groups</mat-icon> Buy Prospect</mat-button-toggle>
+          <mat-button-toggle routerLink="../personal-list" [checked]="true" title="My Page Leads — your public page submissions">
+            <mat-icon>inbox</mat-icon> My Page Leads
+          </mat-button-toggle>
+          <mat-button-toggle routerLink="../pipeline" title="My follow-ups — accepted leads you are working">
+            <mat-icon>trending_up</mat-icon> My follow-ups
+          </mat-button-toggle>
+          <mat-button-toggle routerLink="../general-list" title="Buy Prospect — shared platform pool">
+            <mat-icon>groups</mat-icon> Buy Prospect
+          </mat-button-toggle>
         </mat-button-toggle-group>
       </div>
 
-    </div>
+      @if (notice(); as note) {
+        <p class="notice" role="status">{{ note }}</p>
+      }
+      @if (error(); as err) {
+        <p class="error" role="alert">{{ err }}</p>
+      }
 
-    @if (!isEmptyRecord) {
-      <div class="search">
-        <mat-form-field appearance="outline">
-          <mat-label>Filter by prospect name</mat-label>
-          <input matInput type="search" name="contactFilter" [(ngModel)]="filterText" (ngModelChange)="applyFilter($event)">
+      <div class="kpi-grid">
+        <mat-card class="kpi"><mat-card-content>
+          <mat-icon>inbox</mat-icon>
+          <span class="kpi-value">{{ rows().length }}</span>
+          <span class="kpi-label">Awaiting accept</span>
+        </mat-card-content></mat-card>
+        <mat-card class="kpi"><mat-card-content>
+          <mat-icon>fiber_new</mat-icon>
+          <span class="kpi-value">{{ todayCount() }}</span>
+          <span class="kpi-label">Arrived today</span>
+        </mat-card-content></mat-card>
+        <mat-card class="kpi"><mat-card-content>
+          <mat-icon>link</mat-icon>
+          <span class="kpi-value kpi-path">@if (partner?.username) { /{{ partner.username }} } @else { — }</span>
+          <span class="kpi-label">Your public page</span>
+        </mat-card-content></mat-card>
+      </div>
+
+      <div class="toolbar">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+          <mat-label>Search name, phone or email</mat-label>
+          <input matInput type="search" [value]="query()" (input)="query.set($any($event.target).value)" maxlength="60" />
+          <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
+        @if (accepting()) { <mat-progress-bar mode="indeterminate" class="loader" /> }
       </div>
-      <div class="table">
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>
-              @if (badgeValue > 0) {
-                <span matTooltip="Not yet moved contact" [matBadge]="badgeValue" matBadgeOverlap="false">Name</span>
-              }
-              @if (badgeValue === 0) {
-                <span>Name</span>
-              }
-            </th>
-            <td mat-cell *matCellDef="let element" class="bold-text" style="cursor: pointer;" (click)="ViewResponse(element)" title="View detailed responses">
-              {{element.name | titlecase }} {{element.surname | titlecase}}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef> Phone </th>
-            <td mat-cell *matCellDef="let element"> {{element.phoneNumber}} </td>
-          </ng-container>
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef> Email </th>
-            <td mat-cell *matCellDef="let element"> {{element.email | lowercase}} </td>
-          </ng-container>
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              [ngClass]="{'bold-text': element.prospectStatus === 'Moved to Contact'}">
-              {{element.prospectStatus}}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>
-              @if (badgeValue > 0) {
-                <span matTooltip="Today's prospect" [matBadge]="todaysProsect" matBadgeOverlap="false">Date</span>
-              }
-            </th>
-            <td mat-cell *matCellDef="let element"> {{element.createdAt | date}} </td>
-          </ng-container>
-          <ng-container matColumnDef="dateAgo">
-            <th mat-header-cell *matHeaderCellDef> Duration </th>
-            <td mat-cell *matCellDef="let element"> {{ getDateAgo(element) }}  </td>
-          </ng-container>
-          <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action </th>
-            <td mat-cell *matCellDef="let element" style="cursor: pointer;">
-              <button (click)="moveToContact(element._id)" mat-button [disabled]="element.prospectStatus == 'Moved to Contact'">Move to Contact</button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-            [ngClass]="{'moved-to-contact': row.prospectStatus == 'Moved to Contact'}">
-          </tr>
-        </table>
-        <mat-paginator [pageSizeOptions]="[10, 20, 30, 60, 100]" showFirstLastButtons></mat-paginator>
-      </div>
-    }
-    @if (isEmptyRecord && dataSource.data.length === 0) {
-      <p class="no-campaign">No prospect contact available yet</p>
-    }
-  </section>
-</section>
 
-
-`,
-styles: [`
-
-.async-background {
-    margin: 2em;
-    h2 {
-        mat-icon {
-            cursor: pointer;
-        }
-    }
-    .async-container {
-        background-color: #dcdbdb;
-        border-radius: 10px;
-        height: 100%;
-        padding: 1em;
-        .title {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #ccc;
-            padding: 1em;
-            .action-area {
-                .action {
-                    font-weight: bold;
-                    margin-top: 1em;
+      @if (filtered().length === 0) {
+        <div class="empty-card">
+          <mat-icon>inbox</mat-icon>
+          <p>No page leads right now — share your public page link
+            @if (partner?.username) { <strong>/{{ partner.username }}</strong> }
+            and submissions land here instantly.</p>
+          <a mat-flat-button color="primary" routerLink="../pipeline">Open My follow-ups</a>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="filtered()" class="mat-elevation-z2">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let row" class="name-cell" data-label="Lead">
+                <button class="name-btn" (click)="view(row)" [matTooltip]="'View full answers'" matTooltipPosition="above">
+                  {{ row.name }} {{ row.surname }}
+                </button>
+                <div class="muted">{{ row.state || '' }}</div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="contact">
+              <th mat-header-cell *matHeaderCellDef>Contact</th>
+              <td mat-cell *matCellDef="let row" data-label="Contact">
+                <div>{{ row.phoneNumber || '—' }}</div>
+                <div class="muted">{{ row.email || '—' }}</div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="via">
+              <th mat-header-cell *matHeaderCellDef>Heard via</th>
+              <td mat-cell *matCellDef="let row" data-label="Heard via">
+                <div>{{ row.referral || '—' }}</div>
+                @if (row.referralCode) { <div class="muted">{{ row.referralCode }}</div> }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="arrived">
+              <th mat-header-cell *matHeaderCellDef>Arrived</th>
+              <td mat-cell *matCellDef="let row" data-label="Arrived">
+                <div>{{ row.createdAt | date:'mediumDate' }}</div>
+                <div class="muted">{{ ageOf(row) }}</div>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let row" class="action-cell" data-label="Actions">
+                <button mat-button (click)="view(row)">View</button>
+                @if (confirmId() === row._id) {
+                  <button mat-flat-button color="primary" (click)="accept(row)" [disabled]="accepting()">Confirm accept?</button>
+                  <button mat-button (click)="confirmId.set(null)">Back</button>
+                } @else {
+                  <button mat-flat-button color="primary" (click)="confirmId.set(row._id)" [disabled]="accepting()">Accept</button>
                 }
-            }
-        }
-
-        .search {
-            padding: 0.5em 0;
-            text-align: center;
-            mat-form-field {
-                width: 70%;
-
-            }
-        }    
-        
-        .table {
-            padding: 0 1em;
-            border-radius: 10px;
-            background-color: white;
-        }
-
-        .no-campaign {
-            text-align: center;
-            color: rgb(196, 129, 4);
-            font-weight: bold;
-        }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+          </table>
+        </div>
+        <p class="total muted">Showing {{ filtered().length }} of {{ rows().length }} awaiting accept</p>
+      }
+    </section>
+  `,
+  styles: [`
+    .breadcrumb-wrapper { margin-bottom: 1em; }
+    .breadcrumb a { text-decoration: none; cursor: pointer; }
+    .inbox-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
+    .page-head h2 { margin: 0; display: flex; align-items: center; gap: 0.4em; }
+    .help { cursor: pointer; }
+    .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 46em; }
+    .subtitle strong { color: var(--dp-gold-ink); }
+    .notice { color: var(--dp-success); }
+    .error { color: var(--dp-error); }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75em; }
+    .kpi mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
+    .kpi mat-icon { color: var(--dp-gold); }
+    .kpi-value { font-size: 1.5em; font-weight: 700; }
+    .kpi-path { font-size: 1.1em; word-break: break-all; }
+    .kpi-label { color: var(--dp-muted); font-size: 0.85em; }
+    .toolbar { display: flex; gap: 0.75em; align-items: center; flex-wrap: wrap; }
+    .toolbar .search-field { flex: 1 1 220px; }
+    .loader { flex: 2; min-width: 120px; }
+    .table-wrap { overflow-x: auto; border-radius: 8px; }
+    table { width: 100%; }
+    .name-cell { font-weight: 600; }
+    .name-btn { background: none; border: none; padding: 0; font: inherit; font-weight: 700; cursor: pointer; color: inherit; text-transform: capitalize; }
+    .name-btn:hover { color: var(--dp-gold-ink); text-decoration: underline; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .total { margin: 0; }
+    .empty-card { display: flex; flex-direction: column; align-items: center; gap: 0.7em; text-align: center; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 14px; padding: 2.5em 1.5em; color: var(--dp-muted); }
+    .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
+    .empty-card p { margin: 0; max-width: 34em; }
+    .empty-card strong { color: var(--dp-gold-ink); }
+    button, a[mat-button], a[mat-flat-button] { min-height: 44px; }
+    @media only screen and (max-width: 600px) {
+      .table-wrap { overflow-x: visible; }
+      .mat-mdc-table thead { display: none; }
+      .mat-mdc-table tbody { display: flex; flex-direction: column; gap: 0.75em; background: transparent; }
+      .mat-mdc-table tr.mat-row { display: block; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.25em 0; }
+      .mat-mdc-table td.mat-cell { display: flex; align-items: center; gap: 0.75em; border-bottom: 1px solid var(--dp-line); padding: 0.6em 0.9em; }
+      .mat-mdc-table td.mat-cell:last-child { border-bottom: none; }
+      .mat-mdc-table td.mat-cell::before { content: attr(data-label); flex: none; width: 6em; color: var(--dp-muted); font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+      .mat-mdc-table td.action-cell { flex-wrap: wrap; row-gap: 0.5em; }
     }
-}
-
-.form-container {
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    .flex-form {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        .form-group {
-            flex: 1 1 calc(50% - 20px); /* Adjusting for gap space */
-            display: flex;
-            flex-direction: column;
-        }    
-    }
-}
-
-.moved-to-contact {
-    background-color: #f4f4f4; /* Light green background */
-}
-
-.bold-text {
-    font-weight: bolder;
-}
-
-@media (max-width: 600px) {
-    .form-group {
-        flex: 1 1 100%;
-    }
-}
-
-`],
-providers: [ProspectService],
-changeDetection: ChangeDetectionStrategy.Eager,
-imports: [CommonModule, MatIconModule, RouterModule, MatTooltipModule, MatChipsModule, MatTableModule, MatBadgeModule, MatIconModule, MatPaginatorModule, MatFormFieldModule, MatProgressBarModule, MatButtonModule, FormsModule, MatInputModule, MatSelectModule,
-  MatButtonToggleModule
-]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule, FormsModule, MatButtonModule, MatButtonToggleModule, MatCardModule,
+    MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule,
+    MatTableModule, MatTooltipModule, RouterModule,
+  ],
 })
-export class MyProspectListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class MyProspectListComponent implements OnInit, OnChanges {
   @Input() partner!: PartnerInterface;
-  readonly dialog = inject(MatDialog);
   @Input() prospectList!: ProspectListInterface[];
 
-  subscriptions: Array<Subscription> = [];
+  private readonly dialog = inject(MatDialog);
+  private readonly leads = inject(LeadPipelineService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  dataSource = new MatTableDataSource<any>([]);
-  isEmptyRecord = false;
+  protected readonly columns = ['name', 'contact', 'via', 'arrived', 'action'];
+  protected readonly rows = signal<InboxRow[]>([]);
+  protected readonly query = signal('');
+  protected readonly notice = signal<string | null>(null);
+  protected readonly error = signal<string | null>(null);
+  protected readonly accepting = signal(false);
+  protected readonly confirmId = signal<string | null>(null);
 
-  filterText: string = '';
+  protected readonly filtered = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    const list = [...this.rows()].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    if (!q) return list;
+    return list.filter((r) =>
+      `${r.name ?? ''} ${r.surname ?? ''} ${r.phoneNumber ?? ''} ${r.email ?? ''}`.toLowerCase().includes(q),
+    );
+  });
 
-  displayedColumns: string[] = ['name', 'phone', 'email', 'status', 'date', 'dateAgo', 'action'];
-  timeAgoList: string[] = [];
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  todaysProsect: number = 0; // Set this value dynamically as needed
-  badgeValue: number = 0; // Set this value dynamically as needed
-
-  constructor(
-    private prospectService: ProspectService,
-    private router: Router,
-  ) { }
+  protected readonly todayCount = computed(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return this.rows().filter((r) => String((r as { createdAt?: unknown }).createdAt ?? '').slice(0, 10) === today).length;
+  });
 
   ngOnInit(): void {
-    if (this.prospectList) {
-      this.dataSource.data = this.prospectList.sort((a: any, b: any) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-
-      if (this.dataSource.data.length === 0) {
-        this.isEmptyRecord = true;
-      }
-
-      this.calculateNewBookings();
-      this.calculateBadgeValue();
-    }
-
-    this.dataSource.filterPredicate = (data: any, filter: string) => {
-      return data.name.toLowerCase().includes(filter.toLowerCase()) || data.surname.toLowerCase().includes(filter.toLowerCase());
-    };
+    this.resetRows(this.prospectList);
   }
 
-  calculateNewBookings(): void {
-    const today = new Date().toISOString().split('T')[0];
-    this.todaysProsect = this.dataSource.data.filter((item: any) => {
-      return item.createdAt.split('T')[0] === today;
-    }).length;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['prospectList']) this.resetRows(changes['prospectList'].currentValue);
   }
 
-  calculateBadgeValue(): void {
-    this.badgeValue = this.dataSource.data.filter((item: any) => {
-      return item.prospectStatus !== "Moved to Contact";
-    }).length;
+  private resetRows(list: ProspectListInterface[] | undefined): void {
+    this.rows.set(Array.isArray(list) ? (list as InboxRow[]) : []);
+    this.confirmId.set(null);
   }
 
-  applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  protected ageOf(row: InboxRow): string {
+    return timeAgo(new Date(row.createdAt));
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
-
-  getDateAgo(element: any): string {
-    return timeAgo(new Date(element.createdAt));
-  }
-
- ViewResponse(prospect: ProspectListInterface) {
+  protected view(row: InboxRow): void {
     this.dialog.open(ProspectResponseComponent, {
-      data: {prospect, partner: this.partner}
-    });
-  }
-
-  moveToContact(prospectId: string): void {
-    Swal.fire({
-      title: "Confirm moving prospect to contact list?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, move it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.scrollToTop();
-
-        const partnerId = this.partner._id;
-
-        this.subscriptions.push(
-          this.prospectService.importSingle({ partnerId, prospectId, source: 'link' }).subscribe({
-            next: (response) => {
-
-               // Remove the moved prospect from the table
-                this.dataSource.data = this.dataSource.data.filter((item: ProspectListInterface) => item._id !== prospectId);
-
-                // Recalculate badges and today's prospect count
-                this.calculateNewBookings();
-                this.calculateBadgeValue();
-
-              Swal.fire({
-                position: "bottom",
-                icon: 'success',
-                text: response.message,//`Your have successfully moved prospect to contact list`,
-                showConfirmButton: true,
-                confirmButtonColor: "#ffab40",
-                confirmButtonText: "OK",
-                timer: 15000,
-              })
-            },
-            error: (error: HttpErrorResponse) => {
-              Swal.fire({
-                position: "bottom",
-                icon: 'error',
-                text: userError(error),
-                showConfirmButton: false,
-                timer: 4000
-              });
-            }
-          })
-        )
+      data: { prospect: row, partner: this.partner },
+    }).afterClosed().subscribe((res: { accepted?: boolean; id?: string } | undefined) => {
+      if (res?.accepted && res?.id) {
+        this.rows.set(this.rows().filter((r) => r._id !== res.id));
+        this.notice.set('Lead accepted — find it in My follow-ups.');
       }
     });
   }
 
-  showDescription() {
+  /** Free accept into My follow-ups (session-owned v1, no wallet movement). */
+  protected accept(row: InboxRow): void {
+    if (this.accepting()) return;
+    this.confirmId.set(null);
+    this.accepting.set(true);
+    this.error.set(null);
+    this.leads
+      .acceptPageLead(row._id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.accepting.set(false);
+          this.rows.set(this.rows().filter((r) => r._id !== row._id));
+          this.notice.set(res.message ?? 'Lead accepted — find it in My follow-ups.');
+        },
+        error: (err: ApiError) => {
+          this.accepting.set(false);
+          this.error.set(userError(err));
+        },
+      });
+  }
+
+  protected showDescription(): void {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: `View and manage your personal online list of your potential prospect`
+        help: 'My Page Leads: people who joined via your public page (/:your-username). Accept each for free — it moves to My follow-ups. Your page leads never appear in Buy Prospect.',
       },
     });
   }
 
-  scrollToTop() {
+  protected scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-  
 }

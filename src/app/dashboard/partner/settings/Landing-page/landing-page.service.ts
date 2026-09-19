@@ -52,6 +52,12 @@ export class LandingPageService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
+  updateLandingPage(payload: Record<string, unknown>): Observable<any> {
+    return this.http
+      .put<any>(this.apiURL + `/partners/landing-page`, payload, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
 
 
    

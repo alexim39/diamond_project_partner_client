@@ -50,13 +50,16 @@ import { forkJoin } from 'rxjs';
       <div class="page-head">
         <div>
           <h2>Lead Pipeline</h2>
-          <p class="subtitle">Work your claimed Buy Prospect leads from first contact to converted partner.</p>
+          <p class="subtitle">Work your accepted My Page Leads and claimed Buy Prospect leads from first contact to converted partner.</p>
         </div>
         <mat-button-toggle-group>
+          <mat-button-toggle routerLink="../personal-list" title="My Page Leads — submissions from your public page">
+            <mat-icon>inbox</mat-icon> My Page Leads
+          </mat-button-toggle>
           <mat-button-toggle routerLink="/dashboard/tools/contacts/new" title="Add someone to your contact list">
             <mat-icon>person_add</mat-icon> Add someone
           </mat-button-toggle>
-          <mat-button-toggle routerLink="../general-list" title="Buy prospect">
+          <mat-button-toggle routerLink="../general-list" title="Buy prospect — shared pool">
             <mat-icon>groups</mat-icon> Buy Prospect
           </mat-button-toggle>
         </mat-button-toggle-group>

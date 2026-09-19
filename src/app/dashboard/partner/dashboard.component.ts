@@ -55,7 +55,8 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'prospects', label: 'Prospects', icon: 'person_search', title: 'Find, follow up and convert',
     children: [
-      { label: 'Buy prospect', link: 'prospects/general-list', title: 'Buy prospects to grow your list' },
+      { label: 'My Page Leads', link: 'prospects/personal-list', title: 'Leads from your public page (/:your-username) — private to you' },
+      { label: 'Buy prospect', link: 'prospects/general-list', title: 'Shared platform pool — never includes your page leads' },
       { label: 'My follow-ups', link: 'prospects/pipeline', title: 'People waiting on you — select rows to message them in bulk' },
       { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
       { label: 'My sessions', link: 'prospects/bookings', title: 'Booked chats and their outcomes' },

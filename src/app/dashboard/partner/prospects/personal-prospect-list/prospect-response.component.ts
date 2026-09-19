@@ -1,225 +1,190 @@
 import { CommonModule } from '@angular/common';
-import {Component, inject, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
+import { Component, DestroyRef, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import {MatExpansionModule} from '@angular/material/expansion';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import Swal from 'sweetalert2';
-import { Subscription } from 'rxjs';
-import { ProspectService } from '../prospects.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { userError } from '../../../../core/http/api-error';
+import { LeadPipelineService } from '../lead-pipeline/lead-pipeline.service';
+import { ApiError, userError } from '../../../../core/http/api-error';
+import { timeAgo } from '../../../../_common/date-util';
+
+interface DialogLead {
+  _id: string;
+  name?: string;
+  surname?: string;
+  phoneNumber?: string;
+  email?: string;
+  ageRange?: string;
+  referral?: string;
+  referralCode?: string;
+  socialMedia?: string[] | string;
+  onlinePurchaseSchedule?: string;
+  primaryOnlineBusinessMotivation?: string;
+  importanceOfPassiveIncome?: string;
+  employedStatus?: string;
+  comfortWithTech?: string;
+  onlineBusinessTimeDedication?: string;
+  country?: string;
+  state?: string;
+  createdAt?: string | Date;
+}
 
 /**
- * @title Prospect Detail 
+ * @title Page-lead answers — decision dialog, not a data dump.
+ *
+ * Diamond language (avatar, dp-status chips, grouped answers, contact
+ * shortcuts). Goal: help the partner decide in seconds — call/mail now or
+ * Accept into My follow-ups (free, same v1 endpoint as the inbox row).
+ * Closes with `{ accepted: true, id }` so the inbox drops the row.
  */
 @Component({
-selector: 'async-prospect-response',
-providers: [ProspectService],
-styles: `
-  span {
-    color: gray;
-  }
-  .bolder {
-    font-weight: bolder;
-    color: black;
-    margin-top: 5px;
-  }
-  `,
-    template: `
+  selector: 'async-prospect-response',
+  template: `
+    <h2 mat-dialog-title class="head">
+      <span class="avatar">{{ initials() }}</span>
+      <span class="head-text">
+        <strong>{{ fullName() }}</strong>
+        <small class="muted">
+          @if (lead.state) { {{ lead.state }} · }
+          arrived {{ arrivedAgo() }} · via your public page
+        </small>
+      </span>
+    </h2>
 
-<h2 mat-dialog-title>{{data.prospect.surname | titlecase}} {{data.prospect.name | titlecase}}'s Response</h2>
-
-<mat-dialog-content>
-
-  <mat-list>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect phone number:</span>
-      <span matListItemLine class="bolder">{{data.prospect.phoneNumber}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect email address:</span>
-      <span matListItemLine class="bolder">{{data.prospect.email}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect age range:</span>
-      <span matListItemLine class="bolder">{{data.prospect.ageRange}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect knew about us through:</span>
-      <span matListItemLine class="bolder">{{data.prospect.referral}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    @if (data.prospect.referralCode) {
-      <mat-list-item>
-        <span matListItemTitle>Prospect was referred by:</span>
-        <span matListItemLine class="bolder">{{data.prospect.referralCode}}</span>
-        <small style="color: gray;"><em>Note that {{data.prospect.referralCode}} may be a partner in our business</em></small>
-      </mat-list-item>
-    }
-    @if (data.prospect.referralCode) {
-      <mat-divider></mat-divider>
-    }
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect favourite social media platforms:</span>
-      <span matListItemLine class="bolder">{{data.prospect.socialMedia}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect online purchase frequency:</span>
-      <span matListItemLine class="bolder">{{data.prospect.onlinePurchaseSchedule}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect motivation for joining online businesses:</span>
-      <span matListItemLine class="bolder">{{data.prospect.primaryOnlineBusinessMotivation | titlecase}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect Importance of passive income:</span>
-      <span matListItemLine class="bolder">{{data.prospect.importanceOfPassiveIncome | titlecase}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect employment status:</span>
-      <span matListItemLine class="bolder">{{data.prospect.employedStatus | titlecase}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect comfort with technology:</span>
-      <span matListItemLine class="bolder">{{data.prospect.comfortWithTech}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Business time dedication:</span>
-      <span matListItemLine class="bolder">{{data.prospect.onlineBusinessTimeDedication}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Prospect Country:</span>
-      <span matListItemLine class="bolder">{{data.prospect.country}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item >
-      <span matListItemTitle>Prospect State of Origin:</span>
-      <span matListItemLine class="bolder">{{data.prospect.state ? data.prospect.state : 'State not found'}}</span>
-    </mat-list-item>
-    <mat-divider></mat-divider>
-
-    <mat-list-item>
-      <span matListItemTitle>Date of Visit</span>
-      <span matListItemLine class="bolder">{{ data.prospect.createdAt | date:'fullDate' }} by {{ data.prospect.createdAt | date:'shortTime' }}</span>
-    </mat-list-item>
-
-  </mat-list>
-
-
-  <!-- <mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title> More Action </mat-panel-title>
-    </mat-expansion-panel-header>
-    <p style="color: gray;">Remove prospect from survey list</p>
-    <button mat-stroked-button (click)="deleteProspect(data._id)" style="color: red;">
-      <mat-icon>delete</mat-icon>
-      Delete
-    </button>
-
-  </mat-expansion-panel>
-</mat-accordion> -->
-
-<br><br><br>
-</mat-dialog-content>
-
-<mat-dialog-actions>
-  <button mat-button (click)="close()">Ok</button>
-</mat-dialog-actions>
-
-`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CommonModule, MatListModule, MatDialogModule, MatIconModule, MatExpansionModule, MatButtonModule, MatDividerModule, MatDialogTitle, MatDialogContent, MatDialogActions]
-})
-export class ProspectResponseComponent implements OnDestroy {
-  readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);
-  readonly data = inject<any>(MAT_DIALOG_DATA);
-  subscriptions: Array<Subscription> = [];
-
-  constructor(
-      private prospectService: ProspectService,
-  ) {}
-
-  close(): void {
-      this.dialogRef.close();
-  }
-
-  /* deleteProspect(prospectId: string) {
-    Swal.fire({
-      title: "Are you sure of this delete action?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-      if (result.isConfirmed) {
-      
-          this.subscriptions.push(
-            this.prospectService.deleteSingle(prospectId).subscribe({
-              next: (response) => {
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'success',
-                  text: response.message, //`Your have successfully deleted prospect from the system`,
-                  showConfirmButton: true,
-                  confirmButtonText: "Ok",
-                  confirmButtonColor: "#ffab40",
-                  timer: 15000,
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    //this.router.navigateByUrl('dashboard/manage-contacts');
-                    location.reload();
-                  }
-                });
-              },
-              error: (error: HttpErrorResponse) => {
-                Swal.fire({
-                  position: "bottom",
-                  icon: 'error',
-                  text: userError(error),
-                  showConfirmButton: false,
-                  timer: 4000
-                });
-              }
-            })
-          )
-
+    <mat-dialog-content class="body">
+      @if (error(); as err) {
+        <p class="error" role="alert">{{ err }}</p>
       }
-    });
-  } */
 
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+      <div class="contact-row">
+        @if (lead.phoneNumber) {
+          <a mat-stroked-button [href]="'tel:' + lead.phoneNumber"><mat-icon>call</mat-icon> {{ lead.phoneNumber }}</a>
+        }
+        @if (lead.email) {
+          <a mat-stroked-button [href]="'mailto:' + lead.email"><mat-icon>mail</mat-icon> <span class="mail">{{ lead.email }}</span></a>
+        }
+      </div>
+
+      <div class="groups">
+        <section>
+          <h4>Background</h4>
+          <div class="qa"><span>Age range</span><strong>{{ lead.ageRange || '—' }}</strong></div>
+          <div class="qa"><span>Employment</span><strong>{{ lead.employedStatus || '—' }}</strong></div>
+          <div class="qa"><span>Tech comfort</span><strong>{{ lead.comfortWithTech || '—' }}</strong></div>
+          <div class="qa"><span>Hours / week</span><strong>{{ lead.onlineBusinessTimeDedication || '—' }}</strong></div>
+          <div class="qa"><span>Favourite platforms</span><strong>{{ socials() }}</strong></div>
+        </section>
+        <section>
+          <h4>Business fit</h4>
+          <div class="qa"><span>Motivation</span><strong>{{ lead.primaryOnlineBusinessMotivation || '—' }}</strong></div>
+          <div class="qa"><span>Passive income</span><strong>{{ lead.importanceOfPassiveIncome || '—' }}</strong></div>
+          <div class="qa"><span>Buys online</span><strong>{{ lead.onlinePurchaseSchedule || '—' }}</strong></div>
+          <div class="qa"><span>Heard via</span><strong>{{ lead.referral || '—' }}</strong></div>
+          @if (lead.referralCode) {
+            <div class="qa"><span>Referred by</span><strong>{{ lead.referralCode }}</strong></div>
+          }
+        </section>
+        <section>
+          <h4>Logistics</h4>
+          <div class="qa"><span>Country</span><strong>{{ lead.country || '—' }}</strong></div>
+          <div class="qa"><span>State</span><strong>{{ lead.state || '—' }}</strong></div>
+          <div class="qa"><span>Submitted</span><strong>{{ lead.createdAt | date:'fullDate' }} · {{ lead.createdAt | date:'shortTime' }}</strong></div>
+        </section>
+      </div>
+      <p class="hint muted">Accept moves this lead to My follow-ups (free). Call or mail first if they look hot.</p>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="foot">
+      <button mat-button (click)="close()">Close</button>
+      <span class="spacer"></span>
+      <button mat-flat-button color="primary" (click)="accept()" [disabled]="accepting()">
+        {{ accepting() ? 'Accepting…' : 'Accept into follow-ups' }}
+      </button>
+    </mat-dialog-actions>
+  `,
+  styles: [`
+    .head { display: flex; align-items: center; gap: 0.8em; padding-bottom: 0.5em; }
+    .avatar { width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--dp-gold), #6b4e12); flex: none; }
+    .head-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+    .head-text strong { text-transform: capitalize; font-size: 1.1em; }
+    .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .body { display: flex; flex-direction: column; gap: 1em; min-width: min(560px, 90vw); }
+    .error { color: var(--dp-error); margin: 0; }
+    .contact-row { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .contact-row a { text-decoration: none; }
+    .mail { word-break: break-all; }
+    .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.9em; }
+    .groups section { background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.8em 0.9em; }
+    .groups h4 { margin: 0 0 0.5em; font-size: 0.8em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dp-gold-ink); }
+    .qa { display: flex; flex-direction: column; gap: 0.1em; padding: 0.35em 0; border-top: 1px solid var(--dp-line); }
+    .qa:first-of-type { border-top: none; }
+    .qa span { color: var(--dp-muted); font-size: 0.78em; }
+    .qa strong { font-weight: 600; word-break: break-word; }
+    .hint { margin: 0; }
+    .foot { display: flex; align-items: center; gap: 0.5em; }
+    .spacer { flex: 1; }
+    button { min-height: 44px; }
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, MatDialogModule, MatIconModule, MatButtonModule, MatDialogTitle, MatDialogContent, MatDialogActions],
+})
+export class ProspectResponseComponent {
+  private readonly dialogRef = inject(MatDialogRef<ProspectResponseComponent>);
+  private readonly data = inject<{ prospect: DialogLead }>(MAT_DIALOG_DATA);
+  private readonly leads = inject(LeadPipelineService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly accepting = signal(false);
+  protected readonly error = signal<string | null>(null);
+
+  protected get lead(): DialogLead {
+    return this.data.prospect;
   }
-    
+
+  protected fullName(): string {
+    return `${this.lead.name ?? ''} ${this.lead.surname ?? ''}`.trim() || 'Unnamed lead';
+  }
+
+  protected initials(): string {
+    const parts = this.fullName().split(/\s+/).filter(Boolean);
+    if (!parts.length || this.fullName() === 'Unnamed lead') return '?';
+    return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+
+  protected arrivedAgo(): string {
+    try {
+      return this.lead.createdAt ? timeAgo(new Date(this.lead.createdAt)) : '';
+    } catch {
+      return '';
+    }
+  }
+
+  protected socials(): string {
+    const s = this.lead.socialMedia;
+    if (Array.isArray(s)) return s.length ? s.join(', ') : '—';
+    return String(s ?? '').trim() || '—';
+  }
+
+  protected close(): void {
+    this.dialogRef.close();
+  }
+
+  protected accept(): void {
+    if (this.accepting() || !this.lead._id) return;
+    this.accepting.set(true);
+    this.error.set(null);
+    this.leads
+      .acceptPageLead(this.lead._id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.accepting.set(false);
+          this.dialogRef.close({ accepted: true, id: this.lead._id });
+        },
+        error: (err: ApiError) => {
+          this.accepting.set(false);
+          this.error.set(userError(err));
+        },
+      });
+  }
 }

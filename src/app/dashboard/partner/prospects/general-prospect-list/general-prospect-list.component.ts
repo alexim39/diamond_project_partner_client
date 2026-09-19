@@ -50,9 +50,9 @@ interface MyClaim {
       <div class="page-head">
         <div>
           <h2>Buy Prospect <mat-icon (click)="showDescription()">help</mat-icon></h2>
-          <p class="subtitle">Fresh leads{{ partnerState() ? ' in ' + partnerState() : '' }} — claim up to {{ dailyLimit() }} a day, work each within 48 hours.</p>
+          <p class="subtitle">Shared platform pool{{ partnerState() ? ' in ' + partnerState() : '' }} — claim up to {{ dailyLimit() }} a day, work each within 48 hours. Looking for your own public-page submissions? See <a routerLink="../personal-list" title="My Page Leads">My Page Leads</a>.</p>
         </div>
-        <a mat-button routerLink="../pipeline" title="My lead pipeline">My pipeline</a>
+        <a mat-button routerLink="../personal-list" title="My Page Leads — your public page submissions">My Page Leads</a>
       </div>
 
       @if (notice(); as note) {

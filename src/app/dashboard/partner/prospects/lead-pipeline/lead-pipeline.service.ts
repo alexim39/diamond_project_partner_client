@@ -69,6 +69,11 @@ export class LeadPipelineService {
     return this.api.post(`v1/prospects/${prospectId}/release`, {});
   }
 
+  /** Accept your own page lead (free, no wallet movement). */
+  acceptPageLead(surveyId: string): Observable<{ message: string; success: boolean; data: { prospectId: string } }> {
+    return this.api.post<{ message: string; success: boolean; data: { prospectId: string } }>('v1/prospects/accept-page-lead', { surveyId });
+  }
+
   /** 1–5 star quality vote on a worked lead (feeds pool prioritization). */
   rateLead(prospectId: string, score: number, note = ''): Observable<{ message: string; success: boolean }> {
     return this.api.post(`v1/prospects/${prospectId}/rate`, { score, note });

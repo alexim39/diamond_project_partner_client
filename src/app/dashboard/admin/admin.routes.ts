@@ -5,6 +5,9 @@ import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
 import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
 import { AdminDepositsComponent } from './deposits/admin-deposits.component';
 import { AdminLeadsComponent } from './leads/admin-leads.component';
+import { AdminPageLeadsComponent } from './page-leads/admin-page-leads.component';
+import { AdminPagesComponent } from './pages/admin-pages.component';
+import { AdminPartnerSurveysComponent } from './partner-surveys/admin-partner-surveys.component';
 import { AdminReservationsComponent } from './reservations/admin-reservations.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
@@ -52,6 +55,21 @@ export const AdminRoutes: Routes = [
         path: 'leads',
         component: AdminLeadsComponent,
         title: 'Lead Pool - Manage Buy Prospect supply',
+      },
+      {
+        path: 'page-leads',
+        component: AdminPageLeadsComponent,
+        title: 'Page Leads - Private /:username submissions',
+      },
+      {
+        path: 'pages',
+        component: AdminPagesComponent,
+        title: 'Public Pages - Moderate /:username content',
+      },
+      {
+        path: 'partner-surveys',
+        component: AdminPartnerSurveysComponent,
+        title: 'Partner Surveys - Pain-point analytics',
       },
       {
         path: 'reservations',

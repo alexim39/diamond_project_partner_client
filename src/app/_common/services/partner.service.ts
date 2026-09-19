@@ -33,6 +33,20 @@ export interface PartnerInterface {
   tiktokPage?: string;
   facebookPage?: string;
   twitterPage?: string;
+  // Public one-pager (/:partnerUsername) content
+  headline?: string;
+  subHeadline?: string;
+  heroBadge?: string;
+  businessTagline?: string;
+  aboutStory?: string;
+  achievements?: string;
+  inviteNote?: string;
+  opportunityPoints?: string[];
+  videoTestimonialUrl?: string;
+  displayPhone?: string;
+  displayEmail?: string;
+  locationDisplay?: string;
+  whatsappCtaText?: string;
   createdAt?: Date;
   settings?: {
     notification: {

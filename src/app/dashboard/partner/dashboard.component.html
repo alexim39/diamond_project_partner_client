@@ -176,6 +176,8 @@
 <mat-menu #adminGrowth="matMenu">
   <a mat-menu-item routerLink="admin/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Ad campaigns</a>
   <a mat-menu-item routerLink="admin/leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>groups</mat-icon> Lead pool</a>
+  <a mat-menu-item routerLink="admin/page-leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>inbox</mat-icon> Page leads</a>
+  <a mat-menu-item routerLink="admin/pages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>public</mat-icon> Public pages</a>
   <a mat-menu-item routerLink="admin/reservations" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>confirmation_number</mat-icon> Reservation codes</a>
   <a mat-menu-item routerLink="admin/broadcast" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Broadcast</a>
   <a mat-menu-item routerLink="admin/subscriptions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>mail</mat-icon> Email list</a>
@@ -192,6 +194,7 @@
 
 <mat-menu #adminInsight="matMenu">
   <a mat-menu-item routerLink="admin/oversight" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>military_tech</mat-icon> Oversight</a>
+  <a mat-menu-item routerLink="admin/partner-surveys" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>assignment</mat-icon> Partner surveys</a>
 </mat-menu>
 
 <mat-menu #notifications="matMenu" panelClass="notif-menu-panel">
