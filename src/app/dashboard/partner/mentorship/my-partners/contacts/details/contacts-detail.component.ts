@@ -5,11 +5,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatListModule} from '@angular/material/list';
 import { CommonModule } from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ContactsInterface, ContactsService, } from '../contacts.service';
 import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
@@ -38,7 +40,7 @@ import { Location } from '@angular/common';
         MatSelectModule,
         MatInputModule,
         MatIconModule, MatButtonModule,
-        MatDividerModule, MatListModule, CommonModule
+        MatDividerModule, MatListModule, CommonModule, RouterModule, MatChipsModule, MatTooltipModule
     ]
 })
 export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
@@ -82,9 +84,43 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     //this.router.navigate(['/dashboard/my-partners-contacts', this.myPartner._id]);
   } */
 
-    back(): void {  
+     back(): void {  
       this.location.back(); // This will take you to the previous page in the history 
     } 
+
+    goToMyPartner(): void {
+      if (this.myPartner?._id) this.router.navigate(['/dashboard/mentorship/partners/my-partners/detail', this.myPartner._id]);
+    }
+
+    fullName(): string {
+      return `${this.prospectData?.prospectName ?? ''} ${this.prospectData?.prospectSurname ?? ''}`.trim() || 'Prospect';
+    }
+
+    initials(): string {
+      const n = this.fullName().split(/\s+/).filter(Boolean);
+      if (!n.length || this.fullName() === 'Prospect') return '?';
+      return (n[0][0] + (n.length > 1 ? n[n.length - 1][0] : '')).toUpperCase();
+    }
+
+    statusLabel(): string {
+      const s: unknown = this.prospectData?.status;
+      if (s && typeof s === 'object') {
+        const o = s as { name?: unknown; stage?: unknown };
+        const v = o.name ?? o.stage;
+        if (typeof v === 'string' && v.trim()) return v.trim();
+      }
+      if (typeof s === 'string' && s.trim()) return s.trim();
+      return 'New';
+    }
+
+    statusTone(): string {
+      const label = this.statusLabel().toLowerCase();
+      if (/partner|converted|member/.test(label)) return 'dp-status--ok';
+      if (/closing|booked|interested|promised/.test(label)) return 'dp-status--warn';
+      if (/nurturing|engaged|contacted|follow|sent|awaiting|thinking/.test(label)) return 'dp-status--info';
+      if (/not interested|disqualified|inactive|archiv|lost|closed/.test(label)) return 'dp-status--bad';
+      return 'dp-status--neutral';
+    }
 
   
   ngOnInit(): void { 

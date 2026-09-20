@@ -1,221 +1,140 @@
-<section class="async-background">
-  <h2>Partner Prospect Details</h2>
+<section class="breadcrumb-wrapper">
+  <div class="breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a> &gt;
+    <a routerLink="/dashboard/mentorship/partners/my-partners">My Partners</a> &gt;
+    @if (myPartner) {
+      <a (click)="goToMyPartner()" class="link">{{ myPartner.name }} {{ myPartner.surname }}</a> &gt;
+    }
+    <span>{{ fullName() }}</span>
+  </div>
+</section>
 
-  <section class="async-container">
-    <div class="title">
-      <div class="control">
-        <div class="back" (click)="back()" title="Back">
-          <mat-icon>arrow_back</mat-icon>
-        </div>
-        <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
+<section class="detail-page">
+  <!-- Header -->
+  <div class="detail-head">
+    <button mat-icon-button (click)="back()" aria-label="Back"><mat-icon>arrow_back</mat-icon></button>
+    <span class="avatar">{{ initials() }}</span>
+    <div class="head-text">
+      <h2>{{ fullName() }}</h2>
+      <p class="subtitle">
+        @if (prospectData?.prospectPhone) { <a [href]="'tel:'+prospectData.prospectPhone">{{ prospectData.prospectPhone }}</a> · }
+        @if (prospectData?.prospectEmail) { <a [href]="'mailto:'+prospectData.prospectEmail">{{ prospectData.prospectEmail }}</a> · }
+        via {{ prospectData?.prospectSource || '—' }}
+        @if (prospectData?.createdAt) { · since {{ prospectData.createdAt | date:'mediumDate' }} }
+      </p>
+      @if (myPartner) {
+        <p class="muted">Belongs to <strong>{{ myPartner.name }} {{ myPartner.surname }}</strong> (@{{ myPartner.username }}) — you're supporting as upline</p>
+      }
+    </div>
+    <span class="dp-status {{ statusTone() }}">{{ statusLabel() }}</span>
+  </div>
+
+  @if (myPartner) {
+    <div class="support-banner" role="note">
+      <mat-icon>support_agent</mat-icon>
+      <div>
+        <strong>Downline prospect — you're coaching this contact.</strong>
+        <span class="muted">Status updates, notes and messages you send are logged as <strong>Support</strong> and visible to the owner and your upline.</span>
       </div>
-      <h3>{{prospectData.prospectSurname | titlecase}} {{prospectData.prospectName | titlecase}}'s Details</h3>
+    </div>
+  }
+
+  <!-- Snapshot + coaching grid -->
+  <div class="grid">
+    <!-- Left: snapshot -->
+    <div class="dp-card card">
+      <h3>Prospect snapshot</h3>
+      <dl class="facts">
+        <div><dt>Full name</dt><dd>{{ fullName() }}</dd></div>
+        <div><dt>Phone</dt><dd><a [href]="'tel:'+prospectData.prospectPhone">{{ prospectData.prospectPhone || '—' }}</a></dd></div>
+        <div><dt>Email</dt><dd><a [href]="'mailto:'+prospectData.prospectEmail">{{ prospectData.prospectEmail || '—' }}</a></dd></div>
+        <div><dt>Channel</dt><dd>{{ prospectData.prospectSource || '—' }}</dd></div>
+        <div><dt>Created</dt><dd>{{ prospectData.updatedAt | date:'medium' }}</dd></div>
+        <div><dt>Current stage</dt><dd><span class="dp-status {{ statusTone() }}">{{ statusLabel() }}</span></dd></div>
+      </dl>
+      @if (prospectData?.prospectRemark) {
+        <p class="notes"><strong>Context:</strong> {{ prospectData.prospectRemark }}</p>
+      } @else {
+        <p class="muted">No remark yet — add coaching note below so your downline sees it.</p>
+      }
+      @if (prospectData?.survey) {
+        <button mat-stroked-button (click)="ViewResponse(prospectData.survey)"><mat-icon>quiz</mat-icon>View survey answers</button>
+      }
     </div>
 
+    <!-- Right: coaching -->
+    <div class="dp-card card">
+      <h3>Coach this prospect</h3>
+      <p class="muted">Update stage and leave a note — it moves the pipeline and notifies the owner.</p>
+      <mat-form-field appearance="outline">
+        <mat-label>Update stage</mat-label>
+        <mat-select [(value)]="selectedStatus">
+          <mat-option value="New Prospect">New Prospect</mat-option>
+          <mat-option value="Contacted">Contacted</mat-option>
+          <mat-option value="Follow-Up Scheduled">Follow-Up Scheduled</mat-option>
+          <mat-option value="Engaged">Engaged</mat-option>
+          <mat-option value="Sent Information">Sent Information</mat-option>
+          <mat-option value="Awaiting Response">Awaiting Response</mat-option>
+          <mat-option value="Interested">Interested</mat-option>
+          <mat-option value="Nurturing">Nurturing</mat-option>
+          <mat-option value="Closing">Closing</mat-option>
+          <mat-option value="Booked for Session">Booked for Session</mat-option>
+          <mat-option value="Member">Member</mat-option>
+          <mat-option value="Not Interested">Not Interested</mat-option>
+          <mat-option value="Disqualified">Disqualified</mat-option>
+          <mat-option value="Partner">Partner</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="updateProspectStatus()" [disabled]="!selectedStatus">Update stage</button>
 
+      <mat-form-field appearance="outline" class="mt">
+        <mat-label>Coaching note / remark</mat-label>
+        <textarea matInput [(ngModel)]="remark" #msg maxlength="256" rows="3" placeholder="e.g. Called, warm — send pricing and book Thursday"></textarea>
+        <mat-hint align="end">{{msg.value.length}} / 256</mat-hint>
+      </mat-form-field>
+      <button mat-stroked-button (click)="updateProspectRemark()" [disabled]="!remark.trim()">Save note</button>
 
-    <section class="flex-container">
+      <div class="actions">
+        <button mat-flat-button color="primary" (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit contact</button>
+        <button mat-stroked-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book session</button>
+        <button mat-stroked-button (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
+      </div>
+    </div>
+  </div>
 
-      <article class="flex-item">
-        <h2>Basic Information</h2>
-        <!-- <p>Ads information</p> -->
+  <!-- Outreach -->
+  <div class="grid">
+    <div class="dp-card card">
+      <h3><mat-icon>mail</mat-icon> Send email as support</h3>
+      <div class="copy-link">
+        <span class="muted">https://diamondproject.c21fg.online/{{partner?.username}}</span>
+        <button mat-icon-button (click)="copyLink()" matTooltip="Copy your public link"><mat-icon>content_copy</mat-icon></button>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Subject</mat-label>
+        <input matInput [(ngModel)]="emailSubject" placeholder="Join us for a 30-min insight session" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Email body</mat-label>
+        <textarea matInput class="custom-textarea" [(ngModel)]="emailBody" rows="5" placeholder="Hi {{prospectData.prospectName}}, ... Don't forget https://diamondproject.c21fg.online/{{partner?.username}}"></textarea>
+        <mat-hint align="start">Logged as Support — owner sees it on timeline</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="sendEmail()" [disabled]="!emailSubject.trim() || !emailBody.trim()">Send email</button>
+    </div>
 
-        <div class="list">
-          <h5> Names </h5>
-          <span class="data">{{prospectData.prospectName | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
-        </div>
-        <mat-divider></mat-divider>
-
-
-        <div class="list">
-          <h5> Phone Number </h5>
-          <span class="data">{{prospectData.prospectPhone }} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-        <div class="list">
-          <h5> Email Address </h5>
-          <span class="data">{{prospectData.prospectEmail | lowercase }} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-        <div class="list">
-          <h5> Contact Channel</h5>
-          <span class="data">{{prospectData.prospectSource | titlecase }} </span>
-        </div>
-        <mat-divider></mat-divider>
-
-        @if (prospectData.preapproachDownload) {
-          <div class="list">
-            <h5> Pre-approach Downloaded </h5>
-            <span class="data"><em>Note that prospect downloaded the pre-approach document</em></span>
-            <mat-divider style="margin-top: 1em;"></mat-divider>
-          </div>
-        }
-
-        <div class="list">
-          <h5> Created Date </h5>
-          <span class="data">{{prospectData.updatedAt | date}} </span>
-        </div>
-
-      </article>
-
-      <article class="flex-item">
-        <h2>Update Details</h2>
-        <!-- <p>The main objective is to increase brand awareness.</p>   -->
-
-        <div class="list">
-          <h5> Currrent Status </h5>
-          <span class="data"> {{ selectedStatus ? selectedStatus : (prospectData.status?.name || prospectData.status?.stage || prospectData.status || '—') }}</span>
-        </div>
-        <mat-divider></mat-divider>
-
-        <div class="list">
-          <h5> Update Status </h5>
-          <span class="data" style="display: flex; flex-direction: column;">
-            <mat-form-field appearance="outline">
-              <mat-label>Choose status to update</mat-label>
-              <mat-select [(value)]="selectedStatus" required>
-                <mat-option  value="New Prospect">New Prospect</mat-option>
-                <mat-option  value="Contacted">Contacted</mat-option>
-                <mat-option  value="Follow-Up Scheduled">Follow-Up Scheduled</mat-option>
-                <mat-option  value="Engaged">Engaged</mat-option>
-                <mat-option  value="Sent Information">Sent Information</mat-option>
-                <mat-option  value="Awaiting Response">Awaiting Response</mat-option>
-                <mat-option  value="Interested">Interested</mat-option>
-                <mat-option  value="Nurturing">Nurturing</mat-option>
-                <mat-option  value="Closing">Closing</mat-option>
-                <mat-option  value="Booked for Session">Booked for Session</mat-option>
-                <mat-option  value="Member">Member</mat-option>
-                <mat-option  value="Not Interested">Not Interested</mat-option>
-                <mat-option  value="Disqualified">Disqualified</mat-option>
-                <mat-option  value="Inactive">Inactive</mat-option>
-                <mat-option  value="Re-engagement">Re-engagement</mat-option>
-                <mat-option  value="Archive">Archive</mat-option>
-                <mat-option  value="Partner">Partner</mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-raised-button (click)="updateProspectStatus()">Update status</button>
-
-          </span>
-        </div>
-        <mat-divider></mat-divider>
-
-        <div class="list">
-          <h5> Currrent Remark/Comment </h5>
-          <span class="data wrap"> {{ remark ? remark : prospectData.prospectRemark }}</span>
-        </div>
-        <mat-divider></mat-divider>
-
-        <div class="list">
-          <h5> Update Remark/Comment </h5>
-          <span class="data" style="display: flex; flex-direction: column;">
-            <mat-form-field appearance="outline">
-              <mat-label>Enter remark/comment</mat-label>
-              <textarea matInput [(ngModel)]="remark"  #message maxlength="256"></textarea>
-              <mat-hint align="start" style="color: orange"><strong>Short remark about prospect info</strong> </mat-hint>
-              <mat-hint align="end">{{message.value.length}} / 256</mat-hint>
-            </mat-form-field>
-
-            <button mat-raised-button (click)="updateProspectRemark()" style="margin-top: 2em">Update remark</button>
-          </span>
-        </div>
-      </article>
-
-
-      <article class="flex-item">
-        <h2>Action</h2>
-
-        <div class="list">
-          <h5> Edit Prospect Details </h5>
-          <span class="data">
-            <button mat-raised-button (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit</button>
-          </span>
-        </div>
-        <mat-divider></mat-divider>
-
-        <div class="list">
-          <h5> Book for Session </h5>
-          <span class="data">
-            <button mat-raised-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
-          </span>
-        </div>
-        <mat-divider></mat-divider>
-
-        @if (prospectData.survey) {
-          <div class="list">
-            <h5> Survey Response </h5>
-            <span class="data">
-              <button mat-raised-button (click)="ViewResponse(prospectData.survey)"><mat-icon>quiz</mat-icon>View Survey Response </button>
-            </span>
-            <mat-divider style="margin-top: 1em;"></mat-divider>
-          </div>
-        }
-
-      </article>
-
-
-      <article class="flex-item">
-        <h2>Send Email</h2>
-        <!-- <p>Ads information</p> -->
-
-        <div class="list">
-          <h5> Email</h5>
-
-          <span class="data" style="display: flex; flex-direction: column;">
-            <mat-form-field appearance="outline">
-              <mat-label>Email Subject</mat-label>
-              <input matInput [(ngModel)]="emailSubject" placeholder="Eg. Join Us for a 30-Minute Insight Session Online!">
-            </mat-form-field>
-          </span>
-
-          <div class="copy-link">
-            <p>
-              diamondproject.c21fg.online/{{partner.username}}
-            </p>
-            <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
-          </div>
-          <span class="data" style="display: flex; flex-direction: column;">
-            <mat-form-field appearance="outline">
-              <mat-label>Write Email</mat-label>
-              <textarea matInput class="custom-textarea" [(ngModel)]="emailBody"></textarea>
-              <mat-hint align="start" style="color: orange"><strong>Write Email to prospect email address (Don't forget to include your link)</strong> </mat-hint>
-            </mat-form-field>
-
-            <button mat-raised-button style="margin-top: 2em" (click)="sendEmail()">Send</button>
-          </span>
-        </div>
-      </article>
-
-      <article class="flex-item">
-        <h2>Send SMS</h2>
-        <!-- <p></p>   -->
-
-        <div class="list">
-          <h5> SMS</h5>
-          <div class="copy-link">
-            <p>
-              diamondproject.c21fg.online/{{partner.username}}
-            </p>
-            <mat-icon title="Copy" (click)="copyLink()">content_copy</mat-icon>
-          </div>
-          <span class="data" style="display: flex; flex-direction: column;">
-            <mat-form-field appearance="outline">
-              <mat-label>Write SMS</mat-label>
-              <textarea matInput #SMS maxlength="160" [(ngModel)]="sms"></textarea>
-              <mat-hint align="start" style="color: orange"><strong>Short SMS to prospect phone number (Don't forget to include your link)</strong> </mat-hint>
-              <mat-hint align="end">{{SMS.value.length}} / 160</mat-hint>
-            </mat-form-field>
-
-            <button mat-raised-button style="margin-top: 2em" (click)="sendSMS()">Send</button>
-          </span>
-        </div>
-      </article>
-
-
-    </section>
-
-  </section>
-
-
+    <div class="dp-card card">
+      <h3><mat-icon>sms</mat-icon> Send SMS as support</h3>
+      <div class="copy-link">
+        <span class="muted">https://diamondproject.c21fg.online/{{partner?.username}}</span>
+        <button mat-icon-button (click)="copyLink()" matTooltip="Copy your public link"><mat-icon>content_copy</mat-icon></button>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Write SMS</mat-label>
+        <textarea matInput #smsField maxlength="160" [(ngModel)]="sms" rows="3" placeholder="Hi, this is {{partner?.name}} supporting {{myPartner?.name}} — ..."></textarea>
+        <mat-hint align="end">{{smsField.value.length}} / 160</mat-hint>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="sendSMS()" [disabled]="!sms.trim()">Send SMS</button>
+      <p class="muted">Logged as Support — up to 160 chars, link auto-tracked.</p>
+    </div>
+  </div>
 </section>
