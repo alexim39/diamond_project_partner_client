@@ -66,7 +66,7 @@
 
         <div class="list">
           <h5> Currrent Status </h5>
-          <span class="data"> {{ selectedStatus ? selectedStatus : prospectData.status }}</span>
+          <span class="data"> {{ selectedStatus ? selectedStatus : (prospectData.status?.name || prospectData.status?.stage || prospectData.status || '—') }}</span>
         </div>
         <mat-divider></mat-divider>
 
