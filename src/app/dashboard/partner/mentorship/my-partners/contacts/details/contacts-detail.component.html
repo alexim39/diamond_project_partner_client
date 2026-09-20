@@ -57,8 +57,10 @@
       } @else {
         <p class="muted">No remark yet — add coaching note below so your downline sees it.</p>
       }
-      @if (prospectData?.survey) {
+      @if (hasSurvey()) {
         <button mat-stroked-button (click)="ViewResponse(prospectData.survey)"><mat-icon>quiz</mat-icon>View survey answers</button>
+      } @else {
+        <p class="muted">No survey answers — contact was added manually by the owner.</p>
       }
     </div>
 
@@ -95,9 +97,15 @@
       <button mat-stroked-button (click)="updateProspectRemark()" [disabled]="!remark.trim()">Save note</button>
 
       <div class="actions">
-        <button mat-flat-button color="primary" (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit contact</button>
-        <button mat-stroked-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book session</button>
-        <button mat-stroked-button (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
+        @if (isOwner()) {
+          <button mat-flat-button color="primary" (click)="editProspectDetail()"><mat-icon>edit</mat-icon>Edit contact</button>
+          <button mat-stroked-button (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book session</button>
+          <button mat-stroked-button (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
+        } @else {
+          <button mat-stroked-button (click)="bookProspectSession()" matTooltip="Book on behalf — logged as Support"><mat-icon>bookmark_added</mat-icon>Book session</button>
+          <button mat-stroked-button (click)="promoteProspectToPartnerBlocked()" matTooltip="Owner-only: enrollment credit stays with the owner"><mat-icon>handshake</mat-icon>Promote (owner only)</button>
+          <p class="muted">Editing contact details is owner-only — ask your downline to update PII.</p>
+        }
       </div>
     </div>
   </div>

@@ -18,6 +18,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CollectCodeComponent } from './collect-code.component';
 import { Subscription } from 'rxjs';
 import { PartnerInterface, PartnerService } from '../../../../../../_common/services/partner.service';
+import { AuthService } from '../../../../../../core/auth/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SMSService } from '../../../../sms/sms.service';
 import { userError } from '../../../../../../core/http/api-error';
@@ -60,6 +61,8 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
   partner!: PartnerInterface;
 
   
+  private readonly auth = inject(AuthService);
+
   constructor(
     private router: Router, 
     private location: Location,
@@ -120,6 +123,23 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
       if (/nurturing|engaged|contacted|follow|sent|awaiting|thinking/.test(label)) return 'dp-status--info';
       if (/not interested|disqualified|inactive|archiv|lost|closed/.test(label)) return 'dp-status--bad';
       return 'dp-status--neutral';
+    }
+
+    /** Owner-only gate: prospect.partnerId vs session user. Upline sees support mode. */
+    isOwner(): boolean {
+      const owner = (this.prospectData as { partnerId?: unknown } | undefined)?.partnerId;
+      const me = this.auth.currentUser()?.id;
+      return !!owner && !!me && String(owner) === String(me);
+    }
+
+    /** Survey exists AND has at least one substantive answer — hides button for manual contacts. */
+    hasSurvey(): boolean {
+      const s = this.prospectData?.survey as Record<string, unknown> | undefined;
+      if (!s || typeof s !== 'object') return false;
+      return Object.entries(s).some(([, v]) => {
+        if (Array.isArray(v)) return v.length > 0;
+        return String(v ?? '').trim() !== '';
+      });
     }
 
   
@@ -270,6 +290,10 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
   }
 
   promoteProspectToPartner() {
+    if (!this.isOwner()) {
+      this.promoteProspectToPartnerBlocked();
+      return;
+    }
     const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
     //const obj = {prospectId: this.prospectData._id, code: '' } 
 
@@ -377,20 +401,27 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     );
   }
 
-  editProspectDetail() {
-    //this.router.navigateByUrl('dashboard/edit-contacts', );
+   editProspectDetail() {
+    if (!this.isOwner()) {
+      Swal.fire({ position: 'bottom', icon: 'info', text: 'Only the prospect owner can edit contact details. Ask your downline to update it.', showConfirmButton: false, timer: 4000 });
+      return;
+    }
     this.router.navigate(['/dashboard/edit-contacts', this.prospectData._id]);
   }
 
   bookProspectSession() {
-    //this.router.navigateByUrl('dashboard/edit-contacts', );
     this.router.navigate(['/dashboard/book-prospect-session', this.prospectData._id]);
   }
 
   ViewResponse(prospect: ProspectListInterface) {
+    if (!this.hasSurvey()) return;
     this.dialog.open(ProspectResponseComponent, {
       data: prospect
     });
+  }
+
+  promoteProspectToPartnerBlocked(): void {
+    Swal.fire({ position: 'bottom', icon: 'info', text: 'Only the prospect owner can promote to partner — enrollment credit stays with them. Coach your downline to convert.', showConfirmButton: false, timer: 4000 });
   }
 
   ngOnDestroy() {
