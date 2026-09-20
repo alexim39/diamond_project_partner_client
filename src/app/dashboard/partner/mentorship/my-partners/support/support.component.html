@@ -23,6 +23,7 @@
             </p>
         </div>
         <span class="spacer"></span>
+        <button mat-button (click)="showKpi = !showKpi" [title]="showKpi ? 'Hide business KPIs' : 'Show business KPIs — team size, pipeline, next steps'"><mat-icon>insights</mat-icon>{{ showKpi ? 'Hide Business KPI' : 'Business KPI' }}</button>
         @if (canViewContact()) {
           <a mat-button [href]="'tel:' + myPartner.phone" title="Call {{ myPartner.name }}"><mat-icon>call</mat-icon>Call</a>
         }
@@ -44,10 +45,16 @@
       </section>
     }
 
+    @if (showKpi) {
+      <async-partner-business-kpi
+        [myPartner]="myPartner"
+        [myPartnerPartners]="myPartnerPartners"
+        [supportInfo]="supportInfo" />
+    }
+
     <section class="cards">
         <article class="dp-card flex-item">
-            <h3>Basic Information</h3>
-            <div class="list">
+            <h3>Basic Information</h3>            <div class="list">
                 <h5>Names</h5>
                 <span class="data">{{myPartner.surname | titlecase}} {{myPartner.name | titlecase}}</span>
             </div>

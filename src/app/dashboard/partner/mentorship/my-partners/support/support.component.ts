@@ -17,6 +17,7 @@ import { PartnerInterface, PartnerService } from '../../../../../_common/service
 import { LeadPipelineService } from '../../../prospects/lead-pipeline/lead-pipeline.service';
 import { ActivationBoardItem } from '../../../prospects/lead-pipeline/lead.models';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { PartnerBusinessKpiComponent } from './partner-business-kpi.component';
 
 /** @title Prospect details */
 @Component({
@@ -32,13 +33,16 @@ import { MatSnackBar } from '@angular/material/snack-bar';
         MatSelectModule,
         MatInputModule,
         MatIconModule, MatButtonModule, MatChipsModule,
-        MatDividerModule, MatListModule, CommonModule, RouterModule
+        MatDividerModule, MatListModule, CommonModule, RouterModule,
+        PartnerBusinessKpiComponent
     ]
 })
 export class MyPartnerSupportComponent implements OnInit, OnDestroy {
 
   @Input() myPartner!: PartnerInterface;
   @Input() myPartnerPartners!: PartnerInterface[];
+  /** Business KPI toggle — upline drill-down for this partner's business. */
+  showKpi = false;
   duration!: null | number;
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
