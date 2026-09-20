@@ -78,11 +78,12 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
       this.calculateMonthlyNewContacts();
     }
 
-    // Combined filter predicate to filter by name and status
+    // Combined filter predicate to filter by name and status (status is object {name, stage} since Phase A)
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       const filterValues = JSON.parse(filter);
       const nameMatch = data.prospectName.toLowerCase().includes(filterValues.name.toLowerCase()) || data.prospectSurname.toLowerCase().includes(filterValues.name.toLowerCase());
-      const statusMatch = data.status.toLowerCase().includes(filterValues.status.toLowerCase());
+      const statusLabel = String(data.status?.name ?? data.status?.stage ?? data.status ?? '').toLowerCase();
+      const statusMatch = statusLabel.includes(filterValues.status.toLowerCase());
       return nameMatch && statusMatch;
     };
   }

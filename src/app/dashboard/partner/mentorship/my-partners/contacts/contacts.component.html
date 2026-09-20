@@ -151,7 +151,7 @@
           </ng-container>
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.status?.name || element.status?.stage || element.status || '—' }} </td>
           </ng-container>
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef> Date </th>
@@ -161,10 +161,10 @@
           <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> -->
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"
                         [ngClass]="{
-                        'partner': row.status === 'Partner', 
-                        'member': row.status === 'Member',
-                        'closing': row.status === 'Closing',
-                        'not-interested': row.status === 'Not Interested'
+                        'partner': (row.status?.name || row.status?.stage || row.status) === 'Partner', 
+                        'member': (row.status?.name || row.status?.stage || row.status) === 'Member',
+                        'closing': (row.status?.name || row.status?.stage || row.status) === 'Closing',
+                        'not-interested': (row.status?.name || row.status?.stage || row.status) === 'Not Interested'
                         }"
           ></tr>
         </table>

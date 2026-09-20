@@ -28,7 +28,7 @@ template: `
   <div class="list">
     <h5> Promote to Partner </h5>
     <span class="data">
-      <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
+      <button mat-flat-button [disabled]="isPartner()" (click)="promoteProspectToPartner()"><mat-icon>handshake</mat-icon>Promote</button>
     </span>
   </div>
   <mat-divider></mat-divider>
@@ -44,7 +44,7 @@ template: `
   <div class="list">
     <h5> Book for Session </h5>
     <span class="data">
-      <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
+      <button mat-flat-button [disabled]="isPartner()" (click)="bookProspectSession()"><mat-icon>bookmark_added</mat-icon>Book Prospect</button>
     </span>
   </div>
   <mat-divider></mat-divider>
@@ -62,7 +62,7 @@ template: `
   <div class="list">
     <h5> Move Prospect's Record Back to Prospect List </h5>
     <span class="data">
-      <button mat-flat-button [disabled]="prospectData.status === 'Partner'" (click)="moveProspectBackToProspectList(prospectData._id)"><mat-icon>replay</mat-icon>Move Back to Survey List</button>
+      <button mat-flat-button [disabled]="isPartner()" (click)="moveProspectBackToProspectList(prospectData._id)"><mat-icon>replay</mat-icon>Move Back to Survey List</button>
     </span>
     <mat-divider style="margin-top: 1em;"></mat-divider>
   </div>
@@ -146,6 +146,12 @@ export class ProspectActionsComponent implements OnInit, OnDestroy {
         if (this.prospect) {
             this.prospectData = this.prospect;
         }
+    }
+
+    isPartner(): boolean {
+      const s = this.prospectData?.status;
+      const label = String(s?.name ?? s?.stage ?? s ?? '').toLowerCase();
+      return label === 'partner' || label === 'converted';
     }
 
     promoteProspectToPartner() {
