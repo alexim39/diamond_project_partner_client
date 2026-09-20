@@ -52,6 +52,10 @@ export class AdminService {
     return this.api.delete<ApiEnvelope<{ erased: ManagedPartner; removed: Record<string, number> }>>(`v1/admin/partners/${partnerId}`);
   }
 
+  reassignUpline(partnerId: string, newUplineUsername: string): Observable<ApiEnvelope<ManagedPartner>> {
+    return this.api.patch<ApiEnvelope<ManagedPartner>>(`v1/admin/partners/${partnerId}/upline`, { newUplineUsername });
+  }
+
   /** Member 360 — the admin's single read for "who is this member". */
   member360(partnerId: string): Observable<ApiEnvelope<import('./admin.models').Member360>> {
     return this.api.get(`v1/admin/members/${partnerId}/360`);

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,7 +55,7 @@ const RANK_ORDER = [
   selector: 'async-manage-roles',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
+    DecimalPipe, FormsModule, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTooltipModule, RouterModule,
   ],
   template: `
@@ -197,7 +198,19 @@ const RANK_ORDER = [
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>
               <td mat-cell *matCellDef="let row">
-                @if (confirmId() === row.id) {
+                @if (uplineId() === row.id) {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>New upline @username</mat-label>
+                    <input matInput [value]="uplineUsername()" (input)="uplineUsername.set($any($event.target).value)" placeholder="e.g. market" maxlength="80" />
+                  </mat-form-field>
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="applyUpline(row)"
+                    [disabled]="actingId() === row.id || !uplineUsername().trim()"
+                  >Confirm move?</button>
+                  <button mat-button (click)="uplineId.set(null); uplineUsername.set('')">Cancel</button>
+                } @else if (confirmId() === row.id) {
                   <button
                     mat-flat-button
                     color="primary"
@@ -230,6 +243,7 @@ const RANK_ORDER = [
                   } @else {
                     <button mat-button color="warn" (click)="suspendId.set(row.id); suspendReason.set('')">Suspend</button>
                   }
+                  <button mat-button (click)="uplineId.set(row.id); uplineUsername.set('')" [disabled]="actingId() === row.id">Change upline</button>
                   <button mat-button (click)="forceSignOut(row)" [disabled]="actingId() === row.id">Sign out</button>
                   <button mat-button (click)="resetOnBehalf(row)" [disabled]="actingId() === row.id">Reset password</button>
                   @if (eraseId() === row.id) {
@@ -314,6 +328,8 @@ export class ManageRolesComponent implements OnInit {
   protected readonly suspendId = signal<string | null>(null);
   protected readonly suspendReason = signal('');
   protected readonly eraseId = signal<string | null>(null);
+  protected readonly uplineId = signal<string | null>(null);
+  protected readonly uplineUsername = signal('');
 
   protected readonly displayedColumns = ['name', 'contact', 'login', 'role', 'plan', 'action'];
 
@@ -525,6 +541,32 @@ export class ManageRolesComponent implements OnInit {
         next: (res) => {
           this.actingId.set(null);
           this.notice.set(res.message ?? 'Reset link sent to the member email.');
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(userError(err));
+        },
+      });
+  }
+
+  protected applyUpline(row: ManagedPartner): void {
+    const username = this.uplineUsername().trim().replace(/^@/, '');
+    if (!username) {
+      this.error.set('Enter a new upline @username');
+      return;
+    }
+    if (!window.confirm(`Move ${this.displayName(row)} (@${row.username}) under @${username}? This rewires their team and commissions.`)) return;
+    this.actingId.set(row.id);
+    this.admin
+      .reassignUpline(row.id, username)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          this.uplineId.set(null);
+          this.uplineUsername.set('');
+          this.notice.set(res.message ?? `Upline moved to @${username}.`);
+          this.reload();
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
