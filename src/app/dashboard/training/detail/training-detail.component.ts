@@ -79,9 +79,14 @@ import { ApiError } from '../../../core/http/api-error';
                     [src]="lesson.videoUrl"
                     [poster]="lesson.posterUrl ?? undefined"
                     controls
+                    controlslist="nodownload"
+                    disablepictureinpicture
                     playsinline
                     preload="metadata"
+                    (loadedmetadata)="onLoadedMetadata(lesson.id, $event)"
                     (timeupdate)="onVideoProgress(lesson.id, $event)"
+                    (seeking)="onSeeking(lesson.id, $event)"
+                    (ratechange)="onRateChange(lesson.id, $event)"
                     (ended)="onVideoEnded(lesson.id)"
                     (error)="onVideoError(lesson.id)"
                   >
@@ -100,7 +105,10 @@ import { ApiError } from '../../../core/http/api-error';
                     <mat-progress-bar mode="determinate" [value]="watchPercent(lesson.id)" />
                     <span class="muted">{{ watchPercent(lesson.id) | number:'1.0-0' }}% watched</span>
                     @if (!watchedEnough(lesson.id)) {
-                      <span class="muted"> · watch to 90% to unlock completion</span>
+                      <span class="muted"> · watch to 90% to unlock completion (rewind anytime — forward skip is locked)</span>
+                    }
+                    @if (seekNote()[lesson.id]) {
+                      <span class="muted"> · forward skip locked — keep watching</span>
                     }
                   </div>
                   <p class="muted audio-hint">No sound? Turn up your device volume and check the player's volume icon — if the track uses an unsupported codec your browser may play video silently. Transcript below covers the key points.</p>
@@ -274,23 +282,74 @@ export class TrainingDetailComponent implements OnInit {
     return this.watchPercent(lessonId) >= 90;
   }
 
+  /**
+   * Anti-cheat: rewind is free, forward skip is locked. `maxTime` is the
+   * furthest genuinely-watched second (normal 1× playback deltas only);
+   * all progress + heartbeats derive from it, never from currentTime.
+   */
+  private readonly maxTime = new Map<string, number>();
+  private readonly lastTime = new Map<string, number>();
+  protected readonly seekNote = signal<Record<string, boolean>>({});
+
+  protected onLoadedMetadata(lessonId: string, event: Event): void {
+    const el = event.target as HTMLVideoElement;
+    const dur = Number(el?.duration) || 0;
+    const storedSecs = this.loadWatchSecs(lessonId);
+    const fromPct = (this.loadWatchPercent(lessonId) / 100) * dur;
+    const prev = this.maxTime.get(lessonId) ?? storedSecs ?? fromPct;
+    this.maxTime.set(lessonId, dur > 0 ? Math.min(prev, dur) : prev);
+    this.lastTime.set(lessonId, Number(el?.currentTime) || 0);
+    if (el && el.playbackRate !== 1) el.playbackRate = 1;
+  }
+
+  protected onSeeking(lessonId: string, event: Event): void {
+    const el = event.target as HTMLVideoElement;
+    if (!el) return;
+    const max = this.maxTime.get(lessonId) ?? 0;
+    if (el.currentTime > max + 2) {
+      el.currentTime = max;
+      this.lastTime.set(lessonId, max);
+      this.seekNote.update((m) => ({ ...m, [lessonId]: true }));
+      setTimeout(() => this.seekNote.update((m) => ({ ...m, [lessonId]: false })), 3000);
+    }
+  }
+
+  protected onRateChange(lessonId: string, event: Event): void {
+    const el = event.target as HTMLVideoElement;
+    // Speedup cheat: force 1× (rewind + replay stays allowed).
+    if (el && el.playbackRate !== 1) el.playbackRate = 1;
+    this.lastTime.set(lessonId, Number(el?.currentTime) || 0);
+  }
+
   protected onVideoProgress(lessonId: string, event: Event): void {
     const el = event.target as HTMLVideoElement;
     if (!el?.duration) return;
-    const pct = Math.min(100, Math.round((el.currentTime / el.duration) * 100));
+    if (el.playbackRate !== 1) el.playbackRate = 1;
+    const last = this.lastTime.get(lessonId) ?? el.currentTime;
+    const delta = el.currentTime - last;
+    this.lastTime.set(lessonId, el.currentTime);
+    // Genuine playback only: small forward deltas at 1× while playing.
+    // Seeks, rate tricks and background jumps produce large/negative deltas.
+    if (delta > 0 && delta <= 1.5 && !el.paused && !el.seeking) {
+      const max = Math.max(this.maxTime.get(lessonId) ?? 0, el.currentTime);
+      this.maxTime.set(lessonId, Math.min(max, el.duration));
+    }
+    const pct = Math.min(100, Math.round(((this.maxTime.get(lessonId) ?? 0) / el.duration) * 100));
     const prev = this.watchPercent(lessonId);
     if (pct > prev) {
       this.saveWatchPercent(lessonId, pct);
+      this.saveWatchSecs(lessonId, Math.floor(this.maxTime.get(lessonId) ?? 0));
       this.videoProgress.update((m) => ({ ...m, [lessonId]: pct }));
     }
     // Throttled server heartbeat: every new 10% step or 10s, whichever first.
+    // Sends furthest-watched percent + seconds (never raw currentTime).
     const now = Date.now();
     const sent = this.lastWatchSent.get(lessonId) ?? -10;
     const at = this.lastWatchAt.get(lessonId) ?? 0;
     if (pct >= sent + 10 || now - at > 10000) {
       this.lastWatchSent.set(lessonId, pct);
       this.lastWatchAt.set(lessonId, now);
-      this.training.watch(this.courseId(), lessonId, pct, Math.round(el.currentTime)).subscribe({
+      this.training.watch(this.courseId(), lessonId, pct, Math.floor(this.maxTime.get(lessonId) ?? 0)).subscribe({
         next: (res) => {
           const serverPct = res.data?.percent ?? pct;
           if (serverPct > this.watchPercent(lessonId)) {
@@ -308,9 +367,10 @@ export class TrainingDetailComponent implements OnInit {
   }
 
   protected onVideoEnded(lessonId: string): void {
+    // With forward-skip locked, reaching the end is genuine — record full.
     this.saveWatchPercent(lessonId, 100);
     this.videoProgress.update((m) => ({ ...m, [lessonId]: 100 }));
-    this.training.watch(this.courseId(), lessonId, 100, 0).subscribe({ error: () => {} });
+    this.training.watch(this.courseId(), lessonId, 100, Math.floor(this.maxTime.get(lessonId) ?? 0)).subscribe({ error: () => {} });
     const c = this.course();
     const lesson = c?.lessons.find((l) => l.id === lessonId) as { quiz?: Array<unknown> } | undefined;
     if (!lesson?.quiz?.length && !this.isDone(lessonId)) {
@@ -331,6 +391,21 @@ export class TrainingDetailComponent implements OnInit {
 
   private saveWatchPercent(lessonId: string, pct: number): void {
     try { localStorage.setItem(this.watchKey(lessonId), String(Math.round(pct))); } catch {}
+  }
+
+  private watchSecsKey(lessonId: string): string {
+    return `dp-training-watched-secs:${this.courseId()}:${lessonId}`;
+  }
+
+  private loadWatchSecs(lessonId: string): number | null {
+    try {
+      const v = Number(localStorage.getItem(this.watchSecsKey(lessonId)));
+      return Number.isFinite(v) && v >= 0 ? Math.floor(v) : null;
+    } catch { return null; }
+  }
+
+  private saveWatchSecs(lessonId: string, secs: number): void {
+    try { localStorage.setItem(this.watchSecsKey(lessonId), String(Math.floor(secs))); } catch {}
   }
 
   protected isDone(lessonId: string): boolean {
