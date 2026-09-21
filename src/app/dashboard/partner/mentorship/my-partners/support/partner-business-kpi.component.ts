@@ -11,18 +11,25 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { NetworkService } from '../../../../network/tree/network.service';
+import { NetworkNode } from '../../../../network/tree/network.models';
 import { LeadPipelineService } from '../../../prospects/lead-pipeline/lead-pipeline.service';
 import { ActivationBoardItem, ProspectLead } from '../../../prospects/lead-pipeline/lead.models';
+import { TrainingService } from '../../../../../core/training/training.service';
+import { TeamMemberDetail } from '../../../../../core/training/training.models';
+import { ProgressionService } from '../../../../../core/progression/progression.service';
 import { ApiError, userError } from '../../../../../core/http/api-error';
 
 /**
  * @title Business KPI — downline business health for one partner.
  *
- * Answers for an upline: how big is this partner's business, how active is
- * it, and what is the single next step to drive it forward. All numbers come
- * from live session-scoped reads (network tree, pipeline, stuck, activation);
- * every failure is fail-soft so the page never breaks — missing slices show
- * "—" with a retry. Every action deep-links to an existing working page.
+ * Answers for an upline: how big is this partner's business, how fast it
+ * grows, how well it converts and learns — plus the ranked next step.
+ * Phase 2 adds velocity (recruits 7/30d from tree join dates), conversion
+ * rate + lost (from pipeline), training compliance (upline-scoped team
+ * member endpoint) and pending confirmations (team-wide, filtered).
+ * Session-owned money/goals analytics are deliberately excluded — no
+ * per-member backend scope exists, so showing them would be wrong data.
+ * Every slice is fail-soft ("—" + retry); every action works.
  */
 @Component({
   selector: 'async-partner-business-kpi',
@@ -76,7 +83,36 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
           <span class="kpi-value">{{ activationWorkedLabel() }}</span>
           <span class="kpi-label">List worked</span>
         </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>speed</mat-icon>
+          <span class="kpi-value">{{ velocityLabel() }}</span>
+          <span class="kpi-label">Recruits 7d / 30d</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>percent</mat-icon>
+          <span class="kpi-value">{{ conversionLabel() }}</span>
+          <span class="kpi-label">Conversion rate</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>school</mat-icon>
+          <span class="kpi-value">{{ trainingLabel() }}</span>
+          <span class="kpi-label">Training · certified</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>hourglass_bottom</mat-icon>
+          <span class="kpi-value">{{ pendingConf() === null ? '—' : pendingConf() }}</span>
+          <span class="kpi-label">Pending approvals</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>schedule</mat-icon>
+          <span class="kpi-value">{{ daysSinceJoinedLabel() }}</span>
+          <span class="kpi-label">Since joined</span>
+        </mat-card-content></mat-card>
       </div>
+
+      @if (notice(); as note) {
+        <p class="notice" role="status">{{ note }}</p>
+      }
 
       <div class="split">
         <div class="panel">
@@ -116,6 +152,22 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
             <p class="next"><strong>Next:</strong> {{ a.nextAction }}</p>
           } @else {
             <p class="muted">No activation record yet — onboarding hasn't started.</p>
+          }
+          <h4 class="sub">Training detail</h4>
+          @if (training(); as t) {
+            <p class="muted">{{ t.overallPercent }}% overall · {{ t.certifiedCount }} certified</p>
+            <ul class="stages">
+              @for (c of t.courses.slice(0, 4); track c.courseId) {
+                <li>
+                  <span>{{ c.title }}</span>
+                  <div class="bar-track"><div class="bar-fill" [style.width.%]="c.percent"></div></div>
+                  <strong>{{ c.percent }}%</strong>
+                </li>
+              }
+            </ul>
+            <button mat-button (click)="nudge()" [disabled]="nudging()">Nudge to train</button>
+          } @else {
+            <p class="muted">{{ trainingLoaded() ? 'No training record yet.' : 'Training unavailable — retry.' }}</p>
           }
         </div>
       </div>
@@ -160,6 +212,8 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
     .bar-fill { height: 100%; background: var(--dp-gold); min-width: 2px; }
     .chips { display: flex; gap: 0.4em; flex-wrap: wrap; margin-bottom: 0.5em; }
     .next { margin: 0; }
+    .sub { margin: 1em 0 0.4em; }
+    .notice { color: var(--dp-success); }
     .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .step { display: flex; gap: 0.7em; align-items: center; padding: 0.8em 1em; flex-wrap: wrap; }
     .step mat-icon { color: var(--dp-gold-ink); }
@@ -175,16 +229,24 @@ export class PartnerBusinessKpiComponent implements OnInit {
 
   private readonly network = inject(NetworkService);
   private readonly leads = inject(LeadPipelineService);
+  private readonly trainingSvc = inject(TrainingService);
+  private readonly progression = inject(ProgressionService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly notice = signal<string | null>(null);
   protected readonly teamTotal = signal<number | null>(null);
   protected readonly teamDepth = signal<number | null>(null);
   protected readonly perLevel = signal<number[]>([]);
+  protected readonly teamJoinedAt = signal<string[]>([]);
   protected readonly pipeline = signal<ProspectLead[]>([]);
   protected readonly pipelineLoaded = signal(false);
   protected readonly stuckCount = signal<number | null>(null);
+  protected readonly training = signal<TeamMemberDetail | null>(null);
+  protected readonly trainingLoaded = signal(false);
+  protected readonly pendingConf = signal<number | null>(null);
+  protected readonly nudging = signal(false);
 
   protected readonly directCount = computed(() => this.myPartnerPartners?.length ?? 0);
   protected readonly activation = computed(() => this.supportInfo);
@@ -199,6 +261,35 @@ export class PartnerBusinessKpiComponent implements OnInit {
   protected readonly pipelineConverted = computed(() => {
     if (!this.pipelineLoaded()) return null;
     return this.pipeline().filter((l) => String(l.status?.stage ?? '') === 'Converted').length;
+  });
+  protected readonly pipelineLost = computed(() => {
+    if (!this.pipelineLoaded()) return null;
+    return this.pipeline().filter((l) => String(l.status?.stage ?? '') === 'Closed').length;
+  });
+  protected readonly conversionLabel = computed(() => {
+    if (!this.pipelineLoaded()) return '—';
+    const rows = this.pipeline();
+    const converted = rows.filter((l) => String(l.status?.stage ?? '') === 'Converted').length;
+    const closed = rows.filter((l) => String(l.status?.stage ?? '') === 'Closed').length;
+    const entered = rows.length - closed;
+    if (entered <= 0) return rows.length ? `0% (0/${rows.length})` : '—';
+    return `${Math.round((converted / entered) * 100)}% (${converted}/${entered})`;
+  });
+  protected readonly velocityLabel = computed(() => {
+    if (this.teamTotal() === null && this.teamJoinedAt().length === 0) return '—';
+    return `${this.recruits7d()} / ${this.recruits30d()}`;
+  });
+  protected readonly trainingLabel = computed(() => {
+    const t = this.training();
+    if (!t) return this.trainingLoaded() ? 'No record' : '—';
+    return `${t.overallPercent}% · ${t.certifiedCount}`;
+  });
+  protected readonly daysSinceJoinedLabel = computed(() => {
+    const raw = (this.myPartner as { createdAt?: unknown })?.createdAt;
+    const ms = raw ? new Date(String(raw)).getTime() : NaN;
+    if (!Number.isFinite(ms)) return '—';
+    const days = Math.max(0, Math.floor((Date.now() - ms) / 86400000));
+    return days === 0 ? 'today' : `${days}d`;
   });
   protected readonly stageRows = computed(() => {
     const rows = this.pipeline();
@@ -219,11 +310,19 @@ export class PartnerBusinessKpiComponent implements OnInit {
     const a = this.supportInfo;
     const stuck = this.stuckCount() ?? 0;
     const open = this.pipelineOpen() ?? 0;
+    const pending = this.pendingConf() ?? 0;
+    const training = this.training();
     if (direct === 0) {
       steps.push({ icon: 'person_add', title: 'Help them land their first partner', detail: 'No direct recruits yet — work their contact list together and book the first showcase.', link: '/dashboard/mentorship/team/activation', cta: 'Open activation' });
     }
     if (a && (!a.ipoDone || !a.qsgDone)) {
       steps.push({ icon: 'verified', title: 'Close IPO / QSG onboarding', detail: `IPO ${a.ipoDone ? 'done' : 'pending'} · QSG ${a.qsgDone ? 'done' : 'pending'} — confirm the missing step with them.`, link: '/dashboard/mentorship/team/confirmations', cta: 'Confirm training' });
+    }
+    if (pending > 0) {
+      steps.push({ icon: 'approval', title: `Approve ${pending} pending confirmation${pending === 1 ? '' : 's'}`, detail: 'They are waiting on your approval — decide today to keep momentum.', link: '/dashboard/mentorship/team/confirmations', cta: 'Review' });
+    }
+    if (training && training.overallPercent < 100) {
+      steps.push({ icon: 'school', title: `Push training to 100% (now ${training.overallPercent}%)`, detail: 'Nudge them on the next course from the panel above, then confirm completions.', link: '/dashboard/mentorship/team/confirmations', cta: 'Coach training' });
     }
     if (stuck > 0) {
       steps.push({ icon: 'warning', title: `Clear ${stuck} stuck follow-up${stuck === 1 ? '' : 's'}`, detail: 'Past stage attention threshold — call through them together this week.', link: `/dashboard/mentorship/partners/my-partners/contacts/${id}`, cta: 'View contacts' });
@@ -237,8 +336,45 @@ export class PartnerBusinessKpiComponent implements OnInit {
     return steps.slice(0, 4);
   });
 
+  private recruits7d(): number {
+    return this.recruitsIn(7);
+  }
+
+  private recruits30d(): number {
+    return this.recruitsIn(30);
+  }
+
+  private recruitsIn(days: number): number {
+    const cutoff = Date.now() - days * 86400000;
+    return this.teamJoinedAt().filter((d) => {
+      const ms = new Date(d).getTime();
+      return Number.isFinite(ms) && ms >= cutoff;
+    }).length;
+  }
+
   protected partnerName(): string {
     return `${this.myPartner?.name ?? ''} ${this.myPartner?.surname ?? ''}`.trim() || this.myPartner?.username || 'partner';
+  }
+
+  /** Nudge this partner to train — upline-scoped, functional. */
+  protected nudge(): void {
+    const id = String((this.myPartner as { _id?: unknown })?._id ?? '');
+    if (!id || this.nudging()) return;
+    this.nudging.set(true);
+    this.notice.set(null);
+    this.trainingSvc
+      .nudge(id, 'Your upline is cheering you on — finish your next course this week.')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.nudging.set(false);
+          this.notice.set(res.message ?? 'Nudge sent — they get a training reminder.');
+        },
+        error: (err: ApiError) => {
+          this.nudging.set(false);
+          this.error.set(userError(err));
+        },
+      });
   }
 
   ngOnInit(): void {
@@ -258,20 +394,28 @@ export class PartnerBusinessKpiComponent implements OnInit {
       tree: this.network.tree(id, 3).pipe(catchError(() => of(null))),
       pipeline: this.leads.listByPartner(id, { limit: 200 }).pipe(catchError(() => of(null))),
       stuck: this.leads.stuck(id).pipe(catchError(() => of(null))),
+      training: this.trainingSvc.teamMember(id).pipe(catchError(() => of(null))),
+      confirmations: this.progression.pendingConfirmations().pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ tree, pipeline, stuck }) => {
+        next: ({ tree, pipeline, stuck, training, confirmations }) => {
           const meta = (tree as { data?: { meta?: { total?: number; depth?: number; perLevel?: number[] } } } | null)?.data?.meta;
           this.teamTotal.set(typeof meta?.total === 'number' ? meta.total : null);
           this.teamDepth.set(typeof meta?.depth === 'number' ? meta.depth : null);
           this.perLevel.set(Array.isArray(meta?.perLevel) ? meta.perLevel : []);
+          this.teamJoinedAt.set(flattenJoinedAt((tree as { data?: { tree?: NetworkNode } } | null)?.data?.tree, id));
           const rows = (pipeline as { data?: ProspectLead[] } | null)?.data;
           this.pipeline.set(Array.isArray(rows) ? rows : []);
           this.pipelineLoaded.set(Array.isArray(rows));
           const stuckRows = (stuck as { data?: unknown[] } | null)?.data;
           this.stuckCount.set(Array.isArray(stuckRows) ? stuckRows.length : null);
-          if (!tree && !pipeline && !stuck) this.error.set('Could not load business data.');
+          const t = (training as { data?: TeamMemberDetail } | null)?.data ?? null;
+          this.training.set(t);
+          this.trainingLoaded.set(!!training);
+          const confItems = (confirmations as { data?: { items?: Array<{ partnerId?: string }> } } | null)?.data?.items;
+          this.pendingConf.set(Array.isArray(confItems) ? confItems.filter((c) => String(c.partnerId) === id).length : null);
+          if (!tree && !pipeline && !stuck && !training && !confirmations) this.error.set('Could not load business data.');
           this.loading.set(false);
         },
         error: (err: ApiError) => {
@@ -280,4 +424,17 @@ export class PartnerBusinessKpiComponent implements OnInit {
         },
       });
   }
+}
+
+function flattenJoinedAt(root: NetworkNode | undefined, excludeId: string): string[] {
+  if (!root) return [];
+  const out: string[] = [];
+  const walk = (n: NetworkNode): void => {
+    for (const c of n.children ?? []) {
+      if (c.joinedAt) out.push(c.joinedAt);
+      walk(c);
+    }
+  };
+  walk(root);
+  return out.filter(Boolean);
 }
