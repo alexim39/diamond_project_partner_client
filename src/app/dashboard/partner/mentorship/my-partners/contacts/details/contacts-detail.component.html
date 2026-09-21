@@ -52,8 +52,8 @@
         <div><dt>Created</dt><dd>{{ prospectData.updatedAt | date:'medium' }}</dd></div>
         <div><dt>Current stage</dt><dd><span class="dp-status {{ statusTone() }}">{{ statusLabel() }}</span></dd></div>
       </dl>
-      @if (prospectData?.prospectRemark) {
-        <p class="notes"><strong>Context:</strong> {{ prospectData.prospectRemark }}</p>
+      @if (prospectData?.notes || prospectData?.prospectRemark) {
+        <p class="notes"><strong>Context:</strong> {{ prospectData.notes || prospectData.prospectRemark }}</p>
       } @else {
         <p class="muted">No remark yet — add coaching note below so your downline sees it.</p>
       }
