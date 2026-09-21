@@ -35,8 +35,16 @@ import type { PresenceStatus } from '../core/presence/presence.service';
       width: 0.65em; height: 0.65em; border-radius: 50%;
       border: 2px solid var(--dp-surface, #fff);
     }
-    .avatar-wrap--online::after { background: #2e7d32; }
+    .avatar-wrap--online::after { background: #2e7d32; animation: presence-ping 1.8s ease-out infinite; }
     .avatar-wrap--recent::after { background: #d9a406; }
+    @keyframes presence-ping {
+      0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.55); }
+      70% { box-shadow: 0 0 0 7px rgba(46, 125, 50, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .avatar-wrap--online::after { animation: none; }
+    }
   `],
 })
 export class AvatarComponent {

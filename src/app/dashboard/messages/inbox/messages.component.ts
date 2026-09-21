@@ -296,8 +296,16 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
     .filter-btn--active { border-color: var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
     .message-card p { margin: 0; white-space: pre-wrap; }
     .presence-dot { width: 0.65em; height: 0.65em; border-radius: 50%; background: var(--dp-line); flex: none; }
-    .presence-dot--online { background: #2e7d32; }
+    .presence-dot--online { background: #2e7d32; animation: presence-ping 1.8s ease-out infinite; }
     .presence-dot--recent { background: #d9a406; }
+    @keyframes presence-ping {
+      0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.55); }
+      70% { box-shadow: 0 0 0 7px rgba(46, 125, 50, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .presence-dot--online { animation: none; }
+    }
     .message-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .message-actions { display: flex; gap: 0.25em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }

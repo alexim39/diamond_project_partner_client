@@ -177,7 +177,7 @@ const RANK_ORDER = [
               <th mat-header-cell *matHeaderCellDef>Last login</th>
               <td mat-cell *matCellDef="let row">
                 @if (presenceOf(row) === 'online') {
-                  <span class="dp-status dp-status--ok">Online</span>
+                  <span class="dp-status dp-status--ok presence-pulse">Online</span>
                 } @else if (presenceOf(row) === 'recent') {
                   <span class="dp-status dp-status--info">Active 1h</span>
                 }
@@ -303,6 +303,15 @@ const RANK_ORDER = [
       .bar-row { grid-template-columns: 110px 1fr 48px; }
     }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
+    .presence-pulse { animation: presence-ping 1.8s ease-out infinite; }
+    @keyframes presence-ping {
+      0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.55); }
+      70% { box-shadow: 0 0 0 7px rgba(46, 125, 50, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .presence-pulse { animation: none; }
+    }
     table { width: 100%; }
     .name-cell { font-weight: 600; text-transform: capitalize; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
