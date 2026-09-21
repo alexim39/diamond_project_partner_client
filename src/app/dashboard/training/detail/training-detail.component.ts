@@ -8,8 +8,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TrainingService } from '../../../core/training/training.service';
+import { ProgressionService } from '../../../core/progression/progression.service';
 import { CourseDetail } from '../../../core/training/training.models';
-import { ApiError } from '../../../core/http/api-error';
+import { ApiError, userError } from '../../../core/http/api-error';
 
 /**
  * @title Course detail — read lessons, complete them, earn the certificate.
@@ -44,6 +45,18 @@ import { ApiError } from '../../../core/http/api-error';
 
       @if (notice(); as note) {
         <p class="notice" role="status">{{ note }}</p>
+      }
+
+      @if (showConfirmRequest()) {
+        <div class="dp-card confirm-card" role="group" aria-label="Upline confirmation">
+          <div>
+            <strong>Certificate earned — one step left.</strong>
+            <span class="muted">Ladder rank needs your upline's confirmation. Send the request now.</span>
+          </div>
+          <button mat-flat-button color="primary" (click)="requestConfirmation()" [disabled]="requesting()">
+            {{ requesting() ? 'Sending…' : confirmRequested() ? 'Requested ✓' : 'Request upline confirmation' }}
+          </button>
+        </div>
       }
 
       @if (course(); as c) {
@@ -245,15 +258,20 @@ import { ApiError } from '../../../core/http/api-error';
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .notice { color: var(--dp-success); }
+    .confirm-card { padding: 0.9em 1em; display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; border-left: 4px solid var(--dp-gold); }
+    .confirm-card div { flex: 1; display: flex; flex-direction: column; gap: 0.15em; min-width: 200px; }
   `],
 })
 export class TrainingDetailComponent implements OnInit {
   private readonly training = inject(TrainingService);
+  private readonly progression = inject(ProgressionService);
   private readonly routes = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
   protected readonly completing = signal<string | null>(null);
+  protected readonly requesting = signal(false);
+  protected readonly confirmRequested = signal(false);
   protected readonly openLessonId = signal<string | null>(null);
   protected readonly quizError = signal<string | null>(null);
   private readonly answers = new Map<string, Map<string, number>>();
@@ -294,6 +312,33 @@ export class TrainingDetailComponent implements OnInit {
 
   protected watchedEnough(lessonId: string): boolean {
     return this.watchPercent(lessonId) >= 90;
+  }
+
+  /** Certificate needs upline confirmation to open the ladder gate (IPO/QSG/SMO only). */
+  protected showConfirmRequest(): boolean {
+    const c = this.course();
+    const key = c?.milestone ?? null;
+    return !!c?.certified && (key === 'ipo' || key === 'qsg' || key === 'smo');
+  }
+
+  protected requestConfirmation(): void {
+    const key = this.course()?.milestone ?? '';
+    if (!key || this.requesting() || this.confirmRequested()) return;
+    this.requesting.set(true);
+    this.progression
+      .requestTraining(key)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.requesting.set(false);
+          this.confirmRequested.set(true);
+          this.notice.set('Confirmation requested — your upline has been notified.');
+        },
+        error: (err: ApiError) => {
+          this.requesting.set(false);
+          this.error.set(userError(err));
+        },
+      });
   }
 
   /**
@@ -501,6 +546,7 @@ export class TrainingDetailComponent implements OnInit {
   protected load(id: string): void {
     this.loading.set(true);
     this.error.set(null);
+    this.confirmRequested.set(false);
     this.training
       .course(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
