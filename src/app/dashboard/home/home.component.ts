@@ -12,6 +12,7 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { BillingService } from '../../core/billing/billing.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { CommunityService } from '../../core/community/community.service';
+import { PresenceService, PresenceStatus } from '../../core/presence/presence.service';
 import { AvatarComponent } from '../../_common/avatar.component';
 import { ProgressionService } from '../../core/progression/progression.service';
 import { LeadPipelineService } from '../partner/prospects/lead-pipeline/lead-pipeline.service';
@@ -126,7 +127,7 @@ import { ApiError } from '../../core/http/api-error';
               @for (post of communityPosts(); track post.id) {
                 <li class="dp-card preview-item">
                   <div class="preview-top">
-                    <strong class="byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }}</strong>
+                    <strong class="byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(post.authorId)" />{{ post.author?.name ?? 'Teammate' }}</strong>
                     <span class="muted">{{ post.likeCount ?? 0 }} likes · {{ post.commentCount ?? 0 }} comments</span>
                   </div>
                   @if (post.title) {
@@ -277,6 +278,7 @@ export class HomeComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
   private readonly progress = inject(ProgressionService);
   private readonly community = inject(CommunityService);
+  private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -285,6 +287,8 @@ export class HomeComponent implements OnInit {
   protected readonly earnings = signal<PerformanceData | null>(null);
   protected readonly journey = signal<Journey | null>(null);
   protected readonly communityPosts = signal<FeedPost[]>([]);
+  /** authorId → lastSeenAt (null = offline/stranger); drives avatar dots. */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
   protected readonly listSubmitted = signal(false);
   protected readonly today = new Date();
   protected readonly bannerDismissed = signal(false);
@@ -400,6 +404,12 @@ export class HomeComponent implements OnInit {
     this.reload();
   }
 
+  /** Presence dot for a post author id (null hides it). */
+  protected presenceOf(authorId: string | null | undefined): PresenceStatus {
+    if (!authorId) return null;
+    return this.presence.statusOf(this.presenceMap()[String(authorId)] ?? null);
+  }
+
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -420,6 +430,13 @@ export class HomeComponent implements OnInit {
           this.communityPosts.set(feed?.data?.items?.slice(0, 3) ?? []);
           this.listSubmitted.set((contactList?.data?.batches ?? []).length > 0);
           this.loading.set(false);
+          const ids = (feed?.data?.items ?? []).map((p) => p.authorId);
+          if (ids.length > 0) {
+            this.presence
+              .lookup(ids)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+          }
         },
         error: (err: ApiError) => {
           this.error.set(err.message);

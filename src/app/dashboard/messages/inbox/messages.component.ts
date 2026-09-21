@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AnnounceEnvelope, Contact, Message, MessageEnvelope, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
 import { ApiError, userError } from '../../../core/http/api-error';
@@ -85,7 +86,7 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
               <mat-label>To</mat-label>
               <mat-select formControlName="to">
                 @for (c of contacts(); track c.id) {
-                  <mat-option [value]="c.id">{{ c.name }} ({{ c.username }}) · {{ c.relation }}</mat-option>
+                  <mat-option [value]="c.id">{{ c.name }} ({{ c.username }}) · {{ c.relation }}{{ presenceSuffix(c.id) }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -153,6 +154,7 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
             @for (c of conversations(); track c.id) {
               <li class="message-card message-card--convo" [class.message-card--unread]="c.unread > 0">
                 <button type="button" class="convo-head" (click)="loadThread(c.id)" [attr.aria-expanded]="openThreadId() === c.id">
+                  <span class="presence-dot" [class.presence-dot--online]="presenceOf(c.id) === 'online'" [class.presence-dot--recent]="presenceOf(c.id) === 'recent'" [title]="presenceOf(c.id) === 'online' ? 'Online now' : presenceOf(c.id) === 'recent' ? 'Active recently' : 'Offline'"></span>
                   <strong>{{ c.name }}</strong>
                   @if (c.unread > 0) {
                     <span class="dp-status dp-status--bad">{{ c.unread }} new</span>
@@ -293,6 +295,9 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
     .filter-btn { border: 1px solid var(--dp-line); background: transparent; border-radius: 999px; padding: 0.5em 1em; min-height: 44px; cursor: pointer; color: inherit; font: inherit; font-size: 0.85rem; }
     .filter-btn--active { border-color: var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
     .message-card p { margin: 0; white-space: pre-wrap; }
+    .presence-dot { width: 0.65em; height: 0.65em; border-radius: 50%; background: var(--dp-line); flex: none; }
+    .presence-dot--online { background: #2e7d32; }
+    .presence-dot--recent { background: #d9a406; }
     .message-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .message-actions { display: flex; gap: 0.25em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
@@ -304,9 +309,12 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
 export class MessagesComponent implements OnInit {
   private readonly messages = inject(MessageService);
   private readonly auth = inject(AuthService);
+  private readonly presence = inject(PresenceService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  /** counterpart/contact id → lastSeenAt (null = offline/stranger). */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
 
   protected readonly loading = signal(true);
   protected readonly sending = signal(false);
@@ -373,6 +381,7 @@ export class MessagesComponent implements OnInit {
           this.contacts.set(contacts.data ?? []);
           this.unread.set(unread.data?.unread ?? 0);
           this.loading.set(false);
+          this.refreshPresence();
         },
         error: (err: ApiError) => {
           this.error.set(userError(err));
@@ -411,6 +420,34 @@ export class MessagesComponent implements OnInit {
 
   protected myId(): string {
     return String(this.auth.currentUser()?.id ?? '');
+  }
+
+  /** Presence dot for a counterpart id (null hides it). */
+  protected presenceOf(id: string | null | undefined): PresenceStatus {
+    if (!id) return null;
+    return this.presence.statusOf(this.presenceMap()[String(id)] ?? null);
+  }
+
+  /** " · Online" suffix for the To picker (empty when offline). */
+  protected presenceSuffix(id: string | null | undefined): string {
+    const s = this.presenceOf(id);
+    if (s === 'online') return ' · Online';
+    if (s === 'recent') return ' · Active';
+    return '';
+  }
+
+  /** Refresh presence for conversation counterparts + messageable contacts. */
+  private refreshPresence(): void {
+    const me = this.myId();
+    const ids = [
+      ...this.contacts().map((c) => c.id),
+      ...this.inbox().flatMap((m) => [m.senderId, m.recipientId]),
+    ].filter((id) => String(id) !== me);
+    if (ids.length === 0) return;
+    this.presence
+      .lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
   }
 
   /** Direct messages grouped by counterpart — the conversation list. */

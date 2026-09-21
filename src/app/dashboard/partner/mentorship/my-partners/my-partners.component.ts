@@ -19,6 +19,7 @@ import { ActivateNewPartnerComponent } from './activate-new-partner.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AvatarComponent } from '../../../../_common/avatar.component';
+import { PresenceService, PresenceStatus } from '../../../../core/presence/presence.service';
 
 
 @Component({
@@ -169,7 +170,16 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
+    private presence: PresenceService,
   ) {}
+
+  /** partnerId → lastSeenAt (null = offline); drives avatar dots. */
+  presenceMap: Record<string, string | null> = {};
+
+  protected presenceStatus(id: string | null | undefined): PresenceStatus {
+    if (!id) return null;
+    return this.presence.statusOf(this.presenceMap[String(id)] ?? null);
+  }
 
   ngOnInit() {
     //console.log(this.myPartners);
@@ -190,6 +200,16 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q));
     };
+
+    // Presence dots for direct downline (single bulk call, cached 60s).
+    const ids = (this.myPartners ?? []).map((p) => (p as PartnerInterface & { _id?: string })._id).filter(Boolean) as string[];
+    if (ids.length > 0) {
+      this.subscriptions.push(
+        this.presence.lookup(ids).subscribe((map) => {
+          this.presenceMap = { ...this.presenceMap, ...map };
+        })
+      );
+    }
   }
 
 

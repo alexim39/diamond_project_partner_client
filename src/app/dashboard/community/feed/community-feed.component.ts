@@ -10,6 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { CommunityService } from '../../../core/community/community.service';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { API_BASE_URL } from '../../../core/config/api-tokens';
@@ -178,7 +179,7 @@ const KIND_STYLES: Record<PostKind, string> = {
                 @if (post.pinned) {
                   <span class="dp-status dp-status--warn"><mat-icon>push_pin</mat-icon> Pinned</span>
                 }
-                <span class="muted byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" />{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
+                <span class="muted byline"><async-avatar [photo]="post.author?.profileImage" [name]="post.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(post.authorId)" />{{ post.author?.name ?? 'Teammate' }} · {{ post.createdAt | date:'short' }}</span>
                 @if (isMine(post)) {
                   <span class="spacer"></span>
                   @if (canPin(post)) {
@@ -278,7 +279,7 @@ const KIND_STYLES: Record<PostKind, string> = {
                   }
                   @for (comment of comments(); track comment.id) {
                     <div class="comment" [class.comment--reply]="!!comment.parentId">
-                      <strong class="byline"><async-avatar [photo]="comment.author?.profileImage" [name]="comment.author?.name ?? 'Teammate'" size="xs" />{{ comment.author?.name ?? 'Teammate' }}</strong>
+                      <strong class="byline"><async-avatar [photo]="comment.author?.profileImage" [name]="comment.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(comment.authorId)" />{{ comment.author?.name ?? 'Teammate' }}</strong>
                       <div class="comment-body">@for (seg of segments(comment.body); track $index) {<span [class.mention]="seg.mention">{{ seg.text }}</span>}</div>
                       <div class="comment-foot">
                         <span class="muted">{{ comment.createdAt | date:'short' }}</span>
@@ -385,10 +386,13 @@ const KIND_STYLES: Record<PostKind, string> = {
 export class CommunityFeedComponent implements OnInit {
   private readonly community = inject(CommunityService);
   private readonly auth = inject(AuthService);
+  private readonly presence = inject(PresenceService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly apiBase = inject(API_BASE_URL);
   private stagedSeq = 0;
+  /** authorId → lastSeenAt (null = offline/stranger); drives avatar dots. */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
 
   protected readonly loading = signal(true);
   protected readonly loadingMore = signal(false);
@@ -433,6 +437,25 @@ export class CommunityFeedComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+  }
+
+  /** Presence dot for an author id (null hides it). */
+  protected presenceOf(authorId: string | null | undefined): PresenceStatus {
+    if (!authorId) return null;
+    return this.presence.statusOf(this.presenceMap()[String(authorId)] ?? null);
+  }
+
+  /** Refresh presence for visible post + comment authors (single bulk call). */
+  private refreshPresence(): void {
+    const ids = [
+      ...this.posts().map((p) => p.authorId),
+      ...this.comments().map((c) => c.authorId),
+    ];
+    if (ids.length === 0) return;
+    this.presence
+      .lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
   }
 
   protected kindLabel(kind: PostKind): string {
@@ -516,6 +539,7 @@ export class CommunityFeedComponent implements OnInit {
           this.posts.set(res.data?.items ?? []);
           this.nextCursor.set(res.data?.nextCursor ?? null);
           this.loading.set(false);
+          this.refreshPresence();
         },
         error: (err: ApiError) => {
           this.error.set(err.message);
@@ -540,6 +564,7 @@ export class CommunityFeedComponent implements OnInit {
           const fresh = (res.data?.items ?? []).filter((p) => !seen.has(p.id));
           this.posts.set([...this.posts(), ...fresh]);
           this.nextCursor.set(res.data?.nextCursor ?? null);
+          this.refreshPresence();
         },
         error: (err: ApiError) => {
           this.loadingMore.set(false);
@@ -853,6 +878,7 @@ export class CommunityFeedComponent implements OnInit {
         next: (res) => {
           this.loadingComments.set(false);
           this.comments.set(res.data ?? []);
+          this.refreshPresence();
         },
         error: (err: ApiError) => {
           this.loadingComments.set(false);

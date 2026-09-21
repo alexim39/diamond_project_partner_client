@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { CoachingService, CoachingNote, MyCoach } from '../../../core/coaching/coaching.service';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 import { AvatarComponent } from '../../../_common/avatar.component';
@@ -55,11 +56,16 @@ import { AvatarComponent } from '../../../_common/avatar.component';
 
       @if (coach(); as c) {
         <div class="dp-card coach-card">
-          <async-avatar [photo]="c.coach?.profileImage" [name]="c.coach?.name ?? 'No coach yet'" size="md" />
+          <async-avatar [photo]="c.coach?.profileImage" [name]="c.coach?.name ?? 'No coach yet'" size="md" [presence]="coachPresence()" />
           <div>
             @if (c.coach) {
               <strong>{{ c.coach.name }}</strong>
               <span class="muted">@{{ c.coach.username }}</span>
+              @if (coachPresence() === 'online') {
+                <span class="dp-status dp-status--ok">Online now</span>
+              } @else if (coachPresence() === 'recent') {
+                <span class="dp-status dp-status--info">Active recently</span>
+              }
               @if (c.journey) {
                 <div class="muted">{{ c.journey.levelLabel }}@if (c.journey.nextLabel) { → {{ c.journey.nextLabel }} · {{ c.journey.percent }}% }</div>
               }
@@ -145,6 +151,7 @@ import { AvatarComponent } from '../../../_common/avatar.component';
 export class MyCoachComponent implements OnInit {
   private readonly coaching = inject(CoachingService);
   private readonly auth = inject(AuthService);
+  private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -154,6 +161,15 @@ export class MyCoachComponent implements OnInit {
   protected readonly coach = signal<MyCoach | null>(null);
   protected readonly notes = signal<CoachingNote[]>([]);
   protected readonly draft = signal('');
+  /** coachId → lastSeenAt (null = offline); drives the avatar dot. */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
+
+  /** Presence dot for the coach avatar (null hides it). */
+  protected coachPresence(): PresenceStatus {
+    const id = this.coach()?.coach?.id;
+    if (!id) return null;
+    return this.presence.statusOf(this.presenceMap()[id] ?? null);
+  }
 
   ngOnInit(): void {
     this.reload();
@@ -170,6 +186,13 @@ export class MyCoachComponent implements OnInit {
           this.coach.set(res.data ?? null);
           this.loading.set(false);
           this.loadNotes();
+          const coachId = res.data?.coach?.id;
+          if (coachId) {
+            this.presence
+              .lookup([coachId])
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+          }
         },
         error: (err: ApiError) => {
           this.error.set(err.message);

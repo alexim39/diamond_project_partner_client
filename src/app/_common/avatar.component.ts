@@ -1,28 +1,42 @@
 import { Component, ChangeDetectionStrategy, computed, effect, inject, input, signal } from '@angular/core';
 import { API_BASE_URL } from '../core/config/api-tokens';
+import type { PresenceStatus } from '../core/presence/presence.service';
 
 /**
  * Shared member avatar — photo when present, initial letter otherwise.
  * Resolves both storage generations: absolute URLs (Cloudinary) pass
  * through, legacy bare filenames resolve against `/uploads/`.
+ * Optional `presence` paints the online/recent dot (same language as the
+ * admin directory pills and the messages/community dots).
  */
 @Component({
   selector: 'async-avatar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (url() && !failed()) {
-      <img [src]="url()" [alt]="alt()" class="avatar avatar--{{ size() }}" loading="lazy" (error)="failed.set(true)" />
-    } @else {
-      <span class="avatar avatar--{{ size() }} avatar--fallback" aria-hidden="true">{{ initial() }}</span>
-    }
+    <span class="avatar-wrap" [class.avatar-wrap--online]="presence() === 'online'" [class.avatar-wrap--recent]="presence() === 'recent'"
+      [attr.title]="presenceTitle()" [attr.aria-label]="presenceTitle()">
+      @if (url() && !failed()) {
+        <img [src]="url()" [alt]="alt()" class="avatar avatar--{{ size() }}" loading="lazy" (error)="failed.set(true)" />
+      } @else {
+        <span class="avatar avatar--{{ size() }} avatar--fallback" aria-hidden="true">{{ initial() }}</span>
+      }
+    </span>
   `,
   styles: [`
+    .avatar-wrap { position: relative; display: inline-flex; flex: none; border-radius: 50%; }
     .avatar { border-radius: 50%; object-fit: cover; flex: none; background: var(--dp-sidenav); }
     .avatar--xs { width: 1.6em; height: 1.6em; font-size: 0.85em; }
     .avatar--sm { width: 2.2em; height: 2.2em; font-size: 1em; }
     .avatar--md { width: 3em; height: 3em; font-size: 1.2em; }
     img.avatar { border: 1.5px solid rgba(243,236,221,0.32); }
     .avatar--fallback { display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: var(--dp-sidenav-text); border: 1.5px solid rgba(243,236,221,0.32); }
+    .avatar-wrap--online::after, .avatar-wrap--recent::after {
+      content: ''; position: absolute; right: 0; bottom: 0;
+      width: 0.65em; height: 0.65em; border-radius: 50%;
+      border: 2px solid var(--dp-surface, #fff);
+    }
+    .avatar-wrap--online::after { background: #2e7d32; }
+    .avatar-wrap--recent::after { background: #d9a406; }
   `],
 })
 export class AvatarComponent {
@@ -31,6 +45,8 @@ export class AvatarComponent {
   /** Display name — feeds the initial and the alt text. */
   readonly name = input<string>('');
   readonly size = input<'xs' | 'sm' | 'md'>('sm');
+  /** Presence dot — 'online' (green) or 'recent' (amber); null hides it. */
+  readonly presence = input<PresenceStatus>(null);
 
   private readonly baseUrl = inject(API_BASE_URL);
   /** Set when the image 404s (deleted legacy file, dead URL) — fall back to the initial. */
@@ -59,5 +75,12 @@ export class AvatarComponent {
   protected readonly alt = computed(() => {
     const name = this.name().trim();
     return name ? `${name}'s profile photo` : 'Profile photo';
+  });
+
+  protected readonly presenceTitle = computed(() => {
+    const p = this.presence();
+    if (p === 'online') return 'Online now';
+    if (p === 'recent') return 'Active recently';
+    return null;
   });
 }
