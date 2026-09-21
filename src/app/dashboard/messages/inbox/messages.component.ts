@@ -14,6 +14,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
 import { AnnounceEnvelope, Contact, Message, MessageEnvelope, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 
@@ -30,7 +31,7 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
   selector: 'async-messages',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe, MatButtonModule, MatButtonToggleModule, MatChipsModule, MatIconModule,
+    AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatChipsModule, MatIconModule,
     MatInputModule, MatProgressBarModule, MatSelectModule, ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -154,7 +155,7 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
             @for (c of conversations(); track c.id) {
               <li class="message-card message-card--convo" [class.message-card--unread]="c.unread > 0">
                 <button type="button" class="convo-head" (click)="loadThread(c.id)" [attr.aria-expanded]="openThreadId() === c.id">
-                  <span class="presence-dot" [class.presence-dot--online]="presenceOf(c.id) === 'online'" [class.presence-dot--recent]="presenceOf(c.id) === 'recent'" [title]="presenceOf(c.id) === 'online' ? 'Online now' : presenceOf(c.id) === 'recent' ? 'Active recently' : 'Offline'"></span>
+                  <async-avatar [name]="c.name" size="xs" [presence]="presenceOf(c.id)" />
                   <strong>{{ c.name }}</strong>
                   @if (c.unread > 0) {
                     <span class="dp-status dp-status--bad">{{ c.unread }} new</span>
@@ -295,17 +296,6 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
     .filter-btn { border: 1px solid var(--dp-line); background: transparent; border-radius: 999px; padding: 0.5em 1em; min-height: 44px; cursor: pointer; color: inherit; font: inherit; font-size: 0.85rem; }
     .filter-btn--active { border-color: var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
     .message-card p { margin: 0; white-space: pre-wrap; }
-    .presence-dot { width: 0.65em; height: 0.65em; border-radius: 50%; background: var(--dp-line); flex: none; }
-    .presence-dot--online { background: #2e7d32; animation: presence-ping 1.8s ease-out infinite; }
-    .presence-dot--recent { background: #d9a406; }
-    @keyframes presence-ping {
-      0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.55); }
-      70% { box-shadow: 0 0 0 7px rgba(46, 125, 50, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .presence-dot--online { animation: none; }
-    }
     .message-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
     .message-actions { display: flex; gap: 0.25em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }

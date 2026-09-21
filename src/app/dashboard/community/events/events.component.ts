@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { AudienceScope, CommunityEvent, RsvpStatus } from '../../../core/events/event.models';
@@ -192,7 +193,7 @@ const withDetail = (err: ApiError): string => {
                     <span class="dp-status dp-status--warn"><mat-icon>star</mat-icon> Featured</span>
                   }
                   <strong>{{ event.title }}</strong>
-                  <span class="muted byline"> · <async-avatar [photo]="event.author?.profileImage" [name]="event.author?.name ?? 'Teammate'" size="xs" />{{ event.author?.name ?? 'Teammate' }}</span>
+                  <span class="muted byline"> · <async-avatar [photo]="event.author?.profileImage" [name]="event.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(event.authorId)" />{{ event.author?.name ?? 'Teammate' }}</span>
                 </div>
                 <span class="muted">{{ event.startsAt | date:'medium' }}</span>
               </div>
@@ -278,6 +279,7 @@ const withDetail = (err: ApiError): string => {
 })
 export class CommunityEventsComponent implements OnInit {
   private readonly events = inject(EventService);
+  private readonly presence = inject(PresenceService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
@@ -297,6 +299,24 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly upcoming = signal<CommunityEvent[]>([]);
   protected readonly mine = signal<CommunityEvent[]>([]);
   protected readonly featureError = signal<string | null>(null);
+  /** authorId → lastSeenAt (null = offline/stranger); drives avatar dots. */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
+
+  /** Presence dot for an event author id (null hides it). */
+  protected presenceOf(authorId: string | null | undefined): PresenceStatus {
+    if (!authorId) return null;
+    return this.presence.statusOf(this.presenceMap()[String(authorId)] ?? null);
+  }
+
+  /** Refresh presence for visible event authors (single bulk call). */
+  private refreshPresence(): void {
+    const ids = [...this.upcoming(), ...this.mine()].map((e) => e.authorId);
+    if (ids.length === 0) return;
+    this.presence
+      .lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+  }
 
   protected readonly rsvpOptions: Array<{ label: string; value: RsvpStatus }> = [
     { label: 'Going', value: 'going' },
@@ -398,6 +418,7 @@ export class CommunityEventsComponent implements OnInit {
           this.upcoming.set(upcoming.data?.items ?? []);
           this.mine.set(mine.data?.items ?? []);
           this.loading.set(false);
+          this.refreshPresence();
         },
         error: (err: ApiError) => {
           this.error.set(err.message);
