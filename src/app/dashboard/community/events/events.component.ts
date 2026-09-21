@@ -17,7 +17,7 @@ import { EventService } from '../../../core/events/event.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { AudienceScope, CommunityEvent, RsvpStatus } from '../../../core/events/event.models';
+import { AudienceScope, CommunityEvent, EventComment, RsvpStatus } from '../../../core/events/event.models';
 import { ApiError, validationDetail } from '../../../core/http/api-error';
 
 const toInputDateTime = (d: Date): string => {
@@ -232,6 +232,63 @@ const withDetail = (err: ApiError): string => {
                   }
                 }
               </div>
+              <div class="thread-toggle">
+                <button mat-button (click)="toggleThread(event)" [attr.aria-expanded]="openThreadId() === event.id">
+                  <mat-icon>comment</mat-icon>
+                  Discussion{{ event.commentCount ? ' (' + event.commentCount + ')' : '' }}
+                </button>
+              </div>
+              @if (openThreadId() === event.id) {
+                <div class="thread">
+                  @if (threadLoading()) {
+                    <mat-progress-bar mode="indeterminate" />
+                  }
+                  @if (threadError(); as err) {
+                    <p class="error" role="alert">{{ err }}</p>
+                  }
+                  @for (c of topComments(event.id); track c.id) {
+                    <div class="comment">
+                      <strong class="byline"><async-avatar [photo]="c.author?.profileImage" [name]="c.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(c.authorId)" />{{ c.author?.name ?? 'Teammate' }}</strong>
+                      <p>{{ c.body }}</p>
+                      <div class="comment-foot">
+                        <span class="muted">{{ c.createdAt | date:'short' }}</span>
+                        <button mat-button (click)="replyTo.set({ id: c.id, name: c.author?.name ?? 'teammate' })">Reply</button>
+                        @if (canDelete(event, c)) {
+                          <button mat-button color="warn" (click)="deleteThreadComment(event, c)">Delete</button>
+                        }
+                      </div>
+                      @for (r of replies(event.id, c.id); track r.id) {
+                        <div class="comment comment--reply">
+                          <strong class="byline"><async-avatar [photo]="r.author?.profileImage" [name]="r.author?.name ?? 'Teammate'" size="xs" [presence]="presenceOf(r.authorId)" />{{ r.author?.name ?? 'Teammate' }}</strong>
+                          <p>{{ r.body }}</p>
+                          <div class="comment-foot">
+                            <span class="muted">{{ r.createdAt | date:'short' }}</span>
+                            @if (canDelete(event, r)) {
+                              <button mat-button color="warn" (click)="deleteThreadComment(event, r)">Delete</button>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  } @empty {
+                    @if (!threadLoading()) {
+                      <p class="empty">No questions yet — ask the host anything below.</p>
+                    }
+                  }
+                  <div class="comment-box">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>@if (replyTo(); as rt) { Reply to {{ rt.name }}… } @else { Ask a question… }</mat-label>
+                      <input matInput [value]="threadDraft()" (input)="threadDraft.set($any($event.target).value)" maxlength="1000" (keydown.enter)="sendThreadComment(event)" />
+                    </mat-form-field>
+                    @if (replyTo()) {
+                      <button mat-button (click)="replyTo.set(null)">Cancel reply</button>
+                    }
+                    <button mat-flat-button color="primary" (click)="sendThreadComment(event)" [disabled]="!threadDraft().trim() || threadSending()">
+                      {{ threadSending() ? 'Posting…' : 'Post' }}
+                    </button>
+                  </div>
+                </div>
+              }
             </li>
           }
         </ol>
@@ -266,6 +323,16 @@ const withDetail = (err: ApiError): string => {
     .event-top .muted mat-icon, p.muted mat-icon { font-size: 16px; height: 16px; width: 16px; vertical-align: -3px; }
     .rsvp-row { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
     .rsvp-row .spacer { flex: 1; }
+    .thread-toggle { display: flex; }
+    .thread-toggle button { min-height: 44px; }
+    .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--dp-line); padding-top: 0.75em; }
+    .comment { display: flex; flex-direction: column; gap: 0.2em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.8em; }
+    .comment p { margin: 0; white-space: pre-wrap; }
+    .comment--reply { margin-left: 1.5em; }
+    .comment-foot { display: flex; align-items: center; gap: 0.4em; flex-wrap: wrap; }
+    .comment-foot button { min-height: 44px; }
+    .comment-box { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; }
+    .comment-box mat-form-field { flex: 1; min-width: 200px; }
     .delete-confirm { display: inline-flex; align-items: center; gap: 0.4em; flex-wrap: wrap; background: var(--dp-error-bg); border: 1px solid var(--dp-error); border-radius: 8px; padding: 0.3em 0.6em; font-size: 0.85em; }
     html[data-theme='dark'] .delete-confirm { color: #e89a9a; }
     .delete-confirm button { min-height: 44px; }
@@ -301,6 +368,14 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly featureError = signal<string | null>(null);
   /** authorId → lastSeenAt (null = offline/stranger); drives avatar dots. */
   protected readonly presenceMap = signal<Record<string, string | null>>({});
+  /** Discussion state per event (opened thread, rows, draft, reply target). */
+  protected readonly openThreadId = signal<string | null>(null);
+  protected readonly threadComments = signal<Record<string, EventComment[]>>({});
+  protected readonly threadLoading = signal(false);
+  protected readonly threadError = signal<string | null>(null);
+  protected readonly threadSending = signal(false);
+  protected readonly threadDraft = signal('');
+  protected readonly replyTo = signal<{ id: string; name: string } | null>(null);
 
   /** Presence dot for an event author id (null hides it). */
   protected presenceOf(authorId: string | null | undefined): PresenceStatus {
@@ -309,13 +384,113 @@ export class CommunityEventsComponent implements OnInit {
   }
 
   /** Refresh presence for visible event authors (single bulk call). */
-  private refreshPresence(): void {
-    const ids = [...this.upcoming(), ...this.mine()].map((e) => e.authorId);
+  private refreshPresence(extraIds: string[] = []): void {
+    const ids = [...[...this.upcoming(), ...this.mine()].map((e) => e.authorId), ...extraIds];
     if (ids.length === 0) return;
     this.presence
       .lookup(ids)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+  }
+
+  protected myId(): string {
+    return String(this.auth.currentUser()?.id ?? '');
+  }
+
+  /** Top-level comments for an open thread (replies nest under their parent). */
+  protected topComments(eventId: string): EventComment[] {
+    return (this.threadComments()[eventId] ?? []).filter((c) => !c.parentId);
+  }
+
+  /** Replies to one comment, oldest first. */
+  protected replies(eventId: string, parentId: string): EventComment[] {
+    return (this.threadComments()[eventId] ?? []).filter((c) => String(c.parentId) === String(parentId));
+  }
+
+  protected toggleThread(event: CommunityEvent): void {
+    const open = this.openThreadId() === event.id ? null : event.id;
+    this.openThreadId.set(open);
+    this.threadError.set(null);
+    this.replyTo.set(null);
+    if (open) this.loadThread(event.id);
+  }
+
+  private loadThread(eventId: string): void {
+    this.threadLoading.set(true);
+    this.threadError.set(null);
+    this.events
+      .comments(eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const rows = res.data ?? [];
+          this.threadComments.set({ ...this.threadComments(), [eventId]: rows });
+          this.threadLoading.set(false);
+          this.refreshPresence(rows.map((c) => c.authorId));
+        },
+        error: (err: ApiError) => {
+          this.threadLoading.set(false);
+          this.threadError.set(err.message);
+        },
+      });
+  }
+
+  protected sendThreadComment(event: CommunityEvent): void {
+    const body = this.threadDraft().trim();
+    if (!body || this.threadSending()) return;
+    const reply = this.replyTo();
+    this.threadSending.set(true);
+    this.threadError.set(null);
+    this.events
+      .addComment(event.id, body, reply?.id ?? null)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.threadSending.set(false);
+          this.threadDraft.set('');
+          this.replyTo.set(null);
+          if (res.data) {
+            const rows = [...(this.threadComments()[event.id] ?? []), res.data];
+            this.threadComments.set({ ...this.threadComments(), [event.id]: rows });
+            this.refreshPresence([res.data.authorId]);
+          }
+          this.bumpCount(event.id, 1);
+        },
+        error: (err: ApiError) => {
+          this.threadSending.set(false);
+          this.threadError.set(err.message);
+        },
+      });
+  }
+
+  protected deleteThreadComment(event: CommunityEvent, comment: EventComment): void {
+    if (!window.confirm('Delete this comment? Replies under it go too.')) return;
+    this.events
+      .deleteComment(event.id, comment.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          const ids = new Set([comment.id, ...this.replies(event.id, comment.id).map((r) => r.id)]);
+          const rows = (this.threadComments()[event.id] ?? []).filter((c) => !ids.has(c.id));
+          this.threadComments.set({ ...this.threadComments(), [event.id]: rows });
+          this.bumpCount(event.id, -1 * (comment.parentId ? 1 : ids.size));
+        },
+        error: (err: ApiError) => this.threadError.set(err.message),
+      });
+  }
+
+  /** A comment is removable by its author or the event host. */
+  protected canDelete(event: CommunityEvent, comment: EventComment): boolean {
+    const me = this.myId();
+    return !!me && (String(comment.authorId) === me || String(event.authorId) === me);
+  }
+
+  /** Keep the card's discussion count truthful without a reload. */
+  private bumpCount(eventId: string, delta: number): void {
+    const bump = (list: CommunityEvent[]) =>
+      list.map((e) => e.id === eventId ? { ...e, commentCount: Math.max(0, (e.commentCount ?? 0) + delta) } : e);
+    this.upcoming.set(bump(this.upcoming()));
+    this.mine.set(bump(this.mine()));
   }
 
   protected readonly rsvpOptions: Array<{ label: string; value: RsvpStatus }> = [

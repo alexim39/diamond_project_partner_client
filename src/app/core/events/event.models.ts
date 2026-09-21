@@ -26,6 +26,25 @@ export interface CommunityEvent {
   author: { username: string; name: string; profileImage?: string | null } | null;
   rsvps: RsvpCounts;
   myRsvp: RsvpStatus | null;
+  commentCount?: number;
+}
+
+export interface EventComment {
+  id: string;
+  eventId: string;
+  authorId: string;
+  body: string;
+  parentId: string | null;
+  createdAt: string;
+  author: { username: string; name: string; profileImage?: string | null } | null;
+}
+
+export interface EventCommentsEnvelope extends ApiEnvelope<EventComment[]> {
+  data: EventComment[];
+}
+
+export interface EventCommentEnvelope extends ApiEnvelope<EventComment> {
+  data: EventComment;
 }
 
 export interface EventsEnvelope extends ApiEnvelope<{ items: CommunityEvent[]; viewerLevel?: string | null; total?: number }> {

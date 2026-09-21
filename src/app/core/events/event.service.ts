@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { CreateEventPayload, EventEnvelope, EventsEnvelope, RsvpEnvelope, RsvpStatus } from './event.models';
+import { CreateEventPayload, EventCommentEnvelope, EventCommentsEnvelope, EventEnvelope, EventsEnvelope, RsvpEnvelope, RsvpStatus } from './event.models';
 
 /** Group events + RSVP → backend `/v1/events/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -35,5 +35,20 @@ export class EventService {
   /** Feature/unfeature at top (1 slot per scope, server-enforced). */
   feature(eventId: string, featured: boolean): Observable<EventEnvelope> {
     return this.api.post<EventEnvelope>(`v1/events/${eventId}/feature`, { featured });
+  }
+
+  /** Discussion thread — comments + one-level replies (no likes by design). */
+  comments(eventId: string): Observable<EventCommentsEnvelope> {
+    return this.api.get<EventCommentsEnvelope>(`v1/events/${eventId}/comments`);
+  }
+
+  addComment(eventId: string, body: string, parentId?: string | null): Observable<EventCommentEnvelope> {
+    return this.api.post<EventCommentEnvelope>(`v1/events/${eventId}/comments`, {
+      body, ...(parentId ? { parentId } : {}),
+    });
+  }
+
+  deleteComment(eventId: string, commentId: string): Observable<unknown> {
+    return this.api.delete(`v1/events/${eventId}/comments/${commentId}`);
   }
 }
