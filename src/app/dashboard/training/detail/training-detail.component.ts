@@ -130,7 +130,11 @@ import { ApiError } from '../../../core/http/api-error';
                   }
                 </div>
               }
-              <p>{{ lesson.body }}</p>
+              <div class="lesson-body">
+                @for (para of paras(lesson.body); track $index) {
+                  <p>{{ para }}</p>
+                }
+              </div>
               @if (lesson.takeaways.length > 0) {
                 <ul class="takeaways">
                   @for (point of lesson.takeaways; track point) {
@@ -215,6 +219,8 @@ import { ApiError } from '../../../core/http/api-error';
     .lessons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75em; counter-reset: lesson; }
     .lesson { padding: 1em; }
     .lesson p { margin: 0.5em 0; line-height: 1.6; }
+    .lesson-body { display: flex; flex-direction: column; gap: 0.75em; margin: 0.75em 0; }
+    .lesson-body p { margin: 0; line-height: 1.7; }
     .lesson-top { display: flex; justify-content: space-between; align-items: center; gap: 0.75em; flex-wrap: wrap; }
     .done-icon { color: var(--dp-success); }
     .video-wrap { margin: 0.75em 0; display: flex; flex-direction: column; gap: 0.5em; }
@@ -272,6 +278,14 @@ export class TrainingDetailComponent implements OnInit {
 
   protected courseId(): string {
     return this.routes.snapshot.paramMap.get('courseId') ?? '';
+  }
+
+  /** Split lesson body into readable paragraphs (blank-line separated). */
+  protected paras(text: unknown): string[] {
+    return String(text ?? '')
+      .split(/\n\s*\n/)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
   }
 
   protected watchPercent(lessonId: string): number {
