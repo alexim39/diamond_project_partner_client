@@ -11,11 +11,14 @@ export interface AdminQuizCatalog {
     title: string;
     quizCount: number;
     mediaOverridden?: boolean;
+    bodyOverridden?: boolean;
     videoUrl?: string | null;
     posterUrl?: string | null;
     captionsUrl?: string | null;
     hasTranscript?: boolean;
     durationSec?: number | null;
+    body?: string;
+    takeaways?: string[];
   }>;
 }
 
@@ -48,6 +51,8 @@ export interface AdminMedia {
   captionsUrl?: string | null;
   transcript?: string | null;
   durationSec?: number | null;
+  body?: string | null;
+  takeaways?: string[] | null;
 }
 
 export interface AdminMediaRow {
@@ -58,6 +63,8 @@ export interface AdminMediaRow {
   captionsUrl: string | null;
   transcript: string | null;
   durationSec: number | null;
+  body: string | null;
+  takeaways: string[];
 }
 
 @Injectable({ providedIn: 'root' })

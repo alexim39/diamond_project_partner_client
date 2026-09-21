@@ -149,6 +149,15 @@ interface EditQuestion {
             <mat-label>Transcript (optional)</mat-label>
             <textarea matInput rows="4" [value]="editMedia().transcript" (input)="setMedia('transcript', $any($event.target).value)" maxlength="8000"></textarea>
           </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Lesson study text (optional — blank falls back to catalog)</mat-label>
+            <textarea matInput rows="8" [value]="editMedia().body" (input)="setMedia('body', $any($event.target).value)" maxlength="20000" placeholder="Study lesson, blank line between paragraphs…"></textarea>
+            <mat-hint>Shown on the course page as spaced paragraphs@if (mediaBodyOverridden()) { · currently overridden}</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Key takeaways (optional — one per line, max 10)</mat-label>
+            <textarea matInput rows="3" [value]="editMedia().takeawaysText" (input)="setMedia('takeawaysText', $any($event.target).value)" placeholder="One takeaway per line…"></textarea>
+          </mat-form-field>
           <div class="edit-actions">
             <span class="spacer"></span>
             @if (mediaOverridden()) {
@@ -201,8 +210,8 @@ export class AdminTrainingQuizzesComponent implements OnInit {
   protected readonly courseId = signal('');
   protected readonly lessonId = signal('');
   protected readonly editQuiz = signal<EditQuestion[]>([]);
-  protected readonly editMedia = signal<{ videoUrl: string; posterUrl: string; captionsUrl: string; transcript: string; durationSec: number | null }>({
-    videoUrl: '', posterUrl: '', captionsUrl: '', transcript: '', durationSec: null,
+  protected readonly editMedia = signal<{ videoUrl: string; posterUrl: string; captionsUrl: string; transcript: string; durationSec: number | null; body: string; takeawaysText: string }>({
+    videoUrl: '', posterUrl: '', captionsUrl: '', transcript: '', durationSec: null, body: '', takeawaysText: '',
   });
 
   protected readonly lessons = computed(() => {
@@ -216,6 +225,10 @@ export class AdminTrainingQuizzesComponent implements OnInit {
 
   protected mediaOverridden(): boolean {
     return this.lessons().find((l) => l.id === this.lessonId())?.mediaOverridden ?? false;
+  }
+
+  protected mediaBodyOverridden(): boolean {
+    return this.lessons().find((l) => l.id === this.lessonId())?.bodyOverridden ?? false;
   }
 
   ngOnInit(): void {
@@ -288,6 +301,8 @@ export class AdminTrainingQuizzesComponent implements OnInit {
             captionsUrl: row?.captionsUrl ?? lesson?.captionsUrl ?? '',
             transcript: row?.transcript ?? '',
             durationSec: row?.durationSec ?? lesson?.durationSec ?? null,
+            body: row?.body ?? lesson?.body ?? '',
+            takeawaysText: (row?.takeaways?.length ? row.takeaways : (lesson?.takeaways ?? [])).join('\n'),
           });
         },
         error: (err: ApiError) => {
@@ -360,7 +375,7 @@ export class AdminTrainingQuizzesComponent implements OnInit {
       });
   }
 
-  protected setMedia(field: 'videoUrl' | 'posterUrl' | 'captionsUrl' | 'transcript', value: string): void {
+  protected setMedia(field: 'videoUrl' | 'posterUrl' | 'captionsUrl' | 'transcript' | 'body' | 'takeawaysText', value: string): void {
     this.editMedia.update((m) => ({ ...m, [field]: value }));
   }
 
@@ -383,6 +398,8 @@ export class AdminTrainingQuizzesComponent implements OnInit {
         captionsUrl: m.captionsUrl.trim() || null,
         transcript: m.transcript.trim() || null,
         durationSec: m.durationSec,
+        body: m.body.trim() || null,
+        takeaways: m.takeawaysText.split(/\r?\n/).map((t) => t.trim()).filter(Boolean).slice(0, 10),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
