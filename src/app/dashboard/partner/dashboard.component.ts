@@ -17,6 +17,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { PartnerAuthService } from '../../auth/auth.service';
 import { NotificationBellComponent } from '../notifications/bell/notification-bell.component';
@@ -486,6 +487,8 @@ export class DashboardComponent {
 
   /** Live badge count — polling today, socket transport later. */
   protected readonly stream = inject(NotificationStreamService);
+  /** Session identity for the presence heartbeat. */
+  private readonly presence = inject(AuthService);
   /** Ambient top progress bar — non-blocking, ref-counted. */
   protected readonly progress = inject(TopProgressService);
 
@@ -535,6 +538,29 @@ export class DashboardComponent {
       error: () => {
         this.router.navigate(['/']);
       }
+    });
+
+    this.startPresenceHeartbeat();
+  }
+
+  /**
+   * Presence heartbeat — stamps `lastSeenAt` so Admin → Manage Roles can
+   * show "Online now". Ping on open + every 4 min + on tab-visible;
+   * fire-and-forget (a missed beat only delays the pill).
+   */
+  private startPresenceHeartbeat(): void {
+    const ping = () => {
+      this.presence.ping().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ error: () => {} });
+    };
+    ping();
+    const timer = setInterval(ping, 4 * 60 * 1000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') ping();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    this.destroyRef.onDestroy(() => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
     });
   }
 

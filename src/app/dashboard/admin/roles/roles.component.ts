@@ -107,6 +107,8 @@ const RANK_ORDER = [
           <mat-label>Activity</mat-label>
           <mat-select [value]="loginFilter()" (selectionChange)="loginFilter.set($event.value); skip.set(0); reload()">
             <mat-option value="all">Any activity</mat-option>
+            <mat-option value="online">Online now</mat-option>
+            <mat-option value="active1h">Active 1h</mat-option>
             <mat-option value="dormant30">Dormant 30d+</mat-option>
             <mat-option value="new7">Joined 7d</mat-option>
           </mat-select>
@@ -174,6 +176,11 @@ const RANK_ORDER = [
             <ng-container matColumnDef="login">
               <th mat-header-cell *matHeaderCellDef>Last login</th>
               <td mat-cell *matCellDef="let row">
+                @if (presenceOf(row) === 'online') {
+                  <span class="dp-status dp-status--ok">Online</span>
+                } @else if (presenceOf(row) === 'recent') {
+                  <span class="dp-status dp-status--info">Active 1h</span>
+                }
                 {{ loginLabel(row) }}
                 @if (isDormant(row)) {
                   <span class="dp-status dp-status--warn">dormant</span>
@@ -447,6 +454,19 @@ export class ManageRolesComponent implements OnInit {
     const at = row.lastLoginAt ? new Date(row.lastLoginAt).getTime() : NaN;
     if (!Number.isFinite(at)) return true;
     return Date.now() - at >= 30 * 86400000;
+  }
+
+  /**
+   * Presence from the heartbeat (`lastSeenAt`): online ≤5 min, recent ≤60.
+   * Null when never seen with the app open — the login label carries it.
+   */
+  protected presenceOf(row: ManagedPartner): 'online' | 'recent' | null {
+    const at = row.lastSeenAt ? new Date(row.lastSeenAt).getTime() : NaN;
+    if (!Number.isFinite(at)) return null;
+    const mins = (Date.now() - at) / 60000;
+    if (mins <= 5) return 'online';
+    if (mins <= 60) return 'recent';
+    return null;
   }
 
   /** Row → 360 dialog; dialog actions drive the row's own handlers. */

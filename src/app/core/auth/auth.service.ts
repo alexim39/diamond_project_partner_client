@@ -96,6 +96,15 @@ export class AuthService {
   }
 
   /**
+   * Presence heartbeat — stamps `lastSeenAt` so the admin directory can
+   * show "Online now". Fire-and-forget: callers ignore errors (a missed
+   * beat only delays the pill, never breaks the page).
+   */
+  ping(): Observable<unknown> {
+    return this.api.post('v1/auth/ping', {});
+  }
+
+  /**
    * Guard entry: cached user → instant true; otherwise one `me()` call.
    * Resolves false (caller redirects) instead of throwing.
    */

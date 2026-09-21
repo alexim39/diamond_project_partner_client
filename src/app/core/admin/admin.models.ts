@@ -15,6 +15,8 @@ export interface ManagedPartner {
   createdAt?: string;
   lastLoginAt?: string | null;
   loginCount?: number;
+  /** Presence heartbeat — null = offline / never seen with the app open. */
+  lastSeenAt?: string | null;
 }
 
 export interface MemberLogin {
