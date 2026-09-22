@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <style type="text/css">
-    body, html {height: 100%;}
-    .app-loading { position: relative;  display: flex;  flex-direction: column; align-items: center; justify-content: center; height: 100%; font-size: 12px; }
-    .app-loading .spinner {  height: 160px;  width: 160px;  animation: rotate 2s linear infinite;  transform-origin: center center;  position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto; }
-    .app-loading .spinner .path {  stroke-dasharray: 1, 200;  stroke-dashoffset: 0;  animation: dash 1.5s ease-in-out infinite;  stroke-linecap: round; stroke: #050111;  /* stroke: #006064 */;  }
+    body, html {height: 100%; margin: 0; background: #111111;}
+    .app-loading { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; height: 100%; background: radial-gradient(600px 400px at 50% 38%, rgba(169,127,44,0.16), rgba(17,17,17,0) 70%), #111111; font-family: Inter, Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .app-loading .brand-mark { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 2px solid #a97f2c; box-shadow: 0 0 32px rgba(169,127,44,0.45); }
+    .app-loading .spinner { height: 64px; width: 64px; animation: rotate 1.6s linear infinite; transform-origin: center center; }
+    .app-loading .spinner .path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.4s ease-in-out infinite; stroke-linecap: round; stroke: #a97f2c; }
     @keyframes rotate {
       100% {   transform: rotate(360deg);  }
     }
@@ -13,6 +14,17 @@
       0% {   stroke-dasharray: 1, 200;   stroke-dashoffset: 0;  }
       50% {  stroke-dasharray: 89, 200;  stroke-dashoffset: -35px;  }
       100% { stroke-dasharray: 89, 200; stroke-dashoffset: -124px;   }
+    }
+    .app-loading .loadbar { width: 180px; height: 3px; border-radius: 999px; background: rgba(243,236,221,0.14); overflow: hidden; }
+    .app-loading .loadbar span { display: block; height: 100%; width: 40%; border-radius: 999px; background: #a97f2c; animation: shimmer 1.4s ease-in-out infinite; }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(450%); }
+    }
+    .app-loading .logo { color: #f3ecdd; font-size: 14px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+    .app-loading .sub { color: #a8a094; font-size: 12px; letter-spacing: 0.04em; }
+    @media (prefers-reduced-motion: reduce) {
+      .app-loading .spinner, .app-loading .spinner .path, .app-loading .loadbar span { animation: none; }
     }
   </style>
    <!-- Metadata and SEO Optimization -->
@@ -64,10 +76,13 @@
 <body class="mat-typography">
   <async-root>
     <main class="app-loading">
+      <img class="brand-mark" src="img/logo.PNG" alt="Diamond Project" />
       <div class="logo">Getting platform ready!</div>
-      <svg class="spinner" viewBox="25 25 50 50">
-        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="1" stroke-miterlimit="10"/>
+      <svg class="spinner" viewBox="25 25 50 50" aria-hidden="true">
+        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
       </svg>
+      <div class="loadbar" aria-hidden="true"><span></span></div>
+      <div class="sub">Loading your business…</div>
     </main>
   </async-root>
 </body>
