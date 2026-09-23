@@ -643,7 +643,10 @@ export class TrainingDetailComponent implements OnInit {
         },
         error: (err: ApiError) => {
           this.completing.set(null);
-          this.error.set(err.message);
+          // Submission failures belong inline at the quiz (wrong answers,
+          // watch race) — page-level only for lessons without a quiz form.
+          if (quizList.length > 0) this.quizError.set(err.message);
+          else this.error.set(err.message);
         },
       });
   }
