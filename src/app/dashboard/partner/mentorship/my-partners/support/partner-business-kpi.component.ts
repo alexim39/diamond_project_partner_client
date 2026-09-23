@@ -17,6 +17,10 @@ import { ActivationBoardItem, ProspectLead } from '../../../prospects/lead-pipel
 import { TrainingService } from '../../../../../core/training/training.service';
 import { TeamMemberDetail } from '../../../../../core/training/training.models';
 import { ProgressionService } from '../../../../../core/progression/progression.service';
+import { AnalyticsService } from '../../../../../core/analytics/analytics.service';
+import { TeamAnalytics } from '../../../../../core/analytics/analytics.models';
+import { GoalService } from '../../../../../core/goals/goal.service';
+import { Goal } from '../../../../../core/goals/goal.models';
 import { ApiError, userError } from '../../../../../core/http/api-error';
 
 /**
@@ -107,6 +111,26 @@ import { ApiError, userError } from '../../../../../core/http/api-error';
           <mat-icon>schedule</mat-icon>
           <span class="kpi-value">{{ daysSinceJoinedLabel() }}</span>
           <span class="kpi-label">Since joined</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>payments</mat-icon>
+          <span class="kpi-value">{{ teamVolumeLabel() }}</span>
+          <span class="kpi-label">Team volume 30d</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>account_balance_wallet</mat-icon>
+          <span class="kpi-value">{{ personalVolumeLabel() }}</span>
+          <span class="kpi-label">Personal volume</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>group</mat-icon>
+          <span class="kpi-value">{{ activeTeamLabel() }}</span>
+          <span class="kpi-label">Active team</span>
+        </mat-card-content></mat-card>
+        <mat-card><mat-card-content>
+          <mat-icon>flag</mat-icon>
+          <span class="kpi-value">{{ goalsLabel() }}</span>
+          <span class="kpi-label">Goals complete</span>
         </mat-card-content></mat-card>
       </div>
 
@@ -231,6 +255,8 @@ export class PartnerBusinessKpiComponent implements OnInit {
   private readonly leads = inject(LeadPipelineService);
   private readonly trainingSvc = inject(TrainingService);
   private readonly progression = inject(ProgressionService);
+  private readonly analytics = inject(AnalyticsService);
+  private readonly goalsApi = inject(GoalService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -247,6 +273,10 @@ export class PartnerBusinessKpiComponent implements OnInit {
   protected readonly trainingLoaded = signal(false);
   protected readonly pendingConf = signal<number | null>(null);
   protected readonly nudging = signal(false);
+  protected readonly teamStats = signal<TeamAnalytics | null>(null);
+  protected readonly teamLoaded = signal(false);
+  protected readonly goals = signal<Goal[]>([]);
+  protected readonly goalsLoaded = signal(false);
 
   protected readonly directCount = computed(() => this.myPartnerPartners?.length ?? 0);
   protected readonly activation = computed(() => this.supportInfo);
@@ -291,6 +321,33 @@ export class PartnerBusinessKpiComponent implements OnInit {
     const days = Math.max(0, Math.floor((Date.now() - ms) / 86400000));
     return days === 0 ? 'today' : `${days}d`;
   });
+  protected readonly teamVolumeLabel = computed(() => {
+    const t = this.teamStats();
+    if (!t) return this.teamLoaded() ? 'No data' : '—';
+    const d = t.teamVolume.deltaPct;
+    const arrow = d === null || d === undefined ? '' : d >= 0 ? ` (+${Math.round(d)}%)` : ` (${Math.round(d)}%)`;
+    return `${Math.round(t.teamVolume.current).toLocaleString()}${arrow}`;
+  });
+  protected readonly personalVolumeLabel = computed(() => {
+    const t = this.teamStats();
+    if (!t) return this.teamLoaded() ? 'No data' : '—';
+    return `${Math.round(t.personalVolume.total).toLocaleString()} · ${t.personalVolume.orders} orders`;
+  });
+  protected readonly activeTeamLabel = computed(() => {
+    const t = this.teamStats();
+    if (!t) return this.teamLoaded() ? 'No data' : '—';
+    return `${t.downline.active}/${t.downline.total}`;
+  });
+  protected readonly goalsBehind = computed(() =>
+    this.goals().filter((g) => !g.progress.complete && !g.progress.onTrack),
+  );
+  protected readonly goalsLabel = computed(() => {
+    if (!this.goalsLoaded()) return '—';
+    const list = this.goals();
+    if (list.length === 0) return 'No goals';
+    const done = list.filter((g) => g.progress.complete).length;
+    return `${done}/${list.length}`;
+  });
   protected readonly stageRows = computed(() => {
     const rows = this.pipeline();
     if (!rows.length) return [];
@@ -323,6 +380,16 @@ export class PartnerBusinessKpiComponent implements OnInit {
     }
     if (training && training.overallPercent < 100) {
       steps.push({ icon: 'school', title: `Push training to 100% (now ${training.overallPercent}%)`, detail: 'Nudge them on the next course from the panel above, then confirm completions.', link: '/dashboard/mentorship/team/confirmations', cta: 'Coach training' });
+    }
+    const behind = this.goalsBehind();
+    if (this.goalsLoaded() && behind.length > 0) {
+      const first = behind[0];
+      steps.push({ icon: 'flag', title: `${behind.length} goal${behind.length === 1 ? '' : 's'} behind pace`, detail: `"${first.title}" — ${first.progress.current} of ${first.target} with ${first.progress.daysLeft}d left.`, link: '/dashboard/insights/team-reports', cta: 'Request update' });
+    }
+    const active = this.teamStats()?.downline ?? null;
+    if (this.teamLoaded() && active && active.total > 0 && (active.activationRate ?? 1) < 0.5) {
+      const pct = Math.round((active.activationRate ?? 0) * 100);
+      steps.push({ icon: 'group', title: `Only ${pct}% of team active`, detail: `${active.inactive} of ${active.total} dormant — plan re-engagement calls together.`, link: '/dashboard/network/tree', cta: 'View tree' });
     }
     if (stuck > 0) {
       steps.push({ icon: 'warning', title: `Clear ${stuck} stuck follow-up${stuck === 1 ? '' : 's'}`, detail: 'Past stage attention threshold — call through them together this week.', link: `/dashboard/mentorship/partners/my-partners/contacts/${id}`, cta: 'View contacts' });
@@ -396,10 +463,12 @@ export class PartnerBusinessKpiComponent implements OnInit {
       stuck: this.leads.stuck(id).pipe(catchError(() => of(null))),
       training: this.trainingSvc.teamMember(id).pipe(catchError(() => of(null))),
       confirmations: this.progression.pendingConfirmations().pipe(catchError(() => of(null))),
+      team: this.analytics.team(30, id).pipe(catchError(() => of(null))),
+      goals: this.goalsApi.byPartner(id).pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ tree, pipeline, stuck, training, confirmations }) => {
+        next: ({ tree, pipeline, stuck, training, confirmations, team, goals }) => {
           const meta = (tree as { data?: { meta?: { total?: number; depth?: number; perLevel?: number[] } } } | null)?.data?.meta;
           this.teamTotal.set(typeof meta?.total === 'number' ? meta.total : null);
           this.teamDepth.set(typeof meta?.depth === 'number' ? meta.depth : null);
@@ -415,7 +484,13 @@ export class PartnerBusinessKpiComponent implements OnInit {
           this.trainingLoaded.set(!!training);
           const confItems = (confirmations as { data?: { items?: Array<{ partnerId?: string }> } } | null)?.data?.items;
           this.pendingConf.set(Array.isArray(confItems) ? confItems.filter((c) => String(c.partnerId) === id).length : null);
-          if (!tree && !pipeline && !stuck && !training && !confirmations) this.error.set('Could not load business data.');
+          const teamData = (team as { data?: TeamAnalytics } | null)?.data ?? null;
+          this.teamStats.set(teamData);
+          this.teamLoaded.set(!!team);
+          const goalRows = (goals as { data?: Goal[] } | null)?.data;
+          this.goals.set(Array.isArray(goalRows) ? goalRows : []);
+          this.goalsLoaded.set(Array.isArray(goalRows));
+          if (!tree && !pipeline && !stuck && !training && !confirmations && !team && !goals) this.error.set('Could not load business data.');
           this.loading.set(false);
         },
         error: (err: ApiError) => {

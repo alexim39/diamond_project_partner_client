@@ -13,8 +13,10 @@ export class AnalyticsService {
     return this.api.get<FunnelEnvelope>(`v1/analytics/funnel?days=${days}`);
   }
 
-  team(days = 30): Observable<TeamEnvelope> {
-    return this.api.get<TeamEnvelope>(`v1/analytics/team?days=${days}`);
+  team(days = 30, subjectId?: string): Observable<TeamEnvelope> {
+    const params = new URLSearchParams({ days: String(days) });
+    if (subjectId?.trim()) params.set('subjectId', subjectId.trim());
+    return this.api.get<TeamEnvelope>(`v1/analytics/team?${params.toString()}`);
   }
 
   actions(limit = 15): Observable<ActionsEnvelope> {

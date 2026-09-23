@@ -12,6 +12,11 @@ export class GoalService {
     return this.api.get<GoalsEnvelope>('v1/goals/mine');
   }
 
+  /** Per-member coaching read — own, upline or admin (outsiders get 403). */
+  byPartner(partnerId: string): Observable<GoalsEnvelope> {
+    return this.api.get<GoalsEnvelope>(`v1/goals/by-partner/${encodeURIComponent(partnerId)}`);
+  }
+
   trends(months = 6): Observable<TrendsEnvelope> {
     return this.api.get<TrendsEnvelope>(`v1/goals/trends?months=${months}`);
   }
