@@ -157,11 +157,11 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
    
-  // submit booking
-  bookSurvey(formData: any): Observable<any> {
-    //console.log('form record', formData);
-    return this.http
-      .post<any>(this.apiURL + '/booking/submit', formData)
+   // submit booking — session-authenticated (server requires a partner session)
+   bookSurvey(formData: any): Observable<any> {
+     //console.log('form record', formData);
+     return this.http
+       .post<any>(this.apiURL + '/booking/submit', formData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 }
