@@ -139,6 +139,7 @@ const NAV_GROUPS: NavGroup[] = [
     key: 'insights', label: 'Insights', icon: 'insights', title: 'Understand your business',
     children: [
       { label: "How I'm doing", link: 'insights', title: 'How you and your team are doing' },
+      { label: 'My Business', link: 'insights/my-business', title: 'Your numbers and next moves in one screen' },
       { label: 'Reports & downloads', link: 'insights/downloads', title: 'Export your business data' },
     ],
   },
