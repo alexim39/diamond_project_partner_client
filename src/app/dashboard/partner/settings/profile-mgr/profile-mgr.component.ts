@@ -21,6 +21,7 @@ import { ProfilePictureUploadComponent } from './profile-image.component';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Countries, States } from '../../../../_common/services/countries';
 import { HttpErrorResponse } from '@angular/common/http';
 import { userError } from '../../../../core/http/api-error';
@@ -76,15 +77,17 @@ styles: [`
     .flex-form .form-group, .flex-form .form-ungroup { flex: 1 1 100%; }
   }
   .muted { color: var(--dp-muted); font-size: 0.85em; }
+  .public-link button { vertical-align: middle; color: var(--dp-gold-ink); }
 `],
 providers: [provideNativeDateAdapter(), ProfileService],
 changeDetection: ChangeDetectionStrategy.OnPush,
 imports: [FormsModule, CommonModule, MatDatepickerModule, MatExpansionModule, MatProgressBarModule,
-    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, ProfilePictureUploadComponent
+    ReactiveFormsModule, MatButtonToggleModule, MatFormFieldModule, MatSelectModule, MatTableModule, MatInputModule, MatIconModule, MatButtonModule, MatSnackBarModule, ProfilePictureUploadComponent
 ]
 })
 export class ProfileMgrComponent implements OnInit, OnDestroy {
   readonly dialog = inject(MatDialog);
+  private readonly snack = inject(MatSnackBar);
   @Input() partner!: PartnerInterface;
 
   protected readonly profile = signal<PartnerInterface | null>(null);
@@ -196,6 +199,15 @@ export class ProfileMgrComponent implements OnInit, OnDestroy {
     if (!username) return null;
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://diamondproject.c21fg.online';
     return `${String(base).replace(/\/+$/, '')}/${username.toLowerCase()}`;
+  }
+
+  /** Copy the public page link — same flow as the landing-page editor. */
+  protected copyPublicLink(): void {
+    const url = this.publicPageUrl();
+    if (!url) return;
+    const done = () => this.snack.open('Public page link copied — share it anywhere', 'OK', { duration: 3000 });
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, done);
+    else done();
   }
 
   protected onPhotoUploaded(url: string): void {

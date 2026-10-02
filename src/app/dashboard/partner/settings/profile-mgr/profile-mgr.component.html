@@ -10,7 +10,9 @@
       <h3>{{ p.name }} {{ p.surname }}</h3>
       <p class="muted">@{{ p.username }} · {{ p.email }}</p>
       @if (publicPageUrl(); as url) {
-        <p class="muted">Public page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a> · {{ p.visits ?? 0 }} views</p>
+        <p class="muted public-link">Public page: <a [href]="url" target="_blank" rel="noopener">{{ url }}</a>
+          <button mat-icon-button type="button" (click)="copyPublicLink()" aria-label="Copy public page link" title="Copy public page link"><mat-icon>content_copy</mat-icon></button>
+          <span aria-hidden="true">·</span> {{ p.visits ?? 0 }} views</p>
       }
       @if (meter(); as m) {
         <div class="meter" role="status" [attr.aria-label]="'Profile ' + m.percent + ' percent complete'">
@@ -269,7 +271,9 @@
         <div class="form-group"></div>
         <div class="form-group">
           @if (publicPageUrl(); as url) {
-            Landing page URL: <a [href]="url" target="_blank" rel="noopener">{{ url.replace('https://','') }}</a>
+            <span class="public-link">Landing page URL: <a [href]="url" target="_blank" rel="noopener">{{ url.replace('https://','') }}</a>
+              <button mat-icon-button type="button" (click)="copyPublicLink()" aria-label="Copy public page link" title="Copy public page link"><mat-icon>content_copy</mat-icon></button>
+            </span>
           }
           <span class="muted">Page views: {{ profile()?.visits ?? 0 }}</span>
         </div>
