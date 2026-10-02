@@ -262,7 +262,7 @@ export class GeneralProspectListComponent implements OnInit {
   }
 
   protected dailyLimit(): number {
-    return this.meta()?.dailyLimit ?? 5;
+    return this.meta()?.dailyLimit ?? 100;
   }
 
   protected canClaimMore(): boolean {
