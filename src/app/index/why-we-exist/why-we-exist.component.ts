@@ -1,122 +1,43 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
 
 
 @Component({
     selector: 'async-index-why-we-exist',
-    imports: [RouterModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+    imports: [RouterModule, MatIconModule, MatButtonModule],
     template: `
-    <aside class="why-we-exist">
-      <div class="features">
-
-        <span class="mark">
-          <strong>Manage Your Business: </strong>
-          <p>
-            Simplify team management and performance tracking for aligned, organized success. Automation makes tracking easy.
-          </p>
-        </span>
-
-        <span>
-          <strong>Grow Your Business: </strong>
-          <p>
-            Efficiently grow your network, connect with prospects, nurture relationships, and stay connected with partners/members. Watch your network grow.
-          </p>
-        </span>
-
-        <span class="mark">
-          <strong>Promote Your Business: </strong>
-          <p>
-          Drive business growth with impactful marketing, wider reach, and market differentiation – conveniently managed from your phone or computer.
-          </p>
-        </span>
-
-      </div>
-
-      <h1>Manage, Promote and Grow your business with Diamond Project Online Platform, any time and day</h1>
-
-      <a mat-flat-button color="primary" routerLink="partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Sign In Now</a>
-    </aside>
+    <section class="mission" aria-label="Why we exist">
+      <mat-icon class="mark">diamond</mat-icon>
+      <h2>Built so no partner builds alone.</h2>
+      <p>
+        Diamond Project turns effort into duplication: learn the method, work it visibly,
+        and coach others to do the same. This platform is the shared workspace where
+        that compounding happens — pipeline, team, training and community in one login.
+      </p>
+      <a mat-button routerLink="partner/signin" (click)="scrollToTop()">Sign in to your workspace →</a>
+    </section>
   `,
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
-  aside {
-    padding: 3em 1em;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #050111;
-    .features {
-      margin: 1em;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      strong {
-        color:rgb(193, 112, 5);
-      }
-      p {
-        line-height: 2em;
-        width: 60%;
-        text-align: justify;
-        padding-left: 2em;
-      }
-      .mark {
-          border-right: 1px dotted #bbb;
-          border-left: 1px dotted #bbb;
-          padding-right: 1em;
-          padding-left: 1em;
-        }
-      span {
-        margin: 0.4em;
-        color: #ffab40;
-        font-family: Verdana;
-        strong {
-          display: block;
-          margin-bottom: 0.5em;
-        }
-      }
-    }
-    h1 {
-      font-weight: bolder;
-      margin: 3em;
-      color:rgb(193, 112, 5);
-    }
-
+  .mission {
+    padding: 3em 1.25em;
+    text-align: center;
+    background: var(--dp-sidenav, #111111);
+    color: var(--dp-sidenav-text, #f3ecdd);
   }
-
-
-/* Media Query for Mobile Responsiveness */
-@media screen and (max-width: 600px) {
-  aside {
-    .features {
-      margin: 1em;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      p {
-        width: auto;
-      }
-     
-      span {
-        margin-bottom: 2em;
-      }
-    }
-    h1 {
-      width: 100%;
-    }
-  }
-}
+  .mark { color: var(--dp-nav-icon, #d9b36a); font-size: 2.5rem; height: 2.5rem; width: 2.5rem; }
+  .mission h2 { margin: 0.5em 0; font-size: clamp(1.4rem, 3.5vw, 2rem); }
+  .mission p { margin: 0 auto 1.25em; max-width: 44em; line-height: 1.7; opacity: 0.85; }
+  .mission a { min-height: 44px; color: var(--dp-nav-icon, #d9b36a); font-weight: 700; }
   `]
 })
 export class WhyWeExistComponent{
 
    // scroll to top when clicked
    scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+   }
 
 }

@@ -1,91 +1,103 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 
 @Component({
 selector: 'async-banner',
-imports: [],
+imports: [MatButtonModule, MatIconModule, RouterModule],
 template: `
 
-<div class="container">
-    <div class="column">
-            <div class="writeup">
-                <h2>Manage, Grow, and Promote Your Business Online</h2>
-                <p>Harness the power of a digital platform to effectively <span>manage</span> your team,  <span>grow</span> your network, and <span>promote</span> your business.</p>
-            </div>
+<div class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Diamond Project · Partners Platform</p>
+    <h1>Run your entire Diamond business from one place</h1>
+    <p class="sub">
+      Prospects, team, training, community and insights — the operating
+      system for partners building from Prospect to G&nbsp;Leader.
+    </p>
+    <div class="cta-row">
+      <a mat-flat-button color="primary" routerLink="partner/signin" (click)="scrollToTop()">Sign in</a>
+      <a mat-stroked-button routerLink="partner/signup" (click)="scrollToTop()">Create account</a>
     </div>
+    <p class="hint">New here? You need a reservation code from your inviter to sign up.</p>
+    <div class="trust">
+      <span><mat-icon>person_search</mat-icon> Prospect pipeline</span>
+      <span><mat-icon>groups</mat-icon> Team coaching</span>
+      <span><mat-icon>school</mat-icon> IPO · QSG · SMO</span>
+      <span><mat-icon>forum</mat-icon> Community</span>
+    </div>
+  </div>
 </div>
 
 `,
 changeDetection: ChangeDetectionStrategy.Eager,
 styles: `
 
-/* Create a two-column layout */
-.container {
-    padding: 3em 0;
-    height: 40%;
-    .column {
-        
-        .writeup {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            
-            h2 {
-                font-weight: bolder;
-                font-family: Verdana, Geneva, Tahoma, sans-serif;
-                font-size: 3em;
-                width: 50%;
-
-            }
-            p {
-                font-size: 1.5em;
-                color: rgb(193, 112, 5);
-                font-weight: bolder;
-                span {
-                    border-bottom: 3px solid rgb(59, 62, 2);
-                }
-            }
-        } 
-    }
+.hero {
+  background:
+    radial-gradient(700px 420px at 50% 0%, rgba(169,127,44,0.18), rgba(17,17,17,0) 70%),
+    var(--dp-sidenav, #111111);
+  color: var(--dp-sidenav-text, #f3ecdd);
+  padding: 4em 1.25em 3em;
+  text-align: center;
 }
-
-/* Media Query for Mobile Responsiveness */
-@media screen and (max-width: 600px) {
-.container {
-    padding: 2em;
-    height: auto;
-    .column {
-        .writeup {
-            h2 {
-                font-size: 2em;
-                width: 100%;
-            }
-        }
-            
-    }
-    
+.hero-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
 }
-    
+.eyebrow {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dp-nav-icon, #d9b36a);
 }
-
-
-/* iPads/tablet (portrait and landscape) */
-@media only screen and (min-device-width: 601px) and (max-device-width: 1024px) {
-    .container {
-        padding: 2em;
-        height: auto;
-        .column {
-            .writeup {
-                h2 {
-                    font-size: 2em;
-                    width: 80%;
-                }
-            }
-            
-        }
-    }
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5.5vw, 3.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
 }
+.sub {
+  margin: 0;
+  max-width: 38em;
+  color: var(--dp-sidenav-text, #f3ecdd);
+  opacity: 0.82;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+.cta-row {
+  display: flex;
+  gap: 0.75em;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5em;
+}
+.cta-row a { min-height: 48px; }
+a[mat-stroked-button] { border-color: var(--dp-nav-icon, #d9b36a); color: var(--dp-sidenav-text, #f3ecdd); }
+.hint { margin: 0; font-size: 0.85em; opacity: 0.7; }
+.trust {
+  display: flex;
+  gap: 1.25em;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1em;
+  font-size: 0.88em;
+  opacity: 0.9;
+}
+.trust span { display: inline-flex; align-items: center; gap: 0.35em; }
+.trust mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-nav-icon, #d9b36a); }
 
 `
 })
-export class BannerComponent {}
+export class BannerComponent {
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
