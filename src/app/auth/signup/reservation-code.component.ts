@@ -17,22 +17,34 @@ import {
     imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-  <h3 mat-dialog-title>How to Get Diamond Project Reservation Code</h3>
+  <h2 mat-dialog-title><span class="eyebrow">Signup help</span>Where do I get a reservation code?</h2>
   <mat-dialog-content>
     <p>
-      If you want to get your hands on the Diamond Project Reservation Code, you'll first need to join the Diamond Project as a member. 
-      This exclusive code is your ticket to success in our world of entrepreneurship, providing you with business management and resources tracking capabilites to help you thrive in your business.
+      The reservation code is your ticket into the Diamond Project partner platform. To get one,
+      you first join Diamond Project as a member — once you are a member, a reservation code is
+      assigned to you.
     </p>
-
     <p>
-    Once you are a member, you will be assigned the reservation code.
+      Enter that code on the signup form and your new account is linked to your upline automatically.
+      Lost your code? Ask the partner who invited you — they can find it in their dashboard.
     </p>
-
   </mat-dialog-content>
-  <mat-dialog-actions>
-    <a mat-button mat-dialog-close cdkFocusInitial>Close</a>
+  <mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" mat-dialog-close cdkFocusInitial>Got it</button>
   </mat-dialog-actions>
-  `
+  `,
+  styles: [`
+    .eyebrow {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dp-gold-ink);
+      margin-bottom: 0.25em;
+    }
+    mat-dialog-content p { line-height: 1.65; }
+  `]
 })
 export class ReservationCodeDialogComponent {
   readonly dialogRef = inject(MatDialogRef<ReservationCodeDialogComponent>);
