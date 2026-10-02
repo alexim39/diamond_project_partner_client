@@ -5,12 +5,12 @@ selector: 'async-footer',
 template: `
 
 <mat-toolbar>
-    <div class="courtesy">© {{ currentYear }} Diamond Project (Online). 
+    <div class="courtesy">© {{ currentYear }} C21FG.online. 
         <div>All Rights Reserved</div>
     </div>
     <span class="nav-spacer"></span>
    <p>
-    <span>Partners platform powered by <a href="http://async.ng/" target="_blank">Async Groups</a> for Diamond Project (Online) </span> 
+    <span>Partners platform powered by <a href="http://async.ng/" target="_blank">Async Groups</a> for C21FG </span> 
     </p>
 </mat-toolbar>
 
