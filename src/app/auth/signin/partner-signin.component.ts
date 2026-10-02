@@ -24,9 +24,11 @@ import { ApiError } from '../../core/http/api-error';
   imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="page">
-      <div class="login-panel">
-        <h1>Partner Sign in</h1>
-        <h2>Log in into your account</h2>
+      <div class="login-panel dp-card">
+        <a class="back" routerLink="/" (click)="scrollTop()">← Back to home</a>
+        <p class="eyebrow">Diamond Project · Partners</p>
+        <h1>Welcome back</h1>
+        <p class="sub">Sign in to work your pipeline, coach your team and track your numbers.</p>
         <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
           <mat-form-field appearance="outline">
             <mat-label>Email address</mat-label>
@@ -59,13 +61,13 @@ import { ApiError } from '../../core/http/api-error';
           </button>
         </form>
 
-        <p>
+        <p class="alt">
           <a routerLink="../../partner/forgot-password" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Forgot password?</a>
         </p>
 
         <div class="line"></div>
 
-        <p>
+        <p class="alt">
           Not a Diamond Project partner yet?
           <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Sign up</a>
         </p>
@@ -74,40 +76,44 @@ import { ApiError } from '../../core/http/api-error';
   `,
   styles: [`
     .page {
-      background: #eee;
+      background: var(--dp-paper);
       display: flex;
       justify-content: center;
-      text-align: center;
-      padding-top: 2em;
-      height: 80%;
-      .login-panel {
-        display: flex;
-        flex-direction: column;
-        h2 {
-          font-size: 1em;
-          color: #ffab40;
-        }
-        form {
-          display: flex;
-          flex-direction: column;
-        }
-        .server-error {
-          color: #d32f2f;
-          margin: 0 0 1em;
-        }
-        p {
-          margin: 2em 0;
-          a {
-            text-decoration: none;
-            color: #ffab40;
-          }
-        }
-        .line {
-          border: 1px solid #ccc;
-          margin: 1em 0;
-        }
-      }
+      padding: 3em 1em 4em;
     }
+    .login-panel {
+      width: min(440px, 100%);
+      padding: 2em 1.75em;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+    .back {
+      align-self: flex-start;
+      text-decoration: none;
+      color: var(--dp-gold-ink);
+      font-weight: 700;
+      font-size: 0.9em;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .eyebrow {
+      margin: 0.5em 0 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dp-gold-ink);
+    }
+    h1 { margin: 0.3em 0 0.2em; font-size: 1.9rem; }
+    .sub { margin: 0 0 1.25em; color: var(--dp-muted); font-size: 0.95rem; line-height: 1.6; }
+    form { display: flex; flex-direction: column; gap: 0.25em; }
+    form button[type="submit"] { min-height: 48px; margin-top: 0.5em; }
+    .server-error { color: var(--dp-error); margin: 0.5em 0; }
+    .alt { margin: 1.25em 0 0; }
+    .alt a { text-decoration: none; color: var(--dp-gold-ink); font-weight: 700; min-height: 44px; display: inline-flex; align-items: center; }
+    .line { border-top: 1px solid var(--dp-line); margin: 1.25em 0 0; }
   `],
 })
 export class PartnerSigninComponent {
@@ -131,6 +137,10 @@ export class PartnerSigninComponent {
 
   protected get password() {
     return this.signInForm.get('password');
+  }
+
+  protected scrollTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   protected onSubmit(): void {

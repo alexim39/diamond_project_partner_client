@@ -20,17 +20,19 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 selector: 'async-partner-signin',
 providers: [PartnerAuthService],
 imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
-template: `
+  template: `
 
 <div class="page">
-  <div class="login-panel">
-    <h1>Partner Reset Password</h1>
-    <h4>We will send you a link to reset your password</h4>
+  <div class="login-panel dp-card">
+    <a class="back" routerLink="/" (click)="scrollToTop()">← Back to home</a>
+    <p class="eyebrow">Diamond Project · Partners</p>
+    <h1>Reset password</h1>
+    <p class="sub">Enter your account email — if it exists, a reset link is on its way (expires in 60 minutes).</p>
     <form [formGroup]="signInForm" (submit)="onSubmit()">
 
       <mat-form-field appearance="outline">
         <mat-label>Email address</mat-label>
-        <input matInput type="email" formControlName="email">
+        <input matInput type="email" formControlName="email" autocomplete="email">
         @if (signInForm.get('email')?.hasError('email') ) {
           <mat-error>
             Email is invalid
@@ -43,64 +45,78 @@ template: `
         }
       </mat-form-field>
 
-      <button mat-flat-button color="primary">Send</button>
+      <button mat-flat-button color="primary">Send reset link</button>
 
     </form>
 
-    <p>
+    <p class="alt">
       <a routerLink="../../partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Return to login?</a>
     </p>
 
     <div class="line"></div>
 
-    <p>
+    <p class="alt">
       Not a Diamond Project partner yet? <a routerLink="../../partner/signup" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign up</a>
     </p>
   </div>
 </div>
 
-`,
-changeDetection: ChangeDetectionStrategy.Eager,
-styles: [`
+  `,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [`
 
 .page {
-    background: #eee;
+  background: var(--dp-paper);
+  display: flex;
+  justify-content: center;
+  padding: 3em 1em 4em;
+  .login-panel {
+    width: min(440px, 100%);
+    padding: 2em 1.75em;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     text-align: center;
-    padding-top: 2em;
-    height: 100%;
-    .login-panel {
+    .back {
+      align-self: flex-start;
+      text-decoration: none;
+      color: var(--dp-gold-ink);
+      font-weight: 700;
+      font-size: 0.9em;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dp-gold-ink);
+      margin: 0.5em 0 0;
+    }
+    h1 { margin: 0.3em 0 0.2em; font-size: 1.9rem; }
+    .sub { margin: 0 0 1.25em; color: var(--dp-muted); font-size: 0.95rem; line-height: 1.6; }
+    form {
       display: flex;
       flex-direction: column;
-      h1 {
-        //color: #ffab40;
-      }
-      h2 {
-        font-size: 1em;
-        color: #ffab40;
-      }
-      form {
-        display: flex;
-        flex-direction: column;
-        .progress-bar {
-          margin-bottom: 1em;
-        }
-        
-      }
-      p {
-        margin: 2em 0;
-        font-family: cursive;
-        a {
-          text-decoration: none;
-          color: #ffab40;
-        }
-      }
-      .line {
-        border: 1px solid #ccc;
-        margin: 1em 0;
+      button { min-height: 48px; margin-top: 0.5em; }
+    }
+    .alt {
+      margin: 1.25em 0 0;
+      a {
+        text-decoration: none;
+        color: var(--dp-gold-ink);
+        font-weight: 700;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
       }
     }
+    .line {
+      border-top: 1px solid var(--dp-line);
+      margin: 1.25em 0 0;
+    }
+  }
 }
   `]
 })
@@ -173,6 +189,11 @@ export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => {
       subscription.unsubscribe();
     });
+  }
+
+  // Scroll to top when clicked
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
 

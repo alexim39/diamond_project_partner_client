@@ -1,184 +1,95 @@
-<div class="main-container">
-  <div class="content">
+<div class="page">
+  <div class="signup-panel dp-card">
+    <a class="back" routerLink="/" (click)="scrollToTop()">← Back to home</a>
+    <p class="eyebrow">Diamond Project · Partners</p>
+    <h1>Create your partner account</h1>
+    <p class="sub">You&rsquo;ll need the reservation code you received when you joined Diamond Project.</p>
 
-    <div class="left-content">
-      <div class="bold-text">Digitize your business and watch it grow</div>
-      <div class="normal-text">
-        As a Diamond Project partner, you can manage and grow your business from one easy-to-use dashboard
-      </div>
-    </div>
-
-    <div class="right-panel">
-      <div class="panel-content">
-        <form [formGroup]="signUpForm" (submit)="onSubmit()">
-          <h2>Partner sign up</h2>
-
-          <div class="names-field">
-            <mat-form-field appearance="outline">
-              <mat-label>Name</mat-label>
-              <input matInput formControlName="name">
-              @if (signUpForm.get('name')?.hasError('required') ) {
-                <mat-error>
-                  Name is required
-                </mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Surname</mat-label>
-              <input matInput formControlName="surname">
-              @if (signUpForm.get('surname')?.hasError('required') ) {
-                <mat-error>
-                  Surname is required
-                </mat-error>
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="reservation-code-container">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Reservation Code</mat-label>
-              <input matInput formControlName="reservationCode">
-              <!-- <mat-error *ngIf="signUpForm.get('reservationCode')?.hasError('required')">
-              Reservation code is required
-            </mat-error> -->
-            @if (signUpForm.get('reservationCode')?.invalid && signUpForm.get('reservationCode')?.touched) {
-              <mat-error>
-                @if (signUpForm.get('reservationCode')?.errors?.['required']) {
-                  <small>Reservation code is required</small>
-                }
-                @if (signUpForm.get('reservationCode')?.errors?.['pattern']) {
-                  <small>Invalid reservation code format</small>
-                }
-              </mat-error>
-            }
-          </mat-form-field>
-          <div class="fa-icon">
-            <i class="fa fa-info-circle" aria-hidden="true" matTooltip="Info about reservation code" (click)="openDialog('30ms', '30ms')"></i>
-          </div>
-        </div>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Phone Number</mat-label>
-          <input matInput type="tel" formControlName="phone">
-          @if (signUpForm.get('phone')?.hasError('required') ) {
-            <mat-error>
-              Phone number is required
-            </mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Email Address</mat-label>
-          <input matInput type="email" formControlName="email">
-          @if (signUpForm.get('email')?.hasError('email') ) {
-            <mat-error>
-              Email is invalid
-            </mat-error>
-          }
-          @if (signUpForm.get('email')?.hasError('required') ) {
-            <mat-error>
-              Email is required
-            </mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Enter your password</mat-label>
-          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
-          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-          </button>
-          @if (signUpForm.get('password')?.hasError('required') ) {
-            <mat-error>
-              Password is required
-            </mat-error>
-          }
-          @if (signUpForm.get('password')?.errors?.['minDigits']) {
+    <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Reservation code</mat-label>
+        <input matInput formControlName="reservationCode" autocomplete="off" placeholder="e.g. 247ABC123" />
+        @if (signUpForm.get('reservationCode')?.invalid && signUpForm.get('reservationCode')?.touched) {
           <mat-error>
-            Password must have at least 8 characters.
+            @if (signUpForm.get('reservationCode')?.errors?.['required']) {
+              <small>Reservation code is required</small>
+            }
+            @if (signUpForm.get('reservationCode')?.errors?.['pattern']) {
+              <small>Invalid reservation code format</small>
+            }
           </mat-error>
+        }
+        <button mat-icon-button matSuffix type="button" (click)="openDialog('30ms', '30ms')" aria-label="Reservation code help">
+          <mat-icon>help_outline</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <div class="names-row">
+        <mat-form-field appearance="outline">
+          <mat-label>First name</mat-label>
+          <input matInput formControlName="name" autocomplete="given-name" />
+          @if (signUpForm.get('name')?.hasError('required') && signUpForm.get('name')?.touched) {
+            <mat-error>First name is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Surname</mat-label>
+          <input matInput formControlName="surname" autocomplete="family-name" />
+          @if (signUpForm.get('surname')?.hasError('required') && signUpForm.get('surname')?.touched) {
+            <mat-error>Surname is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Phone number</mat-label>
+        <input matInput type="tel" formControlName="phone" autocomplete="tel" placeholder="+254 7XX XXX XXX" />
+        @if (signUpForm.get('phone')?.hasError('required') && signUpForm.get('phone')?.touched) {
+          <mat-error>Phone number is required</mat-error>
         }
       </mat-form-field>
 
-      <button mat-flat-button color="primary">Sign up</button>
+      <mat-form-field appearance="outline">
+        <mat-label>Email address</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="email" />
+        @if (signUpForm.get('email')?.hasError('email') && signUpForm.get('email')?.touched) {
+          <mat-error>Email is invalid</mat-error>
+        }
+        @if (signUpForm.get('email')?.hasError('required') && signUpForm.get('email')?.touched) {
+          <mat-error>Email is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Enter your password</mat-label>
+        <input matInput [type]="hide() ? 'password' : 'text'" formControlName="password" autocomplete="new-password" />
+        <button mat-icon-button matSuffix type="button" (click)="hide.set(!hide())" [attr.aria-label]="'Toggle password visibility'" [attr.aria-pressed]="hide()">
+          <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (signUpForm.get('password')?.hasError('required') && signUpForm.get('password')?.touched) {
+          <mat-error>Password is required</mat-error>
+        }
+        @if (signUpForm.get('password')?.errors?.['minDigits'] && signUpForm.get('password')?.touched) {
+          <mat-error>Password must have at least 8 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting()" class="submit-btn">
+        {{ isSubmitting() ? 'Creating account…' : 'Create account' }}
+      </button>
     </form>
 
-    <p>Already have an account? <a routerLink="../../partner" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign in</a></p>
-
-    <p>By Signing up, you agree to our <a href="https://c21fg.online/legal/terms" target="_blank">Terms of Service</a> and <a href="https://c21fg.online/legal/privacy" target="_blank"> Privacy policy</a></p>
-
-  </div>
-</div>
-</div>
-</div>
-
-<div class="benefit">
-  <h1>Why partner with us?</h1>
-  <p class="sub-title">Diamond Project is trusted by partners from across Africa and around the World. We’re known for:</p>
-
-  <div class="benefit-container">
-
-    <div class="benefit-content">
-      <div class="fa-icon">
-        <div class="fa fa-dollar" aria-hidden="true"></div>
-      </div>
-      <h3>String, Passive earnings</h3>
-      <p>
-        Reliable returns on your investment (ROI) with consistent product demand.
-      </p>
-    </div>
-
-    <div class="benefit-content">
-      <div class="fa-icon">
-        <div class="fa fa-eye" aria-hidden="true"></div>
-      </div>
-      <h3>Complete Transparency</h3>
-      <p>
-        A sleek, modern portal to manage all aspects of your business.
-      </p>
-    </div>
-
-    <div class="benefit-content">
-      <div class="fa-icon">
-        <div class="fa fa-support" aria-hidden="true"></div>
-      </div>
-      <h3>Great customer support</h3>
-      <p>
-        Short response times for all business-related queries.
-      </p>
-    </div>
-
-  </div>
-</div>
-
-<div class="benefit">
-  <div class="car-portal">
-    <h1>Simple Portal, Powerful Results</h1>
-    <p class="sub-title">
-      Operate your business in real-time with the most extensive and easy to use custom network marketing business management software available on the market today.
+    <p class="alt">
+      Already have an account?
+      <a routerLink="../../partner/signin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Sign in</a>
     </p>
-  </div>
-</div>
 
-<div class="step-container">
-  <div class="step-content">
-    <h1>Steps To Start Earning</h1>
-    <ol>
-      <li>
-        <h2>Sign up</h2>
-        <p>It takes less than 1 minute to register a partner account here after you have joined Diamond Project.</p>
-      </li>
-      <li>
-        <h2>Apply Our System Strategy </h2>
-        <p>Apply the already learnt leverage methods by fellowing step by step as we guild you.</p>
-      </li>
-      <li>
-        <h2>Start Growing</h2>
-        <p>Once unboarded, your are ready to start growing your business using the platform</p>
-      </li>
-    </ol>
-
-    <a mat-raised-button color="primary" (click)="scrollToTop()">Sign up now</a>
+    <p class="legal">
+      By creating an account, you agree to our
+      <a href="https://c21fg.online/legal/terms" target="_blank" rel="noopener">Terms of Service</a>
+      and
+      <a href="https://c21fg.online/legal/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+    </p>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { minDigitsValidator } from '../../_common/services/phone-number-checker';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /**
  * @title Partner signup
@@ -26,21 +27,22 @@ import { minDigitsValidator } from '../../_common/services/phone-number-checker'
     selector: 'async-partner-signup',
     imports: [MatButtonModule, MatDividerModule, MatTooltipModule, MatProgressBarModule, MatDialogModule, ReactiveFormsModule, MatIconModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
     templateUrl: 'partner-signup.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styleUrls: ["partner-signup.component.scss", "partner-signup.mobile.scss"]
 })
 export class PartnerSignupComponent implements OnInit, OnDestroy {
-  hide = true;
+  protected readonly hide = signal(true);
+  protected readonly isSubmitting = signal(false);
 
-  signUpForm: FormGroup = new FormGroup({}); // Assigning a default value
-  subscriptions: Array<Subscription> = [];
+  protected signUpForm: FormGroup = new FormGroup({});
+  protected subscriptions: Array<Subscription> = [];
 
   readonly dialog = inject(MatDialog);
 
   constructor(
-    private router: Router,
-    private fb: FormBuilder,
-    private partnerSignUpService: AuthService
+    private readonly router: Router,
+    private readonly fb: FormBuilder,
+    private readonly partnerSignUpService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -60,18 +62,17 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   });
 }
 
-  onSubmit(): void {
-
-    // Mark all form controls as touched to trigger the display of error messages
+protected onSubmit(): void {
+    if (this.isSubmitting()) return;
     this.markAllAsTouched();
 
     if (this.signUpForm.valid) {
-      // v1 signup (transactional code consume + upline link); the response
-      // envelope carries the user-facing message.
+      this.isSubmitting.set(true);
       const formData: PartnerSignUpInterface = this.signUpForm.value;
       this.subscriptions.push(
-        this.partnerSignUpService.signup(formData).subscribe({
+        this.partnerSignUpService.signup(formData).pipe(takeUntilDestroyed()).subscribe({
           next: (res) => {
+            this.isSubmitting.set(false);
             const response = res as { message?: string };
             Swal.fire({
               position: "bottom",
@@ -88,6 +89,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
             });
           },
           error: (error: unknown) => {
+            this.isSubmitting.set(false);
             Swal.fire({
               position: "bottom",
               icon: 'error',
@@ -110,18 +112,16 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // unsubscribe list
     this.subscriptions.forEach(subscription =>  subscription.unsubscribe());
   }
 
   // Method to scroll to the top of the page
-  scrollToTop() {
+  protected scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   openDialog(enterAnimationDuration: string, exitAnimationDuration: string): void {
     this.dialog.open(ReservationCodeDialogComponent, {
-      //width: '50em',
       enterAnimationDuration,
       exitAnimationDuration,
     });

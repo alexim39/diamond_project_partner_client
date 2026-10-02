@@ -1,157 +1,84 @@
-.main-container {
-  background: url('/img/img1.jpg') no-repeat center center;
-  background-size: cover;
-  height: auto;
+.page {
+  background: var(--dp-paper);
   display: flex;
-  align-items: center;
   justify-content: center;
-  .content {
-    display: flex;
-    width: 80%;
-    .left-content {
-      flex: 1;
-      padding: 20px;
-      color: #000;
-      .bold-text {
-        font-weight: bold;
-        font-size: 4em;
-        margin: 1em 0;
-      }
-      .normal-text {
-        font-size: 1.5em;
-        width: 70%;
-      }
-    }
-    .right-panel {
-      flex: 1;
-      .panel-content {
-        width: 60%;
-        height: inherit;
-        background-color: rgba(255, 255, 255, 0.8);
-        border-radius: 10px;
-        padding: 0 2em 2em 2em;
-        margin: 20px;
-        form {
-          display: flex;
-          flex-direction: column;
-          .names-field {
-            display: flex;
-            justify-content: space-between;
-            mat-form-field {
-              width: 49%;
-            }
-          }
-          .progress-bar {
-            margin-bottom: 1em;
-          }
-        }
-        p {
-          //font-family: cursive;
-          margin-top: 2em;
-          a {
-            color: #aa6204;
-            text-decoration: none;
-          }
-        }
-      }
-    }
-  }
+  padding: 3em 1em 4em;
 }
 
-.benefit {
-  height: auto;
+.signup-panel {
+  width: min(520px, 100%);
+  padding: 2em 1.75em;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   text-align: center;
-  padding: 2em 0;
-  h1, h2, h3 {
-    //font-family: cursive;
-  }
-  .sub-title {
-    font-size: 1.5em;
-    color: rgb(116, 116, 116);
-  }
-  .benefit-container {
-    display: flex;
-    flex-direction: row;
-    text-align: center;
-    justify-content: space-around;
-    padding: 4em;
-    .benefit-content {
-      .fa-icon {
-        font-size: 3em;
-        color:#ffab40;
-        .fa {
-          border-radius: 50%;
-          border: 1px solid #bdc16e;
-          width: 50px;
-          height: 50px;
-        }
-      }
-      p {
-        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-      }
-    }
-  }
-  .car-portal {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: -3em;
-    .sub-title {
-      //font-family: cursive;
-      width: 40%;
-    }
-  }
 }
 
-.step-container {
+.back {
+  align-self: flex-start;
+  text-decoration: none;
+  color: var(--dp-gold-ink);
+  font-weight: 700;
+  font-size: 0.9em;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dp-gold-ink);
+  margin: 0.5em 0 0;
+}
+
+h1 { margin: 0.3em 0 0.2em; font-size: 1.9rem; }
+.sub { margin: 0 0 1.25em; color: var(--dp-muted); font-size: 0.95rem; line-height: 1.6; }
+
+form {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 2em;
-  padding: 2em 0;
-  .step-content {
-    width: 50%;
-    color: white;
-    background: #111111;
-    border-radius: 20px;
-    padding: 1em 0 2em 3em;
-    ol {
-      li {
-        text-align: left;
-        p, h2 {
-          //font-family: cursive;
-        }
-      }
-    }
-     h1 {
-      text-align: center;
-    }
-    a {
-      float: right;
-      margin-right: 3em;
-    }
-  }
+  gap: 0.25em;
+  text-align: left;
 }
 
-
-.reservation-code-container {
+.names-row {
   display: flex;
-  align-items: center;
-  .form-field {
-    flex: 9; /* Takes 90% of the available space */
-  }
-  
-  .fa-icon {
-    flex: 1; /* Takes 10% of the available space */
-    display: flex;
-    justify-content: center;
+  gap: 0.75em;
+  flex-wrap: wrap;
+}
+
+.names-row mat-form-field {
+  flex: 1;
+  min-width: 140px;
+}
+
+.submit-btn {
+  min-height: 48px;
+  margin-top: 0.5em;
+}
+
+.alt {
+  margin: 1.25em 0 0;
+  a {
+    text-decoration: none;
+    color: var(--dp-gold-ink);
+    font-weight: 700;
+    min-height: 44px;
+    display: inline-flex;
     align-items: center;
-    cursor: pointer;
   }
 }
 
+.legal {
+  margin: 1.25em 0 0;
+  font-size: 0.8rem;
+  color: var(--dp-muted);
+  line-height: 1.5;
+  a {
+    color: var(--dp-gold-ink);
+    text-decoration: none;
+    font-weight: 700;
+  }
+}
