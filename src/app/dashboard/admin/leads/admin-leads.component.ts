@@ -222,7 +222,7 @@ import { timeAgo } from '../../../_common/date-util';
     table { width: 100%; }
     .name-cell { font-weight: 600; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
-    .submitted-at { font-weight: 700; color: var(--dp-ink, inherit); }
+    .submitted-at { font-weight: 700; color: var(--dp-text); }
     .pager { display: flex; align-items: center; gap: 1em; }
     .empty { color: var(--dp-muted); }
     .detail-card { padding: 1em; display: flex; flex-direction: column; gap: 0.6em; }
