@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -29,7 +29,7 @@ import { timeAgo } from '../../../_common/date-util';
   selector: 'async-admin-leads',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe, FormsModule, MatButtonModule, MatCardModule,
+    DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatCardModule,
     MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule,
     MatSelectModule, MatTableModule, RouterModule,
   ],
@@ -169,6 +169,7 @@ import { timeAgo } from '../../../_common/date-util';
         <div class="dp-card detail-card" role="region" aria-label="Lead details">
           <h3>{{ lead.name }} {{ lead.surname }}</h3>
           <p class="muted">{{ lead.phoneNumber || '—' }} · {{ lead.email || '—' }} · {{ lead.state || '—' }} · {{ str(lead.status) }}</p>
+          <p class="muted">Form submitted: {{ lead.createdAt ? (lead.createdAt | date:'medium') : '—' }}</p>
           <div class="answers">
             @for (entry of answerEntries(lead); track entry[0]) {
               <div class="answer">
