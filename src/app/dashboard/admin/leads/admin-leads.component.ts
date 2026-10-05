@@ -144,7 +144,10 @@ import { timeAgo } from '../../../_common/date-util';
             </ng-container>
             <ng-container matColumnDef="age">
               <th mat-header-cell *matHeaderCellDef>Age</th>
-              <td mat-cell *matCellDef="let row">{{ ageOf(row) }}</td>
+              <td mat-cell *matCellDef="let row">
+                <div>{{ ageOf(row) }}</div>
+                <div class="muted">{{ row.createdAt ? (row.createdAt | date:'medium') : '—' }}</div>
+              </td>
             </ng-container>
             <ng-container matColumnDef="manage">
               <th mat-header-cell *matHeaderCellDef>Manage</th>
@@ -169,7 +172,7 @@ import { timeAgo } from '../../../_common/date-util';
         <div class="dp-card detail-card" role="region" aria-label="Lead details">
           <h3>{{ lead.name }} {{ lead.surname }}</h3>
           <p class="muted">{{ lead.phoneNumber || '—' }} · {{ lead.email || '—' }} · {{ lead.state || '—' }} · {{ str(lead.status) }}</p>
-          <p class="muted">Form submitted: {{ lead.createdAt ? (lead.createdAt | date:'medium') : '—' }}</p>
+          <p class="muted">Form submitted: <strong class="submitted-at">{{ lead.createdAt ? (lead.createdAt | date:'medium') : '—' }}</strong></p>
           <div class="answers">
             @for (entry of answerEntries(lead); track entry[0]) {
               <div class="answer">
@@ -219,6 +222,7 @@ import { timeAgo } from '../../../_common/date-util';
     table { width: 100%; }
     .name-cell { font-weight: 600; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
+    .submitted-at { font-weight: 700; color: var(--dp-ink, inherit); }
     .pager { display: flex; align-items: center; gap: 1em; }
     .empty { color: var(--dp-muted); }
     .detail-card { padding: 1em; display: flex; flex-direction: column; gap: 0.6em; }
