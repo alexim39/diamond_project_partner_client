@@ -182,6 +182,16 @@ import { timeAgo } from '../../../_common/date-util';
             }
           </div>
           <p class="muted">Returns to pool: {{ lead.claimCount }} · Partner rating: {{ lead.ratingAvg !== null ? lead.ratingAvg + ' (' + lead.ratingCount + ' votes)' : 'unrated' }}</p>
+          @if (str(lead.status) === 'Not Moved') {
+            <div class="push">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Push to @username</mat-label>
+                <input matInput [(ngModel)]="pushTo" maxlength="80" placeholder="e.g. market" />
+                <mat-hint>Free admin grant — lands in their pipeline with the 48-hour clock. The pool row clears so nobody else can claim it.</mat-hint>
+              </mat-form-field>
+              <button mat-flat-button color="primary" (click)="push(lead)" [disabled]="acting() || !pushTo.trim()">Push lead · Free</button>
+            </div>
+          }
           @if (actionError(); as aerr) {
             <p class="error" role="alert">{{ aerr }}</p>
           }
@@ -226,6 +236,8 @@ import { timeAgo } from '../../../_common/date-util';
     .pager { display: flex; align-items: center; gap: 1em; }
     .empty { color: var(--dp-muted); }
     .detail-card { padding: 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .push { display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; }
+    .push mat-form-field { flex: 1 1 220px; }
     .detail-card h3 { margin: 0; }
     .answers { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5em; }
     .answer { display: flex; flex-direction: column; gap: 0.1em; border-left: 3px solid var(--dp-line); padding-left: 0.6em; }
@@ -249,6 +261,7 @@ export class AdminLeadsComponent implements OnInit {
   protected readonly status = signal('all');
   protected query = '';
   protected state = '';
+  protected pushTo = '';
   protected readonly inspected = signal<AdminLead | null>(null);
   protected readonly acting = signal(false);
   protected readonly actionError = signal<string | null>(null);
@@ -318,6 +331,30 @@ export class AdminLeadsComponent implements OnInit {
     this.inspected.set(row);
     this.actionError.set(null);
     this.confirmDelete.set(null);
+    this.pushTo = '';
+  }
+
+  protected push(lead: AdminLead): void {
+    const target = this.pushTo.trim();
+    if (!target || this.acting()) return;
+    this.acting.set(true);
+    this.actionError.set(null);
+    this.leads
+      .push(lead.id, target)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.acting.set(false);
+          this.pushTo = '';
+          this.inspected.set(null);
+          this.notice.set(res.message ?? `Lead pushed to @${target} — free.`);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.acting.set(false);
+          this.actionError.set(userError(err));
+        },
+      });
   }
 
   protected reopen(lead: AdminLead): void {

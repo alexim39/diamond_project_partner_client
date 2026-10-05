@@ -58,4 +58,8 @@ export class AdminLeadsService {
   reopen(id: string): Observable<ApiEnvelope<{ id: string; status: string }>> {
     return this.api.patch(`v1/prospects/admin/leads/${encodeURIComponent(id)}`, {});
   }
+
+  push(id: string, username: string): Observable<ApiEnvelope<{ prospectId: string; username: string }>> {
+    return this.api.post(`v1/prospects/admin/leads/${encodeURIComponent(id)}/push`, { username });
+  }
 }
