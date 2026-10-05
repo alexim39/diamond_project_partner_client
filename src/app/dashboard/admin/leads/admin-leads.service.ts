@@ -62,4 +62,8 @@ export class AdminLeadsService {
   push(id: string, username: string): Observable<ApiEnvelope<{ prospectId: string; username: string }>> {
     return this.api.post(`v1/prospects/admin/leads/${encodeURIComponent(id)}/push`, { username });
   }
+
+  assign(id: string, username: string): Observable<ApiEnvelope<{ id: string; username: string }>> {
+    return this.api.post(`v1/prospects/admin/leads/${encodeURIComponent(id)}/assign`, { username });
+  }
 }

@@ -185,11 +185,12 @@ import { timeAgo } from '../../../_common/date-util';
           @if (str(lead.status) === 'Not Moved') {
             <div class="push">
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Push to @username</mat-label>
+                <mat-label>Send to @username</mat-label>
                 <input matInput [(ngModel)]="pushTo" maxlength="80" placeholder="e.g. market" />
-                <mat-hint>Free admin grant — lands in their pipeline with the 48-hour clock. The pool row clears so nobody else can claim it.</mat-hint>
+                <mat-hint>Push drops it straight into their pipeline (48-hour clock starts). Assign drops it in their My Page Leads inbox to accept when ready. Both free.</mat-hint>
               </mat-form-field>
-              <button mat-flat-button color="primary" (click)="push(lead)" [disabled]="acting() || !pushTo.trim()">Push lead · Free</button>
+              <button mat-flat-button color="primary" (click)="push(lead)" [disabled]="acting() || !pushTo.trim()">Push to pipeline · Free</button>
+              <button mat-stroked-button color="primary" (click)="assign(lead)" [disabled]="acting() || !pushTo.trim()">Assign to Page Leads</button>
             </div>
           }
           @if (actionError(); as aerr) {
@@ -348,6 +349,29 @@ export class AdminLeadsComponent implements OnInit {
           this.pushTo = '';
           this.inspected.set(null);
           this.notice.set(res.message ?? `Lead pushed to @${target} — free.`);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.acting.set(false);
+          this.actionError.set(userError(err));
+        },
+      });
+  }
+
+  protected assign(lead: AdminLead): void {
+    const target = this.pushTo.trim();
+    if (!target || this.acting()) return;
+    this.acting.set(true);
+    this.actionError.set(null);
+    this.leads
+      .assign(lead.id, target)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.acting.set(false);
+          this.pushTo = '';
+          this.inspected.set(null);
+          this.notice.set(res.message ?? `Lead assigned to @${target} — in their My Page Leads.`);
           this.reload();
         },
         error: (err: ApiError) => {
