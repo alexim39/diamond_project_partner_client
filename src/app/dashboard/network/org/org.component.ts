@@ -9,6 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { ApiError } from '../../../core/http/api-error';
 import { NetworkService } from '../tree/network.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
@@ -109,7 +110,7 @@ interface OrgLevel {
                       (click)="select(member)"
                       [title]="names(member)"
                     >
-                      <async-avatar [photo]="member.profileImage" [name]="names(member)" size="sm" />
+                      <async-avatar [photo]="member.profileImage" [name]="names(member)" size="sm" [presence]="presenceOf(member.id)" />
                       <span class="member-name">{{ names(member) }}</span>
                       <span class="muted">@{{ member.username }} · {{ member.childCount }}</span>
                     </button>
@@ -169,6 +170,7 @@ interface OrgLevel {
 export class OrgChartComponent implements OnInit {
   private readonly network = inject(NetworkService);
   private readonly auth = inject(AuthService);
+  private readonly presence = inject(PresenceService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -180,6 +182,9 @@ export class OrgChartComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly collapsed = signal<ReadonlySet<number>>(new Set());
   protected readonly selectedId = signal<string | null>(null);
+
+  /** memberId → lastSeenAt (null = offline/stranger); drives avatar dots. */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
 
   protected readonly depthOptions = [2, 3, 4, 5, 6, 8, 10];
 
@@ -256,12 +261,34 @@ export class OrgChartComponent implements OnInit {
           this.collapsed.set(new Set());
           this.selectedId.set(null);
           this.loading.set(false);
+          this.refreshPresence(res.data.tree);
         },
         error: (err: ApiError) => {
           this.error.set(err.message);
           this.loading.set(false);
         },
       });
+  }
+
+  /** One bulk presence lookup over every loaded member (cached 60s). */
+  protected refreshPresence(root: NetworkNode | null): void {
+    if (!root) return;
+    const ids: string[] = [];
+    const queue: NetworkNode[] = [root];
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      ids.push(node.id);
+      for (const child of node.children ?? []) queue.push(child);
+    }
+    this.presence
+      .lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+  }
+
+  protected presenceOf(id: string | null | undefined): PresenceStatus {
+    if (!id) return null;
+    return this.presence.statusOf(this.presenceMap()[id] ?? null);
   }
 
   protected focus(partnerId: string): void {
