@@ -33,7 +33,9 @@
           The actual rendered columns are set as a property on the row definition" -->
           <ng-container matColumnDef="transactionId">
             <th mat-header-cell *matHeaderCellDef> Campaign </th>
-            <td mat-cell *matCellDef="let element" class="name-cell" (click)="preview(element._id)" title="View details"> {{element.campaignName}} </td>
+            <td mat-cell *matCellDef="let element" class="name-cell">
+              <button mat-button [attr.aria-label]="'View details of ' + element.campaignName" title="View details" (click)="preview(element._id)"> {{element.campaignName}} </button>
+            </td>
           </ng-container>
           <ng-container matColumnDef="deliveryStatus">
             <th mat-header-cell *matHeaderCellDef> Status </th>
@@ -69,8 +71,8 @@
           </ng-container>
           <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef> Action </th>
-            <td mat-cell *matCellDef="let element" style="cursor: pointer;">
-              <mat-icon title="View" (click)="preview(element._id)">read_more</mat-icon>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button title="View" [attr.aria-label]="'View ' + element.campaignName" (click)="preview(element._id)"><mat-icon>read_more</mat-icon></button>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

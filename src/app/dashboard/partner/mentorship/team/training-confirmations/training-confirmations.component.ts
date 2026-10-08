@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, model, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,9 +12,10 @@ import { ConfirmationStats, PendingConfirmation } from '../../../../../core/prog
 import { ApiError } from '../../../../../core/http/api-error';
 
 /**
- * @title Confirm training — upline approval inbox.
+ * @title Confirm training & trust legs — upline approval inbox.
  *
- * Pending IPO/QSG/SMO marks from the downline with per-item approve and
+ * Pending IPO/QSG/SMO + office/full-time/onboarding + DTC accounts /
+ * monthly maintenance from the downline with per-item approve and
  * decline (decline requires the reason note — it goes straight to the
  * member). OnPush + signals, fully typed.
  */
@@ -33,8 +34,8 @@ import { ApiError } from '../../../../../core/http/api-error';
     <section class="confirm-page">
       <div class="page-head">
         <div>
-          <h2>Confirm training</h2>
-          <p class="subtitle">Your downline marked these complete — verify and confirm so their gates unlock.</p>
+          <h2>Confirm training & DTC</h2>
+          <p class="subtitle">Your downline marked these complete — verify evidence (including DTC accounts / receipts) and confirm so their gates unlock.</p>
           @if (stats(); as s) {
             <p class="stats-line" role="status">
               Downline median confirmation time:
@@ -138,7 +139,7 @@ export class TrainingConfirmationsComponent implements OnInit {
   protected readonly stats = signal<ConfirmationStats | null>(null);
   protected readonly deciding = signal<string | null>(null);
   protected readonly lastApproved = signal(true);
-  protected readonly noteDraft = signal('');
+  protected readonly noteDraft = model('');
 
   ngOnInit(): void {
     this.reload();

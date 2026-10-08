@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -123,7 +123,6 @@ export class ManageCampaignComponent implements OnInit {
 
   ngOnInit(): void {  
     if (this.campaigns) {  
-      //console.log(this.campaigns.data)
       this.dataSource.data = this.campaigns.sort((a: any, b: any) => {  
         // Use the getTime() method to compare the Date values  
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();  
@@ -171,7 +170,7 @@ export class ManageCampaignComponent implements OnInit {
     if (Array.isArray(targets) && targets.length > 0) {
       return targets.length > 2 ? `${targets.length} places` : targets.join(', ');
     }
-    return String(element?.targetAudience?.locationTarget ?? '—');
+    return String(element?.targetAudience?.locationTarget ?? 'â€”');
   }
 
 

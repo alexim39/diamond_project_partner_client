@@ -96,21 +96,27 @@ $border-radius: 8px;
             margin-top: 10px;  
         }  
 
-        .item-actions {  
-            margin-top: 10px;  
-            display: flex;  
-            gap: 10px;  
+        .item-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
 
-            button {  
-                margin: 5px;  
-            }  
-        }  
+            button {
+                margin: 5px;
+                min-height: 44px;
+            }
+        }
     }  
 
-    .cart-summary {  
-        margin-top: 20px;  
-        text-align: center;  
-    }  
+    .cart-summary {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .cart-summary button {
+        min-height: 44px;
+    }
 
     .cart-empty {  
         text-align: center;  

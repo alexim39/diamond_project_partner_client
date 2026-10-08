@@ -94,7 +94,7 @@ import { ApiError } from '../../core/http/api-error';
 
       @if (overview(); as o) {
         @if (roleFocus(); as focus) {
-          <p class="role-focus" role="note"><mat-icon>flag</mat-icon> {{ focus }}</p>
+          <p class="role-focus" role="status"><mat-icon aria-hidden="true">flag</mat-icon> {{ focus }}</p>
         }
         <div class="home-section" [style.order]="sectionOrder('actions')">
           <h3>What should I do today? <span class="muted">({{ o.actions.total }})</span></h3>
@@ -237,6 +237,8 @@ import { ApiError } from '../../core/http/api-error';
     .subtitle { margin: 0.3em 0 0; color: var(--dp-muted); }
     .action-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .action-item { display: flex; gap: 0.9em; align-items: center; padding: 0.7em 1em; }
+    .action-item a { min-height: 44px; }
+    .preview-top a, .journey-top a { min-height: 44px; }
     .action-item--high { border-left: 4px solid var(--dp-error); }
     .action-body { flex: 1; display: flex; flex-direction: column; gap: 0.15em; }
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75em; }

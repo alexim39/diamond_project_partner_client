@@ -14,23 +14,23 @@
 
 .no-campaign {
     text-align: center;
-    color: rgb(196, 129, 4);
+    color: var(--dp-gold-ink);
     font-weight: bold;
 }
-  
+
 .pending {
-    background-color: rgb(254, 254, 244); /* Light yellow for pending */
+    background-color: var(--dp-warning-bg);
 }
 
 .rejected {
-    background-color: rgb(254, 246, 244); /* Light yellow for pending */
+    background-color: var(--dp-error-bg);
 }
-  
+
 .completed {
-    background-color: rgb(231, 246, 244); /* Red-ish color for completed */
+    background-color: var(--dp-info-bg);
 }
-  
+
 .success {
-    background-color: rgb(211, 251, 248); /* Green for success */
+    background-color: var(--dp-success-bg);
 }
   

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../../_common/help-dialog.component';
@@ -167,7 +167,6 @@ export class EditTeamComponent implements OnInit {
 
 
     ngOnInit(): void {
-       // console.log(this.team)
 
         if (this.partner && this.team) {
           this.createTeamForm = new FormGroup({

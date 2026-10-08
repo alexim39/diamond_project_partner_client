@@ -1,4 +1,4 @@
-
+﻿
 import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { filter, switchMap, tap } from 'rxjs';
@@ -66,7 +66,7 @@ export class ManageCampaignContainerComponent implements OnInit {
 
   ngOnInit() {
 
-    // get current signed in user, then their campaigns — one stream,
+    // get current signed in user, then their campaigns â€” one stream,
     // no nested subscribes (re-emissions cancel the in-flight fetch).
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -75,7 +75,6 @@ export class ManageCampaignContainerComponent implements OnInit {
       switchMap(partner => this.campaignService.getCampaignCreatedBy(partner._id))
     ).subscribe({
         next: (response) => {
-          //console.log(response)
           if (response.success) {
             this.campaigns = response.data;
           }

@@ -109,14 +109,14 @@ interface PathRow {
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); max-width: 44em; }
     .path-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75em; }
     .path-card mat-card-content { display: flex; flex-direction: column; gap: 0.6em; }
-    .path-card--locked { opacity: 0.65; }
+    .path-card--locked { opacity: 0.8; }
     .path-card--done { border-left: 4px solid var(--dp-success); }
     .path-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; }
     .path-top mat-chip mat-icon { font-size: 16px; height: 16px; width: 16px; }
     .reqs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
     .reqs li { display: flex; align-items: center; gap: 0.5em; padding: 0.35em 0; border-top: 1px solid var(--dp-line); }
     .reqs li:first-child { border-top: none; }
-    .reqs li.done { opacity: 0.65; }
+    .reqs li.done { opacity: 0.8; }
     .reqs li.done mat-icon { color: var(--dp-success); }
     .reqs li a { margin-left: auto; min-height: 44px; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }

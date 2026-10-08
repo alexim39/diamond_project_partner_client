@@ -50,7 +50,7 @@ const MAX_NGN = 1000000;
       }
       <div class="methods" role="group" aria-label="Deposit method">
         @for (m of methods(); track m.id) {
-          <button mat-button [class.active]="method() === m.id" [disabled]="!m.enabled" (click)="method.set(m.id)">{{ m.label }}</button>
+          <button mat-button [class.active]="method() === m.id" [attr.aria-pressed]="method() === m.id" [disabled]="!m.enabled" (click)="method.set(m.id)">{{ m.label }}</button>
         }
       </div>
       @if (opayDisabled()) {
@@ -64,7 +64,7 @@ const MAX_NGN = 1000000;
         <h3>How much?</h3>
         <div class="presets" role="group" aria-label="Quick amounts">
           @for (p of presets; track p) {
-            <button mat-button [class.active]="amount() === p" (click)="amount.set(p)">₦{{ p | number }}</button>
+            <button mat-button [class.active]="amount() === p" [attr.aria-pressed]="amount() === p" (click)="amount.set(p)">₦{{ p | number }}</button>
           }
         </div>
         <mat-form-field appearance="outline">
@@ -100,8 +100,10 @@ const MAX_NGN = 1000000;
     .deposit-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; max-width: 560px; }
     .deposit-card h3 { margin: 0; }
     .presets { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .presets button { min-height: 44px; }
     .presets button.active { border: 1px solid var(--dp-gold); font-weight: 700; }
     .methods { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .methods button { min-height: 44px; }
     .methods button.active { border: 1px solid var(--dp-gold); font-weight: 700; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); }

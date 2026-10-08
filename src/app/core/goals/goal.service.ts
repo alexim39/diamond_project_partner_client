@@ -32,4 +32,8 @@ export class GoalService {
   remove(id: string): Observable<unknown> {
     return this.api.delete(`v1/goals/${id}`);
   }
+
+  celebrate(id: string): Observable<unknown> {
+    return this.api.post(`v1/goals/${encodeURIComponent(id)}/celebrate`, {});
+  }
 }

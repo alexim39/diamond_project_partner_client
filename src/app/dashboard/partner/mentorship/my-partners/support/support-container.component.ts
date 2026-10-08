@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -71,7 +71,6 @@ export class MyPartnerSupportContainerComponent implements OnInit, OnDestroy {
         this.subscriptions.push(
           this.myPartnersService.getPartnerById(this.myPartnerId).subscribe({
             next: (partner) => {
-            //console.log(partner.data)
             this.myPartner = partner.data;
 
             // Get this partner's downlines/partner

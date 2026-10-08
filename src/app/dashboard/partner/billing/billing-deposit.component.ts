@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -51,7 +51,6 @@ export class BillingDepositComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    //console.log('=',this.partner)
   }
 
   addFunds() {
@@ -72,11 +71,10 @@ export class BillingDepositComponent implements OnInit {
   }
 
   confirmPayment(reference: string) {
-    // One-shot HTTP — self-completes, no tracking needed.
+    // One-shot HTTP â€” self-completes, no tracking needed.
     this.paystackService.confirmPayment(reference, this.partner._id).subscribe({
       next: (res) => {
         this.currentBalance = res.partner.balance;
-        //console.log('Payment successful and balance updated!',res);
         // reload the page.
         location.reload();
       },

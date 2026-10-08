@@ -17,18 +17,18 @@ import { ApiError } from '../../../core/http/api-error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatIconModule, RouterModule],
   template: `
-    <div class="bell-panel" (click)="$event.stopPropagation()">
+    <div class="bell-panel" role="dialog" aria-label="Latest notifications" (click)="$event.stopPropagation()">
       <div class="bell-head">
         <strong>Notifications</strong>
         @if (stream.unreadCount() > 0) {
-          <span class="pill">{{ stream.unreadCount() }} unread</span>
+          <span class="pill" role="status">{{ stream.unreadCount() }} unread</span>
         }
       </div>
       @if (stream.latest().length > 0) {
         <ul class="bell-list">
           @for (item of stream.latest(); track item.id) {
             <li class="bell-item" [class.bell-item--urgent]="item.urgency">
-              <mat-icon>{{ item.icon }}</mat-icon>
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
               <div class="bell-body">
                 <span class="bell-title">{{ item.title }}</span>
                 <span class="bell-tag">{{ item.tag }}</span>
@@ -60,6 +60,7 @@ import { ApiError } from '../../../core/http/api-error';
     .bell-title { font-size: 0.9em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .bell-tag { font-size: 0.75em; color: var(--dp-muted); }
     .bell-foot { display: flex; justify-content: space-between; margin-top: 0.5em; }
+    .bell-foot button, .bell-foot a { min-height: 44px; }
     .bell-empty { color: var(--dp-muted); margin: 0.5em 0; }
   `],
 })

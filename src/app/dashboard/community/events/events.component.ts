@@ -323,6 +323,7 @@ const withDetail = (err: ApiError): string => {
     .event-top .muted mat-icon, p.muted mat-icon { font-size: 16px; height: 16px; width: 16px; vertical-align: -3px; }
     .rsvp-row { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
     .rsvp-row .spacer { flex: 1; }
+    .rsvp-row button, .delete-confirm button { min-height: 44px; }
     .thread-toggle { display: flex; }
     .thread-toggle button { min-height: 44px; }
     .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--dp-line); padding-top: 0.75em; }

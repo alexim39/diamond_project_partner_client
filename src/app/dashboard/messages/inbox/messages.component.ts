@@ -297,7 +297,8 @@ type ComposeKind = 'direct' | 'announcement' | 'team';
     .filter-btn--active { border-color: var(--dp-gold); background: var(--dp-gold-soft); font-weight: 700; }
     .message-card p { margin: 0; white-space: pre-wrap; }
     .message-top { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
-    .message-actions { display: flex; gap: 0.25em; }
+    .message-actions { display: flex; gap: 0.25em; flex-wrap: wrap; }
+    .message-actions button { min-height: 44px; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); }
     .notice { color: var(--dp-success); }

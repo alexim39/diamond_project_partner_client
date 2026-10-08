@@ -8,7 +8,7 @@
 </section>
 
 <section class="async-background ">
-  <h2>Start a Purpose Team <mat-icon (click)="showDescription()">help</mat-icon></h2>
+  <h2>Start a Purpose Team <button mat-icon-button (click)="showDescription()" title="Help" aria-label="Help about purpose teams"><mat-icon aria-hidden="true">help</mat-icon></button></h2>
   <p class="page-sub">Organize any platform users — not only your downline — around one job: a training cohort, an event crew, a sales push. Manage it afterwards under My teams.</p>
 
   <section class="async-container">
@@ -31,7 +31,7 @@
           <input matInput formControlName="teamName" required>
           @if (createTeamForm.get('teamName')?.hasError('required') ) {
             <mat-error>
-              This field is required.
+              Give your team a name.
             </mat-error>
           }
         </mat-form-field>
@@ -59,7 +59,7 @@
         </mat-select>
         @if (createTeamForm.get('teamPurpose')?.hasError('required') ) {
           <mat-error>
-            This field is required.
+            Choose what this team is for.
           </mat-error>
         }
       </mat-form-field>

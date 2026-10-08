@@ -49,7 +49,7 @@
             <input matInput formControlName="name" required>
             @if (profileMgrForm.get('name')?.hasError('required') ) {
               <mat-error>
-                This is required
+                Enter your first name.
               </mat-error>
             }
           </mat-form-field>
@@ -61,7 +61,7 @@
             <input matInput formControlName="surname" required>
             @if (profileMgrForm.get('surname')?.hasError('required') ) {
               <mat-error>
-                This is required
+                Enter your surname.
               </mat-error>
             }
           </mat-form-field>
@@ -70,10 +70,15 @@
         <div class="form-group">
           <mat-form-field appearance="outline">
             <mat-label>Email Address</mat-label>
-            <input matInput formControlName="email" required>
+            <input matInput formControlName="email" type="email" required>
             @if (profileMgrForm.get('email')?.hasError('required') ) {
               <mat-error>
-                This is required
+                Enter your email address.
+              </mat-error>
+            }
+            @if (profileMgrForm.get('email')?.hasError('email') ) {
+              <mat-error>
+                That email does not look valid.
               </mat-error>
             }
           </mat-form-field>
@@ -82,10 +87,15 @@
         <div class="form-group">
           <mat-form-field appearance="outline">
             <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="phone" required>
+            <input matInput formControlName="phone" type="tel" required>
             @if (profileMgrForm.get('phone')?.hasError('required') ) {
               <mat-error>
-                This is required
+                Enter your phone number.
+              </mat-error>
+            }
+            @if (profileMgrForm.get('phone')?.hasError('pattern') ) {
+              <mat-error>
+                Enter a valid phone number.
               </mat-error>
             }
           </mat-form-field>

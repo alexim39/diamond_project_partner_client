@@ -1,47 +1,52 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { CellMeetingService } from './cell-meeting.service';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
     selector: 'async-cell-meeting',
-    imports: [MatButtonModule],
+    imports: [MatButtonModule, RouterModule],
     providers: [CellMeetingService],
     template: `
-    <div class="container">
-        <div class="writeup item">
-            <p>
-                Click the button below to join the Cell Meeting
-            </p>
+    <section class="breadcrumb-wrapper">
+      <div class="breadcrumb">
+        <a routerLink="/dashboard">Dashboard</a> &gt;
+        <span>Cell Meeting</span>
+      </div>
+    </section>
+
+    <section class="meeting-page">
+      <div class="page-head">
+        <div>
+          <h2>Cell Meeting</h2>
+          <p class="subtitle">Join the live session â€” your attendance is recorded automatically.</p>
         </div>
-        <div class="btn-area item">
-            <a mat-flat-button (click)="onJoinMeeting()" href="{{ meetingUrl }}" target="_blank">Join Meeting</a>
-        </div>
-    </div>
+      </div>
+
+      <div class="dp-card join-card">
+        <p>
+          Click the button below to join the Cell Meeting
+        </p>
+        <button mat-flat-button color="primary" (click)="onJoinMeeting()">Join Meeting</button>
+      </div>
+    </section>
   `,
     changeDetection: ChangeDetectionStrategy.Eager,
-    styles: `
-  .container {
-    display: flex;                      /* Enable Flexbox layout */  
-    justify-content: flex-start;            /* Center items horizontally */  
-    align-items: center; 
-    flex-direction: column;               /* Center items vertically */  
-    height: 100vh;   
-    .item {  
-        padding: 20px;  
-        margin: 10px;  
-    } 
-    .writeup {
-
-    }
-    .btn-area {
-
-    }
-  }
-  `
+    styles: [`
+  .breadcrumb-wrapper { margin-bottom: 1em; }
+  .breadcrumb a { text-decoration: none; }
+  .meeting-page { display: flex; flex-direction: column; gap: 1em; padding-bottom: 2em; }
+  .page-head h2 { margin: 0; }
+  .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
+  .join-card { padding: 1em; display: flex; flex-direction: column; gap: 0.75em; align-items: flex-start; }
+  .join-card p { margin: 0; }
+  .join-card button { min-height: 44px; }
+  `]
 })
 export class CellMeetingComponent implements OnInit, OnDestroy {
-  meetingUrl: string = 'https://us05web.zoom.us/j/82679293106?pwd=09UOjUWxJ1i72yKW2gBiJv0yfAJbq0.1';
+  meetingUrl: string = environment.cellMeetingUrl;
   meetingWindow: Window | null = null;
   checkInterval: any;
   @Input() partner!: PartnerInterface;
@@ -52,17 +57,17 @@ export class CellMeetingComponent implements OnInit, OnDestroy {
 
   
     ngOnInit(): void {
-        //console.log('=',this.partner)
 
     }
   
     onJoinMeeting() {
         const startTime = new Date().getTime();
         localStorage.setItem('meetingStartTime', startTime.toString());
-    
-        // Open the meeting in a new window and keep a reference to it
-        this.meetingWindow = window.open(this.meetingUrl, '_blank');
-    
+
+        // Single open path (previously href + window.open fired together).
+        // noopener for safety; the reference enables attendance tracking.
+        this.meetingWindow = window.open(this.meetingUrl, '_blank', 'noopener');
+
         // Start checking periodically if the window is closed
         this.checkInterval = setInterval(() => this.checkMeetingWindow(), 1000);
     }
@@ -86,8 +91,7 @@ export class CellMeetingComponent implements OnInit, OnDestroy {
             const seconds = Math.floor((timeSpent % (1000 * 60)) / 1000);
         
             const formattedTimeSpent = `${hours}h ${minutes}m ${seconds}s`;
-            console.log('Time spent in meeting:', formattedTimeSpent);
-    
+
           // Record the attendance and time spent
           this.cellMeetingService.recordAttendance(formattedTimeSpent, this.partner);
         }

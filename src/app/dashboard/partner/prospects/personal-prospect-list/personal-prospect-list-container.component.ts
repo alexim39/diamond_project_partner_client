@@ -1,4 +1,4 @@
-
+﻿
 import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -43,7 +43,6 @@ export class MyProspectListContainerComponent implements OnInit, OnDestroy {
               this.prospectService.getAllMyProspect(this.partner.username).subscribe({
                 next: (response) => {
                   this.prospectList = response.data;
-                  //console.log('prospectList ',this.prospectList)
                 },
                 error: () => {
                   this.prospectList = [];

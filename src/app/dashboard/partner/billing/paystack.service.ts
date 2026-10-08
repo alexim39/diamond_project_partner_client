@@ -1,4 +1,4 @@
-// paystack.service.ts
+﻿// paystack.service.ts
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, retry, throwError } from 'rxjs';
@@ -68,14 +68,13 @@ export class PaystackService {
 
   // withdraw request
   withdrawRequest(formData: any): Observable<any> {
-    //console.log('data ',formData)
     return this.http
       .post<any>(this.apiURL + `/billing/withdraw-request`, formData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
   /**
-   * Resolve a bank account holder — proxied through the backend
+   * Resolve a bank account holder â€” proxied through the backend
    * (`GET /v1/billing/resolve-account`) so the Paystack secret key
    * never ships to clients. Replaces direct api.paystack.co calls.
    */

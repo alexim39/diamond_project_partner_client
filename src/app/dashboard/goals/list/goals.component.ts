@@ -144,6 +144,10 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
         </p>
       }
 
+      @if (notice(); as note) {
+        <p class="notice" role="status">{{ note }}</p>
+      }
+
       @if (filtered().length > 0) {
         <ul class="goal-list">
           @for (goal of filtered(); track goal.id) {
@@ -176,6 +180,11 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
               <div class="goal-actions">
                 <a mat-button [routerLink]="nextMove(goal).link">{{ nextMove(goal).label }}</a>
                 <span class="spacer"></span>
+                @if (goal.progress.complete && goal.status !== 'closed') {
+                  <button mat-button color="primary" (click)="celebrate(goal)" [disabled]="actingId() === goal.id">
+                    {{ actingId() === goal.id ? 'Sharing…' : 'Celebrate' }}
+                  </button>
+                }
                 @if (goal.status !== 'closed' && !goal.progress.complete) {
                   <button mat-button (click)="startEdit(goal)" [disabled]="saving() || actingId() === goal.id">Edit</button>
                   <button mat-button (click)="duplicate(goal)" [disabled]="saving() || actingId() === goal.id">Duplicate</button>
@@ -254,6 +263,7 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .forecast-ok { color: var(--dp-success); font-size: 0.85em; font-weight: 600; }
     .forecast-warn { color: var(--dp-error); font-size: 0.85em; font-weight: 600; }
     .error { color: var(--dp-error); }
+    .notice { color: var(--dp-success); }
     .empty { color: var(--dp-muted); }
     .trends { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; }
     .trends h3 { margin: 0 0 0.75em; font-size: 1em; }
@@ -273,6 +283,7 @@ export class GoalsComponent implements OnInit {
   protected readonly confirmDeleteId = signal<string | null>(null);
   protected readonly editingId = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
+  protected readonly notice = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
   protected readonly showForm = signal(false);
   protected readonly goals = signal<Goal[]>([]);
@@ -457,6 +468,26 @@ export class GoalsComponent implements OnInit {
         next: () => {
           this.actingId.set(null);
           this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected celebrate(goal: Goal): void {
+    if (this.actingId()) return;
+    this.actingId.set(goal.id);
+    this.error.set(null);
+    this.notice.set(null);
+    this.goalsApi
+      .celebrate(goal.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          this.actingId.set(null);
+          this.notice.set(res?.data?.duplicate ? 'Already shared in the community.' : 'Shared in the community — congratulations.');
         },
         error: (err: ApiError) => {
           this.actingId.set(null);

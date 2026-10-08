@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -101,7 +101,6 @@ export class FacebookComponent implements OnInit, OnDestroy {
       this.calculateDuration();
     });
 
-    //console.log(this.partner)
   }
 
   onNoEndDateChange(event: any) {
@@ -209,7 +208,6 @@ export class FacebookComponent implements OnInit, OnDestroy {
             })
     
           }, (error: any) => {
-            //console.log(error)
             if (error.code == 401) {
               Swal.fire({
                 position: "bottom",
@@ -248,7 +246,6 @@ export class FacebookComponent implements OnInit, OnDestroy {
         console.log('fbCharge ',fbCharge)
   
       }, (error: any) => {
-        //console.log(error)
         if (error.code == 401) {
           Swal.fire({
             position: "bottom",

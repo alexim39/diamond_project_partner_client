@@ -1,4 +1,4 @@
-
+﻿
 import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -42,7 +42,6 @@ export class ProspectBookingContainerComponent implements OnInit, OnDestroy {
             this.prospectListService.getSessionBookingsFor(this.partner._id).subscribe({
               next: (response) => {
                 this.prospectList = response.data;
-                //console.log('prospectList ',this.prospectList)
               },
             })
           }

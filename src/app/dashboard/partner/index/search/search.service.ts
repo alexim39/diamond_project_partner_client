@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -58,7 +58,6 @@ export class SearchService {
 
   // Method to fetch partner by names: name aline
   getPartnerByName(name: string,): Observable<PartnerInterface> {  
-    //console.log(name)
     return this.http
       .get<PartnerInterface>(`${this.apiURL}/partners/getPartnerByName/${name}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));

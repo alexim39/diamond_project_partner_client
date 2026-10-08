@@ -276,6 +276,8 @@ export class BookSessionComponent implements OnInit {
       surname: this.prospect?.prospectSurname,
       name: this.prospect?.prospectName,
       username: this.partner.username,
+      // Pipeline link — lets the backend advance the exact prospect stage.
+      prospectId: this.prospect?._id ?? this.prospect?.id ?? null,
     };
     this.saving.set(true);
     this.error.set(null);

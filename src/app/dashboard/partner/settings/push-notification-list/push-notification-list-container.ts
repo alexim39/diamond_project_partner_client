@@ -1,4 +1,4 @@
-
+﻿
 import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -39,7 +39,6 @@ export class PushNotificationListContainerComponent implements OnInit, OnDestroy
             this.subscriptions.push(
               this.notifier.getNotifications(this.partner._id).subscribe({
                 next: (response) => {
-                  //console.log(response)
                   this.notifications = response.data;
                 }
               })

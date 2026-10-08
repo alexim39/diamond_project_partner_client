@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+﻿import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -44,7 +44,6 @@ export class EditTeamContainerComponent implements OnInit, OnDestroy {
         next: (partner: PartnerInterface) => {
           this.partner = partner;
           if (this.partner) {
-            //console.log(this.partner)
           }
         }
       })
@@ -56,7 +55,6 @@ export class EditTeamContainerComponent implements OnInit, OnDestroy {
         // Fetch prospect details using the ID
         this.subscriptions.push(
           this.teamService.getTeamById(teamId).subscribe(team => {
-            //console.log(team)
             this.team = team.data;
           }, error => {
             this.isEmptyRecord = true;

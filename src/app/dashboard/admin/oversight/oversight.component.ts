@@ -8,7 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../../core/progression/progression.service';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
-import { ActivationAnalytics } from '../../../core/analytics/analytics.models';
+import { ActivationAnalytics, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
 import { ConfirmationStats, LADDER, Oversight, PendingNomination } from '../../../core/progression/progression.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -77,6 +77,31 @@ import { ApiError } from '../../../core/http/api-error';
               <span class="stat-label">Nominations awaiting decision</span>
             </mat-card-content>
           </mat-card>
+          @if (funnel(); as f) {
+            <mat-card>
+              <mat-card-content>
+                <mat-icon>filter_alt</mat-icon>
+                <span class="stat-value">{{ f.overallRate !== null ? f.overallRate + '%' : '—' }}</span>
+                <span class="stat-label">Prospect conversion (30d · {{ f.converted | number }}/{{ f.entered | number }})</span>
+              </mat-card-content>
+            </mat-card>
+          }
+          @if (team(); as t) {
+            <mat-card>
+              <mat-card-content>
+                <mat-icon>person_add</mat-icon>
+                <span class="stat-value">{{ t.recruits.current | number }}</span>
+                <span class="stat-label">Recruits (30d · {{ t.recruits.deltaPct }}% vs prior · ~{{ t.forecast?.recruitsNext ?? '—' }} next)</span>
+              </mat-card-content>
+            </mat-card>
+            <mat-card>
+              <mat-card-content>
+                <mat-icon>group</mat-icon>
+                <span class="stat-value">{{ t.downline.activationRate !== null ? (t.downline.activationRate * 100 | number:'1.0-0') + '%' : '—' }}</span>
+                <span class="stat-label">Team active ({{ t.downline.active | number }}/{{ t.downline.total | number }})</span>
+              </mat-card-content>
+            </mat-card>
+          }
         </div>
 
         <div class="dp-card levels-card">
@@ -213,6 +238,8 @@ export class OversightComponent implements OnInit {
   protected readonly oversight = signal<Oversight | null>(null);
   protected readonly confirmStats = signal<ConfirmationStats | null>(null);
   protected readonly activation = signal<ActivationAnalytics | null>(null);
+  protected readonly team = signal<TeamAnalytics | null>(null);
+  protected readonly funnel = signal<Funnel | null>(null);
 
   protected readonly ladderBars = computed(() => {
     const dist = this.oversight()?.distribution ?? {};
@@ -258,6 +285,21 @@ export class OversightComponent implements OnInit {
       .subscribe({
         next: (res) => this.activation.set(res.data ?? null),
         error: () => this.activation.set(null),
+      });
+    // Growth KPIs (§11) — same fail-soft pattern: cards render when present.
+    this.analytics
+      .team()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.team.set(res.data ?? null),
+        error: () => this.team.set(null),
+      });
+    this.analytics
+      .funnel()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.funnel.set(res.data ?? null),
+        error: () => this.funnel.set(null),
       });
   }
 

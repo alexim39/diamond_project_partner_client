@@ -47,7 +47,7 @@ import { ApiError } from '../../core/http/api-error';
             @if (password?.hasError('required') && password?.touched) {
               <mat-error>Password is required</mat-error>
             }
-            <button mat-icon-button matSuffix type="button" (click)="hide.set(!hide())" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide()">
+            <button mat-icon-button matSuffix type="button" (click)="hide.set(!hide())" [attr.aria-label]="hide() ? 'Show password' : 'Hide password'" [attr.aria-pressed]="hide()">
               <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
           </mat-form-field>

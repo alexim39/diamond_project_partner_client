@@ -233,12 +233,12 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                   </div>
                 }
               </div>
-              <div class="swipe-actions" aria-hidden="true">
+              <div class="swipe-actions" aria-hidden="false">
                 @if (item.origin === 'stored') {
-                  <button mat-button (click)="archiveStored(item.id)">Archive</button>
-                  <button mat-button color="warn" (click)="deleteStored(item.id)">Delete</button>
+                  <button mat-button (click)="archiveStored(item.id)" tabindex="-1">Archive</button>
+                  <button mat-button color="warn" (click)="deleteStored(item.id)" tabindex="-1">Delete</button>
                 } @else {
-                  <button mat-button (click)="dismiss(item.id)">Dismiss</button>
+                  <button mat-button (click)="dismiss(item.id)" tabindex="-1">Dismiss</button>
                 }
               </div>
             </li>
@@ -311,12 +311,12 @@ interface DayBucket { label: string; items: StoredNotificationItem[]; }
                     </div>
                   }
                 </div>
-                <div class="swipe-actions" aria-hidden="true">
+                <div class="swipe-actions" aria-hidden="false">
                   @if (item.origin === 'stored') {
-                    <button mat-button (click)="archiveStored(item.id)">Archive</button>
-                    <button mat-button color="warn" (click)="deleteStored(item.id)">Delete</button>
+                    <button mat-button (click)="archiveStored(item.id)" tabindex="-1">Archive</button>
+                    <button mat-button color="warn" (click)="deleteStored(item.id)" tabindex="-1">Delete</button>
                   } @else {
-                    <button mat-button (click)="dismiss(item.id)">Dismiss</button>
+                    <button mat-button (click)="dismiss(item.id)" tabindex="-1">Dismiss</button>
                   }
                 </div>
               </li>

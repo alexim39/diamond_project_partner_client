@@ -33,6 +33,11 @@ styles: [`
       opacity: 1;
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  #container {
+    animation: none;
+  }
+}
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {

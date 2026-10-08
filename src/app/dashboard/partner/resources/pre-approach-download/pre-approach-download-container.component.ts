@@ -1,4 +1,4 @@
-
+﻿
 import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -39,7 +39,6 @@ export class PreapproachDownloadContainerComponent implements OnInit, OnDestroy 
           if (this.partner) {
            /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
               this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
             }) */
           }
         },

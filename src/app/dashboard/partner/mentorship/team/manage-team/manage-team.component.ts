@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
@@ -92,6 +92,7 @@ styles: [`
 
         .section-head { margin: 1em 0 0.4em; font-size: 1em; }
         .empty { color: var(--dp-muted); margin: 0 0 0.6em; }
+        .name-cell { font-weight: 700; }
 
         .toolbar { display: flex; gap: 0.75em; flex-wrap: wrap; align-items: center; padding: 0.75em 0; }
         .toolbar mat-form-field { flex: 1; min-width: 200px; }
@@ -148,7 +149,6 @@ export class ManageTeamComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    //console.log(this.teams)
     if (this.teams && this.teams.length > 0) {
       this.dataSource = this.teams.sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();

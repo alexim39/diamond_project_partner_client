@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -169,7 +169,6 @@ export class AddMemberComponent implements OnInit, OnDestroy {
 
   addMember(teamId: string) {
     // Logic to use this.selectedPartners (e.g., close the dialog with the selected partners)
-    //console.log("Selected Partners:", this.selectedPartners);
 
 
 
@@ -179,7 +178,7 @@ export class AddMemberComponent implements OnInit, OnDestroy {
         this.snackBar.open(`Team member have been successfully added`, 'Close', {
           duration: 1000,
         });
-        // Return the selection — the detail page merges it locally (no reload).
+        // Return the selection â€” the detail page merges it locally (no reload).
         this.dialogRef.close([...this.selectedPartners]);
 
       }, (error: Error) => {

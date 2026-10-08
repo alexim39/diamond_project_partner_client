@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, Input, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpDialogComponent } from '../../../../_common/help-dialog.component';
@@ -233,7 +233,6 @@ export class SubmitTicketComponent implements OnInit {
 
 
     ngOnInit(): void {
-       // console.log(this.partner)
 
         if (this.partner) {
           this.ticketForm = new FormGroup({

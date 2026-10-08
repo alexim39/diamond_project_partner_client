@@ -166,8 +166,8 @@ const naira = (n: number): string =>
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75em; }
-    .card { display: flex; flex-direction: column; gap: 0.15em; background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.9em 1em; }
-    .card.accent { background: #e8f5e9; border-color: #a5d6a7; }
+    .card { display: flex; flex-direction: column; gap: 0.15em; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; }
+    .card.accent { background: var(--dp-success-bg); border-color: var(--dp-success); }
     .card .k { font-size: 0.85em; color: var(--dp-muted); }
     .card strong { font-size: 1.4em; }
     .ledger-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5em; }
@@ -176,7 +176,7 @@ const naira = (n: number): string =>
     table { width: 100%; }
     .amount { font-weight: 600; white-space: nowrap; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
-    .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],

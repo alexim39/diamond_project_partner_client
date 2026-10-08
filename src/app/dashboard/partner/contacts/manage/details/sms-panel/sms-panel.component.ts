@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
+﻿import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import type { ContactsInterface } from '../../../contacts.service';
 
 import { PartnerInterface } from '../../../../../../_common/services/partner.service';
@@ -33,7 +33,7 @@ template: `
             <mat-form-field appearance="outline">
                 <mat-label>Write SMS</mat-label>
                 <textarea matInput #SMS maxlength="160" [(ngModel)]="sms"></textarea>
-                <mat-hint align="start" style="color: orange"><strong>Short SMS to prospect phone number (Don't forget to include your link)</strong> </mat-hint>
+                <mat-hint align="start" class="hint-warn"><strong>Short SMS to prospect phone number (Don't forget to include your link)</strong> </mat-hint>
                 <mat-hint align="end">{{SMS.value.length}} / 160</mat-hint>
             </mat-form-field>
             
@@ -46,27 +46,28 @@ template: `
 `,
 styles: `
 
+.hint-warn { color: var(--dp-warning); }
 .list {
     margin-bottom: 1em;
     h5 {
-        color: gray
+        color: var(--dp-text);
     }
     .data {
         font-weight: bold;
-        .custom-textarea {  
+        .custom-textarea {
             min-width: min(500px, 100%);
-            min-height: 300px; 
+            min-height: 300px;
         }
     }
     .info {
-        color: gray;
+        color: var(--dp-muted);
         font-size: 0.9em;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
     }
     .wrap {
         word-wrap: break-word;
-        max-width: 10px !important; /* Adjust as needed */
+        max-width: 100%;
     }
     .copy-link {
        // background-color: gray;
@@ -110,7 +111,6 @@ export class ProspectSMSComponent implements OnInit {
     ngOnInit(): void {     
         if (this.prospect) {
           this.prospectData = this.prospect;
-          //console.log('propsect', this.prospectData)
         }
     }
 

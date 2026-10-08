@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -9,7 +9,6 @@ export class ExportContactAndEmailService {
   data$ = this.dataSubject.asObservable();
 
   setData(data: string[]) {
-    //console.log('d ',data)
     this.dataSubject.next(data);
   }
 }

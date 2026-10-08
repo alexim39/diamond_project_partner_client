@@ -70,7 +70,7 @@ template: `
   <div class="list">
     <h5> Delete Prospect's Record </h5>
     <span class="data">
-      <button mat-stroked-button style="color: rgba(223, 10, 10, 0.578)" (click)="deleteProspect()"><mat-icon>delete</mat-icon>Delete</button>
+      <button mat-stroked-button class="danger-btn" (click)="deleteProspect()"><mat-icon aria-hidden="true">delete</mat-icon>Delete</button>
     </span>
   </div>
 
@@ -80,27 +80,28 @@ template: `
 `,
 styles: `
 
+.danger-btn { color: var(--dp-error); }
 .list {
     margin-bottom: 1em;
     h5 {
-        color: gray
+        color: var(--dp-text);
     }
     .data {
         font-weight: bold;
-        .custom-textarea {  
+        .custom-textarea {
             min-width: min(500px, 100%);
-            min-height: 300px; 
+            min-height: 300px;
         }
     }
     .info {
-        color: gray;
+        color: var(--dp-muted);
         font-size: 0.9em;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
     }
     .wrap {
         word-wrap: break-word;
-        max-width: 10px !important; /* Adjust as needed */
+        max-width: 100%;
     }
     .copy-link {
        // background-color: gray;

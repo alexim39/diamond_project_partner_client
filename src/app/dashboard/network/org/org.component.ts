@@ -109,6 +109,7 @@ interface OrgLevel {
                       [class.member--match]="isMatch(member)"
                       (click)="select(member)"
                       [title]="names(member)"
+                      [attr.aria-label]="'View ' + names(member)"
                     >
                       <async-avatar [photo]="member.profileImage" [name]="names(member)" size="sm" [presence]="presenceOf(member.id)" />
                       <span class="member-name">{{ names(member) }}</span>

@@ -366,6 +366,7 @@ const KIND_STYLES: Record<PostKind, string> = {
     .attach-grid img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; border: 1px solid var(--dp-line); }
     .post-actions { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; }
     .post-actions .spacer { flex: 1; }
+    .post-actions button, .comment-foot button { min-height: 44px; }
     .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--dp-line); padding-top: 0.75em; }
     .comment { display: flex; flex-direction: column; gap: 0.2em; background: var(--dp-paper); border-radius: 8px; padding: 0.6em 0.8em; }
     .comment p { margin: 0; }

@@ -15,7 +15,7 @@ template: `
 
         <div class="list">
             <h5> Names </h5>
-            <span class="data">{{$safeNavigationMigration(prospectData?.prospectName) | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
+            <span class="data">{{prospectData?.prospectName | titlecase}} {{prospectData.prospectSurname | titlecase}}  </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -28,7 +28,7 @@ template: `
 
         <div class="list">
             <h5> Email Address </h5>
-            <span class="data">{{$safeNavigationMigration(prospectData?.prospectEmail) | lowercase }} </span>
+            <span class="data">{{prospectData?.prospectEmail | lowercase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -40,7 +40,7 @@ template: `
 
         <div class="list">
             <h5> Contact Channel</h5>
-            <span class="data">{{$safeNavigationMigration(prospectData?.prospectSource) | titlecase }} </span>
+            <span class="data">{{prospectData?.prospectSource | titlecase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -61,7 +61,7 @@ template: `
 
         <div class="list">
             <h5> Prospect Origin</h5>
-            <span class="data">{{prospectData?.survey?.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{$safeNavigationMigration(prospectData?.survey?.country) | titlecase }} </span>
+            <span class="data">{{prospectData?.survey?.state ? (prospectData.survey.state | titlecase) : 'Unknown'}} State, {{prospectData?.survey?.country | titlecase }} </span>
         </div>
         <mat-divider></mat-divider>
 
@@ -74,13 +74,13 @@ template: `
     
         <div class="list">
             <h5> Created Date </h5>
-            <span class="data">{{$safeNavigationMigration(prospectData?.createdAt) | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
+            <span class="data">{{prospectData?.createdAt | date}} by {{prospectData.createdAt | date:'shortTime'}} </span>
         </div>
         <mat-divider></mat-divider>
         
         <div class="list">
             <h5> Modified Date </h5>
-            <span class="data">{{$safeNavigationMigration(prospectData?.updatedAt) | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
+            <span class="data">{{prospectData?.updatedAt | date}} by {{prospectData.updatedAt | date:'shortTime'}} </span>
         </div>
         
 </article>
@@ -91,24 +91,24 @@ styles: `
 .list {
     margin-bottom: 1em;
     h5 {
-        color: gray
+        color: var(--dp-text);
     }
     .data {
         font-weight: bold;
-        .custom-textarea {  
+        .custom-textarea {
             min-width: min(500px, 100%);
-            min-height: 300px; 
+            min-height: 300px;
         }
     }
     .info {
-        color: gray;
+        color: var(--dp-muted);
         font-size: 0.9em;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
     }
     .wrap {
         word-wrap: break-word;
-        max-width: 10px !important; /* Adjust as needed */
+        max-width: 100%;
     }
     .copy-link {
        // background-color: gray;

@@ -123,6 +123,7 @@ const FILTER_LABELS: Record<LibraryFilter, string> = {
     .course-top mat-chip mat-icon { font-size: 16px; height: 16px; width: 16px; }
     .course-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.5em; }
     .course-foot a, .course-foot button { min-height: 44px; }
+    .course-foot button[mat-icon-button] { width: 44px; height: 44px; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     html[data-theme='dark'] .error { color: #e89a9a; }

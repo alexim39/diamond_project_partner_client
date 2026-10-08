@@ -28,6 +28,7 @@ import type { PresenceStatus } from '../core/presence/presence.service';
     .avatar--xs { width: 1.6em; height: 1.6em; font-size: 0.85em; }
     .avatar--sm { width: 2.2em; height: 2.2em; font-size: 1em; }
     .avatar--md { width: 3em; height: 3em; font-size: 1.2em; }
+    .avatar--lg { width: 3em; height: 3em; font-size: 1.25em; }
     img.avatar { border: 1.5px solid rgba(243,236,221,0.32); }
     .avatar--fallback { display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: var(--dp-sidenav-text); border: 1.5px solid rgba(243,236,221,0.32); }
     .avatar-wrap--online::after, .avatar-wrap--recent::after {
@@ -52,7 +53,7 @@ export class AvatarComponent {
   readonly photo = input<string | null | undefined>(null);
   /** Display name — feeds the initial and the alt text. */
   readonly name = input<string>('');
-  readonly size = input<'xs' | 'sm' | 'md'>('sm');
+  readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('sm');
   /** Presence dot — 'online' (green) or 'recent' (amber); null hides it. */
   readonly presence = input<PresenceStatus>(null);
 

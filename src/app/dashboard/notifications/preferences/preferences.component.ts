@@ -162,6 +162,7 @@ const DIGEST_OPTIONS: Array<{ label: string; value: Digest }> = [
     .push-card p { margin: 0; }
     .fine { font-size: 0.8em; }
     .actions { display: flex; gap: 0.5em; flex-wrap: wrap; align-items: center; }
+    .actions button, .actions a, .push-card button, .toggles button { min-height: 44px; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .saved { color: var(--dp-success, #2e7d32); }
   `],

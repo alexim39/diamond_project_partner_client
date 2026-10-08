@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -132,7 +132,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
       return !!owner && !!me && String(owner) === String(me);
     }
 
-    /** Survey exists AND has at least one substantive answer — hides button for manual contacts. */
+    /** Survey exists AND has at least one substantive answer â€” hides button for manual contacts. */
     hasSurvey(): boolean {
       const s = this.prospectData?.survey as Record<string, unknown> | undefined;
       if (!s || typeof s !== 'object') return false;
@@ -144,7 +144,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
 
   
   ngOnInit(): void { 
-    //console.log(this.prospect.data)
     if (this.prospect.data) {
       this.prospectData = this.prospect.data;
     }
@@ -154,7 +153,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
       this.partnerService.getSharedPartnerData$.subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
-          //console.log(this.partner)
         },
         error => {
           console.log(error)
@@ -179,7 +177,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.contactsService.updateProspectStatus(obj).subscribe((prospectStatus: ContactsInterface) => {
         // this.prospectContact = prospectContact;
-        //console.log('prospectContact ',prospectStatus)
         Swal.fire({
           position: "bottom",
           icon: 'success',
@@ -190,7 +187,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
         })
   
       }, (error: any) => {
-        //console.log(error)
         Swal.fire({
           position: "bottom",
           icon: 'info',
@@ -219,7 +215,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.contactsService.updateProspectRemark(obj).subscribe((prospectRemark: ContactsInterface) => {
         // this.prospectContact = prospectContact;
-        //console.log('prospectContact ',prospectStatus)
         Swal.fire({
           position: "bottom",
           icon: 'success',
@@ -230,7 +225,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
         })
   
       }, (error: any) => {
-        //console.log(error)
         Swal.fire({
           position: "bottom",
           icon: 'info',
@@ -259,7 +253,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
         this.subscriptions.push(
           this.contactsService.deleteProspect(this.prospectData._id ).subscribe((prospect: ContactsInterface) => {
             // this.prospectContact = prospectContact;
-            //console.log('prospectContact ',prospectStatus)
             Swal.fire({
               position: "bottom",
               icon: 'success',
@@ -274,7 +267,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
             });
       
           }, (error: any) => {
-            //console.log(error)
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -315,15 +307,17 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  copyLink() {  
-    const link = `https://diamondproject.c21fg.online/${this.partner.username}`;  
-    navigator.clipboard.writeText(link).then(() => {  
-      this.snackBar.open('Link copied to clipboard!', 'Close', {  
-        duration: 2000,  
-      });  
-    }).catch(err => {  
-      console.error('Failed to copy: ', err);  
-    });  
+  copyLink() {
+    const link = `https://diamondproject.c21fg.online/${String(this.partner.username ?? '').toLowerCase()}`;
+    navigator.clipboard.writeText(link).then(() => {
+      this.snackBar.open('Link copied to clipboard!', 'Close', {
+        duration: 2000,
+      });
+    }).catch(() => {
+      this.snackBar.open('Could not copy â€” long-press the link instead.', 'Close', {
+        duration: 4000,
+      });
+    });
   }  
 
   // Session-owned single send (v1/outreach/sms): charge + gateway +
@@ -377,7 +371,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
 
       this.contactsService.sendProspectEmail(emailObject).subscribe(  
         response => {  
-          //console.log('SMS sent successfully:', response);  
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -387,7 +380,6 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
           })
         },  
         error => {  
-          //console.error('Error sending SMS:', error);  
           Swal.fire({
             position: "bottom",
             icon: 'info',
@@ -421,7 +413,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
   }
 
   promoteProspectToPartnerBlocked(): void {
-    Swal.fire({ position: 'bottom', icon: 'info', text: 'Only the prospect owner can promote to partner — enrollment credit stays with them. Coach your downline to convert.', showConfirmButton: false, timer: 4000 });
+    Swal.fire({ position: 'bottom', icon: 'info', text: 'Only the prospect owner can promote to partner â€” enrollment credit stays with them. Coach your downline to convert.', showConfirmButton: false, timer: 4000 });
   }
 
   ngOnDestroy() {

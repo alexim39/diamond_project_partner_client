@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -53,7 +53,6 @@ export class MyPartnersService {
 
   // get all partners
   getPartnersOf(partnerId: string): Observable<any> {
-    //console.log('record', id);
     return this.http
       .get<any>(this.apiURL + `/partners/getPartnersOf/${partnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -61,7 +60,6 @@ export class MyPartnersService {
 
   // get partner byId
   getPartnerById(myPartnerId: string): Observable<any> {
-    //console.log('record', myPartnerId);
     return this.http
       .get<any>(this.apiURL + `/partners/getById/${myPartnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));

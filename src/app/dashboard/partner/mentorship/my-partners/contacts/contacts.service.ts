@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -65,7 +65,6 @@ export class ContactsService {
 
   // contact creatioin
   create(dataObject: ContactsInterface): Observable<ContactsInterface> {
-    //console.log('form record', dataObject);
     return this.http
       .post<ContactsInterface>(this.apiURL + `/prospect/create`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -73,7 +72,6 @@ export class ContactsService {
 
   // contact creatioin
   update(dataObject: ContactsInterface): Observable<ContactsInterface> {
-    //console.log('form record', dataObject);
     return this.http
       .put<ContactsInterface>(this.apiURL + `/prospect/update`, dataObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -81,7 +79,6 @@ export class ContactsService {
 
   // get contacts createdby
   getContctsCreatedBy(createdBy: string): Observable<ContactsInterface> {
-    //console.log('record', id);
     return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/all-createdBy/${createdBy}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -89,7 +86,6 @@ export class ContactsService {
 
   // get contacts createdby
   import(partnerId: string): Observable<ContactsInterface> {
-    //console.log('record', partnerId);
     return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/import/${partnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -97,7 +93,6 @@ export class ContactsService {
 
   // get prospect byId
   getProspectById(prospectId: string): Observable<ContactsInterface> {
-    //console.log('record', id);
     return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/getById/${prospectId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -105,7 +100,6 @@ export class ContactsService {
 
   // update prospect status
   updateProspectStatus(obj: {status: string; prospectId: string}): Observable<ContactsInterface> {
-    //console.log('record', obj);
     return this.http
       .post<ContactsInterface>(this.apiURL + `/prospect/updateStatus`, obj, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -113,7 +107,6 @@ export class ContactsService {
 
   // update prospect remark
   updateProspectRemark(obj: {remark: string; prospectId: string}): Observable<ContactsInterface> {
-    //console.log('record', obj);
     return this.http
       .post<ContactsInterface>(this.apiURL + `/prospect/updateRemark`, obj, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -121,7 +114,6 @@ export class ContactsService {
 
   // delete prospect 
   deleteProspect(id: string): Observable<ContactsInterface> {
-    //console.log('record', obj);
     return this.http
       .get<ContactsInterface>(this.apiURL + `/prospect/delete/${id}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
@@ -129,16 +121,14 @@ export class ContactsService {
 
   // single sms charge
   signleSMSCharge(partnerId: string): Observable<ContactsInterface> {
-    //console.log('record', obj);
     return this.http
       .get<ContactsInterface>(this.apiURL + `/billing/single-sms-charge/${partnerId}`, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // send single email — session-owned v1 route (validated, recorded,
+  // send single email â€” session-owned v1 route (validated, recorded,
   // honest per-recipient outcome). Replaces legacy emails/send-emails.
   sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string, emailSubject?: string}): Observable<any> {
-    //console.log('record', emailObject);
     const to = [String((emailObject.prospect as any)?.prospectEmail ?? '').trim().toLowerCase()].filter(Boolean);
     return this.http
       .post<any>(this.apiURL + `/v1/outreach/email`, {
@@ -151,15 +141,13 @@ export class ContactsService {
 
   // save sms 
   saveSMSRecord(SMSbject: {partner: string, prospect: string | Array<string>, smsBody: string}): Observable<ContactsInterface> {
-    //console.log('record', SMSbject);
     return this.http
       .post<ContactsInterface>(this.apiURL + `/sms/save-sms/`, SMSbject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));
   }
    
-   // submit booking — session-authenticated (server requires a partner session)
+   // submit booking â€” session-authenticated (server requires a partner session)
    bookSurvey(formData: any): Observable<any> {
-     //console.log('form record', formData);
      return this.http
        .post<any>(this.apiURL + '/booking/submit', formData, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));

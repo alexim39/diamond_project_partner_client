@@ -48,6 +48,9 @@
         @if (signUpForm.get('phone')?.hasError('required') && signUpForm.get('phone')?.touched) {
           <mat-error>Phone number is required</mat-error>
         }
+        @if (signUpForm.get('phone')?.hasError('pattern') && signUpForm.get('phone')?.touched) {
+          <mat-error>Enter a valid phone number</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field appearance="outline">

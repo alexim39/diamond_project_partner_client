@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -99,7 +99,7 @@ template: `
         } @else {
           <div class="empty-card">
             <mat-icon>mail</mat-icon>
-            <p>No emails sent yet — compose your first bulk email.</p>
+            <p>No emails sent yet â€” compose your first bulk email.</p>
             <a mat-button routerLink="../../email/new">Send Email</a>
           </div>
         }        
@@ -292,7 +292,6 @@ export class EmailLogComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   openEmailDetailDialog(emailRecord: any) {
-    //console.log(emailRecord)
     this.dialog.open(EmailDetailDialogComponent, {
       data: emailRecord
     });

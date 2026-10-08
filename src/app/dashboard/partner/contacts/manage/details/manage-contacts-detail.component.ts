@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, DestroyRef, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ContactsInterface, ContactsService } from '../../contacts.service';
@@ -159,13 +159,12 @@ export class ManageContactsDetailComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // get current signed in user (shared subject — tracked)
+    // get current signed in user (shared subject â€” tracked)
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
         next: (partner: PartnerInterface) => {
           this.partner = partner;
-          //console.log(this.partner)
         }
       })
 

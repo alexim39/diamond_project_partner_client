@@ -179,6 +179,7 @@ import { ApiError } from '../../../core/http/api-error';
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .days-field { width: 170px; }
     .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75em; }
+    .error button { min-height: 44px; }
     .stat-grid mat-card-content { display: flex; flex-direction: column; gap: 0.2em; }
     .stat-grid mat-icon { color: var(--dp-gold); }
     .stat-value { font-size: 1.5em; font-weight: 700; }

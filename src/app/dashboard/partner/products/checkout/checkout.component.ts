@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ProductInterface, ProductService } from '../monthly-purchase.service';
 import { concatMap, catchError, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -45,13 +45,12 @@ export class CheckoutComponent implements OnInit  {
           this.updateCurrentCost(); // Recalculate the cost whenever the cart is updated
       });
 
-      // get current signed in user (shared subject — tracked)
+      // get current signed in user (shared subject â€” tracked)
       this.partnerService.getSharedPartnerData$.pipe(
         takeUntilDestroyed(this.destroyRef)
       ).subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
-          //console.log(this.partner)
         },
         error => {
           console.log(error)
@@ -67,10 +66,6 @@ export class CheckoutComponent implements OnInit  {
 
     updateCurrentCost(): void {
         this.currentCost = this.getProductService.getCart().reduce((total, product) => total + (product.price * (product.quantity ?? 1)), 0);
-    }
-
-    ngOnDestroy() {
-        this.getProductService.clearCart();
     }
 
     back(): void {
@@ -106,13 +101,12 @@ export class CheckoutComponent implements OnInit  {
 
     // Navigate to the checkout process
     checkout(): void {
-      //console.log('Proceed to checkout with cart:', this.cart);
       const cartObject = {
         products: this.cart,
-        totalCost: this.updateCurrentCost(),
+        totalCost: this.currentCost,
         partnerId: this.partner._id
       }
-      // One stream: checkout, then accrue upline commissions (idempotent —
+      // One stream: checkout, then accrue upline commissions (idempotent â€”
       // safe to retry; accrual failures only log since entries can be
       // accrued later). Both calls are one-shot and self-complete.
       this.productService.checkout(cartObject).pipe(

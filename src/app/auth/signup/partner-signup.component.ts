@@ -54,7 +54,7 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
         Validators.pattern(/^(247[A-Za-z0-9\/]+|NR\d{6}|NI\d{6}|NV\d{6}|[A-Za-z]{2}[A-Za-z0-9]+)$/i)
       ]
     ],
-    phone: ['', [Validators.required]],
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9+\s()-]{7,20}$/)]],
     email: ['', [Validators.email, Validators.required]],
     name: ['', Validators.required],
     surname: ['', Validators.required],

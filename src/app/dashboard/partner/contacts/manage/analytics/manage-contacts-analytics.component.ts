@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, DestroyRef, inject, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -128,7 +128,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     });
   }
 
-  /** Last-10-digits comparison — tolerates 080… vs +234… formats. */
+  /** Last-10-digits comparison â€” tolerates 080â€¦ vs +234â€¦ formats. */
   normalizePhone(phone: any): string {
     const digits = String(phone ?? '').replace(/\D/g, '');
     return digits.length > 10 ? digits.slice(-10) : digits;
@@ -136,12 +136,11 @@ export class ManageContactsAnalyticsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    //console.log(this.prospect.data)
     if (this.prospect) {
       this.prospectData = this.prospect;
       this.loadSessions();
     } else {
-      // Routed directly (no @Input) — deep link via ?id=.
+      // Routed directly (no @Input) â€” deep link via ?id=.
       this.route.queryParamMap
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((params) => {
@@ -150,14 +149,13 @@ export class ManageContactsAnalyticsComponent implements OnInit {
         });
     }
 
-    // get current signed in user (shared subject — tracked)
+    // get current signed in user (shared subject â€” tracked)
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
-          //console.log(this.partner)
-          // Partner can arrive after the contact — (re)load sessions then.
+          // Partner can arrive after the contact â€” (re)load sessions then.
           if (this.prospectData?._id) this.loadSessions();
         },
         error => {
@@ -217,7 +215,6 @@ export class ManageContactsAnalyticsComponent implements OnInit {
 
         this.contactsService.deleteProspect(this.prospectData._id).subscribe((prospect: ContactsInterface) => {
             // this.prospectContact = prospectContact;
-            //console.log('prospectContact ',prospectStatus)
             Swal.fire({
               position: "bottom",
               icon: 'success',
@@ -232,7 +229,6 @@ export class ManageContactsAnalyticsComponent implements OnInit {
             });
 
           }, (error: any) => {
-            //console.log(error)
             Swal.fire({
               position: "bottom",
               icon: 'info',
@@ -331,7 +327,6 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     }
     this.contactsService.sendProspectEmail(emailObject).subscribe(
         response => {
-          //console.log('SMS sent successfully:', response);
           Swal.fire({
             position: "bottom",
             icon: 'success',
@@ -341,7 +336,6 @@ export class ManageContactsAnalyticsComponent implements OnInit {
           })
         },
         error => {
-          //console.error('Error sending SMS:', error);
           Swal.fire({
             position: "bottom",
             icon: 'info',
@@ -384,15 +378,15 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     for (const h of this.prospectData?.stageHistory ?? []) {
       items.push({
         at: h?.at ?? null,
-        label: `Stage: ${h?.from ?? '—'} → ${h?.to ?? '—'}`,
+        label: `Stage: ${h?.from ?? 'â€”'} â†’ ${h?.to ?? 'â€”'}`,
         detail: h?.byName ? `by ${h.byName}` : '',
       });
     }
     for (const c of this.prospectData?.communications ?? []) {
       items.push({
         at: c?.date ?? null,
-        label: `${c?.type ?? 'touch'} — ${c?.description ?? ''}`,
-        detail: [c?.interestLevel, c?.outcome].filter(Boolean).join(' · '),
+        label: `${c?.type ?? 'touch'} â€” ${c?.description ?? ''}`,
+        detail: [c?.interestLevel, c?.outcome].filter(Boolean).join(' Â· '),
       });
     }
     return items.sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime());

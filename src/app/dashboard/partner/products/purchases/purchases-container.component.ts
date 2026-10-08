@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+﻿import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { ProductObjectInterface, ProductService } from '../monthly-purchase.service';
@@ -42,7 +42,6 @@ export class PurchaseContainerComponent implements OnInit, OnDestroy {
           if (this.partner) {
             this.productService.getAllOrderBy(this.partner._id).subscribe((cartObject: ProductObjectInterface) => {
               this.cartObject = cartObject.data;
-              //console.log('product ',cartObject)
             })
           }
         }

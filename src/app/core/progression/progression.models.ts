@@ -11,6 +11,16 @@ export interface Promotion {
   to: string;
 }
 
+export interface JourneyForecast {
+  remaining: number;
+  pacePer30d: number | null;
+  weeksOut: number | null;
+  etaDate: string | null;
+  stalled: boolean;
+  basis: string;
+  label: string;
+}
+
 export interface Journey {
   level: string;
   levelLabel: string;
@@ -23,6 +33,7 @@ export interface Journey {
   milestones: Record<string, unknown>;
   signals: { recruits: number; activeDownline: number; maintenanceOk: boolean };
   promoted: Promotion | null;
+  forecast?: JourneyForecast | null;
 }
 
 export interface JourneyEnvelope extends ApiEnvelope<Journey> {
@@ -77,8 +88,8 @@ export const TRAINING_CONFIRM_KEYS = ['ipo', 'qsg', 'smo'];
 
 export const TRAINING_KEY_LABELS: Record<string, string> = { ipo: 'IPO', qsg: 'QSG', smo: 'SMO' };
 
-/** All upline-confirmed legs — training plus trust legs (office/full-time/onboarding). */
-export const CONFIRMABLE_KEYS = ['ipo', 'qsg', 'smo', 'fullTime', 'office', 'onboardingSession'];
+/** All upline-confirmed legs — training plus trust legs (office/full-time/onboarding/DTC). */
+export const CONFIRMABLE_KEYS = ['ipo', 'qsg', 'smo', 'fullTime', 'office', 'onboardingSession', 'accounts', 'maintenance'];
 
 export const CONFIRM_KEY_LABELS: Record<string, string> = {
   ipo: 'IPO',
@@ -87,6 +98,8 @@ export const CONFIRM_KEY_LABELS: Record<string, string> = {
   fullTime: 'Full-time',
   office: 'Office',
   onboardingSession: 'Onboarding session',
+  accounts: 'DTC accounts',
+  maintenance: 'Monthly maintenance',
 };
 
 export interface Oversight {

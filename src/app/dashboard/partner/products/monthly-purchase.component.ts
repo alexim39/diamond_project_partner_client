@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -118,7 +118,6 @@ export class MonthlyPurchaseComponent implements OnDestroy {
       // Example: navigate to a checkout component
       this.router.navigate(['dashboard/checkout']);
     } else {
-      //console.log('Cart is empty.');
       Swal.fire({
         position: "bottom",
         icon: 'info',

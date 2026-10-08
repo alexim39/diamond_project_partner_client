@@ -42,7 +42,7 @@ template: `
             <mat-form-field appearance="outline">
                 <mat-label>Write Email</mat-label>
                 <textarea matInput class="custom-textarea" [(ngModel)]="emailBody"></textarea>
-                <mat-hint align="start" style="color: orange"><strong>Write Email to prospect email address (Don't forget to include your link)</strong> </mat-hint>
+                <mat-hint align="start" class="hint-warn"><strong>Write Email to prospect email address (Don't forget to include your link)</strong> </mat-hint>
             </mat-form-field>
             
             <div style="display: flex; justify-content: center; align-items: center; margin-top: 2em">
@@ -55,27 +55,28 @@ template: `
 `,
 styles: `
 
+.hint-warn { color: var(--dp-warning); }
 .list {
     margin-bottom: 1em;
     h5 {
-        color: gray
+        color: var(--dp-text);
     }
     .data {
         font-weight: bold;
-        .custom-textarea {  
+        .custom-textarea {
             min-width: min(500px, 100%);
-            min-height: 300px; 
+            min-height: 300px;
         }
     }
     .info {
-        color: gray;
+        color: var(--dp-muted);
         font-size: 0.9em;
         margin-top: 0.5em;
         margin-bottom: 0.5em;
     }
     .wrap {
         word-wrap: break-word;
-        max-width: 10px !important; /* Adjust as needed */
+        max-width: 100%;
     }
     .copy-link {
        // background-color: gray;

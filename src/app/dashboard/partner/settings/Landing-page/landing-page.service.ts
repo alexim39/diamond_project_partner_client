@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -46,7 +46,6 @@ export class LandingPageService {
 
 
   updateTestimonial(updateObject: {testimonial: string; partnerId: string}): Observable<ProfileInterface> {
-    //console.log('form record', updateObject);
     return this.http
       .put<ProfileInterface>(this.apiURL + `/partners/testimonial`, updateObject, { withCredentials: true })
       .pipe(retry(1), catchError(this.handleError));

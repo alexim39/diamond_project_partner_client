@@ -243,6 +243,7 @@ const PRIORITY_META: Record<ActionPriority, { label: string; color: string; text
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .source-note { margin: -0.5em 0 0; }
     .exports { display: flex; gap: 0.25em; flex-wrap: wrap; align-items: center; }
+    .exports button, .action-item a { min-height: 44px; }
     .goals-strip { margin: 0; }
     .goals-strip a { text-decoration: none; font-weight: 600; }
     .behind { color: var(--dp-error); }

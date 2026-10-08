@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -67,7 +67,7 @@ export class EmailDetailDialogComponent implements OnDestroy, OnInit {
     subscriptions: Array<Subscription> = [];
     readonly dialogRef = inject(MatDialogRef<EmailDetailDialogComponent>);
 
-    // Angular sanitizes [innerHTML] by default — no bypass (stored-XSS safe).
+    // Angular sanitizes [innerHTML] by default â€” no bypass (stored-XSS safe).
     safeHtmlEmailBody = '';
 
     constructor(
@@ -75,7 +75,6 @@ export class EmailDetailDialogComponent implements OnDestroy, OnInit {
     ) { }
 
     ngOnInit(): void {
-        //console.log(this.data)
         this.safeHtmlEmailBody = String(this.data?.emailBody ?? '');
     }
 

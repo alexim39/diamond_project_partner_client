@@ -1,4 +1,4 @@
-
+﻿
 import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -42,7 +42,6 @@ export class CampaignAnalyticsContainerComponent implements OnInit, OnDestroy {
           if (this.partner) {
             this.prospectService.getProspectFor(this.partner._id).subscribe((prospectContact: ProspectListInterface) => {
               //this.prospectList = prospectContact;
-              //console.log('prospectContact ',prospectContact)
               ///console.log('partner ',this.partner)
             })
           }

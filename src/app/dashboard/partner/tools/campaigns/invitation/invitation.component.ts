@@ -106,7 +106,7 @@ export class InvitationComponent implements OnInit {
 
   protected personalLink(): string {
     const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://diamondproject.c21fg.online';
-    return `${String(base).replace(/\/+$/, '')}/${this.partner?.username ?? ''}`;
+    return `${String(base).replace(/\/+$/, '')}/${String(this.partner?.username ?? '').toLowerCase()}`;
   }
 
   protected copyLink(): void {
@@ -118,7 +118,7 @@ export class InvitationComponent implements OnInit {
   }
 
   sendWhatsAppInvitation() {
-    const message = encodeURIComponent(`Hi friend, I started an online business that is giving me passive income. if it's something you want to try visit this link ${this.personalLink()}`);
+    const message = encodeURIComponent(`Hi friend, I started an online business with Diamond Project and it is going well. If it is something you want to look at, visit this link ${this.personalLink()}`);
     const whatsappUrl = `https://wa.me/?text=${message}`;
     window.open(whatsappUrl, '_blank');
   }

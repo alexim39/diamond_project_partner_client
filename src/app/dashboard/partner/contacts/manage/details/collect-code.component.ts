@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import {Component, inject, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
@@ -61,7 +61,7 @@ export class CollectCodeComponent implements OnDestroy {
     private partnerService: PartnerService
   ) {
     this.code = ''; // Default value or nothing 
-    // Current signed-in partner (dashboard-level shared subject — replays
+    // Current signed-in partner (dashboard-level shared subject â€” replays
     // latest, so this resolves even though the dialog opens late). Used
     // only for by/byName attribution on the conversion record.
     this.partnerSubscription = this.partnerService.getSharedPartnerData$.subscribe({
@@ -77,7 +77,6 @@ export class CollectCodeComponent implements OnDestroy {
 
   submitCode(): void {
 
-    //console.log(this.code)
     const codeData: codeData  = {
       partnerId: this.data.partnerId,
       prospectId: this.data._id,
@@ -107,11 +106,10 @@ export class CollectCodeComponent implements OnDestroy {
           : {}),
       }).subscribe((res: any) => {
         const recordedCode: string = res?.data?.code ?? codeData.code;
-        //console.log('prospectContact ',res)
         Swal.fire({
           position: "bottom",
           icon: 'success',
-          text: `Reservation code ${recordedCode} recorded for ${capitalizeFirstLetter(this.data.prospectSurname)} ${capitalizeFirstLetter(this.data.prospectName)} — share it with them to complete signup.`,
+          text: `Reservation code ${recordedCode} recorded for ${capitalizeFirstLetter(this.data.prospectSurname)} ${capitalizeFirstLetter(this.data.prospectName)} â€” share it with them to complete signup.`,
           showConfirmButton: true,
           confirmButtonColor: "#ffab40",
           timer: 15000,
@@ -163,7 +161,7 @@ export class CollectCodeComponent implements OnDestroy {
 
 
   ngOnDestroy(): void {
-    // unsubscribe list (guarded — dialog may close without submitting)
+    // unsubscribe list (guarded â€” dialog may close without submitting)
    // this.subscriptions.forEach(subscription => {
       this.subscription?.unsubscribe();
       this.partnerSubscription?.unsubscribe();

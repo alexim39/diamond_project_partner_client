@@ -17,7 +17,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
  * @title Partner password reset
  */
 @Component({
-selector: 'async-partner-signin',
+selector: 'async-partner-forgot-password',
 providers: [PartnerAuthService],
 imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule, ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule, RouterModule],
   template: `
@@ -28,24 +28,26 @@ imports: [MatButtonModule, MatDividerModule, MatProgressBarModule, MatIconModule
     <p class="eyebrow">Diamond Project · Partners</p>
     <h1>Reset password</h1>
     <p class="sub">Enter your account email — if it exists, a reset link is on its way (expires in 60 minutes).</p>
-    <form [formGroup]="signInForm" (submit)="onSubmit()">
+    <form [formGroup]="signInForm" (ngSubmit)="onSubmit()">
 
       <mat-form-field appearance="outline">
         <mat-label>Email address</mat-label>
         <input matInput type="email" formControlName="email" autocomplete="email">
-        @if (signInForm.get('email')?.hasError('email') ) {
+        @if (signInForm.get('email')?.hasError('email') && signInForm.get('email')?.touched) {
           <mat-error>
             Email is invalid
           </mat-error>
         }
-        @if (signInForm.get('email')?.hasError('required') ) {
+        @if (signInForm.get('email')?.hasError('required') && signInForm.get('email')?.touched) {
           <mat-error>
             Email is required
           </mat-error>
         }
       </mat-form-field>
 
-      <button mat-flat-button color="primary">Send reset link</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="sending">
+        {{ sending ? 'Sending…' : 'Send reset link' }}
+      </button>
 
     </form>
 
@@ -124,6 +126,7 @@ export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
 
   signInForm: FormGroup = new FormGroup({}); // Assigning a default value
   subscriptions: Array<Subscription> = [];
+  sending = false;
 
   constructor(
     private router: Router,
@@ -142,12 +145,14 @@ export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
     // Mark all form controls as touched to trigger the display of error messages
     this.markAllAsTouched();
 
-    if (this.signInForm.valid) {
+    if (this.signInForm.valid && !this.sending) {
       // v1 request — always 200 (anti-enumeration)
      const formData: PartnerSignInInterface = this.signInForm.value;
+      this.sending = true;
       this.subscriptions.push(
         this.partnerSignInService.resetPassword(formData).subscribe({
           next: (res: any) => {
+            this.sending = false;
             Swal.fire({
               position: 'bottom',
               icon: 'success',
@@ -163,6 +168,7 @@ export class PartnerForgotPasswordComponent implements OnInit, OnDestroy {
 
 
           error: (error: any) => {
+            this.sending = false;
             const serverMessage: string | undefined = error?.error?.message;
             Swal.fire({
               position: 'bottom',

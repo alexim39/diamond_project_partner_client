@@ -1,4 +1,4 @@
-
+﻿
 import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -66,7 +66,7 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
     subscriptions: Array<Subscription> = [];
     readonly dialogRef = inject(MatDialogRef<SMSDetailDialogComponent>);
 
-    // Angular sanitizes [innerHTML] by default — no bypass (stored-XSS safe).
+    // Angular sanitizes [innerHTML] by default â€” no bypass (stored-XSS safe).
     safeHtmlSmsBody = '';
 
     constructor(
@@ -74,7 +74,6 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
     ) { }
 
     ngOnInit(): void {
-        //console.log(this.data)
         this.safeHtmlSmsBody = String(this.data?.smsBody ?? '');
     }
 
@@ -103,7 +102,6 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
 
                 this.subscriptions.push(
                     this.sms.deleteSingleSMS(smsId).subscribe((res: any) => {
-                        //console.log(res)
                         Swal.fire({
                             position: "bottom",
                             icon: 'success',
@@ -120,7 +118,6 @@ export class SMSDetailDialogComponent implements OnDestroy, OnInit {
                         });
 
                     }, (error: any) => {
-                        //console.log(error)
                         Swal.fire({
                             position: "bottom",
                             icon: 'info',

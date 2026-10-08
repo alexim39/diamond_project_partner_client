@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -45,7 +45,6 @@ export class ManageCampaignDetailComponent implements OnInit {
 
   
   ngOnInit(): void { 
-    //console.log(this.campaignData)
     if (this.campaign.data) {
       this.campaignData = this.campaign.data;
       
@@ -102,7 +101,7 @@ export class ManageCampaignDetailComponent implements OnInit {
   targetSummary(): string {
     const targets = this.campaignData?.targetAudience?.locationTargets;
     if (Array.isArray(targets) && targets.length > 0) return targets.join(', ');
-    return String(this.campaignData?.targetAudience?.locationTarget ?? '—');
+    return String(this.campaignData?.targetAudience?.locationTarget ?? 'â€”');
   }
 
   private separateCamelCase(input: string): string {

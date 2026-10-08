@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -54,7 +54,7 @@ import { Router } from '@angular/router';
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       strong {
-        color: #ffab40;
+        color: var(--dp-gold);
         margin: 1em;
         padding: 1em;
       }
@@ -64,7 +64,7 @@ import { Router } from '@angular/router';
       padding: 16px 20px;
       text-align: center;
       div {
-        color: gray;
+        color: var(--dp-muted);
         cursor: pointer;
         font-size: 0.9em;
         margin-top: 0.5em;
@@ -75,13 +75,13 @@ import { Router } from '@angular/router';
       margin: 0;
       font-size: 1.15rem;
       font-weight: 600;
-      color: #212121;
+      color: var(--dp-text);
     }
 
     .notification-list__divider {
       margin: 0;
       //padding-top: 0.5em;
-      color: gray;
+      color: var(--dp-muted);
     }
 
     .notification-item {
@@ -100,13 +100,13 @@ import { Router } from '@angular/router';
     }
 
     .notification-item:hover {
-      background-color: #f5f5f5;
+      background-color: var(--dp-paper);
       border-radius: 10px;
     }
 
     .notification-item--urgent {
-      background-color: #ffebee;
-      border-left: 1px solid #c62828;
+      background-color: var(--dp-error-bg);
+      border-left: 1px solid var(--dp-error);
     }
 
     .notification-item__icon {
@@ -118,7 +118,7 @@ import { Router } from '@angular/router';
       font-size: 22px;
       height: 22px;
       width: 22px;
-      color: rgba(0, 0, 0, 0.7);
+      color: var(--dp-muted);
     }
 
     .notification-item__content {
@@ -129,25 +129,25 @@ import { Router } from '@angular/router';
       margin: 0 0 6px 0;
       font-size: 1rem;
       font-weight: 500;
-      color: #212121;
+      color: var(--dp-text);
     }
 
     .notification-item--urgent .notification-item__title {
-      color: #b71c1c;
+      color: var(--dp-error);
     }
 
     .notification-item__description {
       font-size: 0.875rem;
       margin: 0;
-      color: #424242;
+      color: var(--dp-text);
       line-height: 1.4;
     }
 
     .notification-item__tag {
       display: inline-block;
       font-size: 0.7rem;
-      color: #1a237e;
-      background-color: #e0e0e0;
+      color: var(--dp-gold-ink);
+      background-color: var(--dp-gold-soft);
       padding: 2px 6px;
       //border-radius: 4px;
       margin-top: 6px;
@@ -180,10 +180,9 @@ export class PushNotificationsComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    // One-shot HTTP — self-completes, no tracking needed.
+    // One-shot HTTP â€” self-completes, no tracking needed.
     this.notifier.getNotifications(this.partner._id).subscribe({
           next: (response) => {
-            //console.log(response)
           if (response.success) {
             this.notifications = response.data;
             this.notifyParent();

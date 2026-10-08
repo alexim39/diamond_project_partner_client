@@ -15,10 +15,9 @@
 
     <div class="title">
       <div class="control">
-        <div class="back" (click)="back()" title="Back">
+        <button mat-icon-button class="back" (click)="back()" title="Back" aria-label="Back">
           <mat-icon>arrow_back</mat-icon>
-        </div>
-        <!-- <button mat-raised-button><mat-icon>download</mat-icon>Download</button> -->
+        </button>
       </div>
 
       <h3>Contact List of {{myPartner.surname | titlecase}} {{myPartner.name | titlecase}}</h3>
@@ -135,7 +134,9 @@
           The actual rendered columns are set as a property on the row definition" -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef> Name </th>
-            <td mat-cell *matCellDef="let element" style="cursor: pointer;" class="bold-text" matTooltip="{{element.prospectRemark}}" [matTooltipShowDelay]="500" [matTooltipHideDelay]="100" (click)="preview(element._id)"> {{element.prospectName | titlecase }} {{element.prospectSurname | titlecase}} </td>
+            <td mat-cell *matCellDef="let element" class="bold-text">
+              <button mat-button matTooltip="{{element.prospectRemark}}" [matTooltipShowDelay]="500" [matTooltipHideDelay]="100" [attr.aria-label]="'Preview ' + element.prospectName + ' ' + element.prospectSurname" (click)="preview(element._id)"> {{element.prospectName | titlecase }} {{element.prospectSurname | titlecase}} </button>
+            </td>
           </ng-container>
           <ng-container matColumnDef="phone">
             <th mat-header-cell *matHeaderCellDef> Phone Number </th>

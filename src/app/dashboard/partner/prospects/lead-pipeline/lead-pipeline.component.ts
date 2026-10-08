@@ -52,7 +52,7 @@ import { forkJoin } from 'rxjs';
           <h2>Lead Pipeline</h2>
           <p class="subtitle">Work your accepted My Page Leads and claimed Buy Prospect leads from first contact to converted partner.</p>
         </div>
-        <mat-button-toggle-group>
+        <mat-button-toggle-group aria-label="Prospect sources">
           <mat-button-toggle routerLink="../personal-list" title="My Page Leads — submissions from your public page">
             <mat-icon>inbox</mat-icon> My Page Leads
           </mat-button-toggle>
@@ -83,6 +83,7 @@ import { forkJoin } from 'rxjs';
           <button
             class="stage-card"
             [class.active]="stageFilter() === entry.stage"
+            [attr.aria-pressed]="stageFilter() === entry.stage"
             (click)="toggleStageFilter(entry.stage)"
             [style.--chip-bg]="entry.meta.color"
             [style.--chip-fg]="entry.meta.text"

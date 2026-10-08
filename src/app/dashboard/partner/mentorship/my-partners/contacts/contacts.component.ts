@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -179,7 +179,6 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
 
   // Method to handle the change in font style selection  
   onExportControlChange(selectedValue: string): void {  
-    //console.log('Selected Font Style:', selectedValue);  
     // You can add logic here based on the selected value  
     switch (selectedValue) {  
       case 'contacts':  
@@ -254,7 +253,6 @@ export class MyPartnersContactsComponent implements OnInit, OnDestroy, AfterView
   }
 
   getTotalOnlineContacts(): number {
-    //console.log(this.dataSource.data)
     return this.dataSource.data.filter(contact => contact.prospectSource === 'Unique Link').length;
   }
 

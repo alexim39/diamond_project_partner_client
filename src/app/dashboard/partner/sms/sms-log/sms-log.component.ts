@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, inject, Input, OnDestroy, OnInit, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -66,7 +66,7 @@ template: `
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
           <ng-container matColumnDef="reference">
             <th mat-header-cell *matHeaderCellDef> Reference </th>
-            <td mat-cell *matCellDef="let element"> {{ element.transaction?.reference ?? '—' }} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.transaction?.reference ?? 'â€”' }} </td>
           </ng-container>
           <ng-container matColumnDef="message">
             <th mat-header-cell *matHeaderCellDef> Message </th>
@@ -78,7 +78,7 @@ template: `
           </ng-container>
           <ng-container matColumnDef="cost">
             <th mat-header-cell *matHeaderCellDef> Cost </th>
-            <td mat-cell *matCellDef="let element"> {{ element.transaction ? (element.transaction.amount | currency:'₦':'symbol':'1.2-2') : '—' }} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.transaction ? (element.transaction.amount | currency:'â‚¦':'symbol':'1.2-2') : 'â€”' }} </td>
           </ng-container>
           <ng-container matColumnDef="pages">
             <th mat-header-cell *matHeaderCellDef> Pages </th>
@@ -107,7 +107,7 @@ template: `
     @if (isEmptyRecord) {
       <div class="empty-card">
         <mat-icon>sms</mat-icon>
-        <p>No SMS sent yet — compose your first bulk message.</p>
+        <p>No SMS sent yet â€” compose your first bulk message.</p>
         <a mat-button routerLink="../../sms/new">Send SMS</a>
       </div>
     }
@@ -292,7 +292,7 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
     }, 0);
   }
 
-  /** Provider delivery rollup (x delivered · y failed) once reports land. */
+  /** Provider delivery rollup (x delivered Â· y failed) once reports land. */
   deliverySummary(row: any): string | null {
     const delivery = row?.delivery;
     if (!delivery || typeof delivery !== 'object') return null;
@@ -304,7 +304,7 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
     const bits = [`${delivered}/${states.length} delivered`];
     if (failed > 0) bits.push(`${failed} failed`);
     if (pending > 0) bits.push(`${pending} pending`);
-    return bits.join(' · ');
+    return bits.join(' Â· ');
   }
 
   filterSMS(): void {
@@ -328,7 +328,6 @@ export class SMSLogComponent implements OnInit, OnDestroy, AfterViewInit  {
   }
 
   openSMSDetailDialog(smsRecord: any) {
-    //console.log(smsRecord)
     this.dialog.open(SMSDetailDialogComponent, {
       data: smsRecord
     });

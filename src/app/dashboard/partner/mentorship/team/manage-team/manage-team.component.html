@@ -34,9 +34,9 @@
           <input matInput type="search" [(ngModel)]="filterText" placeholder="Name or purpose" />
         </mat-form-field>
         <div class="filter-row" role="radiogroup" aria-label="Purpose filter">
-          <button type="button" class="filter-btn" [class.filter-btn--active]="purposeFilter === 'all'" (click)="purposeFilter = 'all'">All</button>
+          <button type="button" class="filter-btn" [class.filter-btn--active]="purposeFilter === 'all'" [attr.aria-pressed]="purposeFilter === 'all'" (click)="purposeFilter = 'all'">All</button>
           @for (c of clusterNames; track c) {
-            <button type="button" class="filter-btn" [class.filter-btn--active]="purposeFilter === c" (click)="purposeFilter = c">{{ c }}</button>
+            <button type="button" class="filter-btn" [class.filter-btn--active]="purposeFilter === c" [attr.aria-pressed]="purposeFilter === c" (click)="purposeFilter = c">{{ c }}</button>
           }
         </div>
       </div>
@@ -46,7 +46,9 @@
         <table mat-table [dataSource]="ownedTeams()" class="mat-elevation-z8">
           <ng-container matColumnDef="team">
             <th mat-header-cell *matHeaderCellDef> Team </th>
-            <td mat-cell *matCellDef="let element" matTooltip="{{element.description}}" style="cursor: pointer; font-size: 1em; font-weight: bold;" (click)="manage(element._id)"> {{element.teamName | titlecase }} </td>
+            <td mat-cell *matCellDef="let element">
+              <button mat-button class="name-cell" matTooltip="{{element.description}}" [attr.aria-label]="'Manage ' + element.teamName" (click)="manage(element._id)"> {{element.teamName | titlecase }} </button>
+            </td>
           </ng-container>
           <ng-container matColumnDef="purpose">
             <th mat-header-cell *matHeaderCellDef> Purpose </th>
@@ -80,7 +82,9 @@
         <table mat-table [dataSource]="memberTeams()" class="mat-elevation-z8">
           <ng-container matColumnDef="team">
             <th mat-header-cell *matHeaderCellDef> Team </th>
-            <td mat-cell *matCellDef="let element" matTooltip="{{element.description}}" style="cursor: pointer; font-size: 1em; font-weight: bold;" (click)="manage(element._id)"> {{element.teamName | titlecase }} </td>
+            <td mat-cell *matCellDef="let element">
+              <button mat-button class="name-cell" matTooltip="{{element.description}}" [attr.aria-label]="'Manage ' + element.teamName" (click)="manage(element._id)"> {{element.teamName | titlecase }} </button>
+            </td>
           </ng-container>
           <ng-container matColumnDef="purpose">
             <th mat-header-cell *matHeaderCellDef> Purpose </th>

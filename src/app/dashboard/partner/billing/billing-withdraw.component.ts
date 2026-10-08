@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,7 +40,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
   max-width: 500px;
   margin: 0 auto;
   padding: 10px 20px;
-  background-color: #f4f4f4;
+  background-color: var(--dp-surface);
+  border: 1px solid var(--dp-line);
   border-radius: 8px;
 }
 
@@ -61,17 +62,20 @@ form input, form select {
   margin-top: 5px;
   margin-bottom: 10px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--dp-line);
+  background-color: var(--dp-surface);
+  color: var(--dp-text);
 }
 
-form input, {
-  width: 95% !important;
+form input {
+  width: 95%;
 }
 
 button {
   width: 100%;
+  min-height: 44px;
   padding: 10px;
-  background-color: #28a745;
+  background-color: var(--dp-success);
   color: white;
   border: none;
   border-radius: 4px;
@@ -79,7 +83,7 @@ button {
 }
 
 button[disabled] {
-  background-color: #aaa;
+  background-color: var(--dp-muted);
 }
 
 
@@ -199,7 +203,7 @@ export class BillingWithdrawComponent implements OnInit {
     this.getBanks();
   }
 
-  // Fetch list of banks (public Paystack directory — no secret required).
+  // Fetch list of banks (public Paystack directory â€” no secret required).
   getBanks() {
     this.http.get('https://api.paystack.co/bank').subscribe((response: any) => {
       this.banks = response.data; // Paystack API response for banks
@@ -213,7 +217,7 @@ export class BillingWithdrawComponent implements OnInit {
     if (accountNumber && bankCode) {
       this.loading = true;
 
-      // Resolved through the backend proxy — the Paystack secret key
+      // Resolved through the backend proxy â€” the Paystack secret key
       // must never ship to clients (see PaystackService.resolveAccount).
       this.paymentService.resolveAccount(accountNumber, bankCode)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -245,14 +249,12 @@ export class BillingWithdrawComponent implements OnInit {
       formData.bankName = this.selectedBankName;
 
       // Proceed with withdrawal logic
-      //console.log('Withdrawal request:', formData);
 
 
       this.paymentService.withdrawRequest(formData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: res => {
-          //console.log('Payment successful and balance updated!',res);
 
            Swal.fire({
                position: "bottom",

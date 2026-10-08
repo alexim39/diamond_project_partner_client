@@ -1,4 +1,4 @@
-
+﻿
 import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -30,7 +30,7 @@ export class CellMettingContainerComponent implements OnInit {
 
   ngOnInit() {
 
-    // get current signed in user (shared subject — tracked)
+    // get current signed in user (shared subject â€” tracked)
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(
@@ -38,10 +38,8 @@ export class CellMettingContainerComponent implements OnInit {
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
           if (this.partner) {
-            //console.log('=',this.partner)
            /*  this.campaignService.getCampaignCreatedBy(this.partner._id).subscribe((campaigns: CampaignInterface) => {
               this.campaigns = campaigns;
-              //console.log('campaign ',campaigns)
             }) */
           }
         },

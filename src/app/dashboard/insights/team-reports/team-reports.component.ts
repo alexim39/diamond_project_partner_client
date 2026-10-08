@@ -239,7 +239,8 @@ const toInputDate = (d: Date): string => d.toISOString().slice(0, 10);
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
-    .head-actions { display: flex; gap: 0.25em; }
+    .head-actions { display: flex; gap: 0.25em; flex-wrap: wrap; }
+    .head-actions a, .head-actions button { min-height: 44px; }
     .card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6em; }
     .card { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.35em; }
     .card p { margin: 0; }

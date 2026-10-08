@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+﻿import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 
 import { PartnerInterface, PartnerService } from '../../../../../_common/services/partner.service';
 import { Subscription } from 'rxjs';
@@ -43,7 +43,6 @@ export class ManageTeamContainerComponent implements OnInit, OnDestroy {
             // all teams where partner is either creator or member
             this.teamService.getAllTeamsCreatedOrMember(this.partner._id).subscribe((teams: any) => {
               this.teams = teams.data;
-              //console.log('teams ',teams) 
             })
           }
         }

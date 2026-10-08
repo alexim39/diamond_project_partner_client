@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../../_common/services/partner.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -265,7 +265,6 @@ export class PushNotificationListComponent implements OnDestroy {
     }
 
     closeNotification(notification: PushNotificationInterface) {
-      //console.log('Close notification:', notification);
 
         Swal.fire({
         title: "Confirm marking notification as completed",

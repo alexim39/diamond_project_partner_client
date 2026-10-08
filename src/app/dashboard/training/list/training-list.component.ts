@@ -52,6 +52,10 @@ import { ApiError } from '../../../core/http/api-error';
         </p>
       }
 
+      @if (courses().length === 0 && !loading() && !error()) {
+        <p class="empty">No courses available right now — check back soon.</p>
+      }
+
       @if (courses().length > 0) {
         <div class="course-grid">
           @for (course of courses(); track course.id) {
@@ -110,7 +114,9 @@ import { ApiError } from '../../../core/http/api-error';
     .course-card p { margin: 0; }
     .course-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; }
     .course-top mat-chip mat-icon { font-size: 16px; height: 16px; width: 16px; }
-    .course-foot { display: flex; justify-content: space-between; align-items: center; }
+    .course-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4em; }
+    .course-foot a, .cert button, .page-head a, .error button { min-height: 44px; }
+    .empty { color: var(--dp-muted); }
     .cert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
     .cert { display: flex; gap: 0.7em; align-items: center; padding: 0.7em 1em; }
     .cert .spacer { flex: 1; }

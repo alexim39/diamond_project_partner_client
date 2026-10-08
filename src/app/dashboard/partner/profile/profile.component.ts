@@ -1,139 +1,105 @@
-import {Component, Input, OnChanges, OnInit, ChangeDetectionStrategy, SimpleChanges} from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
+﻿import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { PartnerInterface } from '../../../_common/services/partner.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 /**
- * @title Profile — sidenav identity card.
- * Photo resolves both storage generations (absolute Cloudinary URLs and
- * legacy `/uploads/` filenames) via the shared avatar; members without
- * social pages simply show no icon (never a stranger's profile).
+ * @title Profile — sidenav identity header.
+ * Compact avatar + name + handle with a profile-completeness nudge.
+ * Lives in a plain auto-height wrapper (never inside a fixed-height
+ * toolbar) so the avatar always renders at natural size.
  */
 @Component({
 selector: 'async-profile',
 template: `
 
-<div class="card">
-  <async-avatar [photo]="partner?.profileImage" [name]="displayName()" size="md" />
-  <div class="name">{{partner.name | titlecase}} {{partner.surname | titlecase}}</div>
-  <div class="title">&#64;{{partner.username | lowercase}}</div>
-  <!-- <div class="title">090 6365 8652</div> -->
-  <div class="social">
-    <!-- <a href="#"><i class="fa fa-dribbble"></i></a>  -->
-    @if (twitter) {
-      <a [href]="twitter" target="_blank" rel="noopener"><i class="fa fa-twitter"></i></a>
+<div class="identity">
+  <async-avatar [photo]="partner?.profileImage" [name]="displayName()" size="lg" />
+  <div class="who">
+    @if (hasName()) {
+      <div class="name">{{ partner?.name | titlecase }} {{ partner?.surname | titlecase }}</div>
+    } @else {
+      <div class="name">{{ partner?.username }}</div>
     }
-    @if (linkedin) {
-      <a [href]="linkedin" target="_blank" rel="noopener"><i class="fa fa-linkedin"></i></a>
-    }
-    @if (facebook) {
-      <a [href]="facebook" target="_blank" rel="noopener"><i class="fa fa-facebook"></i></a>
+    <div class="handle">@{{ partner?.username | lowercase }}</div>
+    @if (!profileComplete()) {
+      <a class="nudge" routerLink="/dashboard/settings/profiles" title="Add your phone number and location so your upline and prospects can reach you">Complete profile</a>
     }
   </div>
-  <button (click)="submitTicket()" mat-button>Contact</button>
 </div>
 
 `,
 styles: [`
 
-.card {
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.85em;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.9em 0.8em;
+}
+.who {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  min-width: 0;
+  flex: 1;
+}
+.name {
+  font-size: 1em;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.handle {
+  font-size: 0.82em;
+  color: var(--dp-sidenav-text);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nudge {
+  font-size: 0.8em;
+  font-weight: 700;
+  color: var(--dp-nav-icon);
+  text-decoration: none;
+  margin-top: 0.3em;
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
   align-items: center;
-  margin: 10em 0 -1em 0.5em;
-  border-bottom: 1px solid #e4e4e4;
-  padding-bottom: 0.5em;
-  //background-color: red;
-  width: 100%;
-  .name {
-    font-size: 0.9em;
-    font-weight: 600;
-    margin-top: 0.4em;
-  }
-  .title {
-    font-size: 0.8em;
-    color: var(--dp-sidenav-text);
-    opacity: 0.75;
-    //margin-top: 0.8em;
-  }
-  .social {
-    a {
-      margin-right: 1em;
-      font-size: small;
-      color: var(--dp-sidenav-text);
-      opacity: 0.8;
-      cursor: pointer;
-      .fa-linkedin {
-        //color: #0077B5;
-      }
-      .fa-linkedin:hover {
-       // opacity: 0.5;
-       color: #0077B5;
-      }
-      .fa-facebook {
-        //color: #1877F2;
-      }
-      .fa-facebook:hover {
-        //opacity: 0.5;
-       color: #1877F2;
-      }
-      .fa-twitter {
-        //color: #1DA1F2;
-      }
-      .fa-twitter:hover {
-        //opacity: 0.5;
-       color: #1DA1F2;
-      }
-    }
-    a:last-child {
-      margin-right: 0;
-    }
-  }
+}
+.nudge:hover {
+  text-decoration: underline;
 }
 
 `],
 changeDetection: ChangeDetectionStrategy.OnPush,
-imports: [MatButtonModule, CommonModule, AvatarComponent]
+imports: [CommonModule, AvatarComponent, RouterModule]
 })
-export class ProfileComponent implements OnInit, OnChanges {
-  constructor(
-      private router: Router
-  ){}
-
+export class ProfileComponent {
   @Input() partner!: PartnerInterface;
-
-  twitter = ''
-  linkedin = ''
-  facebook = ''
-
-  ngOnInit() {
-    this.deriveFromPartner();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    // OnPush-safe: re-derive when the shell hands us a new partner object.
-    if (changes['partner']) this.deriveFromPartner();
-  }
 
   protected displayName(): string {
     if (!this.partner) return '';
     return `${this.partner.name ?? ''} ${this.partner.surname ?? ''}`.trim() || this.partner.username || '';
   }
 
-  private deriveFromPartner() {
-    //console.log(this.partner)
-    if (!this.partner) return;
-
-    // No personal-ID fallback: members without a page show no icon.
-    this.facebook = this.partner?.facebookPage || '';
-    this.twitter = this.partner?.twitterPage || '';
-    this.linkedin = this.partner?.linkedinPage || '';
+  protected hasName(): boolean {
+    return String(this.partner?.name ?? '').trim().length > 0
+      || String(this.partner?.surname ?? '').trim().length > 0;
   }
 
-  submitTicket() {
-    this.router.navigate(['/dashboard/support/ticket'])
+  /** Same rule as the Home banner: phone + street/city/state. */
+  protected profileComplete(): boolean {
+    const p = (this.partner ?? {}) as Partial<PartnerInterface> & {
+      phone?: unknown; address?: { street?: unknown; city?: unknown; state?: unknown };
+    };
+    const filled = (v: unknown): boolean => String(v ?? '').trim().length > 0;
+    return filled(p.phone)
+      && filled(p.address?.street) && filled(p.address?.city) && filled(p.address?.state);
   }
 }

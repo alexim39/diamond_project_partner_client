@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
+﻿import {Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { CommunicationInterface, ContactsInterface, ContactsService } from '../../../contacts.service';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
@@ -73,7 +73,7 @@ template: `
           <!-- Initial Stage: New Contact -->
           <mat-optgroup label="Initial Contact">
             <mat-option value="New Prospect">New Prospect</mat-option>
-            <mat-option value="Contacted - No Response">Contacted – No Response</mat-option>
+            <mat-option value="Contacted - No Response">Contacted â€“ No Response</mat-option>
             <mat-option value="Intro Call Completed">Intro Call Completed</mat-option>
           </mat-optgroup>
 
@@ -288,12 +288,14 @@ template: `
                   <mat-card-subtitle>
                     Interest Level: {{ communication.interestLevel | titlecase }}
                   </mat-card-subtitle>
-                  <mat-icon
+                  <button
+                    mat-icon-button
                     class="delete-icon"
                     (click)="deleteCommunication(communication._id)"
-                    matTooltip="Delete Communication">
-                    delete
-                  </mat-icon>
+                    matTooltip="Delete Communication"
+                    aria-label="Delete communication">
+                    <mat-icon aria-hidden="true">delete</mat-icon>
+                  </button>
                 </mat-card-header>
                 <mat-card-content>
                   <p><strong>Description:</strong> {{ communication.description }}</p>
@@ -333,10 +335,10 @@ template: `
               <mat-card>
                 <mat-card-header>
                   <mat-card-title>
-                    {{ entry.from ?? '—' }} &rarr; {{ entry.to ?? '—' }}
+                    {{ entry.from ?? 'â€”' }} &rarr; {{ entry.to ?? 'â€”' }}
                   </mat-card-title>
                   <mat-card-subtitle>
-                    {{ entry.at | date:'mediumDate' }}@if (entry.byName ?? entry.by) { · by {{ entry.byName ?? entry.by }} }
+                    {{ entry.at | date:'mediumDate' }}@if (entry.byName ?? entry.by) { Â· by {{ entry.byName ?? entry.by }} }
                   </mat-card-subtitle>
                 </mat-card-header>
               </mat-card>
@@ -369,7 +371,7 @@ styles: `
   margin-bottom: 1.5em;
 
   h5 {
-    color: #555; // Slightly darker gray for better readability
+    color: var(--dp-text);
     font-size: 1.2em;
     font-weight: bold;
     margin-bottom: 0.5em;
@@ -377,7 +379,7 @@ styles: `
 
   .data {
     font-weight: bold;
-    color: #333; // Darker text for emphasis
+    color: var(--dp-text);
     font-size: 1em;
 
     .custom-textarea {
@@ -387,12 +389,12 @@ styles: `
   }
 
   .sub-data {
-    color: gray;
+    color: var(--dp-muted);
     margin-top: 0.5em;
   }
 
   .info {
-    color: #777; // Subtle gray for additional info
+    color: var(--dp-muted);
     font-size: 0.9em;
     margin: 0.5em 0;
   }
@@ -412,15 +414,14 @@ styles: `
     }
 
     mat-icon {
-      cursor: pointer;
-      color: #ffab40; // Highlight color for icons
+      color: var(--dp-gold);
     }
   }
 }
 
 .no-communiction {
   p {
-    color: orange;
+    color: var(--dp-warning);
     font-size: 0.8em;
   }
 }
@@ -431,7 +432,8 @@ styles: `
   flex-direction: column;
   gap: 20px; // Add spacing between form fields
   padding: 20px;
-  background-color: #ffffff; // White background for contrast
+  background-color: var(--dp-surface);
+  border: 1px solid var(--dp-line);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
@@ -440,15 +442,15 @@ styles: `
   }
 
   .interest-level {
-    background-color: #f9f9f9; // Subtle background for the radio group
+    background-color: var(--dp-paper);
     padding: 15px;
-    border: 1px solid #e0e0e0; // Light border for separation
+    border: 1px solid var(--dp-line);
     border-radius: 8px;
 
     h4 {
       margin-bottom: 10px;
       font-size: 1.1em;
-      color: #333; // Darker text for better readability
+      color: var(--dp-text);
     }
 
     mat-radio-group {
@@ -459,7 +461,7 @@ styles: `
 
     mat-radio-button {
       font-size: 0.9em;
-      color: #555; // Slightly lighter text for radio buttons
+      color: var(--dp-text);
     }
   }
 
@@ -470,13 +472,14 @@ styles: `
 
     button {
       width: 200px;
+      min-height: 44px;
       font-size: 1em;
       font-weight: bold;
-      background-color: #ffab40; // Highlight color for the button
+      background-color: var(--dp-gold);
       color: #fff;
 
       &:hover {
-        background-color: #ff9100; // Darker shade on hover
+        background-color: var(--dp-gold-ink);
       }
     }
   }
@@ -487,24 +490,25 @@ styles: `
   margin-bottom: 20px;
 
   mat-card {
-    background-color: #ffffff; // White background for the card
+    background-color: var(--dp-surface);
+    border: 1px solid var(--dp-line);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 15px;
 
     mat-card-header {
-      border-bottom: 1px solid #e0e0e0; // Light border for separation
+      border-bottom: 1px solid var(--dp-line);
       margin-bottom: 10px;
 
       mat-card-title {
         font-size: 1.2em;
         font-weight: bold;
-        color: #333; // Darker text for titles
+        color: var(--dp-text);
       }
 
       mat-card-subtitle {
         font-size: 0.9em;
-        color: #777; // Subtle gray for subtitles
+        color: var(--dp-muted);
       }
     }
 
@@ -512,10 +516,10 @@ styles: `
       p {
         margin: 5px 0;
         font-size: 0.95em;
-        color: #555; // Slightly darker gray for content text
+        color: var(--dp-text);
 
         strong {
-          color: #333; // Darker text for emphasis
+          color: var(--dp-text);
         }
       }
     }
@@ -524,13 +528,10 @@ styles: `
         position: absolute;
         top: 10px;
         right: 10px;
-        color: #f44336; // Red color for delete icon
-        cursor: pointer;
-        font-size: 1.5em;
-        transition: transform 0.2s ease, color 0.2s ease;
+        color: var(--dp-error);
+        transition: transform 0.2s ease;
 
         &:hover {
-          color: #d32f2f; // Darker red on hover
           transform: scale(1.2); // Slightly enlarge the icon on hover
         }
       }
@@ -600,7 +601,6 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {     
       if (this.prospect) {
         this.prospectData = this.prospect;
-        //console.log(this.prospectData)
       }
 
       this.communicationForm = this.fb.group({
@@ -679,7 +679,7 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  /** Stage moves newest-first (copy — never mutates the loaded prospect). */
+  /** Stage moves newest-first (copy â€” never mutates the loaded prospect). */
   stageHistoryNewestFirst(): Array<{ id?: string; from?: string | null; to?: string | null; at?: string | Date | null; by?: string | null; byName?: string | null }> {
     const history = this.prospectData?.stageHistory;
     if (!Array.isArray(history)) return [];
@@ -706,7 +706,6 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
 
       // Log or send the data to the backend
       this.submissionResult = communicationData;
-      //console.log('Communication Data to be saved:', communicationData);
 
       this.subscriptions.push(
         this.contactsService.updateProspectCommunications(communicationData).subscribe({

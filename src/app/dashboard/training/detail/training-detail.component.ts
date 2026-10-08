@@ -189,7 +189,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
                     @for (q of lesson.quiz; track q.q; let qi = $index) {
                       <div class="quiz-q">
                         <strong>{{ q.q }}</strong>
-                        <mat-radio-group [value]="answerFor(lesson.id, q.q)" (change)="pickAnswer(lesson.id, q.q, $event.value)">
+                        <mat-radio-group [attr.aria-label]="q.q" [value]="answerFor(lesson.id, q.q)" (change)="pickAnswer(lesson.id, q.q, $event.value)">
                           @for (opt of q.options; track opt) {
                             <mat-radio-button [value]="q.options.indexOf(opt)">{{ opt }}</mat-radio-button>
                           }
@@ -235,6 +235,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
     .lesson-body { display: flex; flex-direction: column; gap: 0.75em; margin: 0.75em 0; }
     .lesson-body p { margin: 0; line-height: 1.7; }
     .lesson-top { display: flex; justify-content: space-between; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+    .lesson-top button, .quiz button, .confirm-card button { min-height: 44px; }
     .done-icon { color: var(--dp-success); }
     .video-wrap { margin: 0.75em 0; display: flex; flex-direction: column; gap: 0.5em; }
     .video-wrap video { width: 100%; max-height: 420px; border-radius: 8px; background: #000; }

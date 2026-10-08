@@ -135,6 +135,7 @@ import { formatStuckDuration } from '../stuck-duration';
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
     .head-links { display: flex; gap: 0.25em; }
     .code-banner, .confirm-banner { display: flex; align-items: center; gap: 0.75em; border-radius: 8px; padding: 0.75em 1em; }
+    .code-banner button, .confirm-banner button { min-height: 44px; }
     .code-banner { background: var(--dp-success-bg); border: 1px solid var(--dp-success); }
     .code-banner code { font-size: 1.2em; font-weight: 700; letter-spacing: 0.1em; background: var(--dp-surface); padding: 0.1em 0.5em; border-radius: 4px; }
     .code-banner div, .confirm-banner div { flex: 1; }

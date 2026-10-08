@@ -35,7 +35,7 @@ import Swal from 'sweetalert2';
             <a routerLink="../forgot-password">Request a fresh reset link</a>
           </p>
         } @else {
-          <p class="sub">Choose a password of at least 6 characters.</p>
+          <p class="sub">Choose a password of at least 8 characters.</p>
           <form [formGroup]="form" (submit)="onSubmit()">
             <mat-form-field appearance="outline">
               <mat-label>New password</mat-label>
@@ -47,7 +47,7 @@ import Swal from 'sweetalert2';
                 <mat-error>Password is required</mat-error>
               }
               @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
-                <mat-error>At least 6 characters</mat-error>
+                <mat-error>At least 8 characters</mat-error>
               }
             </mat-form-field>
 
@@ -145,7 +145,7 @@ export class PartnerResetPasswordComponent implements OnInit {
 
   protected readonly form = this.fb.group(
     {
-      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(128)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
       confirm: ['', [Validators.required]],
     },
     {

@@ -209,7 +209,8 @@ import { ApiError } from '../../../core/http/api-error';
     .course-card--done { border-left: 4px solid var(--dp-success); }
     .course-top { display: flex; justify-content: space-between; align-items: center; gap: 0.6em; }
     .course-top mat-chip mat-icon { font-size: 16px; height: 16px; width: 16px; }
-    .course-foot { display: flex; justify-content: space-between; align-items: center; }
+    .course-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4em; }
+    .course-foot a, .cert a, .cert button, .event-top a { min-height: 44px; }
     .cert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
     .cert { display: flex; gap: 0.7em; align-items: center; padding: 0.7em 1em; }
     .cert .spacer { flex: 1; }

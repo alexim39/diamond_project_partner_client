@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, inject, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -41,13 +41,13 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
 
   @Input() myPartner!: PartnerInterface;
   @Input() myPartnerPartners!: PartnerInterface[];
-  /** Business KPI toggle — upline drill-down for this partner's business. */
+  /** Business KPI toggle â€” upline drill-down for this partner's business. */
   showKpi = false;
   duration!: null | number;
   readonly dialog = inject(MatDialog);
   subscriptions: Array<Subscription> = [];
   partner!: PartnerInterface;
-  /** Activation snapshot for this partner — fail-soft, page works without it. */
+  /** Activation snapshot for this partner â€” fail-soft, page works without it. */
   supportInfo: ActivationBoardItem | null = null;
 
   constructor(
@@ -73,7 +73,7 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
         }
   })
     );
-    // Readiness snapshot for this partner — best-effort only.
+    // Readiness snapshot for this partner â€” best-effort only.
     this.subscriptions.push(
       this.leads.activationBoard().subscribe({
         next: (res) => {
@@ -106,7 +106,6 @@ export class MyPartnerSupportComponent implements OnInit, OnDestroy {
   }
 
   viewPartnersContactList(myPartnerId: string) {
-    //console.log(myPartnerId)
 
     //this.router.navigateByUrl('dashboard/edit-contacts', );
     this.router.navigate(['/dashboard/mentorship/partners/my-partners/contacts', myPartnerId]);

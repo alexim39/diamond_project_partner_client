@@ -60,7 +60,7 @@ interface Step {
         </div>
         <div class="head-actions">
           <a mat-button routerLink="/dashboard/insights" title="Team health + funnel">Insights</a>
-          <button mat-button (click)="reload()" [disabled]="loading()">Refresh</button>
+          <button mat-button (click)="reload()" [disabled]="loading()" aria-label="Refresh business data">Refresh</button>
         </div>
       </div>
 

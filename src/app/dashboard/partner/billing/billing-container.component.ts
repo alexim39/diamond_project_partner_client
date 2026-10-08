@@ -1,4 +1,4 @@
-
+﻿
 import {Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import { PartnerInterface, PartnerService } from '../../../_common/services/partner.service';
 import { filter, switchMap, tap } from 'rxjs';
@@ -34,7 +34,7 @@ export class BillingContainerComponent implements OnInit {
 
   ngOnInit() {
       
-    // get current signed in user, then their transactions — one stream.
+    // get current signed in user, then their transactions â€” one stream.
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef),
       filter((partner): partner is PartnerInterface => !!partner),
@@ -42,7 +42,6 @@ export class BillingContainerComponent implements OnInit {
       switchMap(partner => this.paystackService.getTransactions(partner._id))
     ).subscribe({
       next: (transactions: TransactionInterface) => {
-        //console.log('t=',transactions)
         this.transactions = transactions;
       },
       error: error => {
