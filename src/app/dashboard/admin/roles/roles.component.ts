@@ -18,6 +18,7 @@ import { ApiError, userError } from '../../../core/http/api-error';
 import { UserRole } from '../../../core/auth/auth.models';
 import { MatDialog } from '@angular/material/dialog';
 import { Member360DialogComponent } from './member-360-dialog.component';
+import { AvatarComponent } from '../../../_common/avatar.component';
 
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
@@ -57,6 +58,7 @@ const RANK_ORDER = [
   imports: [
     DecimalPipe, FormsModule, MatTableModule, MatChipsModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTooltipModule, RouterModule,
+    AvatarComponent,
   ],
   template: `
     <section class="breadcrumb-wrapper">
@@ -161,10 +163,13 @@ const RANK_ORDER = [
           <table mat-table [dataSource]="rows()" class="mat-elevation-z2">
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Partner</th>
-              <td mat-cell *matCellDef="let row" class="name-cell">
+            <td mat-cell *matCellDef="let row" class="name-cell">
+              <async-avatar [photo]="row.profileImage" [name]="displayName(row)" size="sm" />
+              <span class="name-text">
                 <button mat-button (click)="open360(row)" [matTooltip]="'Open member 360 for ' + displayName(row)">{{ displayName(row) }}</button>
-                <div class="muted">@{{ row.username || '—' }}</div>
-              </td>
+                <div class="muted handle">@{{ row.username || '—' }}</div>
+              </span>
+            </td>
             </ng-container>
             <ng-container matColumnDef="contact">
               <th mat-header-cell *matHeaderCellDef>Contact</th>
@@ -313,9 +318,20 @@ const RANK_ORDER = [
       .presence-pulse { animation: none; }
     }
     table { width: 100%; }
-    .name-cell { font-weight: 600; text-transform: capitalize; }
+    .table-wrap .mat-mdc-header-cell { color: var(--dp-muted); font-size: 0.8em; letter-spacing: 0.04em; }
+    .table-wrap .mat-mdc-cell { vertical-align: middle; }
+    .name-cell .name-text { display: inline-flex; flex-direction: column; min-width: 0; vertical-align: middle; }
+    .name-cell async-avatar { margin-right: 0.7em; vertical-align: middle; }
+    .name-cell .name-text button {
+      min-height: 44px;
+      font-weight: 700;
+      text-transform: capitalize;
+      padding-left: 0;
+      justify-content: flex-start;
+    }
+    .name-cell .handle { text-transform: none; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
-    .error { color: #d32f2f; display: flex; align-items: center; gap: 0.5em; }
+    .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],

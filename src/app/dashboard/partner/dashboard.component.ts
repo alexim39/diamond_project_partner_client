@@ -224,10 +224,14 @@ mat-sidenav {
     }
   }
 }
-mat-sidenav-content {
-  .nav-spacer {
-    flex: 1 1 auto;
-  }
+/* Right-pin for the topbar actions. margin-left:auto holds even if a
+ * spacer element is ever dropped — the actions cannot drift left. */
+.top-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  flex: none;
 }
 
 /* Branded topbar — ink in BOTH themes so links never depend on the
@@ -239,11 +243,31 @@ mat-sidenav-content {
   position: sticky;
   top: 0;
   z-index: 1;
+  /* Declared explicitly — never inherit Material's row display. */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
   a, button {
     color: var(--dp-sidenav-text);
+    flex: none;
   }
   mat-icon {
     color: var(--dp-nav-icon);
+  }
+  .logo {
+    flex: none;
+    min-width: 0;
+    display: inline-flex;
+  }
+  /* Names hide on handsets — icons alone carry the row. Desktop keeps
+   * the full labeled buttons. */
+  @media (max-width: 600px) {
+    .top-label {
+      display: none;
+    }
   }
 }
 

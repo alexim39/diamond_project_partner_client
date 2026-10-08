@@ -8,6 +8,7 @@ export interface ManagedPartner {
   surname: string;
   email: string;
   phone?: string;
+  profileImage?: string | null;
   role: UserRole;
   suspended?: boolean;
   suspendReason?: string | null;
