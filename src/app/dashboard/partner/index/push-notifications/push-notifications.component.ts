@@ -180,7 +180,7 @@ export class PushNotificationsComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    // One-shot HTTP â€” self-completes, no tracking needed.
+    // One-shot HTTP — self-completes, no tracking needed.
     this.notifier.getNotifications(this.partner._id).subscribe({
           next: (response) => {
           if (response.success) {

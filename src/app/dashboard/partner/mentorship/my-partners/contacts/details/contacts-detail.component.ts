@@ -132,7 +132,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
       return !!owner && !!me && String(owner) === String(me);
     }
 
-    /** Survey exists AND has at least one substantive answer â€” hides button for manual contacts. */
+    /** Survey exists AND has at least one substantive answer — hides button for manual contacts. */
     hasSurvey(): boolean {
       const s = this.prospectData?.survey as Record<string, unknown> | undefined;
       if (!s || typeof s !== 'object') return false;
@@ -314,7 +314,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
         duration: 2000,
       });
     }).catch(() => {
-      this.snackBar.open('Could not copy â€” long-press the link instead.', 'Close', {
+      this.snackBar.open('Could not copy — long-press the link instead.', 'Close', {
         duration: 4000,
       });
     });
@@ -413,7 +413,7 @@ export class MyPartnerContactsDetailComponent implements OnInit, OnDestroy {
   }
 
   promoteProspectToPartnerBlocked(): void {
-    Swal.fire({ position: 'bottom', icon: 'info', text: 'Only the prospect owner can promote to partner â€” enrollment credit stays with them. Coach your downline to convert.', showConfirmButton: false, timer: 4000 });
+    Swal.fire({ position: 'bottom', icon: 'info', text: 'Only the prospect owner can promote to partner — enrollment credit stays with them. Coach your downline to convert.', showConfirmButton: false, timer: 4000 });
   }
 
   ngOnDestroy() {

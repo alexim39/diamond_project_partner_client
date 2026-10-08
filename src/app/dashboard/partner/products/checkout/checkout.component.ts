@@ -45,7 +45,7 @@ export class CheckoutComponent implements OnInit  {
           this.updateCurrentCost(); // Recalculate the cost whenever the cart is updated
       });
 
-      // get current signed in user (shared subject â€” tracked)
+      // get current signed in user (shared subject — tracked)
       this.partnerService.getSharedPartnerData$.pipe(
         takeUntilDestroyed(this.destroyRef)
       ).subscribe(
@@ -106,7 +106,7 @@ export class CheckoutComponent implements OnInit  {
         totalCost: this.currentCost,
         partnerId: this.partner._id
       }
-      // One stream: checkout, then accrue upline commissions (idempotent â€”
+      // One stream: checkout, then accrue upline commissions (idempotent —
       // safe to retry; accrual failures only log since entries can be
       // accrued later). Both calls are one-shot and self-complete.
       this.productService.checkout(cartObject).pipe(

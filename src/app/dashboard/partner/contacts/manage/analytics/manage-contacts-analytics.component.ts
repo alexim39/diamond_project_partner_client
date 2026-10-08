@@ -128,7 +128,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     });
   }
 
-  /** Last-10-digits comparison â€” tolerates 080â€¦ vs +234â€¦ formats. */
+  /** Last-10-digits comparison — tolerates 080… vs +234… formats. */
   normalizePhone(phone: any): string {
     const digits = String(phone ?? '').replace(/\D/g, '');
     return digits.length > 10 ? digits.slice(-10) : digits;
@@ -140,7 +140,7 @@ export class ManageContactsAnalyticsComponent implements OnInit {
       this.prospectData = this.prospect;
       this.loadSessions();
     } else {
-      // Routed directly (no @Input) â€” deep link via ?id=.
+      // Routed directly (no @Input) — deep link via ?id=.
       this.route.queryParamMap
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((params) => {
@@ -149,13 +149,13 @@ export class ManageContactsAnalyticsComponent implements OnInit {
         });
     }
 
-    // get current signed in user (shared subject â€” tracked)
+    // get current signed in user (shared subject — tracked)
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(
         partnerObject => {
           this.partner = partnerObject as PartnerInterface
-          // Partner can arrive after the contact â€” (re)load sessions then.
+          // Partner can arrive after the contact — (re)load sessions then.
           if (this.prospectData?._id) this.loadSessions();
         },
         error => {
@@ -378,14 +378,14 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     for (const h of this.prospectData?.stageHistory ?? []) {
       items.push({
         at: h?.at ?? null,
-        label: `Stage: ${h?.from ?? 'â€”'} â†’ ${h?.to ?? 'â€”'}`,
+        label: `Stage: ${h?.from ?? '—'} → ${h?.to ?? '—'}`,
         detail: h?.byName ? `by ${h.byName}` : '',
       });
     }
     for (const c of this.prospectData?.communications ?? []) {
       items.push({
         at: c?.date ?? null,
-        label: `${c?.type ?? 'touch'} â€” ${c?.description ?? ''}`,
+        label: `${c?.type ?? 'touch'} — ${c?.description ?? ''}`,
         detail: [c?.interestLevel, c?.outcome].filter(Boolean).join(' Â· '),
       });
     }

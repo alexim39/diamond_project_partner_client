@@ -66,7 +66,7 @@ template: `
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
           <ng-container matColumnDef="reference">
             <th mat-header-cell *matHeaderCellDef> Reference </th>
-            <td mat-cell *matCellDef="let element"> {{ element.transaction?.reference ?? 'â€”' }} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.transaction?.reference ?? '—' }} </td>
           </ng-container>
           <ng-container matColumnDef="message">
             <th mat-header-cell *matHeaderCellDef> Message </th>
@@ -78,7 +78,7 @@ template: `
           </ng-container>
           <ng-container matColumnDef="cost">
             <th mat-header-cell *matHeaderCellDef> Cost </th>
-            <td mat-cell *matCellDef="let element"> {{ element.transaction ? (element.transaction.amount | currency:'â‚¦':'symbol':'1.2-2') : 'â€”' }} </td>
+            <td mat-cell *matCellDef="let element"> {{ element.transaction ? (element.transaction.amount | currency:'₦':'symbol':'1.2-2') : '—' }} </td>
           </ng-container>
           <ng-container matColumnDef="pages">
             <th mat-header-cell *matHeaderCellDef> Pages </th>
@@ -107,7 +107,7 @@ template: `
     @if (isEmptyRecord) {
       <div class="empty-card">
         <mat-icon>sms</mat-icon>
-        <p>No SMS sent yet â€” compose your first bulk message.</p>
+        <p>No SMS sent yet — compose your first bulk message.</p>
         <a mat-button routerLink="../../sms/new">Send SMS</a>
       </div>
     }

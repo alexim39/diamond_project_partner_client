@@ -34,7 +34,7 @@ export class BillingContainerComponent implements OnInit {
 
   ngOnInit() {
       
-    // get current signed in user, then their transactions â€” one stream.
+    // get current signed in user, then their transactions — one stream.
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef),
       filter((partner): partner is PartnerInterface => !!partner),

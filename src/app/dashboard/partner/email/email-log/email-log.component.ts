@@ -99,7 +99,7 @@ template: `
         } @else {
           <div class="empty-card">
             <mat-icon>mail</mat-icon>
-            <p>No emails sent yet â€” compose your first bulk email.</p>
+            <p>No emails sent yet — compose your first bulk email.</p>
             <a mat-button routerLink="../../email/new">Send Email</a>
           </div>
         }        

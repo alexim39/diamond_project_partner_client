@@ -178,7 +178,7 @@ export class AddMemberComponent implements OnInit, OnDestroy {
         this.snackBar.open(`Team member have been successfully added`, 'Close', {
           duration: 1000,
         });
-        // Return the selection â€” the detail page merges it locally (no reload).
+        // Return the selection — the detail page merges it locally (no reload).
         this.dialogRef.close([...this.selectedPartners]);
 
       }, (error: Error) => {

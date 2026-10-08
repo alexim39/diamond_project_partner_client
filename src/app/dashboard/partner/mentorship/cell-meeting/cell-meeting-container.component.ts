@@ -30,7 +30,7 @@ export class CellMettingContainerComponent implements OnInit {
 
   ngOnInit() {
 
-    // get current signed in user (shared subject â€” tracked)
+    // get current signed in user (shared subject — tracked)
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(

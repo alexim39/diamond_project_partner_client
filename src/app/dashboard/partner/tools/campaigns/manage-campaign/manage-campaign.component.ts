@@ -170,7 +170,7 @@ export class ManageCampaignComponent implements OnInit {
     if (Array.isArray(targets) && targets.length > 0) {
       return targets.length > 2 ? `${targets.length} places` : targets.join(', ');
     }
-    return String(element?.targetAudience?.locationTarget ?? 'â€”');
+    return String(element?.targetAudience?.locationTarget ?? '—');
   }
 
 

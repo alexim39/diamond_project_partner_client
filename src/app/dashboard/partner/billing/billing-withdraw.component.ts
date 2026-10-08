@@ -203,7 +203,7 @@ export class BillingWithdrawComponent implements OnInit {
     this.getBanks();
   }
 
-  // Fetch list of banks (public Paystack directory â€” no secret required).
+  // Fetch list of banks (public Paystack directory — no secret required).
   getBanks() {
     this.http.get('https://api.paystack.co/bank').subscribe((response: any) => {
       this.banks = response.data; // Paystack API response for banks
@@ -217,7 +217,7 @@ export class BillingWithdrawComponent implements OnInit {
     if (accountNumber && bankCode) {
       this.loading = true;
 
-      // Resolved through the backend proxy â€” the Paystack secret key
+      // Resolved through the backend proxy — the Paystack secret key
       // must never ship to clients (see PaystackService.resolveAccount).
       this.paymentService.resolveAccount(accountNumber, bankCode)
         .pipe(takeUntilDestroyed(this.destroyRef))

@@ -90,7 +90,7 @@ export class CreateCampaignService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // unified campaign (one wizard â€” per-channel minimums enforced server-side)
+  // unified campaign (one wizard — per-channel minimums enforced server-side)
   create(campaignData: any): Observable<any> {
     return this.http
       .post<any>(this.apiURL + '/campaign', campaignData, { withCredentials: true })

@@ -74,7 +74,7 @@ export class PaystackService {
   }
 
   /**
-   * Resolve a bank account holder â€” proxied through the backend
+   * Resolve a bank account holder — proxied through the backend
    * (`GET /v1/billing/resolve-account`) so the Paystack secret key
    * never ships to clients. Replaces direct api.paystack.co calls.
    */

@@ -71,7 +71,7 @@ export class BillingDepositComponent implements OnInit {
   }
 
   confirmPayment(reference: string) {
-    // One-shot HTTP â€” self-completes, no tracking needed.
+    // One-shot HTTP — self-completes, no tracking needed.
     this.paystackService.confirmPayment(reference, this.partner._id).subscribe({
       next: (res) => {
         this.currentBalance = res.partner.balance;

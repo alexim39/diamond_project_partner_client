@@ -21,7 +21,7 @@ import { environment } from '../../../../../environments/environment';
       <div class="page-head">
         <div>
           <h2>Cell Meeting</h2>
-          <p class="subtitle">Join the live session â€” your attendance is recorded automatically.</p>
+          <p class="subtitle">Join the live session — your attendance is recorded automatically.</p>
         </div>
       </div>
 

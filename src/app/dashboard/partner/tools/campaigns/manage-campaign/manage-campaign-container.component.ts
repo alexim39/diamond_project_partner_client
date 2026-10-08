@@ -66,7 +66,7 @@ export class ManageCampaignContainerComponent implements OnInit {
 
   ngOnInit() {
 
-    // get current signed in user, then their campaigns â€” one stream,
+    // get current signed in user, then their campaigns — one stream,
     // no nested subscribes (re-emissions cancel the in-flight fetch).
     this.partnerService.getSharedPartnerData$.pipe(
       takeUntilDestroyed(this.destroyRef),

@@ -73,7 +73,7 @@ template: `
           <!-- Initial Stage: New Contact -->
           <mat-optgroup label="Initial Contact">
             <mat-option value="New Prospect">New Prospect</mat-option>
-            <mat-option value="Contacted - No Response">Contacted â€“ No Response</mat-option>
+            <mat-option value="Contacted - No Response">Contacted – No Response</mat-option>
             <mat-option value="Intro Call Completed">Intro Call Completed</mat-option>
           </mat-optgroup>
 
@@ -335,7 +335,7 @@ template: `
               <mat-card>
                 <mat-card-header>
                   <mat-card-title>
-                    {{ entry.from ?? 'â€”' }} &rarr; {{ entry.to ?? 'â€”' }}
+                    {{ entry.from ?? '—' }} &rarr; {{ entry.to ?? '—' }}
                   </mat-card-title>
                   <mat-card-subtitle>
                     {{ entry.at | date:'mediumDate' }}@if (entry.byName ?? entry.by) { Â· by {{ entry.byName ?? entry.by }} }
@@ -679,7 +679,7 @@ export class ProspectStatusInformationComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(subscription => subscription.unsubscribe());
   }
 
-  /** Stage moves newest-first (copy â€” never mutates the loaded prospect). */
+  /** Stage moves newest-first (copy — never mutates the loaded prospect). */
   stageHistoryNewestFirst(): Array<{ id?: string; from?: string | null; to?: string | null; at?: string | Date | null; by?: string | null; byName?: string | null }> {
     const history = this.prospectData?.stageHistory;
     if (!Array.isArray(history)) return [];

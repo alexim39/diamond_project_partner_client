@@ -101,7 +101,7 @@ export class ManageCampaignDetailComponent implements OnInit {
   targetSummary(): string {
     const targets = this.campaignData?.targetAudience?.locationTargets;
     if (Array.isArray(targets) && targets.length > 0) return targets.join(', ');
-    return String(this.campaignData?.targetAudience?.locationTarget ?? 'â€”');
+    return String(this.campaignData?.targetAudience?.locationTarget ?? '—');
   }
 
   private separateCamelCase(input: string): string {

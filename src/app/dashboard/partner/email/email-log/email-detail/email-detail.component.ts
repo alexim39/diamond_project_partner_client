@@ -67,7 +67,7 @@ export class EmailDetailDialogComponent implements OnDestroy, OnInit {
     subscriptions: Array<Subscription> = [];
     readonly dialogRef = inject(MatDialogRef<EmailDetailDialogComponent>);
 
-    // Angular sanitizes [innerHTML] by default â€” no bypass (stored-XSS safe).
+    // Angular sanitizes [innerHTML] by default — no bypass (stored-XSS safe).
     safeHtmlEmailBody = '';
 
     constructor(

@@ -158,7 +158,7 @@ imports: [
 export class MyPartnersComponent implements OnInit, AfterViewInit {
   @Input() partner!: PartnerInterface;
   @Input() myPartners!: PartnerInterface[];
-  /** Activation snapshot keyed by partner id â€” fail-soft, missing rows hide extra chips. */
+  /** Activation snapshot keyed by partner id — fail-soft, missing rows hide extra chips. */
   @Input() supportMap: Record<string, { levelLabel?: string; relation?: string; ipoDone?: boolean; qsgDone?: boolean; worked?: number; total?: number; unworked?: number; overdue?: boolean }> = {};
   subscriptions: Subscription[] = [];
   dataSource = new MatTableDataSource<PartnerInterface>([]);  
@@ -174,7 +174,7 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
     private presence: PresenceService,
   ) {}
 
-  /** partnerId â†’ lastSeenAt (null = offline); drives avatar dots. */
+  /** partnerId → lastSeenAt (null = offline); drives avatar dots. */
   presenceMap: Record<string, string | null> = {};
 
   protected presenceStatus(id: string | null | undefined): PresenceStatus {
@@ -193,7 +193,7 @@ export class MyPartnersComponent implements OnInit, AfterViewInit {
       this.isEmptyRecord = true;
     }
   
-    // Custom filter predicate â€” name, phone, username or email.
+    // Custom filter predicate — name, phone, username or email.
     this.dataSource.filterPredicate = (data: PartnerInterface, filter: string) => {
       const q = filter.toLowerCase();
       return [data.name, data.surname, data.phone, data.username, data.email]

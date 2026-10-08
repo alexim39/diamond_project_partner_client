@@ -28,7 +28,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TopProgressService } from '../../core/loading/top-progress.service';
 import type { MatDrawer } from '@angular/material/sidenav';
 
-/** Data-driven sidenav: groups â†’ children â†’ (optional) grandchildren. */
+/** Data-driven sidenav: groups → children → (optional) grandchildren. */
 export interface NavLeaf {
   label: string;
   link?: string;
@@ -172,7 +172,7 @@ styles: [`
   background: var(--dp-paper);
   height: 100%;
   .sidenav {
-    // Sanctioned token overrides â€” custom properties resolve at the
+    // Sanctioned token overrides — custom properties resolve at the
     // element, so these beat theme specificity battles by construction.
     @include mat.sidenav-overrides((
       container-background-color: var(--dp-sidenav),
@@ -203,7 +203,7 @@ mat-sidenav {
     a {
       color: var(--dp-sidenav-text);
       // MDC paints labels with theme on-surface (invisible on the ink
-      // sidenav) â€” force the whole label subtree to inherit the link color.
+      // sidenav) — force the whole label subtree to inherit the link color.
       .mdc-list-item__primary-text,
       .mdc-list-item__primary-text div,
       .mdc-list-item__primary-text span {
@@ -230,7 +230,7 @@ mat-sidenav-content {
   }
 }
 
-/* Branded topbar â€” ink in BOTH themes so links never depend on the
+/* Branded topbar — ink in BOTH themes so links never depend on the
  * Material primary-container color (the old hardcoded black text
  * vanished on the dark-mode toolbar). */
 .topbar {
@@ -247,8 +247,8 @@ mat-sidenav-content {
   }
 }
 
-/* Data-driven nav â€” every label is an explicit .nav-label in the
- * sidenav-text token (cream on near-black â‰ˆ 15:1 in both themes);
+/* Data-driven nav — every label is an explicit .nav-label in the
+ * sidenav-text token (cream on near-black ≈ 15:1 in both themes);
  * MDC internals are forced to inherit so nothing paints theme
  * on-surface over the ink background. */
 /* Identity header — plain wrapper sizes to content; the skeleton holds
@@ -434,7 +434,7 @@ mat-sidenav-content {
   font-size: 0.9em;
 }
 
-/* Ambient top progress â€” slim, non-blocking, sits under the topbar.
+/* Ambient top progress — slim, non-blocking, sits under the topbar.
  * The text pill floats (no layout shift), ignores pointer events (never
  * traps input), and fades in on a short delay so instant requests don't
  * make it flicker. role="status" announces it to screen readers. */
@@ -472,7 +472,7 @@ mat-sidenav-content {
   }
 }
 
-/* Mobile bottom tabs â€” max 5 primary destinations, thumb-friendly. */
+/* Mobile bottom tabs — max 5 primary destinations, thumb-friendly. */
 .mobile-tabs {
   position: fixed;
   bottom: 0;
@@ -560,12 +560,12 @@ export class DashboardComponent {
 
   partner!: PartnerInterface;
 
-  /** Live badge count â€” polling today, socket transport later. */
+  /** Live badge count — polling today, socket transport later. */
   protected readonly stream = inject(NotificationStreamService);
   private readonly progression = inject(ProgressionService);
   /** Session identity for the presence heartbeat. */
   private readonly presence = inject(AuthService);
-  /** Ambient top progress bar â€” non-blocking, ref-counted. */
+  /** Ambient top progress bar — non-blocking, ref-counted. */
   protected readonly progress = inject(TopProgressService);
 
   private readonly themes = inject(ThemeTogglerService);
@@ -592,7 +592,7 @@ export class DashboardComponent {
 
 
 
-    // One-shot session fetch â€” self-completes, no tracking needed.
+    // One-shot session fetch — self-completes, no tracking needed.
     this.partnerService.getPartner().subscribe({
       next: (response) => {
         if (response.success) {
@@ -633,7 +633,7 @@ export class DashboardComponent {
   }
 
   /**
-   * Presence heartbeat â€” stamps `lastSeenAt` so Admin â†’ Manage Roles can
+   * Presence heartbeat — stamps `lastSeenAt` so Admin → Manage Roles can
    * show "Online now". Ping on open + every 4 min + on tab-visible;
    * fire-and-forget (a missed beat only delays the pill).
    */
@@ -668,7 +668,7 @@ export class DashboardComponent {
     localStorage.clear();
     sessionStorage.clear();
   
-    // Call backend signOut API (one-shot â€” self-completes).
+    // Call backend signOut API (one-shot — self-completes).
     this.partnerAuthService.signOut({}).subscribe({
       next: () => {
         localStorage.removeItem('authToken'); // Remove token from localStorage

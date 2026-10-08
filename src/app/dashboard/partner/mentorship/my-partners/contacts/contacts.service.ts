@@ -126,7 +126,7 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  // send single email â€” session-owned v1 route (validated, recorded,
+  // send single email — session-owned v1 route (validated, recorded,
   // honest per-recipient outcome). Replaces legacy emails/send-emails.
   sendProspectEmail(emailObject: {partner: PartnerInterface, prospect: ContactsInterface, emailBody: string, emailSubject?: string}): Observable<any> {
     const to = [String((emailObject.prospect as any)?.prospectEmail ?? '').trim().toLowerCase()].filter(Boolean);
@@ -146,7 +146,7 @@ export class ContactsService {
       .pipe(retry(1), catchError(this.handleError));
   }
    
-   // submit booking â€” session-authenticated (server requires a partner session)
+   // submit booking — session-authenticated (server requires a partner session)
    bookSurvey(formData: any): Observable<any> {
      return this.http
        .post<any>(this.apiURL + '/booking/submit', formData, { withCredentials: true })
