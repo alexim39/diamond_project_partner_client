@@ -313,8 +313,7 @@ mat-sidenav-content {
   width: 100%;
   min-height: 44px;
 }
-/* Static eyebrow label for former third-level subgroups (Campaigns, Share,
- * Outreach). Same information scent, one fewer interaction level. */
+/* Eyebrow label for static section headers (Workspace). */
 .nav-section {
   display: flex;
   align-items: center;
@@ -325,6 +324,46 @@ mat-sidenav-content {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     opacity: 0.65;
+  }
+}
+/* Third-level subgroup rows — quieter than groups, tappable like them.
+ * The count shows what's inside before opening. */
+.nav-subgroup {
+  border-radius: 8px;
+  margin: 1px 0;
+  .nav-row.sub {
+    min-height: 40px;
+  }
+  .nav-label {
+    font-size: 0.86em;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+  .nav-count {
+    flex: none;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: var(--dp-sidenav-text);
+    opacity: 0.55;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.15em 0.5em;
+    line-height: 1;
+  }
+  &.open {
+    background: rgba(217, 179, 106, 0.10);
+    .nav-chev {
+      opacity: 1;
+    }
+  }
+}
+.subsubmenu {
+  margin-left: 0.9em;
+  padding-left: 0.6em;
+  border-left: 1px dashed var(--dp-line);
+  .nav-label {
+    font-size: 0.86em;
   }
 }
 .nav-label {
@@ -514,6 +553,8 @@ export class DashboardComponent {
 
   protected readonly navGroups = NAV_GROUPS;
   private readonly openGroups = new Set<string>();
+  /** Open third-level subgroups, keyed `group:label`. Independent toggles. */
+  private readonly openSubs = new Set<string>();
   /** Pending downline confirmations awaiting this member (upline inbox badge). */
   protected readonly pendingConfirmations = signal<number | null>(null);
 
@@ -651,6 +692,16 @@ export class DashboardComponent {
     else this.openGroups.add(key);
   }
 
+  protected isSubOpen(group: string, label: string): boolean {
+    return this.openSubs.has(`${group}:${label}`);
+  }
+
+  protected toggleSub(group: string, label: string): void {
+    const key = `${group}:${label}`;
+    if (this.openSubs.has(key)) this.openSubs.delete(key);
+    else this.openSubs.add(key);
+  }
+
   /** Close the drawer after navigating on small screens (live width, not a stale flag). */
   protected onNavigate(drawer: MatDrawer): void {
     this.scrollToTop();
@@ -671,7 +722,8 @@ export class DashboardComponent {
     return groupKey === 'me' && link === 'settings/profiles' && this.profileIncomplete();
   }
 
-  /** Keep the group holding the active route expanded across navigations. */
+  /** Keep the group — and subgroup — holding the active route expanded
+   * across navigations, so deep destinations are never hidden. */
   private revealActiveRoute(url: string): void {
     const path = url.split('?')[0].split('#')[0];
     for (const group of NAV_GROUPS) {
@@ -679,7 +731,14 @@ export class DashboardComponent {
         (child.link && path.endsWith(child.link)) ||
         (child.children ?? []).some((leaf) => leaf.link && path.endsWith(leaf.link)),
       );
-      if (hit) this.openGroups.add(group.key);
+      if (hit) {
+        this.openGroups.add(group.key);
+        for (const child of group.children) {
+          if ((child.children ?? []).some((leaf) => leaf.link && path.endsWith(leaf.link))) {
+            this.openSubs.add(`${group.key}:${child.label}`);
+          }
+        }
+      }
     }
   }
 }

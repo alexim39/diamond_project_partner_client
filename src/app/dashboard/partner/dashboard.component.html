@@ -37,14 +37,18 @@
         <div [@submenuToggle]="isOpen(group.key) ? 'open' : 'closed'" class="submenu">
           @for (child of group.children; track child.label) {
             @if (child.children) {
-              <div class="nav-section" [title]="child.title ?? child.label"><span class="nav-label">{{ child.label }}</span></div>
-              @for (leaf of child.children; track leaf.label) {
-                @if (leaf.external) {
-                  <a mat-list-item class="nav-leaf" [title]="leaf.title ?? leaf.label" target="_blank" rel="noopener" [href]="leaf.external" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span></a>
-                } @else {
-                  <a mat-list-item class="nav-leaf" [routerLink]="leaf.link ?? ''" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" [title]="leaf.title ?? leaf.label" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span></a>
+              <button mat-list-item class="nav-subgroup" type="button" [class.open]="isSubOpen(group.key, child.label)" (click)="toggleSub(group.key, child.label)" [attr.aria-expanded]="isSubOpen(group.key, child.label)" [title]="child.title ?? child.label">
+                <span class="nav-row sub"><span class="nav-label">{{ child.label }}</span><span class="nav-count">{{ child.children.length }}</span><mat-icon class="nav-chev" aria-hidden="true">{{ isSubOpen(group.key, child.label) ? 'expand_less' : 'expand_more' }}</mat-icon></span>
+              </button>
+              <div [@submenuToggle]="isSubOpen(group.key, child.label) ? 'open' : 'closed'" class="subsubmenu">
+                @for (leaf of child.children; track leaf.label) {
+                  @if (leaf.external) {
+                    <a mat-list-item class="nav-leaf" [title]="leaf.title ?? leaf.label" target="_blank" rel="noopener" [href]="leaf.external" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span></a>
+                  } @else {
+                    <a mat-list-item class="nav-leaf" [routerLink]="leaf.link ?? ''" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" [title]="leaf.title ?? leaf.label" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span></a>
+                  }
                 }
-              }
+              </div>
             } @else if (child.external) {
               <a mat-list-item class="nav-leaf" [title]="child.title ?? child.label" target="_blank" rel="noopener" [href]="child.external" (click)="onNavigate(drawer)"><span class="nav-label">{{ child.label }}</span></a>
             } @else {
