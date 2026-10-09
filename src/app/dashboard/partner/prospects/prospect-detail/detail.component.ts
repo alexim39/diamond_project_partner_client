@@ -44,6 +44,8 @@ interface LinkedSession {
   contactMethod?: string;
   description?: string;
   username?: string;
+  reminded24hAt?: string | null;
+  reminded1hAt?: string | null;
 }
 
 const normalizeSessionPhone = (value: unknown): string => {
@@ -289,6 +291,9 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
                 <div class="session-top">
                   <strong>{{ s.consultDate | date: 'mediumDate' }}@if (s.consultTime) { · {{ s.consultTime }}}</strong>
                   <span class="dp-status {{ sessionStatusClass(s.status) }}">{{ s.status }}</span>
+                  @if (s.reminded1hAt || s.reminded24hAt) {
+                    <span class="dp-status dp-status--ok" title="Reminder sent for this session">Reminded</span>
+                  }
                 </div>
                 @if (s.reason) {
                   <p class="muted">{{ s.reason }}@if (s.contactMethod) { · via {{ s.contactMethod }}}</p>
@@ -592,6 +597,8 @@ export class ProspectDetailComponent implements OnInit {
             contactMethod: typeof r['contactMethod'] === 'string' ? (r['contactMethod'] as string) : undefined,
             description: typeof r['description'] === 'string' ? (r['description'] as string) : undefined,
             username: typeof r['username'] === 'string' ? (r['username'] as string) : undefined,
+            reminded24hAt: typeof r['reminded24hAt'] === 'string' ? (r['reminded24hAt'] as string) : undefined,
+            reminded1hAt: typeof r['reminded1hAt'] === 'string' ? (r['reminded1hAt'] as string) : undefined,
           }))
           .sort((a, b) => new Date(b.consultDate ?? 0).getTime() - new Date(a.consultDate ?? 0).getTime());
         this.sessions.set(matched);

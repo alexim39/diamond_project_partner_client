@@ -228,6 +228,41 @@ export interface StuckEnvelope extends ApiEnvelope<StuckEntry[]> {
   data: StuckEntry[];
 }
 
+/** Follow-up commitment — mirrors backend `bucketFollowUps`. */
+export interface ReminderEntry {
+  prospectId: string;
+  name: string;
+  followUpDate: string;
+  daysOverdue: number;
+}
+
+export interface RemindersData {
+  overdue: ReminderEntry[];
+  today: ReminderEntry[];
+  upcoming: ReminderEntry[];
+  total: number;
+}
+
+export interface RemindersEnvelope extends ApiEnvelope<RemindersData> {
+  data: RemindersData;
+}
+
+export interface ImportSkippedRow {
+  index: number;
+  name: string;
+  reason: string;
+}
+
+export interface ImportReport {
+  inserted: number;
+  skipped: ImportSkippedRow[];
+  total: number;
+}
+
+export interface ImportReportEnvelope extends ApiEnvelope<ImportReport> {
+  data: ImportReport;
+}
+
 /** Next forward step in the pipeline, or null at terminal stages. */
 export function nextStage(stage: ProspectStage | undefined): ProspectStage | null {  const current = stage ?? 'New';
   if (current === 'Converted' || current === 'Closed') return null;

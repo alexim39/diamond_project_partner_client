@@ -6,6 +6,7 @@ import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.compo
 import { AdminDepositsComponent } from './deposits/admin-deposits.component';
 import { AdminLeadsComponent } from './leads/admin-leads.component';
 import { AdminPageLeadsComponent } from './page-leads/admin-page-leads.component';
+import { AdminPartnerPipelineComponent } from './partner-pipeline/admin-partner-pipeline.component';
 import { AdminPagesComponent } from './pages/admin-pages.component';
 import { AdminPartnerSurveysComponent } from './partner-surveys/admin-partner-surveys.component';
 import { AdminReservationsComponent } from './reservations/admin-reservations.component';
@@ -60,6 +61,11 @@ export const AdminRoutes: Routes = [
         path: 'page-leads',
         component: AdminPageLeadsComponent,
         title: 'Page Leads - Private /:username submissions',
+      },
+      {
+        path: 'partner-pipeline',
+        component: AdminPartnerPipelineComponent,
+        title: 'Partner Pipeline - Inspect any member prospects',
       },
       {
         path: 'pages',

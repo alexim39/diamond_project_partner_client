@@ -16,12 +16,79 @@ import { ExportContactAndEmailService } from '../../../../_common/services/expor
 import { AuthService } from '../../../../core/auth/auth.service';
 import { ApiError, userError } from '../../../../core/http/api-error';
 import { LeadPipelineService } from './lead-pipeline.service';
-import { nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
+import { ImportReport, nextStage, ProspectLead, ProspectStage, STAGE_META, STAGE_ORDER, STAGE_TONE, StuckEntry } from './lead.models';
 import { formatStuckDuration } from '../stuck-duration';
 import { CollectCodeComponent } from '../../contacts/manage/details/collect-code.component';
 import { RateLeadDialogComponent } from './rate-lead-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin } from 'rxjs';
+
+/**
+ * Minimal CSV parse (quoted commas + escaped quotes). Header row maps to
+ * importer keys case-insensitively; unknown columns are ignored.
+ */
+function parseImportCsv(text: string): Array<Record<string, string>> {
+  const rows: string[][] = [];
+  let cur = '';
+  let row: string[] = [];
+  let quoted = false;
+  const push = () => {
+    row.push(cur);
+    cur = '';
+  };
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (quoted) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          cur += '"';
+          i += 1;
+        } else {
+          quoted = false;
+        }
+      } else {
+        cur += ch;
+      }
+    } else if (ch === '"') {
+      quoted = true;
+    } else if (ch === ',') {
+      push();
+    } else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && text[i + 1] === '\n') i += 1;
+      push();
+      if (row.some((c) => c.trim() !== '')) rows.push(row);
+      row = [];
+    } else {
+      cur += ch;
+    }
+  }
+  push();
+  if (row.some((c) => c.trim() !== '')) rows.push(row);
+  if (rows.length < 2) return [];
+  const heads = rows[0].map((h) => h.trim().toLowerCase());
+  const pick = (...names: string[]): number => heads.findIndex((h) => names.includes(h));
+  const ci = {
+    name: pick('name', 'firstname', 'first name'),
+    surname: pick('surname', 'lastname', 'last name'),
+    phone: pick('phone', 'phonenumber', 'phone number', 'mobile', 'tel'),
+    email: pick('email', 'e-mail'),
+    source: pick('source', 'channel'),
+    relationship: pick('relationship'),
+  };
+  return rows.slice(1, 501).map((cells) => {
+    const out: Record<string, string> = {};
+    const put = (key: string, idx: number) => {
+      if (idx >= 0 && (cells[idx] ?? '').trim() !== '') out[key] = cells[idx].trim();
+    };
+    put('name', ci.name);
+    put('surname', ci.surname);
+    put('phone', ci.phone);
+    put('email', ci.email);
+    put('source', ci.source);
+    put('relationship', ci.relationship);
+    return out;
+  }).filter((r) => Object.keys(r).length > 0);
+}
 
 /**
  * @title Lead pipeline — modern lead management.
@@ -109,10 +176,53 @@ import { forkJoin } from 'rxjs';
         >
           <mat-icon>warning</mat-icon> Stuck ({{ stuckCount() }})
         </button>
+        <button mat-button (click)="showImport.set(!showImport())" title="Bulk-add contacts from a CSV file">
+          <mat-icon>upload</mat-icon> Import
+        </button>
         @if (loading()) {
           <mat-progress-bar mode="indeterminate" class="loader" />
         }
       </div>
+
+      @if (showImport()) {
+        <div class="dp-card import-card">
+          <div class="import-head">
+            <div>
+              <h3>Import contacts</h3>
+              <p class="muted">CSV with name, phone + optional surname, email, source, relationship. Duplicates are reported, never imported twice.</p>
+            </div>
+            <button mat-button (click)="downloadTemplate()">Template</button>
+          </div>
+          <div class="import-row">
+            <label class="file-pick">
+              <input type="file" accept=".csv,text/csv" (change)="onImportFile($event)" [attr.aria-label]="'Choose CSV file'" />
+              <span>{{ importFileName() || 'Choose CSV file…' }}</span>
+            </label>
+            <button mat-flat-button color="primary" (click)="doImport()" [disabled]="importRows().length === 0 || importing()">
+              {{ importing() ? 'Importing…' : importRows().length > 0 ? 'Import ' + importRows().length : 'Import' }}
+            </button>
+          </div>
+          @if (importError(); as err) {
+            <p class="error" role="alert">{{ err }}</p>
+          }
+          @if (importRows().length > 0) {
+            <p class="muted">First {{ importRows().slice(0, 5).length }} of {{ importRows().length }} rows: {{ importRows().slice(0, 5).map((r) => r['name'] || 'Unnamed').join(', ') }}</p>
+          }
+          @if (importReport(); as report) {
+            <p class="notice" role="status">Imported {{ report.inserted }} of {{ report.total }}@if (report.skipped.length > 0) { — {{ report.skipped.length }} skipped }.</p>
+            @if (report.skipped.length > 0) {
+              <ul class="skip-list">
+                @for (s of report.skipped.slice(0, 10); track s.index) {
+                  <li><strong>{{ s.name }}</strong> <span class="muted">— {{ s.reason }}</span></li>
+                }
+                @if (report.skipped.length > 10) {
+                  <li class="muted">…and {{ report.skipped.length - 10 }} more.</li>
+                }
+              </ul>
+            }
+          }
+        </div>
+      }
 
       @if (error(); as err) {
         <p class="error" role="alert">
@@ -277,6 +387,16 @@ import { forkJoin } from 'rxjs';
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
     .bulk-bar { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.5em 0.75em; }
     .bulk-bar button { min-height: 44px; }
+    .import-card { padding: 1em; display: flex; flex-direction: column; gap: 0.6em; }
+    .import-card h3 { margin: 0; font-size: 1em; }
+    .import-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75em; flex-wrap: wrap; }
+    .import-head p { margin: 0.25em 0 0; }
+    .import-row { display: flex; gap: 0.6em; flex-wrap: wrap; align-items: center; }
+    .import-row button { min-height: 44px; }
+    .file-pick { display: inline-flex; align-items: center; gap: 0.5em; border: 1px dashed var(--dp-line); border-radius: 8px; padding: 0.6em 0.9em; cursor: pointer; min-height: 44px; font-size: 0.9em; }
+    .file-pick input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .notice { color: var(--dp-success); }
+    .skip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25em; font-size: 0.9em; }
     .loader { flex: 2; min-width: 120px; }
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
@@ -340,6 +460,12 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly issuedCode = signal<{ name: string; code: string } | null>(null);
+  protected readonly showImport = signal(false);
+  protected readonly importRows = signal<Array<Record<string, string>>>([]);
+  protected readonly importFileName = signal('');
+  protected readonly importing = signal(false);
+  protected readonly importError = signal<string | null>(null);
+  protected readonly importReport = signal<ImportReport | null>(null);
 
   protected readonly displayedColumns = ['select', 'name', 'contact', 'stage', 'interest', 'action'];
   protected readonly selected = signal<Set<string>>(new Set());
@@ -519,6 +645,66 @@ export class LeadPipelineComponent implements OnInit {
     this.search.set(value);
     this.pageIndex.set(0);
     this.reload();
+  }
+
+  /** Downloadable CSV template — exact headers the importer accepts. */
+  protected downloadTemplate(): void {
+    const csv = 'name,surname,phone,email,source,relationship\nAdaobi,Temitope,08031234567,ada@example.com,Contact Import,Friend\n';
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diamond-contact-import-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  protected onImportFile(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0] ?? null;
+    this.importError.set(null);
+    this.importReport.set(null);
+    if (!file) return;
+    this.importFileName.set(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        this.importRows.set(parseImportCsv(String(reader.result ?? '')));
+      } catch {
+        this.importError.set('Could not read that file — export it as CSV and try again.');
+        this.importRows.set([]);
+      }
+    };
+    reader.onerror = () => {
+      this.importError.set('Could not read that file — try again.');
+      this.importRows.set([]);
+    };
+    reader.readAsText(file);
+    if (input) input.value = '';
+  }
+
+  protected doImport(): void {
+    const rows = this.importRows();
+    if (rows.length === 0 || this.importing()) return;
+    this.importing.set(true);
+    this.importError.set(null);
+    this.importReport.set(null);
+    this.leads
+      .importContacts(rows.slice(0, 500))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.importing.set(false);
+          this.importReport.set(res.data);
+          this.importRows.set([]);
+          this.importFileName.set('');
+          this.pageIndex.set(0);
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.importing.set(false);
+          this.importError.set(userError(err));
+        },
+      });
   }
 
   protected onPage(event: PageEvent): void {

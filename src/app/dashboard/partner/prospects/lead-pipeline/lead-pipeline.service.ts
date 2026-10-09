@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../../../../core/http/api-client.service';
-import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, LogCommunicationPayload, PoolEnvelope, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, StuckEnvelope } from './lead.models';
+import { ContactListMineEnvelope, ConvertEnvelope, CreateContactPayload, ActivationBoardEnvelope, DownlineContactListsEnvelope, ImportReportEnvelope, LogCommunicationPayload, PoolEnvelope, ProspectDetailEnvelope, ProspectLead, ProspectListEnvelope, ProspectStage, RemindersEnvelope, StuckEnvelope } from './lead.models';
 
 /**
  * Lead pipeline data access — talks to backend `/v1/prospects` (crm slice).
@@ -21,6 +21,11 @@ export class LeadPipelineService {
     return this.api.get<ProspectListEnvelope>(`v1/prospects/by-partner/${partnerId}${qs ? `?${qs}` : ''}`);
   }
 
+  /** Bulk-import parsed contact rows (server validates + dedupes per row). */
+  importContacts(rows: Array<Record<string, unknown>>): Observable<ImportReportEnvelope> {
+    return this.api.post<ImportReportEnvelope>('v1/prospects/import', { rows });
+  }
+
   /** Buy Prospect pool — geo-fenced, scored, with header KPIs. */
   pool(opts: { state?: string; limit?: number; skip?: number; q?: string } = {}): Observable<PoolEnvelope> {
     const params = new URLSearchParams();
@@ -34,6 +39,11 @@ export class LeadPipelineService {
 
   stuck(partnerId: string): Observable<StuckEnvelope> {
     return this.api.get<StuckEnvelope>(`v1/prospects/stuck/${partnerId}`);
+  }
+
+  /** Follow-up commitments due — session-owned, bucketed overdue/today/upcoming. */
+  reminders(): Observable<RemindersEnvelope> {
+    return this.api.get<RemindersEnvelope>('v1/prospects/reminders/mine');
   }
 
   advanceStage(prospectId: string, stage: ProspectStage, author?: { by?: string; byName?: string }): Observable<unknown> {

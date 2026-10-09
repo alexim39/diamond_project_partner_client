@@ -68,6 +68,25 @@ export interface TeamEnvelope extends ApiEnvelope<TeamAnalytics> {
   data: TeamAnalytics;
 }
 
+export interface CohortRetentionRow {
+  month: string;
+  cohort: number;
+  ranked: number;
+  advanced: number;
+  advancedRate: number | null;
+  distribution: Record<string, number>;
+  capped: boolean;
+}
+
+export interface CohortRetention {
+  months: number;
+  cohorts: CohortRetentionRow[];
+}
+
+export interface CohortRetentionEnvelope extends ApiEnvelope<CohortRetention> {
+  data: CohortRetention;
+}
+
 export interface GoalSummaryItem {
   id: string;
   title: string;

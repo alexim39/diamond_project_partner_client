@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { progressInterceptor } from './core/loading/progress.interceptor';
+import { offlineQueueInterceptor } from './core/offline/offline-queue.interceptor';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { authTokenInterceptor } from './core/http/auth-token.interceptor';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
@@ -18,7 +19,8 @@ export const appConfig: ApplicationConfig = {
     // Single DateAdapter for every date/time picker (pages no longer each provide their own).
     provideNativeDateAdapter(),
     // Single HttpClient: cookie transport + bearer fallback + top progress + normalized errors.
-    provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, authTokenInterceptor, progressInterceptor, apiErrorInterceptor])),
+    // Offline queue runs last (closest to transport) so it sees raw network failures.
+    provideHttpClient(withXhr(), withInterceptors([credentialsInterceptor, authTokenInterceptor, progressInterceptor, apiErrorInterceptor, offlineQueueInterceptor])),
     // ECharts core once (treeshaken); chart components use NgxEchartsDirective.
     provideEchartsCore({ echarts }),
   ]

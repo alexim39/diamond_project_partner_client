@@ -4,6 +4,7 @@ import { MyProspectListContainerComponent } from './personal-prospect-list/perso
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
+import { RemindersComponent } from './reminders/reminders.component';
 import { ProspectDetailComponent } from './prospect-detail/detail.component';
 import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
 import { BookSessionContainerComponent } from '../contacts/book-session/book-session-container.component';
@@ -46,6 +47,11 @@ export const ProspectsRoutes: Routes = [
             path: 'pipeline',
             component: LeadPipelineComponent,
             title: "Lead Pipeline - Track prospects through to conversion",
+        },
+        {
+            path: 'reminders',
+            component: RemindersComponent,
+            title: "Reminders - Follow-up commitments due",
         },
         {
             path: 'board',

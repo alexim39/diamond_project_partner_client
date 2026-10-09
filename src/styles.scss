@@ -206,6 +206,31 @@ mat-chip[style] .mdc-evolution-chip__text-label {
   color: inherit;
 }
 
+/* Command-palette dialog shell — the palette paints its own card inside. */
+.search-palette-panel {
+  max-width: 94vw;
+}
+.search-palette-panel .mat-mdc-dialog-container,
+.search-palette-panel .mat-mdc-dialog-surface {
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+/* Handsets: bottom-sheet treatment, thumb-reachable and full-width. */
+@media (max-width: 600px) {
+  .cdk-global-overlay-wrapper:has(.search-palette-panel) {
+    align-items: flex-end;
+  }
+  .search-palette-panel {
+    max-width: 100vw;
+    width: 100vw;
+  }
+  .search-palette-panel .mat-mdc-dialog-container,
+  .search-palette-panel .mat-mdc-dialog-surface {
+    border-radius: 14px 14px 0 0;
+  }
+}
+
 /* Dark-mode hardening for legacy hardcoded palettes.
  * The legacy scaffold paints #dcdbdb shells + white cards with inherited
  * (theme-flipping) text and MDC components whose labels flip light — in

@@ -39,6 +39,8 @@ interface BookingSession {
   consultDate?: string;
   consultTime?: string;
   createdAt?: string;
+  reminded24hAt?: string | null;
+  reminded1hAt?: string | null;
 }
 
 const STATUS_TONE: Record<string, string> = {
@@ -148,6 +150,9 @@ const STATUS_TONE: Record<string, string> = {
                     <span class="dp-status dp-status--warn" title="Prospect belongs to your downline — outcome mirrors to their timeline">Downline</span>
                   }
                   <span class="dp-status {{ statusTone(s.status) }}">{{ s.status || 'Scheduled' }}</span>
+                  @if (s.reminded1hAt || s.reminded24hAt) {
+                    <span class="dp-status dp-status--ok" title="Reminder sent for this session">Reminded</span>
+                  }
                 </div>
               </div>
               <div class="session-actions">
@@ -309,6 +314,8 @@ export class ProspectBookingComponent implements OnInit {
         email: typeof r['email'] === 'string' ? (r['email'] as string) : '',
         status: typeof r['status'] === 'string' ? (r['status'] as string) : 'Scheduled',
         consultDate: r['consultDate'] != null ? String(r['consultDate']) : undefined,
+        reminded24hAt: typeof r['reminded24hAt'] === 'string' ? (r['reminded24hAt'] as string) : undefined,
+        reminded1hAt: typeof r['reminded1hAt'] === 'string' ? (r['reminded1hAt'] as string) : undefined,
         consultTime: typeof r['consultTime'] === 'string' ? (r['consultTime'] as string) : '',
         createdAt: r['createdAt'] != null ? String(r['createdAt']) : undefined,
       }))

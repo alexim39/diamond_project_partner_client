@@ -8,7 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
 import { ProgressionService } from '../../../core/progression/progression.service';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
-import { ActivationAnalytics, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
+import { ActivationAnalytics, CohortRetention, Funnel, TeamAnalytics } from '../../../core/analytics/analytics.models';
 import { ConfirmationStats, LADDER, Oversight, PendingNomination } from '../../../core/progression/progression.models';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -163,6 +163,41 @@ import { ApiError } from '../../../core/http/api-error';
           </div>
         }
 
+        @if (orgFunnel(); as funnel) {
+          <div class="dp-card levels-card">
+            <h3>Organization funnel — last {{ funnel.days }} days</h3>
+            <p class="muted">
+              <strong>{{ funnel.converted | number }}</strong> converted of {{ funnel.entered | number }} entered
+              @if (funnel.overallRate !== null) { ({{ funnel.overallRate }}%) }
+            </p>
+            @for (step of funnel.steps; track step.stage) {
+              <div class="bar-row">
+                <span class="bar-label">{{ step.stage }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="step.cumulativeRate ?? 0"></div>
+                </div>
+                <span class="bar-num">{{ step.count | number }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        @if (retention(); as ret) {
+          <div class="dp-card levels-card">
+            <h3>Signup-cohort advancement</h3>
+            <p class="muted">Share of each signup month ranked above Partner today.</p>
+            @for (cohort of ret.cohorts; track cohort.month) {
+              <div class="bar-row">
+                <span class="bar-label">{{ cohort.month }} · {{ cohort.cohort | number }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="cohort.advancedRate ?? 0"></div>
+                </div>
+                <span class="bar-num">@if (cohort.advancedRate !== null) { {{ cohort.advancedRate }}% } @else { — }</span>
+              </div>
+            }
+          </div>
+        }
+
         <h3>Nominations ({{ o.pendingNominations.length }})</h3>
         @if (o.pendingNominations.length > 0) {
           <ul class="nom-list">
@@ -240,6 +275,8 @@ export class OversightComponent implements OnInit {
   protected readonly activation = signal<ActivationAnalytics | null>(null);
   protected readonly team = signal<TeamAnalytics | null>(null);
   protected readonly funnel = signal<Funnel | null>(null);
+  protected readonly orgFunnel = signal<Funnel | null>(null);
+  protected readonly retention = signal<CohortRetention | null>(null);
 
   protected readonly ladderBars = computed(() => {
     const dist = this.oversight()?.distribution ?? {};
@@ -293,6 +330,20 @@ export class OversightComponent implements OnInit {
       .subscribe({
         next: (res) => this.team.set(res.data ?? null),
         error: () => this.team.set(null),
+      });
+    this.analytics
+      .orgFunnel()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.orgFunnel.set(res.data ?? null),
+        error: () => this.orgFunnel.set(null),
+      });
+    this.analytics
+      .cohortRetention()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.retention.set(res.data ?? null),
+        error: () => this.retention.set(null),
       });
     this.analytics
       .funnel()

@@ -81,6 +81,9 @@
 
       @if (partner) {
         <span class="top-actions">
+          <button mat-icon-button (click)="openSearch()" title="Search (Ctrl+K)" aria-label="Search members, prospects, courses and posts">
+            <mat-icon>search</mat-icon>
+          </button>
           @if (partner.role === 'admin') {
             <a mat-button [matMenuTriggerFor]="admin" title="Administrator">
               <mat-icon>admin_panel_settings</mat-icon><span class="top-label">Administrator</span>
@@ -100,9 +103,8 @@
     </mat-toolbar-row>
 
     @if (progress.active()) {
-      <div class="top-loading" role="status" aria-live="polite">
+      <div class="top-loading" role="status" aria-label="Loading">
         <mat-progress-bar mode="indeterminate" class="top-progress" aria-hidden="true" />
-        <span class="top-loading-text">Loading…</span>
       </div>
     }
 
@@ -160,6 +162,7 @@
   <a mat-menu-item routerLink="admin/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Ad campaigns</a>
   <a mat-menu-item routerLink="admin/leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>groups</mat-icon> Lead pool</a>
   <a mat-menu-item routerLink="admin/page-leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>inbox</mat-icon> Page leads</a>
+  <a mat-menu-item routerLink="admin/partner-pipeline" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>person_search</mat-icon> Partner pipeline</a>
   <a mat-menu-item routerLink="admin/pages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>public</mat-icon> Public pages</a>
   <a mat-menu-item routerLink="admin/reservations" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>confirmation_number</mat-icon> Reservation codes</a>
   <a mat-menu-item routerLink="admin/broadcast" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Broadcast</a>

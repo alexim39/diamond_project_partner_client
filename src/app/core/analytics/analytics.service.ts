@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { ActionsEnvelope, ActivationEnvelope, BenchAnalytics, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
+import { ActionsEnvelope, ActivationEnvelope, BenchAnalytics, CohortRetentionEnvelope, FunnelEnvelope, OverviewEnvelope, TeamEnvelope } from './analytics.models';
 import { ApiEnvelope } from '../auth/auth.models';
 
 /** Read-only analytics → backend `/v1/analytics/*`. Fully typed. */
@@ -36,5 +36,15 @@ export class AnalyticsService {
   /** Leadership bench — distribution plus confirmation/nomination pressure. */
   bench(): Observable<ApiEnvelope<BenchAnalytics>> {
     return this.api.get<ApiEnvelope<BenchAnalytics>>(`v1/analytics/bench`);
+  }
+
+  /** Org-wide funnel (admin) — all prospects in-window by stage. */
+  orgFunnel(days = 30): Observable<FunnelEnvelope> {
+    return this.api.get<FunnelEnvelope>(`v1/analytics/admin/funnel?days=${days}`);
+  }
+
+  /** Signup-cohort rank retention (admin). */
+  cohortRetention(months = 6): Observable<CohortRetentionEnvelope> {
+    return this.api.get<CohortRetentionEnvelope>(`v1/analytics/admin/retention?months=${months}`);
   }
 }

@@ -23,7 +23,10 @@ import { NotificationBellComponent } from '../notifications/bell/notification-be
 import { OraWidgetComponent } from '../ora/ora-widget.component';
 import { NotificationStreamService } from '../../core/notifications/notification-stream.service';
 import { ProgressionService } from '../../core/progression/progression.service';
+import { LeadPipelineService } from './prospects/lead-pipeline/lead-pipeline.service';
+import { SearchPaletteComponent } from '../search/search-palette.component';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TopProgressService } from '../../core/loading/top-progress.service';
 import type { MatDrawer } from '@angular/material/sidenav';
@@ -58,6 +61,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'prospects', label: 'Prospects', icon: 'person_search', title: 'Find, follow up and convert',
     children: [
+      { label: 'Reminders', link: 'prospects/reminders', title: 'Follow-up promises due — overdue first' },
       { label: 'My follow-ups', link: 'prospects/pipeline', title: 'People waiting on you — select rows to message them in bulk' },
       { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
       { label: 'My Page Leads', link: 'prospects/personal-list', title: 'Leads from your public page (/:your-username) — private to you' },
@@ -243,11 +247,14 @@ mat-sidenav {
   position: sticky;
   top: 0;
   z-index: 1;
-  /* Declared explicitly — never inherit Material's row display. */
+  /* Declared explicitly — never inherit Material's row display.
+   * Fixed height: inner content can never stretch the bar and push
+   * the page down after data loads. */
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
+  height: 64px;
   box-sizing: border-box;
   flex-wrap: nowrap;
   a, button {
@@ -279,6 +286,13 @@ mat-sidenav {
  * the layout while the session loads so the area never looks broken. */
 .profile-wrap {
   border-bottom: 1px solid var(--dp-line);
+  /* Reserve the loaded header's height (avatar + padding) so the
+   * skeleton and the identity block occupy identical space — the
+   * menu below never shifts and no gap flashes during load. */
+  box-sizing: border-box;
+  min-height: 5em;
+  display: flex;
+  align-items: center;
 }
 .profile-skeleton {
   display: flex;
@@ -463,10 +477,15 @@ mat-sidenav {
  * traps input), and fades in on a short delay so instant requests don't
  * make it flicker. role="status" announces it to screen readers. */
 .top-loading {
-  position: sticky;
+  /* Fixed hairline at the viewport top — ambient progress that can
+   * never reserve layout space or push content down. */
+  position: fixed;
   top: 0;
-  z-index: 2;
+  left: 0;
+  right: 0;
+  z-index: 1200;
   animation: top-loading-in 0.2s ease 0.15s both;
+  pointer-events: none;
 }
 @keyframes top-loading-in {
   from { opacity: 0; }
@@ -474,21 +493,6 @@ mat-sidenav {
 }
 .top-progress {
   height: 3px;
-}
-.top-loading-text {
-  position: fixed;
-  top: 76px;
-  right: 16px;
-  z-index: 50;
-  pointer-events: none;
-  font-size: 0.8em;
-  font-weight: 600;
-  color: var(--dp-sidenav-text);
-  background: var(--dp-sidenav);
-  border: 1px solid var(--dp-line);
-  border-radius: 999px;
-  padding: 0.35em 0.9em;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 @media (prefers-reduced-motion: reduce) {
   .top-loading {
@@ -581,22 +585,35 @@ export class DashboardComponent {
   private readonly openSubs = new Set<string>();
   /** Pending downline confirmations awaiting this member (upline inbox badge). */
   protected readonly pendingConfirmations = signal<number | null>(null);
+  /** Follow-ups due (overdue + today) for the Prospects badge. */
+  protected readonly remindersDue = signal<number | null>(null);
 
   partner!: PartnerInterface;
 
   /** Live badge count — polling today, socket transport later. */
   protected readonly stream = inject(NotificationStreamService);
   private readonly progression = inject(ProgressionService);
+  private readonly pipeline = inject(LeadPipelineService);
   /** Session identity for the presence heartbeat. */
   private readonly presence = inject(AuthService);
   /** Ambient top progress bar — non-blocking, ref-counted. */
   protected readonly progress = inject(TopProgressService);
 
   private readonly themes = inject(ThemeTogglerService);
+  private readonly dialog = inject(MatDialog);
   readonly theme = this.themes.theme;
 
   toggleTheme(): void {
     this.themes.toggle();
+  }
+
+  /** Global search palette — button or Cmd/Ctrl+K. */
+  protected openSearch(): void {
+    this.dialog.open(SearchPaletteComponent, {
+      autoFocus: 'dialog',
+      restoreFocus: true,
+      panelClass: 'search-palette-panel',
+    });
   }
 
   constructor(
@@ -631,6 +648,36 @@ export class DashboardComponent {
 
     this.startPresenceHeartbeat();
     this.refreshConfirmationBadge();
+    this.refreshRemindersBadge();
+    this.bindSearchShortcut();
+  }
+
+  /** Ctrl/⌘+K opens global search from anywhere in the shell. */
+  private bindSearchShortcut(): void {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        this.openSearch();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    this.destroyRef.onDestroy(() => document.removeEventListener('keydown', onKey));
+  }
+
+  /**
+   * Follow-up badge — overdue + due-today count. One-shot, fail-soft.
+   */
+  private refreshRemindersBadge(): void {
+    this.pipeline
+      .reminders()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const d = res.data;
+          this.remindersDue.set(d ? d.overdue.length + d.today.length : 0);
+        },
+        error: () => this.remindersDue.set(null),
+      });
   }
 
   /**
@@ -651,6 +698,10 @@ export class DashboardComponent {
   protected groupBadge(groupKey: string): number | null {
     if (groupKey === 'team') {
       const n = this.pendingConfirmations();
+      return n !== null && n > 0 ? n : null;
+    }
+    if (groupKey === 'prospects') {
+      const n = this.remindersDue();
       return n !== null && n > 0 ? n : null;
     }
     return null;
