@@ -78,7 +78,7 @@ export class OutboxService {
       at: new Date().toISOString(),
     }].slice(-MAX_QUEUED);
     this.persist(rows);
-    this.notice.set('Saved offline — will sync when you reconnect.');
+    this.flash('Saved offline — will sync when you reconnect.');
   }
 
   /** Replay oldest-first; a failed row stays queued for the next pass. */
@@ -105,7 +105,17 @@ export class OutboxService {
       }
     }
     this.syncing.set(false);
-    if (sent > 0) this.notice.set(`Back online — synced ${sent} change${sent === 1 ? '' : 's'}.`);
+    if (sent > 0) this.flash(`Back online — synced ${sent} change${sent === 1 ? '' : 's'}.`);
     return { sent, kept: rows.length };
+  }
+
+  /** Transient banner text — auto-clears so it never squats at the top. */
+  private flash(message: string): void {
+    this.notice.set(message);
+    if (typeof window !== 'undefined') {
+      window.setTimeout(() => {
+        if (this.notice() === message) this.notice.set(null);
+      }, 8000);
+    }
   }
 }

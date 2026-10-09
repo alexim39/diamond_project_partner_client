@@ -96,6 +96,11 @@ body {
   color: var(--dp-text);
 }
 
+/* The outlet itself is a zero-height placeholder — never a gap source. */
+router-outlet {
+  display: none;
+}
+
 /* Routed pages: breathing room from the viewport edges (shell + legacy). */
 mat-sidenav-content > router-outlet + * {
   display: block;

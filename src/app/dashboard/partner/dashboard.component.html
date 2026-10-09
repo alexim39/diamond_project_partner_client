@@ -103,8 +103,9 @@
     </mat-toolbar-row>
 
     @if (progress.active()) {
-      <div class="top-loading" role="status" aria-label="Loading">
+      <div class="top-loading" role="status" aria-live="polite">
         <mat-progress-bar mode="indeterminate" class="top-progress" aria-hidden="true" />
+        <span class="top-loading-text">Loading…</span>
       </div>
     }
 

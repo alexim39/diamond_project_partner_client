@@ -478,11 +478,14 @@ mat-sidenav {
  * make it flicker. role="status" announces it to screen readers. */
 .top-loading {
   /* Fixed hairline at the viewport top — ambient progress that can
-   * never reserve layout space or push content down. */
+   * never reserve layout space or push content down. Zero height with
+   * visible overflow, so even a positioning fallback costs no pixels. */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  height: 0;
+  overflow: visible;
   z-index: 1200;
   animation: top-loading-in 0.2s ease 0.15s both;
   pointer-events: none;
@@ -493,6 +496,26 @@ mat-sidenav {
 }
 .top-progress {
   height: 3px;
+}
+/* Floating pill — fixed overlay like its parent, so it hovers over
+ * content without ever reserving layout space. */
+.top-loading-text {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  pointer-events: none;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--dp-sidenav-text);
+  background: var(--dp-sidenav);
+  border: 1px solid var(--dp-line);
+  border-radius: 999px;
+  padding: 0.35em 0.9em;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
 }
 @media (prefers-reduced-motion: reduce) {
   .top-loading {
