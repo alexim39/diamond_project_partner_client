@@ -32,9 +32,9 @@ export interface ReviewQueueEnvelope {
 export class AdminReservationService {
   private readonly api = inject(ApiClient);
 
-  queue(status = 'Pending', skip = 0, limit = 50, q = ''): Observable<ReviewQueueEnvelope> {
+  queue(status = 'Pending', skip = 0, limit = 50, q = '', sort: 'newest' | 'oldest' = 'newest'): Observable<ReviewQueueEnvelope> {
     const query = new URLSearchParams({
-      status, skip: String(skip), limit: String(limit), q: q.trim(),
+      status, skip: String(skip), limit: String(limit), q: q.trim(), sort,
     });
     return this.api.get<ReviewQueueEnvelope>(`v1/reservations/queue?${query.toString()}`);
   }

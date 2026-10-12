@@ -18,7 +18,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReservationCodeDialogComponent } from './reservation-code.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { minDigitsValidator } from '../../_common/services/phone-number-checker';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /**
  * @title Partner signup
@@ -70,7 +69,7 @@ protected onSubmit(): void {
       this.isSubmitting.set(true);
       const formData: PartnerSignUpInterface = this.signUpForm.value;
       this.subscriptions.push(
-        this.partnerSignUpService.signup(formData).pipe(takeUntilDestroyed()).subscribe({
+        this.partnerSignUpService.signup(formData).subscribe({
           next: (res) => {
             this.isSubmitting.set(false);
             const response = res as { message?: string };

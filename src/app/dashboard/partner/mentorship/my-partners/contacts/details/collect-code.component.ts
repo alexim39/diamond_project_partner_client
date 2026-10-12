@@ -14,6 +14,7 @@ import { ApiClient } from '../../../../../../core/http/api-client.service';
 interface RecordResponse {
   message: string;
   success: boolean;
+  data?: { partnerId?: unknown; recordedBy?: unknown } | null;
 }
 
 /**
@@ -35,7 +36,11 @@ interface RecordResponse {
 <h2 mat-dialog-title>{{this.data.prospectName | titlecase}} {{this.data.prospectSurname | titlecase}} Reservation Code</h2>
 
 <mat-dialog-content>
+@if (this.data?.onBehalfOf?.ownerId) {
+<p>Provide the Diamond Project reservation code issued for this prospect. Recording it links the credit to <strong>{{this.data.onBehalfOf.ownerName || 'the downline owner'}}</strong> as referrer — you are recorded as the supporter.</p>
+} @else {
 <p>Provide the Diamond Project reservation code issued for this prospect. Recording it approves the code and links it to you as the referrer.</p>
+}
   <mat-form-field appearance="outline">
     <mat-label>Enter Reservation Code</mat-label>
     <input matInput [(ngModel)]="code" placeholder="Eg. NV012652"/>
@@ -79,21 +84,43 @@ export class CollectCodeComponent {
     }
 
     const cap = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+    const onBehalfOf = String(this.data?.onBehalfOf?.ownerId ?? '').trim();
+    const ownerName = String(this.data?.onBehalfOf?.ownerName ?? '').trim() || 'the downline owner';
 
     this.submitting.set(true);
     this.api
       .post<RecordResponse>('v1/reservations/record', {
         code,
         ...(this.data?._id ? { prospectId: String(this.data._id) } : {}),
+        // Explicit beneficiary intent — the server verifies it equals the
+        // prospect's owner and routes the credit there (actor = session).
+        ...(onBehalfOf ? { onBehalfOf } : {}),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.submitting.set(false);
+          if (onBehalfOf) {
+            // Verify the routing — an outdated API silently drops onBehalfOf
+            // (unknown keys stripped) and credits the session instead.
+            const routedTo = res?.data?.partnerId ? String(res.data.partnerId) : '';
+            if (!routedTo || routedTo !== onBehalfOf) {
+              Swal.fire({
+                position: 'bottom',
+                icon: 'warning',
+                text: `Code recorded, but credit routing could not be confirmed — ask an admin to verify it landed on ${ownerName} before the prospect signs up.`,
+                showConfirmButton: true,
+                confirmButtonColor: '#ffab40',
+              });
+              return;
+            }
+          }
           Swal.fire({
             position: 'bottom',
             icon: 'success',
-            text: res.message || `Reservation code recorded for ${cap(this.data.prospectSurname)} ${cap(this.data.prospectName)}`,
+            text: res.message
+              ? (onBehalfOf ? `${res.message} — credit to ${ownerName}.` : res.message)
+              : `Reservation code recorded for ${cap(this.data.prospectSurname)} ${cap(this.data.prospectName)}`,
             showConfirmButton: true,
             confirmButtonColor: '#ffab40',
             timer: 15000,

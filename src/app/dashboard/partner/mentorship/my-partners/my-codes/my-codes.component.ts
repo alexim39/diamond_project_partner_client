@@ -109,7 +109,11 @@ type CodeFilter = 'All' | 'Pending' | 'Approved' | 'Used' | 'Rejected';
             </ng-container>
             <ng-container matColumnDef="added">
               <th mat-header-cell *matHeaderCellDef>Recorded</th>
-              <td mat-cell *matCellDef="let row" class="muted">{{ row.createdAt | date:'mediumDate' }}</td>
+              <td mat-cell *matCellDef="let row" class="muted">{{ row.createdAt | date:'mediumDate' }}
+                @if (row.recordedBy) {
+                  <span class="dp-status dp-status--info" title="Recorded by a supporting upline">Teammate-recorded</span>
+                }
+              </td>
             </ng-container>
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>

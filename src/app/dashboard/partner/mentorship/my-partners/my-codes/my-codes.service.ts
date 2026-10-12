@@ -9,6 +9,8 @@ export interface MyCodeRow {
   status: string;
   prospectId: string | null;
   prospect: { name: string; phone: string } | null;
+  /** Submitting actor for on-behalf records (null = self-recorded). */
+  recordedBy: string | null;
   createdAt: string | null;
 }
 

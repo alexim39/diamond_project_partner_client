@@ -224,7 +224,8 @@ export class ManageContactsAnalyticsComponent implements OnInit {
               timer: 15000,
             }).then((result) => {
               if (result.isConfirmed) {
-                this.router.navigateByUrl('dashboard/manage-contacts');
+                // Legacy manage-contacts list is retired — the pipeline is the own-list home.
+                this.router.navigateByUrl('dashboard/prospects/pipeline');
               }
             });
 

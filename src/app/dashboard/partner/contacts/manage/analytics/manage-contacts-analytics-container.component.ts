@@ -53,7 +53,9 @@ export class ManageContactsAnalyticsContainerComponent implements OnInit {
   ) { }
 
   back(): void {
-    this.router.navigateByUrl('dashboard/manage-contacts');
+    // Legacy manage-contacts list is retired — back through history, pipeline as fallback.
+    if (window.history.length > 1) window.history.back();
+    else this.router.navigateByUrl('dashboard/prospects/pipeline');
   }
 
   ngOnInit(): void {

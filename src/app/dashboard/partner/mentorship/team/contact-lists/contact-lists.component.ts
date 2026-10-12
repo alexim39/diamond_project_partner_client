@@ -14,7 +14,7 @@ import { DownlineContactListItem } from '../../../prospects/lead-pipeline/lead.m
 import { ApiError } from '../../../../../core/http/api-error';
 
 type ListFilter = 'all' | 'needs-work' | 'done' | 'overdue';
-type SortBy = 'newest' | 'oldest' | 'unworked' | 'name';
+type SortBy = 'attention' | 'newest' | 'oldest' | 'unworked' | 'name';
 
 const PAGE_SIZE = 8;
 const PREVIEW_COUNT = 5;
@@ -108,6 +108,7 @@ interface MemberGroup {
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Sort members</mat-label>
             <mat-select [value]="sortBy()" (selectionChange)="sortBy.set($event.value); page.set(0)">
+              <mat-option value="attention">Needs attention first</mat-option>
               <mat-option value="newest">Newest list first</mat-option>
               <mat-option value="oldest">Oldest pending first</mat-option>
               <mat-option value="unworked">Most unworked first</mat-option>
@@ -306,7 +307,7 @@ export class DownlineContactListsComponent implements OnInit {
   protected readonly query = signal('');
   protected readonly filter = signal<ListFilter>('all');
   protected readonly memberFilter = signal('all');
-  protected readonly sortBy = signal<SortBy>('newest');
+  protected readonly sortBy = signal<SortBy>('attention');
   protected readonly page = signal(0);
   protected readonly expanded = signal<Record<string, boolean>>({});
   protected readonly expandedMembers = signal<Record<string, boolean>>({});
@@ -376,6 +377,14 @@ export class DownlineContactListsComponent implements OnInit {
     out.sort((a, b) => {
       if (sort === 'name') return a.name.localeCompare(b.name);
       if (sort === 'unworked') return b.unworked - a.unworked;
+      // Attention first: overdue members top, then most unworked, then newest —
+      // the upline workbench answers "who needs me next" without filtering.
+      if (sort === 'attention') {
+        if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
+        if (b.unworked !== a.unworked) return b.unworked - a.unworked;
+        const at = (v: string | null) => (v ? new Date(v).getTime() : 0);
+        return at(b.lastSubmitted) - at(a.lastSubmitted);
+      }
       if (sort === 'oldest') {
         const at = (g: MemberGroup) => {
           const pending = g.batches.filter((x) => (x.total - x.worked) > 0).map((x) => new Date(x.submittedAt ?? 0).getTime());

@@ -21,8 +21,9 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
  *
  * Legacy survey-submitted codes land at Pending with no other path to
  * approval; v1 self-approves and never appears here needing work.
- * Approve makes a code usable at signup, Reject kills it. FIFO
- * oldest-first; issuer notified on every move. OnPush + signals.
+ * Approve makes a code usable at signup, Reject kills it. Newest first
+ * by default (oldest-first FIFO available via the sort control); issuer
+ * notified on every move. OnPush + signals.
  */
 @Component({
   selector: 'async-admin-reservations',
@@ -73,6 +74,13 @@ type QueueFilter = 'Pending' | 'Approved' | 'Rejected' | 'Used' | 'All';
             @for (f of filters; track f) {
               <mat-option [value]="f">{{ f === 'All' ? 'All statuses' : f }}</mat-option>
             }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Sort</mat-label>
+          <mat-select [value]="sortDir()" (selectionChange)="sortDir.set($event.value); pageIndex.set(0); reload()">
+            <mat-option value="newest">Newest first</mat-option>
+            <mat-option value="oldest">Oldest first</mat-option>
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -251,6 +259,7 @@ export class AdminReservationsComponent implements OnInit {
   protected readonly total = signal(0);
   protected readonly summary = signal<{ Pending: number; Approved: number; Rejected: number; Used: number } | null>(null);
   protected readonly filter = signal<QueueFilter>('Approved');
+  protected readonly sortDir = signal<'newest' | 'oldest'>('newest');
   protected readonly query = signal('');
   protected readonly searchText = signal('');
   protected readonly deletingId = signal<string | null>(null);
@@ -270,7 +279,7 @@ export class AdminReservationsComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.admin
-      .queue(this.filter(), this.pageIndex() * this.pageSize(), this.pageSize(), this.query())
+      .queue(this.filter(), this.pageIndex() * this.pageSize(), this.pageSize(), this.query(), this.sortDir())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
