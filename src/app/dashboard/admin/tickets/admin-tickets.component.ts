@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { AdminTicketsService, AdminTicket, TicketStatus } from './admin-tickets.service';
+import { AvatarComponent } from '../../../_common/avatar.component';
+import { ViewAsService } from '../../../core/viewas/viewas.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 
@@ -25,7 +27,7 @@ const STATUSES: TicketStatus[] = ['open', 'in-progress', 'resolved', 'closed'];
 @Component({
   selector: 'async-admin-tickets',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTableModule, RouterModule],
+  imports: [AvatarComponent, DatePipe, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatTableModule, RouterModule],
   template: `
     <section class="breadcrumb-wrapper">
       <div class="breadcrumb">
@@ -83,6 +85,14 @@ const STATUSES: TicketStatus[] = ['open', 'in-progress', 'resolved', 'closed'];
                 <strong>{{ row.subject }}</strong>
                 <span class="muted">{{ row.category }} · {{ row.priority }} · {{ row.createdAt | date:'mediumDate' }}</span>
                 <span class="muted">{{ row.description }}</span>
+                <span class="reporter">
+                  @if (row.reporter) {
+                    <async-avatar [photo]="null" [name]="row.reporter.name" size="xs" />
+                    <span>{{ row.reporter.name }} <span class="muted">@{{ row.reporter.username ?? '—' }}</span></span>
+                  } @else {
+                    <span class="muted">Reporter unavailable</span>
+                  }
+                </span>
               </td>
             </ng-container>
             <ng-container matColumnDef="status">
@@ -120,6 +130,7 @@ const STATUSES: TicketStatus[] = ['open', 'in-progress', 'resolved', 'closed'];
                 } @else {
                   <button mat-button (click)="assignMe(row)" [disabled]="actingId() === row.id">Assign me</button>
                   <button mat-button (click)="openWork(row)">Work</button>
+                  <button mat-button (click)="viewAs.open(row.partnerId)" [disabled]="!row.partnerId">View as</button>
                 }
               </td>
             </ng-container>
@@ -150,6 +161,7 @@ const STATUSES: TicketStatus[] = ['open', 'in-progress', 'resolved', 'closed'];
     .table-wrap { overflow-x: auto; border-radius: 8px; }
     table { width: 100%; }
     .subject-cell { display: flex; flex-direction: column; gap: 0.15em; }
+    .reporter { display: inline-flex; align-items: center; gap: 0.45em; margin-top: 0.25em; font-size: 0.88em; font-weight: 600; }
     .action-cell mat-form-field { min-width: 180px; margin-right: 0.5em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .empty { color: var(--dp-muted); }
@@ -161,6 +173,7 @@ const STATUSES: TicketStatus[] = ['open', 'in-progress', 'resolved', 'closed'];
 export class AdminTicketsComponent implements OnInit {
   private readonly tickets = inject(AdminTicketsService);
   private readonly auth = inject(AuthService);
+  protected readonly viewAs = inject(ViewAsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly statuses = STATUSES;
@@ -219,11 +232,11 @@ export class AdminTicketsComponent implements OnInit {
     return id?.length > 10 ? `…${id.slice(-6)}` : (id ?? '—');
   }
 
-  /** Swap the updated ticket into the table (no-op when the body is empty). */
-  private replaceRow(row: AdminTicket, updated: AdminTicket | undefined): void {
-    if (!updated) return;
-    this.rows.set(this.rows().map((r) => (r.id === row.id ? updated : r)));
-  }
+  /**
+   * Refresh from the server after every decision so the table always
+   * shows database truth (including filter-correct placement), never a
+   * locally patched row that could drift from what was saved.
+   */
 
   protected openWork(row: AdminTicket): void {
     this.openId.set(row.id);
@@ -244,10 +257,10 @@ export class AdminTicketsComponent implements OnInit {
       .decide(row.id, { assigneeId: me, ...(row.status === 'open' ? { status: 'in-progress' as TicketStatus } : {}) })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.actingId.set(null);
-          this.replaceRow(row, res.data);
           this.notice.set('Ticket assigned to you.');
+          this.reload();
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
@@ -267,8 +280,8 @@ export class AdminTicketsComponent implements OnInit {
         next: (res) => {
           this.actingId.set(null);
           this.openId.set(null);
-          this.replaceRow(row, res.data);
           this.notice.set(`Ticket marked ${res.data?.status ?? 'updated'} — requester notified in-app.`);
+          this.reload();
         },
         error: (err: ApiError) => {
           this.actingId.set(null);
@@ -283,11 +296,11 @@ export class AdminTicketsComponent implements OnInit {
       .decide(row.id, { status: 'in-progress', reopen: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.actingId.set(null);
           this.openId.set(null);
-          this.replaceRow(row, res.data);
           this.notice.set('Ticket reopened.');
+          this.reload();
         },
         error: (err: ApiError) => {
           this.actingId.set(null);

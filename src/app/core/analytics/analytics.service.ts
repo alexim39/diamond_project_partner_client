@@ -24,8 +24,10 @@ export class AnalyticsService {
   }
 
   /** Single aggregation powering the Insights page (replaces 3 calls). */
-  overview(days = 30): Observable<OverviewEnvelope> {
-    return this.api.get<OverviewEnvelope>(`v1/dashboard/overview?days=${days}`);
+  overview(days = 30, forId?: string): Observable<OverviewEnvelope> {
+    const params = new URLSearchParams({ days: String(days) });
+    if (forId?.trim()) params.set('for', forId.trim());
+    return this.api.get<OverviewEnvelope>(`v1/dashboard/overview?${params.toString()}`);
   }
 
   /** 7-day onboarding activation over the trailing signup cohort. */

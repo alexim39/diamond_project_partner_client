@@ -21,8 +21,8 @@ import { MyPartnersService } from '../my-partners.service';
   }
   @if (isEmptyRecord) {
     <div class="container">
-      <p class="no-content">Something Went Wrong or may be you dont have contacts yet!</p>
-      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
+      <p class="no-content">This member could not be loaded — they may have been reassigned.</p>
+      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Back to My partners</button>
     </div>
   }
   `,
@@ -38,8 +38,9 @@ import { MyPartnersService } from '../my-partners.service';
     align-items: center;
   }
   .no-content {
-    color: rgb(196, 129, 4);
+    color: var(--dp-gold-ink);
     font-weight: bold;
+    text-align: center;
   }
    
   `

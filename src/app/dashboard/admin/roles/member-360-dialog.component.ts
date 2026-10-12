@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AdminService } from '../../../core/admin/admin.service';
+import { ViewAsService } from '../../../core/viewas/viewas.service';
 import { Member360 } from '../../../core/admin/admin.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 
@@ -79,6 +80,7 @@ const num = (v: unknown): number => {
           <p class="muted">Journey: {{ p.journey.level ?? 'not started' }} · deposits: {{ p.growth.deposits ?? '—' }}</p>
         </div>
         <div class="actions">
+          <button mat-button (click)="viewAsMember()" [disabled]="acting()">View as member</button>
           <button mat-button (click)="act('reset')" [disabled]="acting()">Reset password</button>
           <button mat-button (click)="act('signout')" [disabled]="acting()">Sign out</button>
           <button mat-button color="warn" (click)="act('suspend')" [disabled]="acting()">
@@ -117,6 +119,7 @@ export class Member360DialogComponent {
   private readonly dialogRef = inject(MatDialogRef<Member360DialogComponent>);
   private readonly data = inject<{ partnerId: string; onAction: (kind: 'reset' | 'signout' | 'suspend') => void }>(MAT_DIALOG_DATA);
   private readonly admin = inject(AdminService);
+  private readonly viewAs = inject(ViewAsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -164,6 +167,13 @@ export class Member360DialogComponent {
   }
 
   protected close(): void {
+    this.dialogRef.close();
+  }
+
+  /** Audited read-only entry, then the full member view. */
+  protected viewAsMember(): void {
+    const id = this.data.partnerId;
+    this.viewAs.open(id);
     this.dialogRef.close();
   }
 }

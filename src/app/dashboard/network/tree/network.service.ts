@@ -16,6 +16,11 @@ export class NetworkService {
     return this.api.get<UplineEnvelope>(`v1/network/${partnerId}/upline`);
   }
 
+  /** Downline member 360 (self, upline or admin) — read-only profile shape. */
+  member360(partnerId: string): Observable<unknown> {
+    return this.api.get(`v1/network/${partnerId}/member360`);
+  }
+
   displayName(node: { name: string; surname: string; username: string }): string {
     const full = `${node.name ?? ''} ${node.surname ?? ''}`.trim();
     return full || node.username;

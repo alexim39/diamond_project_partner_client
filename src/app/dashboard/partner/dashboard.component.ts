@@ -25,6 +25,7 @@ import { NotificationStreamService } from '../../core/notifications/notification
 import { ProgressionService } from '../../core/progression/progression.service';
 import { LeadPipelineService } from './prospects/lead-pipeline/lead-pipeline.service';
 import { SearchPaletteComponent } from '../search/search-palette.component';
+import { ViewAsService } from '../../core/viewas/viewas.service';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -581,6 +582,21 @@ mat-sidenav {
   height: 76px;
 }
 
+/* View-as mode — gold read-only bar pinned under the topbar. */
+.viewas-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.55em 1em;
+  background: var(--dp-gold-soft);
+  color: var(--dp-gold-ink);
+  border-bottom: 1px solid var(--dp-gold);
+  font-size: 0.88em;
+}
+.viewas-bar p { margin: 0; }
+.viewas-bar .spacer { flex: 1; }
+.viewas-bar a, .viewas-bar button { min-height: 44px; }
+
 
 
 
@@ -640,6 +656,7 @@ export class DashboardComponent {
 
   private readonly themes = inject(ThemeTogglerService);
   private readonly dialog = inject(MatDialog);
+  protected readonly viewAs = inject(ViewAsService);
   readonly theme = this.themes.theme;
 
   toggleTheme(): void {

@@ -102,6 +102,16 @@
       }
     </mat-toolbar-row>
 
+    @if (viewAs.viewingAs(); as viewed) {
+      <div class="viewas-bar" role="status">
+        <mat-icon aria-hidden="true">visibility</mat-icon>
+        <p>Viewing as <strong>{{ viewed.name }}</strong> (@{{ viewed.username ?? '—' }}) — read-only</p>
+        <span class="spacer"></span>
+        <a mat-button [routerLink]="['/dashboard/network/view', viewed.id]">Full view</a>
+        <button mat-button (click)="viewAs.exit()">Exit</button>
+      </div>
+    }
+
     @if (progress.active()) {
       <div class="top-loading" role="status" aria-live="polite">
         <mat-progress-bar mode="indeterminate" class="top-progress" aria-hidden="true" />

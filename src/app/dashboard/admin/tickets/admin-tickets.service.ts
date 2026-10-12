@@ -13,6 +13,7 @@ export interface AdminTicket {
   priority: string;
   comment?: string;
   partnerId: string;
+  reporter?: { id: string; username: string | null; name: string } | null;
   status: TicketStatus;
   assigneeId: string | null;
   resolutionNote: string | null;

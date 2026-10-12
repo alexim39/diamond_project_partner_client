@@ -15,6 +15,7 @@ import { ManagedPartner } from '../../../core/admin/admin.models';
 import { LeadPipelineService } from '../../partner/prospects/lead-pipeline/lead-pipeline.service';
 import { ProspectLead, ProspectStage, STAGE_ORDER, STAGE_TONE } from '../../partner/prospects/lead-pipeline/lead.models';
 import { AvatarComponent } from '../../../_common/avatar.component';
+import { ViewAsService } from '../../../core/viewas/viewas.service';
 import { ApiError } from '../../../core/http/api-error';
 
 /**
@@ -97,6 +98,7 @@ import { ApiError } from '../../../core/http/api-error';
           @if (stuckCount() > 0) {
             <span class="dp-status dp-status--bad">{{ stuckCount() }} stuck</span>
           }
+          <button mat-button (click)="viewAs.open(s.id)">View as member</button>
         </div>
 
         <div class="stage-cards" role="group" aria-label="Pipeline stages">
@@ -194,6 +196,7 @@ import { ApiError } from '../../../core/http/api-error';
 export class AdminPartnerPipelineComponent implements OnInit {
   private readonly admin = inject(AdminService);
   private readonly pipeline = inject(LeadPipelineService);
+  protected readonly viewAs = inject(ViewAsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly query = signal('');
