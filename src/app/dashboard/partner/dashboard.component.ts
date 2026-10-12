@@ -117,14 +117,30 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'journey', label: 'My Journey', icon: 'route', title: 'Where you are and what is next',
     children: [
-      { label: 'My level & next steps', link: 'progress', title: 'My level and next steps' },
-      { label: 'My targets', link: 'goals', title: 'My targets' },
-      { label: 'Academy dashboard', link: 'training', title: 'Your learning journey at a glance' },
-      { label: 'Learning paths', link: 'training/paths', title: '10 rank journeys' },
-      { label: 'Courses', link: 'training/courses', title: 'Courses that move you up' },
-      { label: 'Library', link: 'training/library', title: 'Search, bookmarks and recent' },
-      { label: 'Analytics', link: 'training/analytics', title: 'Completion and pipeline' },
-      { label: 'My Coach', link: 'training/coach', title: 'Coaching notes with your upline' },
+      {
+        label: 'My Progress', title: 'Level, targets and next steps',
+        children: [
+          { label: 'My level & next steps', link: 'progress', title: 'My level and next steps' },
+          { label: 'My targets', link: 'goals', title: 'My targets' },
+        ],
+      },
+      {
+        label: 'Academy', title: 'Courses, tutorials and library',
+        children: [
+          { label: 'Academy dashboard', link: 'training', title: 'Your learning journey at a glance' },
+          { label: 'Platform tutorials', link: 'training/tutorials', title: 'How-to videos for every part of the app' },
+          { label: 'Learning paths', link: 'training/paths', title: '10 rank journeys' },
+          { label: 'Courses', link: 'training/courses', title: 'Courses that move you up' },
+          { label: 'Library', link: 'training/library', title: 'Search, bookmarks and recent' },
+        ],
+      },
+      {
+        label: 'Coaching', title: 'Mentor notes and training insights',
+        children: [
+          { label: 'My Coach', link: 'training/coach', title: 'Coaching notes with your upline' },
+          { label: 'Analytics', link: 'training/analytics', title: 'Completion and pipeline' },
+        ],
+      },
     ],
   },
   {
@@ -370,7 +386,7 @@ mat-sidenav {
   border-radius: 8px;
   margin: 1px 0;
   .nav-row.sub {
-    min-height: 40px;
+    min-height: 44px;
   }
   .nav-label {
     font-size: 0.86em;

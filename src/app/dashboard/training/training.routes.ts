@@ -6,6 +6,7 @@ import { TrainingAnalyticsComponent } from './analytics/training-analytics.compo
 import { MyCoachComponent } from './coach/my-coach.component';
 import { TrainingListComponent } from './list/training-list.component';
 import { TrainingDetailComponent } from './detail/training-detail.component';
+import { TutorialsComponent } from './tutorials/tutorials.component';
 
 export const TrainingRoutes: Routes = [
   {
@@ -32,6 +33,11 @@ export const TrainingRoutes: Routes = [
     path: 'coach',
     component: MyCoachComponent,
     title: 'My Coach - Mentorship and notes',
+  },
+  {
+    path: 'tutorials',
+    component: TutorialsComponent,
+    title: 'Platform Tutorials - How-to videos by app area',
   },
   {
     path: 'courses',

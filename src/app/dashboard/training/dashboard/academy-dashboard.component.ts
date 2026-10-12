@@ -47,7 +47,8 @@ import { ApiError } from '../../../core/http/api-error';
           <p class="subtitle">From Prospect to G8 — your rank, your courses, your next move.</p>
         </div>
         <div class="head-actions">
-          <a mat-button routerLink="paths">Learning paths</a>
+          <a mat-button routerLink="tutorials">Tutorials</a>
+        <a mat-button routerLink="paths">Learning paths</a>
           <a mat-button routerLink="analytics">Analytics</a>
           <a mat-button routerLink="coach">My Coach</a>
           <a mat-button routerLink="library">Library</a>

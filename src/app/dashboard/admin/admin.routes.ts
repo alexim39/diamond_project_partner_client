@@ -17,6 +17,8 @@ import { AdminTicketsComponent } from './tickets/admin-tickets.component';
 import { AdminModerationComponent } from './moderation/admin-moderation.component';
 import { AdminBroadcastComponent } from './broadcast/admin-broadcast.component';
 import { AdminSubscriptionsComponent } from './subscriptions/admin-subscriptions.component';
+import { AdminBonusesComponent } from './bonuses/admin-bonuses.component';
+import { AdminTutorialsComponent } from './tutorials/admin-tutorials.component';
 import { AdminPlanComponent } from './plan/admin-plan.component';
 import { AdminProductsComponent } from './products/admin-products.component';
 import { OversightComponent } from './oversight/oversight.component';
@@ -116,6 +118,16 @@ export const AdminRoutes: Routes = [
         path: 'subscriptions',
         component: AdminSubscriptionsComponent,
         title: 'Email List - Newsletter subscriptions',
+      },
+      {
+        path: 'bonuses',
+        component: AdminBonusesComponent,
+        title: 'Bonuses - Wallet bonus campaigns',
+      },
+      {
+        path: 'tutorials',
+        component: AdminTutorialsComponent,
+        title: 'Tutorials - Platform how-to videos',
       },
       {
         path: 'plan',

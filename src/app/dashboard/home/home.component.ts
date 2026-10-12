@@ -16,6 +16,7 @@ import { PresenceService, PresenceStatus } from '../../core/presence/presence.se
 import { AvatarComponent } from '../../_common/avatar.component';
 import { ProgressionService } from '../../core/progression/progression.service';
 import { LeadPipelineService } from '../partner/prospects/lead-pipeline/lead-pipeline.service';
+import { BonusService, EligibleBonus } from '../../core/bonuses/bonus.service';
 import { DailyAction, DashboardOverview } from '../../core/analytics/analytics.models';
 import { PerformanceData } from '../../core/billing/billing.models';
 import { FeedPost } from '../../core/community/community.models';
@@ -49,6 +50,21 @@ import { ApiError } from '../../core/http/api-error';
           </button>
         </div>
       }
+      @if (bonus()?.campaign; as campaign) {
+        <div class="bonus-banner" role="status">
+          <mat-icon>card_giftcard</mat-icon>
+          <div class="bonus-body">
+            <strong>{{ campaign.title }} — ₦{{ campaign.amountNgn | number }} waiting</strong>
+            <p>{{ campaign.message || 'Claim it into your wallet and put it to work.' }}</p>
+            @if (bonusNotice(); as note) {
+              <p class="notice">{{ note }}</p>
+            }
+          </div>
+          <button mat-flat-button color="primary" (click)="claimBonus()" [disabled]="claimingBonus()">
+            {{ claimingBonus() ? 'Claiming…' : 'Claim ₦' + (campaign.amountNgn | number) }}
+          </button>
+        </div>
+      }
       <div class="greeting">
         <div>
           <p class="eyebrow">Today · Daily Action Center</p>
@@ -58,6 +74,18 @@ import { ApiError } from '../../core/http/api-error';
         </div>
         <a mat-button routerLink="insights">Full insights</a>
       </div>
+
+      @if (!tutorialsDismissed()) {
+        <div class="tutorials-callout dp-card">
+          <mat-icon>smart_display</mat-icon>
+          <p><strong>New:</strong> short videos show how each part of the app works.</p>
+          <span class="spacer"></span>
+          <a mat-button routerLink="training/tutorials">Watch tutorials</a>
+          <button mat-icon-button (click)="tutorialsDismissed.set(true)" aria-label="Dismiss tutorials callout">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
 
       @if (showStarter()) {
         <div class="starter-strip dp-card">
@@ -231,6 +259,12 @@ import { ApiError } from '../../core/http/api-error';
     .today { margin: 0 0 0.2em; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8em; }
     .eyebrow { margin: 0 0 0.3em; font-size: 0.78em; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dp-gold-ink); }
     .profile-banner { display: flex; align-items: center; gap: 0.75em; background: var(--dp-info-bg); border: 1px solid var(--dp-info); border-radius: 10px; padding: 0.7em 0.9em; margin: 1em 0; }
+    .bonus-banner { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; background: var(--dp-gold-soft); border: 1px solid var(--dp-gold); border-radius: 10px; padding: 0.7em 0.9em; margin: 1em 0; }
+    .bonus-banner mat-icon { color: var(--dp-gold-ink); flex: none; }
+    .bonus-body { flex: 1; display: flex; flex-direction: column; gap: 0.1em; min-width: 0; }
+    .bonus-body p { margin: 0; font-size: 0.9em; }
+    .bonus-body .notice { color: var(--dp-success); font-weight: 600; }
+    .bonus-banner button { flex: none; min-height: 44px; }
     .profile-banner mat-icon { color: var(--dp-info); flex: none; }
     .profile-banner p { margin: 0; flex: 1; font-size: 0.9em; }
     .profile-banner a { flex: none; min-height: 44px; }
@@ -266,6 +300,11 @@ import { ApiError } from '../../core/http/api-error';
     .starter-strip li.done mat-icon { color: var(--dp-success, #2e7d32); }
     .starter-strip .spacer { flex: 1; }
     .starter-strip a { min-height: 44px; }
+    .tutorials-callout { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; padding: 0.7em 0.9em; border-left: 4px solid var(--dp-gold); }
+    .tutorials-callout mat-icon { color: var(--dp-gold); flex: none; }
+    .tutorials-callout p { margin: 0; font-size: 0.9em; }
+    .tutorials-callout .spacer { flex: 1; }
+    .tutorials-callout a { min-height: 44px; flex: none; }
     .journey-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
     .journey-level { display: block; font-size: 1.3em; margin-top: 0.15em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
@@ -281,6 +320,7 @@ export class HomeComponent implements OnInit {
   private readonly progress = inject(ProgressionService);
   private readonly community = inject(CommunityService);
   private readonly presence = inject(PresenceService);
+  private readonly bonuses = inject(BonusService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -294,6 +334,10 @@ export class HomeComponent implements OnInit {
   protected readonly listSubmitted = signal(false);
   protected readonly today = new Date();
   protected readonly bannerDismissed = signal(false);
+  protected readonly tutorialsDismissed = signal(false);
+  protected readonly bonus = signal<EligibleBonus | null>(null);
+  protected readonly claimingBonus = signal(false);
+  protected readonly bonusNotice = signal<string | null>(null);
 
   /** Required for onboarding: phone + street/city/state (picture stays optional). */
   protected profileIncomplete(): boolean {
@@ -412,25 +456,51 @@ export class HomeComponent implements OnInit {
     return this.presence.statusOf(this.presenceMap()[String(authorId)] ?? null);
   }
 
+  /** Claim the visible bonus — single-tap, idempotent server-side. */
+  protected claimBonus(): void {
+    const campaign = this.bonus()?.campaign;
+    if (!campaign || this.claimingBonus()) return;
+    this.claimingBonus.set(true);
+    this.bonusNotice.set(null);
+    this.bonuses
+      .claim(campaign.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.claimingBonus.set(false);
+          this.bonusNotice.set(res.message ?? `₦${Number(campaign.amountNgn).toLocaleString()} added to your wallet.`);
+          this.bonus.set(null);
+        },
+        error: (err: ApiError) => {
+          this.claimingBonus.set(false);
+          // Already-claimed races simply clear the banner.
+          if (String(err.message ?? '').toLowerCase().includes('already claimed')) this.bonus.set(null);
+          else this.bonusNotice.set(err.message);
+        },
+      });
+  }
+
   protected reload(): void {
     this.loading.set(true);
     this.error.set(null);
-    // Journey + community + contact list fail soft — the page must never blank on them.
+    // Journey + community + contact list + bonus fail soft — the page must never blank on them.
     forkJoin({
       overview: this.analytics.overview(30),
       perf: this.billing.performance(),
       journey: this.progress.mine().pipe(catchError(() => of(null))),
       feed: this.community.feed(undefined, 5).pipe(catchError(() => of(null))),
       contactList: this.leads.contactListMine().pipe(catchError(() => of(null))),
+      bonus: this.bonuses.eligible().pipe(catchError(() => of(null))),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ overview, perf, journey, feed, contactList }) => {
+        next: ({ overview, perf, journey, feed, contactList, bonus }) => {
           this.overview.set(overview.data ?? null);
           this.earnings.set(perf.data ?? null);
           this.journey.set(journey?.data ?? null);
           this.communityPosts.set(feed?.data?.items?.slice(0, 3) ?? []);
           this.listSubmitted.set((contactList?.data?.batches ?? []).length > 0);
+          this.bonus.set(bonus?.data?.campaign ? (bonus.data as EligibleBonus) : null);
           this.loading.set(false);
           const ids = (feed?.data?.items ?? []).map((p) => p.authorId);
           if (ids.length > 0) {
