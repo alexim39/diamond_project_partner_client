@@ -187,13 +187,23 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'me', label: 'Me & Settings', icon: 'person', title: 'Your account and help',
     children: [
-      { label: 'My account', link: 'settings/profiles', title: 'Your account' },
-      { label: 'My public page', link: 'settings/landing-page', title: 'Your public page' },
-      { label: 'Notification settings', link: 'notifications/preferences', title: 'How you get notified' },
-      { label: 'Ask Ora', link: 'ora', title: 'Chat with Ora, your growth coach' },
-      { label: 'Get help', link: 'support/ticket', title: 'Ask for help' },
-      { label: 'About', link: 'support/about/app', title: 'About this app' },
-      { label: 'Survey', external: 'https://survey.c21fg.online/', title: 'Partners survey' },
+      {
+        label: 'Account', title: 'Your identity and preferences',
+        children: [
+          { label: 'My account', link: 'settings/profiles', title: 'Your account' },
+          { label: 'My public page', link: 'settings/landing-page', title: 'Your public page' },
+          { label: 'Notification settings', link: 'notifications/preferences', title: 'How you get notified' },
+        ],
+      },
+      {
+        label: 'Help & feedback', title: 'Get unstuck, have your say',
+        children: [
+          { label: 'Ask Ora', link: 'ora', title: 'Chat with Ora, your growth coach' },
+          { label: 'Get help', link: 'support/ticket', title: 'Ask for help' },
+          { label: 'About', link: 'support/about/app', title: 'About this app' },
+          { label: 'Survey', external: 'https://survey.c21fg.online/', title: 'Partners survey' },
+        ],
+      },
     ],
   },
 ];
@@ -774,6 +784,9 @@ export class DashboardComponent {
     if (groupKey === 'prospects') {
       const n = this.remindersDue();
       return n !== null && n > 0 ? n : null;
+    }
+    if (groupKey === 'me') {
+      return this.profileIncomplete() ? 1 : null;
     }
     return null;
   }

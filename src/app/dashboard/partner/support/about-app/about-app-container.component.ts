@@ -1,7 +1,5 @@
 
-import {Component, OnDestroy, OnInit, ChangeDetectionStrategy} from '@angular/core';
-import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription } from 'rxjs';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { AboutAppComponent } from './about-app.component';
 
 
@@ -9,36 +7,7 @@ import { AboutAppComponent } from './about-app.component';
     selector: 'async-about-app-container',
     imports: [AboutAppComponent],
     providers: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    template: `
-  @if (partner) {
-    <async-about-app [partner]="partner"/>
-  }
-  `
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `<async-about-app />`
 })
-export class AboutAppContainerComponent implements OnInit, OnDestroy {
-
-  partner!: PartnerInterface;
-  subscriptions: Subscription[] = [];
-
-  constructor(
-    private partnerService: PartnerService,
-  ) { }
-
-  ngOnInit() {
-      
-    // get current signed in user
-    this.subscriptions.push(
-      this.partnerService.getSharedPartnerData$.subscribe({
-        next: (partnerObject) => {
-            this.partner = partnerObject as PartnerInterface
-        }
-      })
-    )
-  }
-
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  }
-}
+export class AboutAppContainerComponent {}
