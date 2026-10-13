@@ -53,10 +53,10 @@ export interface NavGroup {
 /**
  * Information architecture — one home per PRD module (8 groups + Home + Alerts).
  * Home · Alerts · Prospects · Marketing · My Team · My Journey · Money · Insights · Community · Me.
- * Two interaction levels only: groups open to leaves. Former third-level
- * subgroups (Marketing campaigns/share/outreach) render as static eyebrow
- * labels, never nested drawers. Leaves are ordered by member flow and
- * frequency; every previously reachable route stays reachable.
+ * Three levels where volume demands it: groups open to children, and
+ * Marketing (Campaigns/Share/Outreach) plus My Team (Coach/People/Teams)
+ * nest a leaf level inside toggleable subgroups. Leaves are ordered by
+ * member flow and frequency; every previously reachable route stays reachable.
  */
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -104,15 +104,30 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'team', label: 'My Team', icon: 'groups', title: 'Your people and their progress',
     children: [
-      { label: 'Confirm training', link: 'mentorship/team/confirmations', title: 'Approve downline training and DTC evidence' },
-      { label: 'Activation board', link: 'mentorship/team/activation', title: 'Who needs you next' },
-      { label: 'My partners', link: 'mentorship/partners/my-partners', title: 'Your direct partners' },
-      { label: 'Team tree', link: 'network/tree', title: 'See everyone below you' },
-      { label: 'Levels view', link: 'network/org', title: 'Levels at a glance' },
-      { label: 'Contact lists', link: 'mentorship/team/contact-lists', title: 'Work submitted onboarding lists' },
-      { label: 'Team updates', link: 'insights/team-reports', title: 'Updates to and from your team' },
-      { label: 'My teams', link: 'mentorship/team/members', title: 'Purpose teams you created' },
-      { label: 'Start a team', link: 'mentorship/team/new', title: 'Organize a purpose team' },
+      {
+        label: 'Coach', title: 'Who needs you today',
+        children: [
+          { label: 'Activation board', link: 'mentorship/team/activation', title: 'Who needs you next' },
+          { label: 'Confirm training', link: 'mentorship/team/confirmations', title: 'Approve downline training and DTC evidence' },
+          { label: 'Contact lists', link: 'mentorship/team/contact-lists', title: 'Work submitted onboarding lists' },
+          { label: 'Team updates', link: 'insights/team-reports', title: 'Updates to and from your team' },
+        ],
+      },
+      {
+        label: 'Partners', title: 'Who is in your team',
+        children: [
+          { label: 'My partners', link: 'mentorship/partners/my-partners', title: 'Your direct partners' },
+          { label: 'Team tree', link: 'network/tree', title: 'See everyone below you' },
+          { label: 'Levels view', link: 'network/org', title: 'Levels at a glance' },
+        ],
+      },
+      {
+        label: 'Teams', title: 'Purpose teams you run',
+        children: [
+          { label: 'My teams', link: 'mentorship/team/members', title: 'Purpose teams you created' },
+          { label: 'Start a team', link: 'mentorship/team/new', title: 'Organize a purpose team' },
+        ],
+      },
     ],
   },
   {

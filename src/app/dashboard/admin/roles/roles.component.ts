@@ -11,7 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { ManagedPartner, PlatformStats } from '../../../core/admin/admin.models';
 import { ApiError, userError } from '../../../core/http/api-error';
@@ -339,6 +339,7 @@ const RANK_ORDER = [
 export class ManageRolesComponent implements OnInit {
   private readonly admin = inject(AdminService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loading = signal(true);
@@ -641,7 +642,19 @@ export class ManageRolesComponent implements OnInit {
         error: (err: ApiError) => {
           this.actingId.set(null);
           this.eraseId.set(null);
-          this.error.set(userError(err));
+          const msg = userError(err);
+          this.error.set(msg);
+          // Downline guard: turn the dead-end 409 into an actionable ask —
+          // offer the Network tree so the admin can reassign first.
+          const downline = /reassign (\d+) downline/i.exec(`${err.message ?? ''} ${msg}`);
+          if (err.status === 409 && downline) {
+            const n = downline[1];
+            if (window.confirm(
+              `${this.displayName(row)} has ${n} downline member${n === '1' ? '' : 's'}.\n\nReassign them before erasing this account.\n\nOpen the Network tree now to move them under a new upline?`,
+            )) {
+              this.router.navigateByUrl('dashboard/network/tree');
+            }
+          }
         },
       });
   }
