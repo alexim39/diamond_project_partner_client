@@ -50,7 +50,10 @@ export class PartnerSignupComponent implements OnInit, OnDestroy {
       '',
       [
         Validators.required,
-        Validators.pattern(/^(247[A-Za-z0-9\/]+|NR\d{6}|NI\d{6}|NV\d{6}|[A-Za-z]{2}[A-Za-z0-9]+)$/i)
+        // Reservation codes: business-issued legs (247… paths, NV/NI/NR +
+        // digits, letter-led codes) plus digit-led paths like 274/test/1.
+        // Shape only — existence is verified server-side at signup.
+        Validators.pattern(/^[A-Za-z0-9][A-Za-z0-9\/-]{2,63}$/),
       ]
     ],
     phone: ['', [Validators.required, Validators.pattern(/^[0-9+\s()-]{7,20}$/)]],

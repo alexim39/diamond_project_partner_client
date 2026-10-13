@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { AuthUser, MeResponse, SigninRequest, SigninResponse, SignupRequest, UserRole } from './auth.models';
+import { AuthUser, ErasureScheduleResponse, ApiEnvelope, MeResponse, SigninRequest, SigninResponse, SignupRequest, UserRole } from './auth.models';
 
 /** Canonical roles — absorbs legacy 'User'/'admin' casing from the API. */
 export function normalizeRole(value: unknown): UserRole {
@@ -93,6 +93,19 @@ export class AuthService {
   /** Server-verified session check (cookie → `GET /v1/auth/me`). */
   me(): Observable<MeResponse> {
     return this.api.get<MeResponse>('v1/auth/me').pipe(tap((res) => this.track(res.data)));
+  }
+
+  /**
+   * Self-service erasure (GDPR): schedule your own deletion (30-day review)
+   * or cancel a pending schedule. Callers refresh `me()` afterwards so the
+   * `currentUser` signal carries the stamps.
+   */
+  requestErasure(): Observable<ErasureScheduleResponse> {
+    return this.api.post<ErasureScheduleResponse>('v1/auth/me/erasure', {});
+  }
+
+  cancelErasure(): Observable<ApiEnvelope<{ cancelled: boolean }>> {
+    return this.api.delete<ApiEnvelope<{ cancelled: boolean }>>('v1/auth/me/erasure');
   }
 
   /**

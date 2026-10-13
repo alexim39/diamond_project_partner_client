@@ -48,3 +48,15 @@ export interface SigninResponse extends ApiEnvelope<{ user: AuthUser; token?: st
 export interface MeResponse extends ApiEnvelope<AuthUser> {
   data: AuthUser;
 }
+
+/** Self-service erasure scheduling (`POST /v1/auth/me/erasure`). */
+export interface ErasureSchedule {
+  requestedAt: string;
+  scheduledFor: string;
+  email: string | null;
+  name: string;
+}
+
+export interface ErasureScheduleResponse extends ApiEnvelope<ErasureSchedule> {
+  data: ErasureSchedule;
+}

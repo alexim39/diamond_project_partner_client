@@ -623,7 +623,7 @@ export class ManageRolesComponent implements OnInit {
 
   protected erase(row: ManagedPartner): void {
     if (!window.confirm(
-      `PERMANENTLY erase ${this.displayName(row)} (${row.email})?\n\nProfile is anonymized, their prospects, tickets and codes are deleted. Ledger, orders and posts are kept for records. Their downline must already be reassigned.`,
+      `PERMANENTLY erase ${this.displayName(row)} (${row.email})?\n\nProfile is anonymized, their prospects, tickets and codes are deleted. Ledger, orders and posts are kept for records. Direct downline moves up to their upline automatically.`,
     )) return;
     this.actingId.set(row.id);
     this.admin
@@ -650,7 +650,7 @@ export class ManageRolesComponent implements OnInit {
           if (err.status === 409 && downline) {
             const n = downline[1];
             if (window.confirm(
-              `${this.displayName(row)} has ${n} downline member${n === '1' ? '' : 's'}.\n\nReassign them before erasing this account.\n\nOpen the Network tree now to move them under a new upline?`,
+              `${this.displayName(row)} has ${n} downline member${n === '1' ? '' : 's'} but no upline above them to inherit the team.\n\nReassign them before erasing this account.\n\nOpen the Network tree now to move them under a new upline?`,
             )) {
               this.router.navigateByUrl('dashboard/network/tree');
             }

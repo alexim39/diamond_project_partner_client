@@ -307,7 +307,7 @@ export class DownlineContactListsComponent implements OnInit {
   protected readonly query = signal('');
   protected readonly filter = signal<ListFilter>('all');
   protected readonly memberFilter = signal('all');
-  protected readonly sortBy = signal<SortBy>('attention');
+  protected readonly sortBy = signal<SortBy>('newest');
   protected readonly page = signal(0);
   protected readonly expanded = signal<Record<string, boolean>>({});
   protected readonly expandedMembers = signal<Record<string, boolean>>({});

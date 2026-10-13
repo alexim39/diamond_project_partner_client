@@ -1,98 +1,73 @@
-import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PartnerInterface, PartnerService } from '../../../../_common/services/partner.service';
-import { Subscription, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { MyPartnersComponent } from './my-partners.component';
 import { MyPartnersService } from './my-partners.service';
 import { LeadPipelineService } from '../../prospects/lead-pipeline/lead-pipeline.service';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivateNewPartnerComponent } from './activate-new-partner.component';
+import { userError } from '../../../../core/http/api-error';
 
 /**
- * @title My Partners Container Component
+ * @title My Partners container — owns loading, then gets out of the way.
+ *
+ * Three states, never conflated: loading bar while identity + list resolve;
+ * an error card (real message + Retry + Back) when either fails; otherwise
+ * the list component always renders — including its own professional empty
+ * state when the partner simply has no downline yet.
  */
 @Component({
     selector: 'async-my-partners-container',
     template: `
-
-
-<router-outlet></router-outlet>
-
-
-@if (!isEmptyRecord) {
-  @if (partner && myPartners) {
-    <async-my-partners
-      [partner]="partner"
-      [myPartners]="myPartners.data"
-      [supportMap]="supportMap">
-    </async-my-partners>
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" aria-label="Loading partners" />
+}
+@if (error(); as err) {
+  <section class="dp-card container-error" role="alert">
+    <mat-icon>error_outline</mat-icon>
+    <div>
+      <strong>Couldn’t load your partners.</strong>
+      <p class="dp-muted">{{ err }}</p>
+    </div>
+    <span class="spacer"></span>
+    <button mat-stroked-button (click)="reload()">Retry</button>
+    <button mat-button (click)="navigateBack()">Back to dashboard</button>
+  </section>
+} @else if (!loading()) {
+  @if (partner(); as me) {
+    @if (myPartners; as list) {
+      <async-my-partners
+        [partner]="me"
+        [myPartners]="list.data ?? []"
+        [supportMap]="supportMap()">
+      </async-my-partners>
+    }
   }
 }
-
-@if (isEmptyRecord) {
-  <div class="container">
-    <div class="btn-area">
-      <button mat-raised-button class="activate-btn" (click)="activateNewPartner()">
-        <mat-icon>card_membership</mat-icon>
-        Activate New Partner
-      </button>
-    </div>
-    <p class="no-content">
-      Something went wrong, or maybe you don't have partners yet!
-    </p>
-    <button mat-flat-button class="back-btn" (click)="navigateBack()">
-      <mat-icon>arrow_back</mat-icon>
-      Go Back
-    </button>
-  </div>
-}
 `,
-    styles: [
-        `
-      .container {
-        padding: 2em;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-      .btn-area {
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 1.5em;
-      }
-      .activate-btn {
-        //color: #fff;
-        //font-weight: bold;
-      }
-      .no-content {
-        color: #c48104;
-        font-weight: bold;
-        margin: 1em 0;
-      }
-      .back-btn {
-        //background-color: #f1f1f1;
-        //color: #000;
-      }
-    `,
-    ],
+    styles: [`
+      .container-error { margin: 1em 0; padding: 1em; display: flex; gap: 0.8em; align-items: center; flex-wrap: wrap; }
+      .container-error .spacer { flex: 1; }
+      .container-error p { margin: 0.25em 0 0; }
+    `],
     providers: [MyPartnersService],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [MyPartnersComponent, MatButtonModule, MatIconModule, RouterModule]
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [MyPartnersComponent, MatButtonModule, MatIconModule, MatProgressBarModule, RouterModule]
 })
-export class MyPartnersContainerComponent implements OnInit, OnDestroy {
-  partner!: PartnerInterface;
-  myPartners: any; //PartnerInterface[] = [];
-  supportMap: Record<string, any> = {};
-  isEmptyRecord = false;
+export class MyPartnersContainerComponent implements OnInit {
+  protected readonly partner = signal<PartnerInterface | null>(null);
+  protected myPartners: { data?: PartnerInterface[] } | null = null;
+  protected readonly supportMap = signal<Record<string, any>>({});
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
 
-  private readonly destroy$ = new Subject<void>();
   readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly leads = inject(LeadPipelineService);
 
   constructor(
@@ -105,29 +80,30 @@ export class MyPartnersContainerComponent implements OnInit, OnDestroy {
     this.loadPartnerData();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * Load partner data and associated partners
    */
   private loadPartnerData(): void {
+    this.loading.set(true);
+    this.error.set(null);
     this.partnerService.getSharedPartnerData$
-      .pipe(takeUntil(this.destroy$)).subscribe({
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (partner: PartnerInterface) => {
-          this.partner = partner;;
-          if (this.partner) {
-            this.fetchMyPartners(this.partner._id);
-          } else {
-            this.isEmptyRecord = true;
-          }
+          // BehaviorSubject replays; ignore the pre-login null until identity lands.
+          if (!partner) return;
+          this.partner.set(partner);
+          this.fetchMyPartners(partner._id);
         },
-        error: () => {
-          this.isEmptyRecord = true;
+        error: (err: unknown) => {
+          this.loading.set(false);
+          this.error.set(userError(err) || 'Your session could not be loaded — try signing in again.');
         }
       });
+  }
+
+  protected reload(): void {
+    this.myPartners = null;
+    this.loadPartnerData();
   }
 
   /**
@@ -135,23 +111,26 @@ export class MyPartnersContainerComponent implements OnInit, OnDestroy {
    */
   private fetchMyPartners(partnerId: string): void {
     this.myPartnersService.getPartnersOf(partnerId)
-      .pipe(takeUntil(this.destroy$)).subscribe({
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (myPartners) => {
+          // Empty downline is a healthy state, not an error — the list
+          // component renders its own empty guidance (with Activate CTA).
           this.myPartners = myPartners;
-          this.isEmptyRecord = myPartners.length === 0;
+          this.loading.set(false);
         },
-        error: () => {
-          this.isEmptyRecord = true;
+        error: (err: unknown) => {
+          this.loading.set(false);
+          this.error.set(userError(err) || 'Partners could not be loaded — check your connection and retry.');
         }
     });
     // Activation snapshot for support chips — fail-soft, table works without it.
-    this.leads.activationBoard().pipe(takeUntil(this.destroy$)).subscribe({
+    this.leads.activationBoard().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         const map: Record<string, any> = {};
         for (const item of res.data?.items ?? []) {
           map[String(item.partnerId)] = item;
         }
-        this.supportMap = map;
+        this.supportMap.set(map);
       },
       error: () => {},
     });
@@ -162,7 +141,7 @@ export class MyPartnersContainerComponent implements OnInit, OnDestroy {
    */
   activateNewPartner(): void {
     this.dialog.open(ActivateNewPartnerComponent, {
-      data: this.partner,
+      data: this.partner(),
     });
   }
 
