@@ -119,8 +119,18 @@ export class MyPartnersContainerComponent implements OnInit {
           this.loading.set(false);
         },
         error: (err: unknown) => {
+          // Transitional: pre-fix servers 404 an empty downline with "No
+          // partners found". Absorb only that shape as healthy-empty so the
+          // Activate CTA always renders; every other failure keeps the card.
+          const status = (err as { status?: unknown })?.status;
+          const text = userError(err) || '';
+          if (status === 404 && /no partners found/i.test(text)) {
+            this.myPartners = { data: [] };
+            this.loading.set(false);
+            return;
+          }
           this.loading.set(false);
-          this.error.set(userError(err) || 'Partners could not be loaded — check your connection and retry.');
+          this.error.set(text || 'Partners could not be loaded — check your connection and retry.');
         }
     });
     // Activation snapshot for support chips — fail-soft, table works without it.
