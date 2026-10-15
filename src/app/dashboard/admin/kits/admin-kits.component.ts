@@ -12,7 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { Kit, KitArea, KitSlide, KitService } from '../../../core/kits/kit.service';
+import { Kit, KitArea, KitSlide, KitService, KitStats } from '../../../core/kits/kit.service';
 import { userError } from '../../../core/http/api-error';
 
 const AREAS: KitArea[] = ['Opportunity', 'Product', 'Invite', 'Team'];
@@ -176,6 +176,9 @@ const blankSlide = (): KitSlide => ({ title: '', body: '', imageUrl: '', note: '
                 } @else {
                   <span class="muted">{{ row.slideCount }} slides · ~{{ row.durationMin }} min</span>
                 }
+                @if (statFor(row.id); as stat) {
+                  <span class="muted stat-line">{{ stat }} (all partners)</span>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="area">
@@ -238,6 +241,7 @@ const blankSlide = (): KitSlide => ({ title: '', body: '', imageUrl: '', note: '
     table { width: 100%; }
     .name-cell { font-weight: 600; }
     .name-cell .muted { display: block; font-weight: 400; }
+    .stat-line { color: var(--dp-gold-ink); }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
@@ -254,6 +258,7 @@ export class AdminKitsComponent implements OnInit {
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<Kit[]>([]);
+  protected readonly stats = signal<KitStats | null>(null);
   protected readonly actingId = signal<string | null>(null);
   protected readonly deletingId = signal<string | null>(null);
   protected readonly editing = signal(false);
@@ -285,6 +290,23 @@ export class AdminKitsComponent implements OnInit {
           this.loading.set(false);
         },
       });
+    // Platform stats ride separately and fail soft.
+    this.kits
+      .adminStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.stats.set(res.data ?? null),
+        error: () => undefined,
+      });
+  }
+
+  protected statFor(kitId: string): string | null {
+    const row = this.stats()?.byKit?.[kitId];
+    if (!row || row.presented === 0) return null;
+    const bits = [`${row.presented} presented`];
+    if (row.booked > 0) bits.push(`${row.booked} booked`);
+    if (row.converted > 0) bits.push(`${row.converted} converted`);
+    return bits.join(' · ');
   }
 
   protected startCreate(): void {

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
-import { CreateEventPayload, EventCommentEnvelope, EventCommentsEnvelope, EventEnvelope, EventsEnvelope, RsvpEnvelope, RsvpStatus } from './event.models';
+import { CreateEventPayload, AttendeesEnvelope, EventCommentEnvelope, EventCommentsEnvelope, EventEnvelope, EventsEnvelope, RsvpEnvelope, RsvpStatus } from './event.models';
 
 /** Group events + RSVP → backend `/v1/events/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -26,6 +26,15 @@ export class EventService {
 
   rsvp(eventId: string, status: RsvpStatus): Observable<RsvpEnvelope> {
     return this.api.post<RsvpEnvelope>(`v1/events/${eventId}/rsvp`, { status });
+  }
+
+  /** Organizer desk — attendee PII stays behind author-or-admin. */
+  attendees(eventId: string): Observable<AttendeesEnvelope> {
+    return this.api.get<AttendeesEnvelope>(`v1/events/${eventId}/attendees`);
+  }
+
+  markAttendance(eventId: string, partnerId: string, attended: boolean): Observable<unknown> {
+    return this.api.post(`v1/events/${eventId}/attendance`, { partnerId, attended });
   }
 
   cancel(eventId: string): Observable<unknown> {

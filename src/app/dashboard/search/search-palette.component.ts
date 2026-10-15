@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,21 +8,73 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, filter, Subject, switchMap, tap } from 'rxjs';
 import { SearchHit, SearchResults, SearchService } from '../../core/search/search.service';
+import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { ApiError } from '../../core/http/api-error';
 
-interface FlatRow {
-  group: string;
+interface PaletteRow {
+  section: string;
+  icon: string;
   label: string;
   sub: string;
-  link: string;
+  link?: string;
+  run?: () => void;
+}
+
+interface IndexedRow extends PaletteRow {
+  index: number;
+}
+
+interface PaletteSection {
+  name: string;
+  icon: string;
+  more?: string;
+  rows: IndexedRow[];
+}
+
+const SECTION_META: Record<string, { icon: string; more?: string }> = {
+  Commands: { icon: 'bolt' },
+  Suggested: { icon: 'bolt' },
+  Recent: { icon: 'history' },
+  Members: { icon: 'group', more: '/dashboard/mentorship/partners/my-partners' },
+  Prospects: { icon: 'person_search', more: '/dashboard/prospects/pipeline' },
+  Courses: { icon: 'school', more: '/dashboard/training/courses' },
+  Posts: { icon: 'forum', more: '/dashboard/community' },
+};
+
+const RECENTS_KEY = 'dp-search-recents';
+const RECENT_LIMIT = 5;
+
+function readRecents(): PaletteRow[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECENTS_KEY) ?? '[]') as Array<Partial<PaletteRow>>;
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter((r) => typeof r?.link === 'string' && typeof r?.label === 'string')
+      .slice(0, RECENT_LIMIT)
+      .map((r) => ({ section: 'Recent', icon: r.icon ?? 'history', label: String(r.label), sub: String(r.sub ?? ''), link: String(r.link) }));
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(row: PaletteRow): void {
+  if (!row.link) return;
+  try {
+    const rest = readRecents().filter((r) => r.link !== row.link);
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(
+      [{ section: 'Recent', icon: row.icon, label: row.label, sub: row.sub, link: row.link }, ...rest].slice(0, RECENT_LIMIT),
+    ));
+  } catch { /* private mode — recents simply don't persist */ }
 }
 
 /**
- * @title Search palette — ⌘K across members, prospects, courses, posts.
+ * @title Search palette — command center (⌘K across actions + everything).
  *
- * Debounced live search with arrow-key navigation. Links respect the same
- * visibility the API enforces (own prospects, visible posts).
- * OnPush + signals, fully typed.
+ * Standard command-palette UX: icon-coded grouped sections, a `>` command
+ * mode (page jumps, theme, sign out), recents when idle, deep links where
+ * hit ids allow, matched-text highlighting and active-row scroll-into-view.
+ * Links respect the same visibility the API enforces. OnPush + signals.
  */
 @Component({
   selector: 'async-search-palette',
@@ -32,7 +84,7 @@ interface FlatRow {
     MatProgressBarModule, RouterModule,
   ],
   template: `
-    <div class="palette" role="dialog" aria-label="Search">
+    <div class="palette" role="dialog" aria-label="Search and commands">
       <div class="palette-head">
         <mat-icon aria-hidden="true">search</mat-icon>
         <input
@@ -41,8 +93,8 @@ interface FlatRow {
           [(ngModel)]="query"
           (ngModelChange)="push($event)"
           (keydown)="onKey($event)"
-          placeholder="Search members, prospects, courses, posts…"
-          aria-label="Search members, prospects, courses and posts"
+          placeholder="Search or type > for commands…"
+          aria-label="Search, or type > for commands"
           autocomplete="off"
           spellcheck="false"
         />
@@ -62,26 +114,47 @@ interface FlatRow {
         <p class="error" role="alert">{{ err }}</p>
       }
 
-      @if (rows().length > 0) {
-        <ul class="results" role="listbox" aria-label="Search results">
-          @for (row of rows(); track row.group + row.label; let i = $index) {
-            <li role="option" [attr.aria-selected]="i === active()">
-              <a
-                [routerLink]="row.link"
-                (click)="close()"
-                [class.active]="i === active()"
-                (mouseenter)="active.set(i)"
+      @if (sections().length > 0) {
+        <div class="results" role="listbox" aria-label="Results" #resultsBox>
+          @for (sec of sections(); track sec.name) {
+            <p class="sec-head" aria-hidden="true">
+              <mat-icon aria-hidden="true">{{ sec.icon }}</mat-icon>{{ sec.name }}
+              @if (sec.more) {
+                <a [routerLink]="sec.more" (click)="close()"><span>View all</span><mat-icon aria-hidden="true">arrow_forward</mat-icon></a>
+              }
+            </p>
+            @for (row of sec.rows; track row.label + row.sub) {
+              <div
+                role="option"
+                class="row"
+                [class.active]="row.index === active()"
+                [attr.aria-selected]="row.index === active()"
+                [attr.data-active]="row.index === active()"
+                (mouseenter)="setActive(row)"
               >
-                <span class="group">{{ row.group }}</span>
-                <span class="row-body">
-                  <strong>{{ row.label }}</strong>
-                  <span class="muted">{{ row.sub }}</span>
-                </span>
-                <mat-icon class="go" aria-hidden="true">arrow_forward</mat-icon>
-              </a>
-            </li>
+                @if (row.link) {
+                  <a [routerLink]="row.link" (click)="activate(row)">
+                    <mat-icon aria-hidden="true">{{ row.icon }}</mat-icon>
+                    <span class="row-body">
+                      <strong>@for (part of highlight(row.label); track $index) { @if (part.hit) { <mark>{{ part.text }}</mark> } @else { {{ part.text }} } }</strong>
+                      @if (row.sub) { <span class="muted">{{ row.sub }}</span> }
+                    </span>
+                    <mat-icon class="go" aria-hidden="true">arrow_forward</mat-icon>
+                  </a>
+                } @else {
+                  <button type="button" (click)="activate(row)">
+                    <mat-icon aria-hidden="true">{{ row.icon }}</mat-icon>
+                    <span class="row-body">
+                      <strong>@for (part of highlight(row.label); track $index) { @if (part.hit) { <mark>{{ part.text }}</mark> } @else { {{ part.text }} } }</strong>
+                      @if (row.sub) { <span class="muted">{{ row.sub }}</span> }
+                    </span>
+                    <mat-icon class="go" aria-hidden="true">arrow_forward</mat-icon>
+                  </button>
+                }
+              </div>
+            }
           }
-        </ul>
+        </div>
       } @else if (touched() && !searching() && !error()) {
         <div class="empty">
           <mat-icon aria-hidden="true">search_off</mat-icon>
@@ -90,11 +163,14 @@ interface FlatRow {
       } @else if (!touched()) {
         <div class="empty idle">
           <mat-icon aria-hidden="true">keyboard_command_key</mat-icon>
-          <p>Type at least 2 characters to search the workspace.</p>
+          <p>Type to search the workspace — or <strong>&gt;</strong> for commands.</p>
         </div>
       }
 
-      <p class="hint"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></p>
+      <p class="hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span>
+        <span class="spacer"></span><span>{{ flat().length }} result{{ flat().length === 1 ? '' : 's' }}</span>
+      </p>
     </div>
   `,
   styles: [`
@@ -132,25 +208,36 @@ interface FlatRow {
     }
     .palette-head kbd { border-color: rgba(217, 179, 106, 0.4); color: var(--dp-nav-icon); background: transparent; }
     .results {
-      list-style: none; margin: 0; padding: 0.5em;
       display: flex; flex-direction: column;
       overflow-y: auto;
-      min-height: 120px;
+      min-height: 120px; padding: 0.4em 0.5em 0.6em;
     }
-    .results a {
-      display: flex; gap: 0.7em; align-items: center;
-      padding: 0.55em 0.7em; border-radius: 10px;
-      text-decoration: none; color: inherit; min-height: 52px;
+    .sec-head {
+      display: flex; align-items: center; gap: 0.45em;
+      margin: 0.7em 0.2em 0.15em;
+      font-size: 0.72em; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--dp-gold-ink);
     }
-    .results a.active { background: var(--dp-gold-soft); }
-    .results a.active .go { opacity: 1; transform: none; }
-    .group {
-      flex: none; font-size: 0.68em; font-weight: 800; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--dp-gold-ink); width: 78px;
+    .sec-head mat-icon { font-size: 16px; height: 16px; width: 16px; }
+    .sec-head a {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 0.2em;
+      font-size: 1em; letter-spacing: 0; text-transform: none; font-weight: 600;
+      color: var(--dp-muted); text-decoration: none;
     }
+    .sec-head a mat-icon { font-size: 15px; height: 15px; width: 15px; }
+    .row a, .row button {
+      display: flex; gap: 0.7em; align-items: center; width: 100%;
+      padding: 0.55em 0.7em; border-radius: 10px; border: none;
+      background: transparent; color: inherit; font: inherit; text-align: left;
+      text-decoration: none; cursor: pointer; min-height: 52px;
+    }
+    .row.active a, .row.active button, .row a:hover, .row button:hover { background: var(--dp-gold-soft); }
+    .row mat-icon { color: var(--dp-gold-ink); flex: none; font-size: 20px; height: 20px; width: 20px; }
+    .row .go { opacity: 0; transform: translateX(-4px); margin-left: auto; }
+    .row.active .go { opacity: 1; transform: none; }
     .row-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .row-body strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .go { flex: none; opacity: 0; transform: translateX(-4px); color: var(--dp-gold-ink); font-size: 20px; height: 20px; width: 20px; }
+    .row-body strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+    .row-body mark { background: transparent; color: inherit; font-weight: 800; text-decoration: underline; text-decoration-color: var(--dp-gold); text-underline-offset: 2px; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); margin: 0.5em 1em; }
     .empty {
@@ -160,12 +247,13 @@ interface FlatRow {
     .empty mat-icon { font-size: 32px; height: 32px; width: 32px; opacity: 0.5; }
     .empty p { margin: 0; max-width: 30em; }
     .hint {
-      display: flex; gap: 1em; justify-content: center;
+      display: flex; gap: 1em; align-items: center;
       margin: 0; padding: 0.6em 1em;
       font-size: 0.78em; color: var(--dp-muted);
       border-top: 1px solid var(--dp-line);
     }
     .hint span { display: inline-flex; align-items: center; gap: 0.3em; }
+    .hint .spacer { flex: 1; }
   `],
 })
 export class SearchPaletteComponent {
@@ -173,6 +261,9 @@ export class SearchPaletteComponent {
   private readonly router = inject(Router);
   private readonly dialogRef = inject(MatDialogRef<SearchPaletteComponent>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject(ElementRef);
+  private readonly themes = inject(ThemeTogglerService);
+  private readonly auth = inject(AuthService);
   private readonly terms = new Subject<string>();
 
   protected readonly query = signal('');
@@ -182,34 +273,51 @@ export class SearchPaletteComponent {
   protected readonly active = signal(0);
   protected readonly results = signal<SearchResults | null>(null);
 
-  protected readonly rows = computed<FlatRow[]>(() => {
+  private readonly commands: Array<{ label: string; sub: string; keywords: string; run: () => void }> = [
+    { label: 'Go to Pipeline', sub: 'My follow-ups', keywords: 'pipeline follow ups deals', run: () => this.go('/dashboard/prospects/pipeline') },
+    { label: 'Go to Activation board', sub: 'Who needs you next', keywords: 'activation board team coach', run: () => this.go('/dashboard/mentorship/team/activation') },
+    { label: 'Go to My partners', sub: 'Your direct partners', keywords: 'partners downline team members', run: () => this.go('/dashboard/mentorship/partners/my-partners') },
+    { label: 'Add someone', sub: 'New contact', keywords: 'add create contact prospect new', run: () => this.go('/dashboard/tools/contacts/new') },
+    { label: 'Send SMS', sub: 'Bulk message', keywords: 'send sms text message bulk', run: () => this.go('/dashboard/tools/sms/new') },
+    { label: 'Send email', sub: 'Bulk mail', keywords: 'send email mail bulk', run: () => this.go('/dashboard/tools/email/new') },
+    { label: 'Start a campaign', sub: 'New invite campaign', keywords: 'start campaign invite new', run: () => this.go('/dashboard/tools/campaigns/new') },
+    { label: 'Toggle theme', sub: 'Light / dark', keywords: 'theme dark light mode display', run: () => this.themes.toggle() },
+    { label: 'Sign out', sub: 'End this session', keywords: 'sign out logout exit quit', run: () => this.signOut() },
+  ];
+
+  /** Flat rows across sections (single keyboard order). */
+  protected readonly flat = computed<PaletteRow[]>(() => {
+    const q = this.query().trim();
+    if (q.startsWith('>')) {
+      const needle = q.slice(1).trim().toLowerCase();
+      return this.commands
+        .filter((c) => !needle || `${c.label} ${c.sub} ${c.keywords}`.toLowerCase().includes(needle))
+        .map((c) => ({ section: 'Commands', icon: 'bolt', label: c.label, sub: c.sub, run: c.run }));
+    }
+    const out: PaletteRow[] = [];
+    if (!q) {
+      for (const r of readRecents()) out.push(r);
+      for (const c of this.commands.slice(0, 5)) {
+        out.push({ section: 'Suggested', icon: 'bolt', label: c.label, sub: c.sub, run: c.run });
+      }
+      return out;
+    }
     const r = this.results();
-    if (!r) return [];
-    const out: FlatRow[] = [];
-    const push = (group: string, hits: SearchHit[], toRow: (h: SearchHit) => Omit<FlatRow, 'group'>) => {
-      for (const h of hits.slice(0, 5)) out.push({ group, label: toRow(h).label, sub: toRow(h).sub, link: toRow(h).link });
-    };
-    push('Members', r.members, (h) => ({
-      label: h.name || `@${h.username ?? ''}`,
-      sub: `@${h.username ?? ''}`,
-      link: '/dashboard/mentorship/partners/my-partners',
-    }));
-    push('Prospects', r.prospects, (h) => ({
-      label: h.name || 'Unnamed',
-      sub: h.stage ?? '',
-      link: h.id ? `/dashboard/prospects/detail/${h.id}` : '/dashboard/prospects/pipeline',
-    }));
-    push('Courses', r.courses, (h) => ({
-      label: h.title || '',
-      sub: h.tagline ?? '',
-      link: h.id ? `/dashboard/training/courses/${h.id}` : '/dashboard/training/courses',
-    }));
-    push('Posts', r.posts, (h) => ({
-      label: h.title || '',
-      sub: h.kind ?? '',
-      link: '/dashboard/community',
-    }));
+    if (!r) return out;
+    this.pushGroups(out, r);
     return out;
+  });
+
+  protected readonly sections = computed<PaletteSection[]>(() => {
+    const groups = new Map<string, PaletteSection>();
+    this.flat().forEach((row, index) => {
+      const meta = SECTION_META[row.section] ?? { icon: row.icon };
+      if (!groups.has(row.section)) {
+        groups.set(row.section, { name: row.section, icon: meta.icon, more: meta.more, rows: [] });
+      }
+      groups.get(row.section)!.rows.push({ ...row, index });
+    });
+    return [...groups.values()];
   });
 
   constructor() {
@@ -222,7 +330,7 @@ export class SearchPaletteComponent {
           this.error.set(null);
           this.active.set(0);
         }),
-        filter((q) => q.trim().length >= 2),
+        filter((q) => q.trim().length >= 2 && !q.trim().startsWith('>')),
         tap(() => this.searching.set(true)),
         switchMap((q) => this.search.query(q)),
         takeUntilDestroyed(this.destroyRef),
@@ -239,30 +347,128 @@ export class SearchPaletteComponent {
       });
   }
 
+  private pushGroups(out: PaletteRow[], r: SearchResults): void {
+    const take = (section: string, hits: SearchHit[], toRow: (h: SearchHit) => { label: string; sub: string; link?: string }) => {
+      const icon = SECTION_META[section]?.icon ?? 'search';
+      for (const h of hits.slice(0, 6)) out.push({ section, icon, ...toRow(h) });
+    };
+    take('Members', r.members, (h) => ({
+      label: h.name || `@${h.username ?? ''}`,
+      sub: `@${h.username ?? ''}`,
+      link: h.id ? `/dashboard/mentorship/partners/my-partners/detail/${h.id}` : '/dashboard/mentorship/partners/my-partners',
+    }));
+    take('Prospects', r.prospects, (h) => ({
+      label: h.name || 'Unnamed',
+      sub: h.stage ?? '',
+      link: h.id ? `/dashboard/prospects/detail/${h.id}` : '/dashboard/prospects/pipeline',
+    }));
+    take('Courses', r.courses, (h) => ({
+      label: h.title || '',
+      sub: h.tagline ?? '',
+      link: h.id ? `/dashboard/training/courses/${h.id}` : '/dashboard/training/courses',
+    }));
+    take('Posts', r.posts, (h) => ({
+      label: h.title || '',
+      sub: h.kind ?? '',
+      link: '/dashboard/community',
+    }));
+  }
+
+  protected setActive(row: IndexedRow): void {
+    this.active.set(row.index);
+    this.scrollActiveIntoView();
+  }
+
+  protected highlight(label: string): Array<{ text: string; hit: boolean }> {
+    const q = this.query().trim().replace(/^>/, '').trim().toLowerCase();
+    if (!q) return [{ text: label, hit: false }];
+    const lower = label.toLowerCase();
+    const out: Array<{ text: string; hit: boolean }> = [];
+    let i = 0;
+    for (;;) {
+      const at = lower.indexOf(q, i);
+      if (at < 0) break;
+      if (at > i) out.push({ text: label.slice(i, at), hit: false });
+      out.push({ text: label.slice(at, at + q.length), hit: true });
+      i = at + q.length;
+    }
+    if (i < label.length) out.push({ text: label.slice(i), hit: false });
+    if (out.length === 0) out.push({ text: label, hit: false });
+    return out;
+  }
+
+  private scrollActiveIntoView(): void {
+    requestAnimationFrame(() => {
+      this.host.nativeElement
+        ?.querySelector?.('[data-active="true"]')
+        ?.scrollIntoView?.({ block: 'nearest' });
+    });
+  }
+
+  private go(link: string): void {
+    this.close();
+    void this.router.navigateByUrl(link);
+  }
+
+  private signOut(): void {
+    this.auth.signOut().subscribe({
+      next: () => this.finishSignOut(),
+      error: () => this.finishSignOut(),
+    });
+  }
+
+  private finishSignOut(): void {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch { /* storage may be unavailable */ }
+    this.close();
+    void this.router.navigate(['/'], { replaceUrl: true });
+  }
+
+  /** One entry point for click, hover-commit and Enter: links record recents. */
+  protected activate(row: PaletteRow): void {
+    if (row.link) {
+      pushRecent(row);
+      this.go(row.link);
+    } else {
+      row.run?.();
+      this.close();
+    }
+  }
+
   protected push(value: string): void {
     this.query.set(value);
-    if (value.trim().length < 2) {
+    this.active.set(0);
+    const t = value.trim();
+    if (t.startsWith('>') || t.length < 2) {
       this.results.set(null);
       this.searching.set(false);
+      this.touched.set(t.length > 0);
       return;
     }
     this.terms.next(value);
   }
 
   protected onKey(event: KeyboardEvent): void {
-    const rows = this.rows();
+    const rows = this.flat();
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      if (rows.length > 0) this.active.set((this.active() + 1) % rows.length);
+      if (rows.length > 0) {
+        this.active.set((this.active() + 1) % rows.length);
+        this.scrollActiveIntoView();
+      }
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      if (rows.length > 0) this.active.set((this.active() - 1 + rows.length) % rows.length);
+      if (rows.length > 0) {
+        this.active.set((this.active() - 1 + rows.length) % rows.length);
+        this.scrollActiveIntoView();
+      }
     } else if (event.key === 'Enter') {
       const row = rows[this.active()];
       if (row) {
         event.preventDefault();
-        this.close();
-        void this.router.navigateByUrl(row.link);
+        this.activate(row);
       }
     }
   }

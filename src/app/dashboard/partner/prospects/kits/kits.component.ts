@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { KitGroup, KitService } from '../../../../core/kits/kit.service';
+import { KitGroup, KitService, KitStats } from '../../../../core/kits/kit.service';
 import { ApiError } from '../../../../core/http/api-error';
 
 /**
@@ -76,6 +76,9 @@ import { ApiError } from '../../../../core/http/api-error';
                         {{ kit.slideCount }} slide{{ kit.slideCount === 1 ? '' : 's' }}
                       }
                       · ~{{ kit.durationMin }} min</span>
+                    @if (statFor(kit.id); as stat) {
+                      <span class="muted stat-line">{{ stat }}</span>
+                    }
                   </span>
                     @if (kit.description) {
                       <span class="muted">{{ kit.description }}</span>
@@ -122,6 +125,7 @@ import { ApiError } from '../../../../core/http/api-error';
     .for-banner p { margin: 0; }
     .kit-head { width: 100%; display: flex; align-items: center; gap: 0.75em; background: transparent; border: none; cursor: pointer; color: inherit; font: inherit; text-align: left; padding: 0.2em 0; }
     .kit-id { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .stat-line { color: var(--dp-gold-ink); }
     .pdf-chip { font-size: 0.75em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .slides { margin: 0.6em 0 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 0.6em; }
@@ -141,6 +145,7 @@ export class KitsComponent implements OnInit {
   protected readonly error = signal<string | null>(null);
   protected readonly groups = signal<KitGroup[]>([]);
   protected readonly open = signal<Record<string, boolean>>({});
+  protected readonly stats = signal<KitStats | null>(null);
   /** Present-for context (?for=&forName=[&owner=]) from a prospect page. */
   protected readonly forProspectId = signal<string | null>(null);
   protected readonly forProspectName = signal<string | null>(null);
@@ -170,6 +175,23 @@ export class KitsComponent implements OnInit {
           this.loading.set(false);
         },
       });
+    // Stats ride separately and fail soft — the library works without them.
+    this.kits
+      .myStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.stats.set(res.data ?? null),
+        error: () => undefined,
+      });
+  }
+
+  protected statFor(kitId: string): string | null {
+    const row = this.stats()?.byKit?.[kitId];
+    if (!row || row.presented === 0) return null;
+    const bits = [`${row.presented} presented`];
+    if (row.booked > 0) bits.push(`${row.booked} booked`);
+    if (row.converted > 0) bits.push(`${row.converted} converted`);
+    return bits.join(' · ');
   }
 
   protected isOpen(id: string): boolean {

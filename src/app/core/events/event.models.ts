@@ -59,6 +59,28 @@ export interface RsvpEnvelope extends ApiEnvelope<{ rsvp: unknown; counts: RsvpC
   data: { rsvp: unknown; counts: RsvpCounts };
 }
 
+export interface EventAttendee {
+  partnerId: string;
+  status: 'going' | 'interested';
+  attended: boolean | null;
+  name: string;
+  username: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+export interface AttendeesEnvelope extends ApiEnvelope<{
+  event: { id: string; title: string; startsAt: string };
+  attendees: EventAttendee[];
+  total: number;
+}> {
+  data: {
+    event: { id: string; title: string; startsAt: string };
+    attendees: EventAttendee[];
+    total: number;
+  };
+}
+
 export interface CreateEventPayload {
   title: string;
   body: string;

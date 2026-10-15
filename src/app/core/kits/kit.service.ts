@@ -38,6 +38,22 @@ export interface KitList {
   total: number;
 }
 
+export interface KitStatRow {
+  presented: number;
+  outcomes: Record<string, number>;
+  booked: number;
+  converted: number;
+}
+
+export interface KitStats {
+  byKit: Record<string, KitStatRow>;
+  total: number;
+}
+
+export interface KitStatsEnvelope extends ApiEnvelope<KitStats> {
+  data: KitStats;
+}
+
 export interface KitListEnvelope extends ApiEnvelope<KitList> {
   data: KitList;
 }
@@ -65,6 +81,16 @@ export class KitService {
 
   get(id: string): Observable<ApiEnvelope<Kit>> {
     return this.api.get<ApiEnvelope<Kit>>(`v1/kits/${id}`);
+  }
+
+  /** My deck stats — presentations, outcomes, bookings, conversions. */
+  myStats(): Observable<KitStatsEnvelope> {
+    return this.api.get<KitStatsEnvelope>('v1/kits/stats/mine');
+  }
+
+  /** Admin desk. */
+  adminStats(): Observable<KitStatsEnvelope> {
+    return this.api.get<KitStatsEnvelope>('v1/admin/kits/stats');
   }
 
   /** Admin desk. */

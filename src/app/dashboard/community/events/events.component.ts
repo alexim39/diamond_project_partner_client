@@ -11,13 +11,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { environment } from '../../../../environments/environment';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ExportContactAndEmailService } from '../../../_common/services/exportContactAndEmail.service';
 import { forkJoin } from 'rxjs';
 import { EventService } from '../../../core/events/event.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { AudienceScope, CommunityEvent, EventComment, RsvpStatus } from '../../../core/events/event.models';
+import { AudienceScope, CommunityEvent, EventAttendee, EventComment, RsvpStatus } from '../../../core/events/event.models';
 import { ApiError, validationDetail } from '../../../core/http/api-error';
 
 const toInputDateTime = (d: Date): string => {
@@ -64,7 +67,7 @@ const withDetail = (err: ApiError): string => {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AvatarComponent, DatePipe, MatButtonModule, MatButtonToggleModule, MatDatepickerModule, MatNativeDateModule,
-    MatTimepickerModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule,
+    MatTimepickerModule, MatIconModule, MatInputModule, MatProgressBarModule, MatSelectModule, MatSnackBarModule,
     ReactiveFormsModule, RouterModule,
   ],
   template: `
@@ -211,6 +214,9 @@ const withDetail = (err: ApiError): string => {
                   >{{ opt.label }} ({{ event.rsvps[opt.value] ?? 0 }})</button>
                 }
                 <span class="spacer"></span>
+                <button mat-button (click)="toggleShare(event)" [attr.aria-expanded]="shareEventId() === event.id" title="Invite others to this event">
+                  <mat-icon>share</mat-icon>Invite
+                </button>
                 @if (canFeature(event)) {
                   <button mat-button (click)="toggleFeature(event)" [disabled]="actingId() === event.id" [title]="event.featured ? 'Remove highlight' : 'Highlight at top'">
                     <mat-icon>{{ event.featured ? 'star' : 'star_border' }}</mat-icon>
@@ -238,6 +244,51 @@ const withDetail = (err: ApiError): string => {
                   Discussion{{ event.commentCount ? ' (' + event.commentCount + ')' : '' }}
                 </button>
               </div>
+              @if (shareEventId() === event.id) {
+                <div class="share-panel" role="region" aria-label="Invite to this event">
+                  <p class="invite-text">{{ inviteText(event) }}</p>
+                  <div class="share-actions">
+                    <button mat-stroked-button (click)="copyInvite(event)"><mat-icon>content_copy</mat-icon>Copy invite</button>
+                    <button mat-stroked-button (click)="copyEventLink()"><mat-icon>link</mat-icon>Copy my link</button>
+                    <button mat-stroked-button (click)="whatsAppInvite(event)"><mat-icon>share</mat-icon>WhatsApp</button>
+                    <button mat-stroked-button (click)="facebookInvite()"><mat-icon>share</mat-icon>Facebook</button>
+                    <button mat-stroked-button (click)="smsInvite(event)"><mat-icon>sms</mat-icon>SMS</button>
+                    <button mat-stroked-button (click)="emailInvite(event)"><mat-icon>mail</mat-icon>Email</button>
+                  </div>
+                  <p class="muted">SMS and Email open the composer with your invite copied — pick recipients, paste, send.</p>
+                </div>
+              }
+              @if (canManageAttendees(event) && isPast(event)) {
+                <div class="attend-panel" role="region" aria-label="Attendance">
+                  <button mat-button (click)="toggleAttendees(event)" [attr.aria-expanded]="attendeesOpenId() === event.id">
+                    <mat-icon>how_to_reg</mat-icon>
+                    Attendance{{ recap(event.id).going > 0 ? ' (' + recap(event.id).attended + '/' + recap(event.id).going + ' here)' : '' }}
+                  </button>
+                  @if (attendeesOpenId() === event.id) {
+                    @if (attendeesLoading()) {
+                      <mat-progress-bar mode="indeterminate" />
+                    } @else if (attendeeList(event.id).length > 0) {
+                      <ul class="attend-list">
+                        @for (a of attendeeList(event.id); track a.partnerId) {
+                          <li>
+                            <span class="who"><strong>{{ a.name }}</strong><span class="muted">@{{ a.username ?? '—' }} · {{ a.status }}</span></span>
+                            <span class="spacer"></span>
+                            <button mat-button [disabled]="markingId() !== null" (click)="setAttendance(event, a, true)" [color]="a.attended === true ? 'primary' : undefined" [attr.aria-pressed]="a.attended === true">Here</button>
+                            <button mat-button [disabled]="markingId() !== null" (click)="setAttendance(event, a, false)" [color]="a.attended === false ? 'warn' : undefined" [attr.aria-pressed]="a.attended === false">Absent</button>
+                          </li>
+                        }
+                      </ul>
+                      <div class="recap-row">
+                        <span class="muted">{{ recap(event.id).attended }} attended · {{ recap(event.id).noShow }} no-show</span>
+                        <span class="spacer"></span>
+                        <button mat-stroked-button (click)="nudgeNoShows(event)"><mat-icon>sms</mat-icon>Nudge no-shows</button>
+                      </div>
+                    } @else {
+                      <p class="muted">No RSVPs yet.</p>
+                    }
+                  }
+                </div>
+              }
               @if (openThreadId() === event.id) {
                 <div class="thread">
                   @if (threadLoading()) {
@@ -324,6 +375,16 @@ const withDetail = (err: ApiError): string => {
     .rsvp-row { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; border-top: 1px solid var(--dp-line); padding-top: 0.5em; }
     .rsvp-row .spacer { flex: 1; }
     .rsvp-row button, .delete-confirm button { min-height: 44px; }
+    .share-panel, .attend-panel { border-top: 1px solid var(--dp-line); padding-top: 0.7em; display: flex; flex-direction: column; gap: 0.6em; }
+    .invite-text { margin: 0; background: var(--dp-paper); border: 1px dashed var(--dp-line); border-radius: 8px; padding: 0.7em 0.9em; overflow-wrap: anywhere; }
+    .share-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
+    .share-actions button { min-height: 44px; }
+    .attend-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+    .attend-list li { display: flex; align-items: center; gap: 0.5em; padding: 0.45em 0; border-top: 1px solid var(--dp-line); flex-wrap: wrap; }
+    .attend-list .who { display: flex; flex-direction: column; min-width: 0; }
+    .attend-list button { min-height: 44px; }
+    .recap-row { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+    .recap-row .spacer { flex: 1; }
     .thread-toggle { display: flex; }
     .thread-toggle button { min-height: 44px; }
     .thread { display: flex; flex-direction: column; gap: 0.6em; border-top: 1px solid var(--dp-line); padding-top: 0.75em; }
@@ -350,6 +411,9 @@ export class CommunityEventsComponent implements OnInit {
   private readonly presence = inject(PresenceService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly snack = inject(MatSnackBar);
+  private readonly exporter = inject(ExportContactAndEmailService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -371,6 +435,12 @@ export class CommunityEventsComponent implements OnInit {
   protected readonly presenceMap = signal<Record<string, string | null>>({});
   /** Discussion state per event (opened thread, rows, draft, reply target). */
   protected readonly openThreadId = signal<string | null>(null);
+  /** Share sheet + organizer attendance desk, keyed by event id. */
+  protected readonly shareEventId = signal<string | null>(null);
+  protected readonly attendeesOpenId = signal<string | null>(null);
+  protected readonly attendees = signal<Record<string, EventAttendee[]>>({});
+  protected readonly attendeesLoading = signal(false);
+  protected readonly markingId = signal<string | null>(null);
   protected readonly threadComments = signal<Record<string, EventComment[]>>({});
   protected readonly threadLoading = signal(false);
   protected readonly threadError = signal<string | null>(null);
@@ -707,6 +777,145 @@ export class CommunityEventsComponent implements OnInit {
 
   protected cancel(event: CommunityEvent): void {
     this.confirmingCancelId.set(event.id);
+  }
+
+  /** Past start (attendance + recap unlock; reminders stop mattering). */
+  protected isPast(event: CommunityEvent): boolean {
+    const t = new Date(event.startsAt).getTime();
+    return !Number.isNaN(t) && t <= Date.now();
+  }
+
+  protected canManageAttendees(event: CommunityEvent): boolean {
+    return this.isMine(event) || this.auth.isAdmin();
+  }
+
+  protected toggleShare(event: CommunityEvent): void {
+    this.shareEventId.set(this.shareEventId() === event.id ? null : event.id);
+  }
+
+  protected personalLink(): string {
+    const base = (environment as { publicSiteUrl?: string }).publicSiteUrl ?? 'https://diamondproject.c21fg.online';
+    const me = this.auth.currentUser();
+    const handle = String(me?.username ?? '').trim().toLowerCase();
+    return `${String(base).replace(/\/+$/, '')}/${handle}`;
+  }
+
+  protected whenLabel(event: CommunityEvent): string {
+    const at = new Date(event.startsAt);
+    const when = Number.isNaN(at.getTime())
+      ? 'date to be confirmed'
+      : at.toLocaleString('en-NG', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+    return event.location ? `${when} · ${event.location}` : when;
+  }
+
+  protected inviteText(event: CommunityEvent): string {
+    return `You're invited: ${event.title} — ${this.whenLabel(event)}. Join me here: ${this.personalLink()}`;
+  }
+
+  protected copyInvite(event: CommunityEvent): void {
+    navigator.clipboard.writeText(this.inviteText(event)).then(() => {
+      this.snack.open('Invite copied — paste it anywhere.', 'Close', { duration: 2500 });
+    }).catch(() => {
+      this.snack.open('Could not copy — long-press the text instead.', 'Close', { duration: 4000 });
+    });
+  }
+
+  protected copyEventLink(): void {
+    navigator.clipboard.writeText(this.personalLink()).then(() => {
+      this.snack.open('Your invite link copied.', 'Close', { duration: 2500 });
+    }).catch(() => {
+      this.snack.open('Could not copy — long-press the link instead.', 'Close', { duration: 4000 });
+    });
+  }
+
+  protected whatsAppInvite(event: CommunityEvent): void {
+    window.open(`https://wa.me/?text=${encodeURIComponent(this.inviteText(event))}`, '_blank', 'noopener');
+  }
+
+  protected facebookInvite(): void {
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.personalLink())}`,
+      '_blank', 'noopener',
+    );
+  }
+
+  protected smsInvite(event: CommunityEvent): void {
+    this.copyInvite(event);
+    this.router.navigate(['/dashboard/tools/sms/new']).catch(() => undefined);
+  }
+
+  protected emailInvite(event: CommunityEvent): void {
+    this.copyInvite(event);
+    this.router.navigate(['/dashboard/tools/email/new']).catch(() => undefined);
+  }
+
+  protected toggleAttendees(event: CommunityEvent): void {
+    const open = this.attendeesOpenId() === event.id ? null : event.id;
+    this.attendeesOpenId.set(open);
+    if (open && !this.attendees()[event.id]) this.loadAttendees(event.id);
+  }
+
+  protected attendeeList(eventId: string): EventAttendee[] {
+    return this.attendees()[eventId] ?? [];
+  }
+
+  protected recap(eventId: string): { going: number; attended: number; noShow: number } {
+    const rows = this.attendeeList(eventId);
+    const going = rows.filter((r) => r.status === 'going').length;
+    const attended = rows.filter((r) => r.attended === true).length;
+    return { going, attended, noShow: Math.max(0, going - attended) };
+  }
+
+  private loadAttendees(eventId: string): void {
+    this.attendeesLoading.set(true);
+    this.events
+      .attendees(eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.attendees.set({ ...this.attendees(), [eventId]: res.data?.attendees ?? [] });
+          this.attendeesLoading.set(false);
+        },
+        error: (err: ApiError) => {
+          this.attendeesLoading.set(false);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected setAttendance(event: CommunityEvent, attendee: EventAttendee, attended: boolean): void {
+    const key = `${event.id}:${attendee.partnerId}`;
+    if (this.markingId()) return;
+    this.markingId.set(key);
+    this.events
+      .markAttendance(event.id, attendee.partnerId, attended)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.markingId.set(null);
+          const rows = this.attendeeList(event.id).map((r) =>
+            r.partnerId === attendee.partnerId ? { ...r, attended } : r,
+          );
+          this.attendees.set({ ...this.attendees(), [event.id]: rows });
+        },
+        error: (err: ApiError) => {
+          this.markingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  protected nudgeNoShows(event: CommunityEvent): void {
+    const phones = this.attendeeList(event.id)
+      .filter((r) => r.status === 'going' && r.attended !== true && r.phone)
+      .map((r) => String(r.phone));
+    if (phones.length === 0) {
+      this.snack.open('No no-show phone numbers to message.', 'Close', { duration: 3500 });
+      return;
+    }
+    this.exporter.setData(phones);
+    this.snack.open(`Messaging ${phones.length} no-show${phones.length === 1 ? '' : 's'} — paste your follow-up.`, 'Close', { duration: 4000 });
+    this.router.navigate(['/dashboard/tools/sms/new']).catch(() => undefined);
   }
 
   protected confirmCancel(event: CommunityEvent): void {
