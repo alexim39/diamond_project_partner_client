@@ -143,11 +143,11 @@ import { formatStuckDuration } from '../stuck-duration';
     .toolbar { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
     .toolbar mat-form-field { flex: 1; min-width: 220px; }
     .loader { flex: 2; min-width: 120px; }
-    .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 0.75em; overflow-x: auto; padding-bottom: 0.5em; }
-    .column { display: flex; flex-direction: column; min-height: 200px; }
+    .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0.75em; padding-bottom: 0.5em; }
+    .column { display: flex; flex-direction: column; min-height: 200px; min-width: 0; }
     .column-head { display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; padding: 0.5em 0.75em; }
     .card-list { flex: 1; display: flex; flex-direction: column; gap: 0.5em; background: var(--dp-surface); border: 1px solid var(--dp-line); border-top: none; border-radius: 0 0 8px 8px; padding: 0.6em; min-height: 120px; }
-    .card { background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.7em; display: flex; flex-direction: column; gap: 0.2em; cursor: grab; }
+    .card { background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.7em; display: flex; flex-direction: column; gap: 0.2em; cursor: grab; min-width: 0; overflow-wrap: anywhere; }
     .card:active { cursor: grabbing; }
     .card-name { font-weight: 600; text-decoration: none; color: inherit; }
     .card-name:hover { color: var(--dp-gold-ink); }

@@ -62,13 +62,29 @@ const NAV_GROUPS: NavGroup[] = [
   {
     key: 'prospects', label: 'Prospects', icon: 'person_search', title: 'Find, follow up and convert',
     children: [
-      { label: 'Reminders', link: 'prospects/reminders', title: 'Follow-up promises due — overdue first' },
-      { label: 'My follow-ups', link: 'prospects/pipeline', title: 'People waiting on you — select rows to message them in bulk' },
-      { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
-      { label: 'My Page Leads', link: 'prospects/personal-list', title: 'Leads from your public page (/:your-username) — private to you' },
-      { label: 'Buy prospect', link: 'prospects/general-list', title: 'Shared platform pool — never includes your page leads' },
-      { label: 'My sessions', link: 'prospects/bookings', title: 'Booked chats and their outcomes' },
-      { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
+      {
+        label: 'Work', title: 'Your daily follow-up flow',
+        children: [
+          { label: 'Reminders', link: 'prospects/reminders', title: 'Follow-up promises due — overdue first' },
+          { label: 'My follow-ups', link: 'prospects/pipeline', title: 'People waiting on you — select rows to message them in bulk' },
+          { label: 'Deal board', link: 'prospects/board', title: 'Move deals forward' },
+        ],
+      },
+      {
+        label: 'Find', title: 'Where new people come from',
+        children: [
+          { label: 'My Page Leads', link: 'prospects/personal-list', title: 'Leads from your public page (/:your-username) — private to you' },
+          { label: 'Buy prospect', link: 'prospects/general-list', title: 'Shared platform pool — never includes your page leads' },
+          { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
+        ],
+      },
+      {
+        label: 'Meet', title: 'Sessions and presenting',
+        children: [
+          { label: 'My sessions', link: 'prospects/bookings', title: 'Booked chats and their outcomes' },
+          { label: 'Presentations', link: 'prospects/kits', title: 'One canonical deck per selling moment' },
+        ],
+      },
     ],
   },
   {

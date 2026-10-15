@@ -22,7 +22,7 @@ ProspectCommunication, ProspectDetail, StageHistoryEntry, STAGE_META, STAGE_TONE
 import { formatStuckDuration } from '../stuck-duration';
 import { ApiError } from '../../../../core/http/api-error';
 
-const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp'] as const;
+const COMM_TYPES = ['call', 'email', 'text', 'zoom', 'whatsapp', 'presentation'] as const;
 const INTEREST_LEVELS = ['hot', 'warm', 'cold'] as const;
 const COMM_OUTCOMES = ['Connected', 'No answer', 'Booked session', 'Follow-up set', 'Closed-lost'] as const;
 type CommOutcome = (typeof COMM_OUTCOMES)[number];
@@ -187,6 +187,7 @@ const sessionPhonesMatch = (a: unknown, b: unknown): boolean => {
           @if (!isConverted()) {
             <a mat-button [routerLink]="['/dashboard/prospects/booking', prospectId()]" title="Book a chat">Book session</a>
           }
+          <a mat-button [routerLink]="['/dashboard/prospects/kits']" [queryParams]="{ for: prospectId(), forName: names() }" title="Present a deck to this prospect">Present a deck</a>
           <button mat-button (click)="toggleLogForm()">{{ showLogForm() ? 'Cancel' : 'Log activity' }}</button>
         </div>
 

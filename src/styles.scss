@@ -101,6 +101,16 @@ router-outlet {
   display: none;
 }
 
+/* The viewport shell never scrolls sideways — ever. Horizontal panning
+ * belongs to inner regions (canvases, table wraps) that opt in with their
+ * own overflow. Compound selector outranks Material's structural
+ * `.mat-drawer-content` rule regardless of order; `clip` (not `hidden`)
+ * keeps vertical scrolling, sticky headers/topbars and keyboard focus
+ * intact while making page-level sideways drift structurally impossible. */
+mat-sidenav-content.mat-drawer-content {
+  overflow-x: clip;
+}
+
 /* Routed pages: breathing room from the viewport edges (shell + legacy). */
 mat-sidenav-content > router-outlet + * {
   display: block;

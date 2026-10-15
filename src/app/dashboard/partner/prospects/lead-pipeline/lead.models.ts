@@ -179,7 +179,7 @@ export interface StageHistoryEntry {
 export interface ProspectCommunication {
   id?: string;
   _id?: string;
-  type: 'call' | 'email' | 'text' | 'zoom' | 'whatsapp';
+  type: 'call' | 'email' | 'text' | 'zoom' | 'whatsapp' | 'presentation';
   interestLevel?: string;
   date?: string;
   duration?: number;
@@ -202,7 +202,7 @@ export interface ProspectDetailEnvelope extends ApiEnvelope<ProspectDetail> {
 }
 
 export interface LogCommunicationPayload {
-  type: 'call' | 'email' | 'text' | 'zoom' | 'whatsapp';
+  type: 'call' | 'email' | 'text' | 'zoom' | 'whatsapp' | 'presentation';
   interestLevel: 'hot' | 'warm' | 'cold';
   date?: string;
   duration?: number;
@@ -212,6 +212,8 @@ export interface LogCommunicationPayload {
   followUpDate?: string;
   createdBy?: string;
   createdByName?: string;
+  topicsDiscussed?: string[];
+  documentsShared?: string[];
   status?: 'Open' | 'Closed';
 }
 

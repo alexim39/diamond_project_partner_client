@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -229,7 +229,8 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
   styles: [`
     .breadcrumb-wrapper { margin-bottom: 1em; }
     .breadcrumb a { text-decoration: none; }
-    .tree-page { display: flex; flex-direction: column; gap: 1.25em; }
+    .tree-page { display: flex; flex-direction: column; gap: 1.25em; min-width: 0; overflow-x: clip; }
+    .tree-page > * { min-width: 0; }
     .page-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1em; }
     .page-head h2 { margin: 0; }
     .subtitle { margin: 0.25em 0 0; color: var(--dp-muted); }
@@ -342,6 +343,20 @@ export class NetworkTreeComponent implements OnInit {
 
   protected readonly zoomLabel = computed(() => `${Math.round(this.zoom() * 100)}%`);
 
+  /** Set after each data load — the next render fits the tree to the
+   * visible width, so wide teams land scrollbar-free. Zooming in afterwards
+   * still pans via the wrap (explicit exploration, not the default). */
+  private needsFit = false;
+
+  constructor() {
+    afterNextRender(() => {
+      if (this.needsFit) {
+        this.needsFit = false;
+        this.fit();
+      }
+    });
+  }
+
   protected rootLabel(): NetworkNode {
     return this.tree() ?? ({ id: '', username: '', name: '', surname: '' }) as NetworkNode;
   }
@@ -372,7 +387,9 @@ export class NetworkTreeComponent implements OnInit {
           this.collapsed.set(new Set());
           this.selectedId.set(null);
           this.matchIdx.set(0);
-          this.resetView();
+          this.panX.set(0);
+          this.panY.set(0);
+          this.needsFit = true;
           this.loading.set(false);
         },
         error: (err: ApiError) => {

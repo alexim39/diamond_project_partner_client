@@ -1,4 +1,4 @@
-import { Injectable, InjectionToken, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, InjectionToken, inject, signal } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, filter, map, switchMap, takeUntil, timer } from 'rxjs';
@@ -112,6 +112,7 @@ export const NOTIFICATION_WS_URL = new InjectionToken<string>('NOTIFICATION_WS_U
 @Injectable({ providedIn: 'root' })
 export class NotificationStreamService {
   private readonly notifications = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly transport: NotificationTransport;
 
   readonly unreadCount = signal(0);
@@ -136,9 +137,11 @@ export class NotificationStreamService {
 
   /** Manual refresh (e.g. after bulk actions in the Center). */
   refresh(): void {
+    // NOTE: bare takeUntilDestroyed() is illegal here — this runs from click
+    // handlers with no injection context (NG0203). The explicit ref is safe.
     this.notifications
       .list({ limit: 10 }, SILENT)
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           const stored = res.data?.stored ?? [];

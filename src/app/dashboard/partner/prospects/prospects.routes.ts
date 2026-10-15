@@ -8,6 +8,7 @@ import { RemindersComponent } from './reminders/reminders.component';
 import { ProspectDetailComponent } from './prospect-detail/detail.component';
 import { EditContactsContainerComponent } from '../contacts/edit/edit-contacts-container.component';
 import { BookSessionContainerComponent } from '../contacts/book-session/book-session-container.component';
+import { KitsComponent } from './kits/kits.component';
 
 export const ProspectsRoutes: Routes = [
   {
@@ -47,6 +48,16 @@ export const ProspectsRoutes: Routes = [
             path: 'pipeline',
             component: LeadPipelineComponent,
             title: "Lead Pipeline - Track prospects through to conversion",
+        },
+        {
+            path: 'kits',
+            component: KitsComponent,
+            title: "Presentations - One canonical deck per selling moment",
+        },
+        {
+            path: 'kits/:kitId/present',
+            loadComponent: () => import('./kits/present/present.component').then((m) => m.PresentComponent),
+            title: "Present - Walk a prospect through the deck",
         },
         {
             path: 'reminders',

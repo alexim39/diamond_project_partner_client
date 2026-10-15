@@ -453,6 +453,23 @@ export class MyPartnerContactsDetailComponent implements OnInit {
     });
   }
 
+  /** Open the deck library primed for this prospect (outcome logs with support attribution). */
+  previewPresent(): void {
+    const prospectId = String(this.prospectData?._id ?? '').trim();
+    if (!prospectId) return;
+    const owner = String(
+      (this.prospectData as { partnerId?: unknown })?.partnerId
+        ?? this.myPartner?._id ?? '',
+    ).trim();
+    this.router.navigate(['/dashboard/prospects/kits'], {
+      queryParams: {
+        for: prospectId,
+        forName: this.fullName(),
+        ...(owner ? { owner } : {}),
+      },
+    }).catch(() => undefined);
+  }
+
   copyLink(): void {
     const link = `https://diamondproject.c21fg.online/${String(this.partner?.username ?? '').toLowerCase()}`;
     navigator.clipboard.writeText(link).then(() => {
