@@ -6,7 +6,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged, filter, Subject, switchMap, tap } from 'rxjs';
+import { catchError, debounceTime, EMPTY, map, of, Subject, switchMap } from 'rxjs';
 import { SearchHit, SearchResults, SearchService } from '../../core/search/search.service';
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { AuthService } from '../../core/auth/auth.service';
@@ -123,7 +123,7 @@ function pushRecent(row: PaletteRow): void {
                 <a [routerLink]="sec.more" (click)="close()"><span>View all</span><mat-icon aria-hidden="true">arrow_forward</mat-icon></a>
               }
             </p>
-            @for (row of sec.rows; track row.label + row.sub) {
+            @for (row of sec.rows; track row.index) {
               <div
                 role="option"
                 class="row"
@@ -264,7 +264,9 @@ export class SearchPaletteComponent {
   private readonly host = inject(ElementRef);
   private readonly themes = inject(ThemeTogglerService);
   private readonly auth = inject(AuthService);
-  private readonly terms = new Subject<string>();
+  private readonly terms = new Subject<{ value: string; gen: number }>();
+  /** Only the newest query may publish results (short/command queries cancel). */
+  private searchGeneration = 0;
 
   protected readonly query = signal('');
   protected readonly searching = signal(false);
@@ -324,26 +326,26 @@ export class SearchPaletteComponent {
     this.terms
       .pipe(
         debounceTime(300),
-        distinctUntilChanged(),
-        tap(() => {
-          this.touched.set(true);
-          this.error.set(null);
-          this.active.set(0);
+        switchMap(({ value, gen }) => {
+          const q = value.trim();
+          if (q.length < 2 || q.startsWith('>')) return EMPTY;
+          this.searching.set(true);
+          return this.search.query(value).pipe(
+            map((res) => ({ gen, res })),
+            catchError((err: ApiError) => of({ gen, err })),
+          );
         }),
-        filter((q) => q.trim().length >= 2 && !q.trim().startsWith('>')),
-        tap(() => this.searching.set(true)),
-        switchMap((q) => this.search.query(q)),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({
-        next: (res) => {
-          this.results.set(res.data ?? null);
-          this.searching.set(false);
-        },
-        error: (err: ApiError) => {
-          this.error.set(err.message);
-          this.searching.set(false);
-        },
+      .subscribe((result) => {
+        if (result.gen !== this.searchGeneration) return;
+        this.searching.set(false);
+        if ('err' in result) {
+          this.error.set(result.err.message);
+          this.results.set(null);
+          return;
+        }
+        this.results.set(result.res.data ?? null);
       });
   }
 
@@ -440,14 +442,16 @@ export class SearchPaletteComponent {
   protected push(value: string): void {
     this.query.set(value);
     this.active.set(0);
+    const gen = ++this.searchGeneration;
     const t = value.trim();
-    if (t.startsWith('>') || t.length < 2) {
+    const searching = t.length >= 2 && !t.startsWith('>');
+    this.error.set(null);
+    this.touched.set(searching || t.length > 0);
+    if (!searching) {
       this.results.set(null);
       this.searching.set(false);
-      this.touched.set(t.length > 0);
-      return;
     }
-    this.terms.next(value);
+    this.terms.next({ value, gen });
   }
 
   protected onKey(event: KeyboardEvent): void {
