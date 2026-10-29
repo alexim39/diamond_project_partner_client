@@ -9,6 +9,7 @@ import { AdminPageLeadsComponent } from './page-leads/admin-page-leads.component
 import { AdminPartnerPipelineComponent } from './partner-pipeline/admin-partner-pipeline.component';
 import { AdminPagesComponent } from './pages/admin-pages.component';
 import { AdminPartnerSurveysComponent } from './partner-surveys/admin-partner-surveys.component';
+import { AdminProlificWomanLeadsComponent } from './prolific-woman-leads/admin-prolific-woman-leads.component';
 import { AdminReservationsComponent } from './reservations/admin-reservations.component';
 import { AdminOrdersComponent } from './orders/admin-orders.component';
 import { AdminTrainingQuizzesComponent } from './training-quizzes/admin-training-quizzes.component';
@@ -79,6 +80,11 @@ export const AdminRoutes: Routes = [
         path: 'partner-surveys',
         component: AdminPartnerSurveysComponent,
         title: 'Partner Surveys - Pain-point analytics',
+      },
+      {
+        path: 'prolific-woman-leads',
+        component: AdminProlificWomanLeadsComponent,
+        title: 'Prolific Woman Leads - Website applications',
       },
       {
         path: 'reservations',

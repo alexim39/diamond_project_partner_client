@@ -16,7 +16,7 @@ template: `
         <a mat-flat-button color="primary" routerLink="partner/signin" (click)="scrollToTop()">Sign in</a>
         <a mat-stroked-button routerLink="partner/signup" (click)="scrollToTop()">Create account</a>
       </div>
-      <p class="fine">No code yet? <a href="https://diamondproject.c21fg.online/" target="_blank" rel="noopener">Explore the public Diamond Project site</a> first.</p>
+      <p class="fine">No code yet? <a href="https://diamondproject.c21fg.online/" target="_blank" rel="noopener">Explore the public Diamond Project site</a> first — or <a href="https://wa.me/2348080386208?text=Hello%20Diamond%20Project%20admin%2C%20I%20need%20help%20with%20my%20account%20or%20reservation%20code." target="_blank" rel="noopener" aria-label="Chat with a Diamond Project admin on WhatsApp at 0808 038 6208">chat with an admin on WhatsApp</a>.</p>
     </div>
   </section>
   `,

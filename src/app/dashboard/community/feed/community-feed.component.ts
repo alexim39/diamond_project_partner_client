@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DOCUMENT } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,11 +17,13 @@ import { API_BASE_URL } from '../../../core/config/api-tokens';
 import { AudienceScope, DirectoryEntry, FeedComment, FeedPost, POST_KIND_LABELS, PostAttachment, PostKind } from '../../../core/community/community.models';
 import { ApiError } from '../../../core/http/api-error';
 
-const MAX_PHOTOS = 4;
-const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_ATTACHMENTS = 4;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
 
-interface StagedPhoto {
+interface StagedMedia {
   key: string;
+  kind: 'image' | 'video';
   previewUrl: string;
   attachment: PostAttachment | null;
   uploading: boolean;
@@ -119,13 +121,13 @@ const KIND_STYLES: Record<PostKind, string> = {
             <mat-label>Link (optional)</mat-label>
             <input matInput formControlName="link" maxlength="500" placeholder="https://…" />
           </mat-form-field>
-          <div class="photo-row">
-            <label class="photo-pick">
-              <mat-icon>photo_camera</mat-icon>
-              <span>Add photos ({{ staged().length }}/{{ maxPhotos() }})</span>
+          <div class="media-row">
+            <label class="media-pick">
+              <mat-icon>perm_media</mat-icon>
+              <span>Add photos or video ({{ staged().length }}/{{ maxAttachments() }})</span>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 hidden
                 (change)="onFiles($any($event.target).files); $any($event.target).value = ''"
@@ -139,14 +141,18 @@ const KIND_STYLES: Record<PostKind, string> = {
             <div class="staged-grid">
               @for (s of staged(); track s.key) {
                 <div class="staged">
-                  <img [src]="s.previewUrl" alt="Photo to post" />
+                  @if (s.kind === 'video') {
+                    <video [src]="s.previewUrl" preload="metadata" muted playsinline></video>
+                  } @else {
+                    <img [src]="s.previewUrl" alt="Photo to post" />
+                  }
                   @if (s.uploading) {
                     <mat-progress-bar mode="indeterminate" />
                   }
                   @if (s.error) {
                     <span class="error">{{ s.error }}</span>
                   }
-                  <button type="button" mat-icon-button (click)="removeStaged(s.key)" aria-label="Remove photo">
+                  <button type="button" mat-icon-button (click)="removeStaged(s.key)" aria-label="Remove media">
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
@@ -241,14 +247,30 @@ const KIND_STYLES: Record<PostKind, string> = {
                 </a>
               }
               }
-              @if (post.attachments?.length) {
-                <div class="attach-grid">
-                  @for (img of post.attachments; track img.url) {
-                    <a [href]="resolveImage(img.url)" target="_blank" rel="noopener" [title]="'Open full image'">
-                      <img [src]="resolveImage(img.url)" alt="Post image" loading="lazy" />
-                    </a>
-                  }
-                </div>
+              @if (post.attachments; as attachments) {
+                @if (attachments.length > 0) {
+                  <div
+                    class="attach-grid"
+                    [class.attach-grid--single]="attachments.length === 1"
+                    [class.attach-grid--trio]="attachments.length === 3"
+                  >
+                    @for (att of attachments; track att.url; let i = $index) {
+                      <button
+                        type="button"
+                        class="attach-thumb"
+                        (click)="openViewer(attachments, i)"
+                        [attr.aria-label]="isVideoAttachment(att) ? 'Play post video ' + (i + 1) : 'View post image ' + (i + 1)"
+                      >
+                        @if (isVideoAttachment(att)) {
+                          <video [src]="resolveAttachment(att.url)" preload="metadata" playsinline></video>
+                          <span class="attach-play" aria-hidden="true"><mat-icon>play_arrow</mat-icon></span>
+                        } @else {
+                          <img [src]="resolveAttachment(att.url)" alt="Post image" loading="lazy" />
+                        }
+                      </button>
+                    }
+                  </div>
+                }
               }
               <div class="post-actions">
                 <button mat-button (click)="toggleLike(post)" [disabled]="actingId() === post.id" [color]="post.likedByMe ? 'primary' : undefined" [title]="post.likedByMe ? 'Unlike' : 'Like'">
@@ -324,6 +346,68 @@ const KIND_STYLES: Record<PostKind, string> = {
       } @else if (!loading() && !error()) {
         <p class="empty">Quiet here — be the first to post.</p>
       }
+      @if (viewer(); as v) {
+        <div
+          class="viewer-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Media viewer"
+          tabindex="0"
+          (click)="closeViewer()"
+          (keydown)="onViewerKey($event)"
+        >
+          <div class="viewer-shell" (click)="$event.stopPropagation()">
+            <div class="viewer-bar">
+              <span class="viewer-count">{{ v.index + 1 }} / {{ v.items.length }}</span>
+              <span class="spacer"></span>
+              @if (v.items.length > 1) {
+                <button mat-icon-button (click)="stepViewer(-1)" aria-label="Previous media">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+                <button mat-icon-button (click)="stepViewer(1)" aria-label="Next media">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              }
+              <button mat-icon-button (click)="closeViewer()" aria-label="Close viewer" autofocus>
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            @if (viewerItem(); as item) {
+              <div
+                class="viewer-media"
+                (touchstart)="onSwipeStart($event)"
+                (touchend)="onSwipeEnd($event)"
+              >
+                @if (isVideoAttachment(item)) {
+                  <video [src]="resolveAttachment(item.url)" controls playsinline></video>
+                } @else {
+                  <img [src]="resolveAttachment(item.url)" alt="Post media enlarged" />
+                }
+              </div>
+            }
+            @if (v.items.length > 1) {
+              <div class="viewer-strip" role="tablist" aria-label="Attachments">
+                @for (item of v.items; track item.url; let i = $index) {
+                  <button
+                    type="button"
+                    [class.active]="i === v.index"
+                    (click)="viewerGo(i)"
+                    [attr.aria-label]="'Show attachment ' + (i + 1)"
+                    [attr.aria-selected]="i === v.index"
+                    role="tab"
+                  >
+                    @if (isVideoAttachment(item)) {
+                      <video [src]="resolveAttachment(item.url)" preload="metadata" playsinline muted></video>
+                    } @else {
+                      <img [src]="resolveAttachment(item.url)" alt="" loading="lazy" />
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
     </section>
   `,
   styles: [`
@@ -354,16 +438,55 @@ const KIND_STYLES: Record<PostKind, string> = {
     .link-row { display: inline-flex; align-items: center; gap: 0.4em; color: var(--dp-gold-ink); font-size: 0.85em; word-break: break-all; }
     .link-row mat-icon { font-size: 16px; height: 16px; width: 16px; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 0.25em; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.4em; }
-    .photo-row { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
-    .photo-pick { display: inline-flex; align-items: center; gap: 0.4em; min-height: 44px; cursor: pointer; color: var(--dp-gold-ink); font-weight: 600; font-size: 0.9em; }
+    .media-row { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+    .media-pick { display: inline-flex; align-items: center; gap: 0.4em; min-height: 44px; cursor: pointer; color: var(--dp-gold-ink); font-weight: 600; font-size: 0.9em; }
     .staged-grid { display: flex; gap: 0.5em; flex-wrap: wrap; }
     .staged { position: relative; width: 96px; }
-    .staged img { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; border: 1px solid var(--dp-line); display: block; }
+    .staged img, .staged video { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; border: 1px solid var(--dp-line); display: block; background: #000; }
     .staged button { position: absolute; top: -8px; right: -8px; background: var(--dp-surface); }
     .staged .error { font-size: 0.75em; }
-    .attach-grid { display: flex; gap: 0.5em; flex-wrap: wrap; }
-    .attach-grid a { display: block; line-height: 0; }
-    .attach-grid img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; border: 1px solid var(--dp-line); }
+    .attach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin: 0.5em 0 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--dp-line); background: #000; }
+    .attach-grid--single { grid-template-columns: 1fr; }
+    .attach-grid--trio { grid-template-columns: repeat(3, 1fr); }
+    .attach-grid--trio .attach-thumb { aspect-ratio: 1 / 1; }
+    .attach-thumb { position: relative; border: none; padding: 0; margin: 0; background: #000; cursor: zoom-in; overflow: hidden; aspect-ratio: 16 / 10; min-height: 96px; max-height: 280px; }
+    .attach-grid--single .attach-thumb { aspect-ratio: 16 / 9; max-height: 420px; min-height: 180px; }
+    .attach-thumb img, .attach-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .attach-thumb img { transition: transform 0.25s ease; }
+    .attach-thumb:hover img { transform: scale(1.03); }
+    .attach-thumb:focus-visible { outline: 2px solid var(--dp-gold); outline-offset: -2px; }
+    .attach-play { position: absolute; inset: 0; margin: auto; width: 56px; height: 56px; border-radius: 50%; background: rgba(0, 0, 0, 0.55); border: 1.5px solid rgba(255, 255, 255, 0.85); display: inline-flex; align-items: center; justify-content: center; pointer-events: none; }
+    .attach-play mat-icon { color: #fff; font-size: 32px; height: 32px; width: 32px; }
+    .viewer-backdrop { position: fixed; inset: 0; z-index: 1200; background: rgba(0, 0, 0, 0.9); display: flex; align-items: center; justify-content: center; padding: 1em; animation: viewer-fade 0.18s ease; }
+    @keyframes viewer-fade { from { opacity: 0; } to { opacity: 1; } }
+    .viewer-shell { width: min(960px, 100%); display: flex; flex-direction: column; gap: 0.5em; animation: viewer-pop 0.18s ease; }
+    @keyframes viewer-pop { from { transform: scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .attach-thumb img { transition: none; }
+      .viewer-backdrop, .viewer-shell { animation: none; }
+    }
+    .viewer-shell { width: min(960px, 100%); display: flex; flex-direction: column; gap: 0.5em; }
+    .viewer-bar { display: flex; align-items: center; gap: 0.25em; color: #fff; }
+    .viewer-bar .spacer { flex: 1; }
+    .viewer-bar button { color: #fff; min-height: 44px; min-width: 44px; }
+    .viewer-count { font-size: 0.9em; opacity: 0.85; }
+    .viewer-media { display: flex; align-items: center; justify-content: center; background: #000; border-radius: 12px; overflow: hidden; }
+    .viewer-media img { max-width: 100%; max-height: 78vh; object-fit: contain; display: block; }
+    .viewer-media video { width: 100%; max-height: 78vh; display: block; }
+    .viewer-strip { display: flex; gap: 6px; overflow-x: auto; padding: 2px; }
+    .viewer-strip button { flex: none; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 2px solid transparent; background: #000; padding: 0; margin: 0; cursor: pointer; }
+    .viewer-strip button.active { border-color: var(--dp-gold); }
+    .viewer-strip button:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+    .viewer-strip img, .viewer-strip video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    @media only screen and (max-width: 600px) {
+      .viewer-backdrop { padding: 0.5em; }
+      .viewer-media img, .viewer-media video { max-height: 72vh; }
+      .attach-thumb { min-height: 84px; max-height: 220px; }
+      .attach-grid--single .attach-thumb { max-height: 260px; min-height: 160px; }
+      .attach-grid--trio { grid-template-columns: repeat(2, 1fr); }
+      .attach-grid--trio .attach-thumb { aspect-ratio: 16 / 10; }
+      .attach-grid--trio .attach-thumb:last-child { grid-column: 1 / 3; aspect-ratio: 21 / 9; max-height: 180px; min-height: 120px; }
+    }
     .post-actions { display: flex; align-items: center; gap: 0.1em; flex-wrap: wrap; }
     .post-actions .spacer { flex: 1; }
     .post-actions button, .comment-foot button { min-height: 44px; }
@@ -384,13 +507,14 @@ const KIND_STYLES: Record<PostKind, string> = {
     }
   `],
 })
-export class CommunityFeedComponent implements OnInit {
+export class CommunityFeedComponent implements OnInit, OnDestroy {
   private readonly community = inject(CommunityService);
   private readonly auth = inject(AuthService);
   private readonly presence = inject(PresenceService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly apiBase = inject(API_BASE_URL);
+  private readonly document = inject(DOCUMENT);
   private stagedSeq = 0;
   /** authorId → lastSeenAt (null = offline/stranger); drives avatar dots. */
   protected readonly presenceMap = signal<Record<string, string | null>>({});
@@ -414,7 +538,7 @@ export class CommunityFeedComponent implements OnInit {
   protected readonly mentionSuggestions = signal<DirectoryEntry[]>([]);
   protected readonly mentionTarget = signal<'post' | 'comment' | null>(null);
   private lastMentionQuery = '';
-  protected readonly staged = signal<StagedPhoto[]>([]);
+  protected readonly staged = signal<StagedMedia[]>([]);
   protected readonly uploadError = signal<string | null>(null);
   protected readonly editingId = signal<string | null>(null);
   protected readonly editTitle = signal('');
@@ -425,6 +549,9 @@ export class CommunityFeedComponent implements OnInit {
   protected readonly confirmingDeleteId = signal<string | null>(null);
   protected readonly deleting = signal(false);
   protected readonly pinError = signal<string | null>(null);
+  /** In-page media viewer (lightbox) — null when closed. */
+  protected readonly viewer = signal<{ items: PostAttachment[]; index: number } | null>(null);
+  private swipeStartX: number | null = null;
 
   protected readonly kinds: PostKind[] = ['standard', 'announcement', 'recognition', 'training', 'event'];
 
@@ -438,6 +565,12 @@ export class CommunityFeedComponent implements OnInit {
 
   ngOnInit(): void {
     this.reload();
+  }
+
+  ngOnDestroy(): void {
+    try {
+      this.document.body.style.overflow = '';
+    } catch { /* viewer simply stays closed */ }
   }
 
   /** Presence dot for an author id (null hides it). */
@@ -579,8 +712,8 @@ export class CommunityFeedComponent implements OnInit {
     this.publishError.set(null);
   }
 
-  protected maxPhotos(): number {
-    return MAX_PHOTOS;
+  protected maxAttachments(): number {
+    return MAX_ATTACHMENTS;
   }
 
   protected uploadingCount(): number {
@@ -588,34 +721,104 @@ export class CommunityFeedComponent implements OnInit {
   }
 
   /** Relative upload paths resolve against the API origin. */
-  protected resolveImage(url: string): string {
+  protected resolveAttachment(url: string): string {
     const u = String(url ?? '');
     if (/^https?:\/\//i.test(u)) return u;
     return `${this.apiBase}${u.startsWith('/') ? '' : '/'}${u}`;
   }
 
+  protected isVideoAttachment(attachment: PostAttachment): boolean {
+    return String(attachment?.mime ?? '').startsWith('video/');
+  }
+
+  /** Open the in-page viewer on one attachment (images enlarge, videos play). */
+  protected openViewer(attachments: PostAttachment[] | undefined, index: number): void {
+    const items = (attachments ?? []).filter((a) => !!a?.url);
+    if (items.length === 0) return;
+    this.viewer.set({ items, index: Math.min(Math.max(index, 0), items.length - 1) });
+    try {
+      this.document.body.style.overflow = 'hidden';
+    } catch { /* viewer still renders without the scroll lock */ }
+  }
+
+  protected closeViewer(): void {
+    if (!this.viewer()) return;
+    this.viewer.set(null);
+    try {
+      this.document.body.style.overflow = '';
+    } catch { /* viewer simply stays closed */ }
+  }
+
+  protected stepViewer(dir: 1 | -1): void {
+    const v = this.viewer();
+    if (!v || v.items.length === 0) return;
+    const next = (v.index + dir + v.items.length) % v.items.length;
+    this.viewer.set({ items: v.items, index: next });
+  }
+
+  protected viewerGo(index: number): void {
+    const v = this.viewer();
+    if (!v || index < 0 || index >= v.items.length) return;
+    this.viewer.set({ items: v.items, index });
+  }
+
+  protected onSwipeStart(event: TouchEvent): void {
+    this.swipeStartX = event.touches[0]?.clientX ?? null;
+  }
+
+  protected onSwipeEnd(event: TouchEvent): void {
+    if (this.swipeStartX === null) return;
+    const endX = event.changedTouches[0]?.clientX ?? this.swipeStartX;
+    const dx = endX - this.swipeStartX;
+    this.swipeStartX = null;
+    if (Math.abs(dx) < 48) return;
+    this.stepViewer(dx < 0 ? 1 : -1);
+  }
+
+  protected viewerItem(): PostAttachment | null {
+    const v = this.viewer();
+    return v ? v.items[v.index] ?? null : null;
+  }
+
+  protected onViewerKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.closeViewer();
+      event.preventDefault();
+    } else if (event.key === 'ArrowRight') {
+      this.stepViewer(1);
+      event.preventDefault();
+    } else if (event.key === 'ArrowLeft') {
+      this.stepViewer(-1);
+      event.preventDefault();
+    }
+  }
+
   protected onFiles(files: FileList | null): void {
     if (!files || files.length === 0) return;
     this.uploadError.set(null);
-    const room = MAX_PHOTOS - this.staged().length;
+    const room = MAX_ATTACHMENTS - this.staged().length;
     if (room <= 0) {
-      this.uploadError.set(`At most ${MAX_PHOTOS} photos per post.`);
+      this.uploadError.set(`At most ${MAX_ATTACHMENTS} photos or videos per post.`);
       return;
     }
     [...files].slice(0, room).forEach((file) => {
-      if (!file.type.startsWith('image/')) {
-        this.uploadError.set(`${file.name} is not an image.`);
+      const name = String(file.name ?? '').toLowerCase();
+      const isVideo = file.type.startsWith('video/') || (!file.type && /\.(mp4|webm|mov)$/.test(name));
+      const isImage = file.type.startsWith('image/') || (!file.type && /\.(jpe?g|png|webp|gif)$/.test(name));
+      if (!isImage && !isVideo) {
+        this.uploadError.set(`${file.name} is not a supported image or video.`);
         return;
       }
-      if (file.size > MAX_PHOTO_BYTES) {
-        this.uploadError.set(`${file.name} is too large (max 5MB).`);
+      const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+      if (file.size > maxBytes) {
+        this.uploadError.set(`${file.name} is too large (max ${Math.round(maxBytes / 1024 / 1024)}MB).`);
         return;
       }
       const key = `staged-${++this.stagedSeq}`;
       const previewUrl = URL.createObjectURL(file);
-      this.staged.set([...this.staged(), { key, previewUrl, attachment: null, uploading: true, error: null }]);
+      this.staged.set([...this.staged(), { key, kind: isVideo ? 'video' : 'image', previewUrl, attachment: null, uploading: true, error: null }]);
       this.community
-        .uploadImage(file)
+        .uploadMedia(file)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (res) => {
@@ -631,7 +834,7 @@ export class CommunityFeedComponent implements OnInit {
         });
     });
     if (files.length > room) {
-      this.uploadError.set(`At most ${MAX_PHOTOS} photos per post.`);
+      this.uploadError.set(`At most ${MAX_ATTACHMENTS} photos or videos per post.`);
     }
   }
 

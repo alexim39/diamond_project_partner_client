@@ -29,6 +29,12 @@ export class AdminService {
     return this.api.patch<{ data: ManagedPartner }>(`v1/admin/partners/${partnerId}/role`, { role });
   }
 
+  setPermissions(partnerId: string, permissions: string[]): Observable<{ data: ManagedPartner }> {
+    return this.api.patch<{ data: ManagedPartner }>(`v1/admin/partners/${partnerId}/permissions`, {
+      permissions,
+    });
+  }
+
   setSuspended(partnerId: string, suspended: boolean, reason?: string): Observable<{ data: ManagedPartner }> {
     return this.api.patch<{ data: ManagedPartner }>(`v1/admin/partners/${partnerId}/suspend`, {
       suspended,

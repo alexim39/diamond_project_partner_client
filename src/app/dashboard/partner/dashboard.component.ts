@@ -17,6 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { PartnerInterface, PartnerService } from '../../_common/services/partner.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { APP_PERMISSIONS } from '../../core/auth/permissions';
 import { ThemeTogglerService } from '../../_common/services/theme-toggler.service';
 import { PartnerAuthService } from '../../auth/auth.service';
 import { NotificationBellComponent } from '../notifications/bell/notification-bell.component';
@@ -38,6 +39,7 @@ export interface NavLeaf {
   link?: string;
   external?: string;
   title?: string;
+  permission?: string;
 }
 export interface NavChild extends NavLeaf {
   children?: NavLeaf[];
@@ -74,6 +76,7 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Find', title: 'Where new people come from',
         children: [
           { label: 'My Page Leads', link: 'prospects/personal-list', title: 'Leads from your public page (/:your-username) — private to you' },
+          { label: 'Prolific Woman leads', link: 'prospects/prolific-woman-leads', title: 'Applications from the Prolific Woman website', permission: APP_PERMISSIONS.PROLIFIC_WOMAN_LEADS_VIEW },
           { label: 'Buy prospect', link: 'prospects/general-list', title: 'Shared platform pool — never includes your page leads' },
           { label: 'Add someone', link: 'tools/contacts/new', title: 'Add someone' },
         ],
@@ -677,6 +680,10 @@ export class DashboardComponent {
 
   protected readonly navGroups = NAV_GROUPS;
   private readonly openGroups = new Set<string>();
+
+  protected canSee(permission?: string): boolean {
+    return !permission || this.presence.hasPermission(permission);
+  }
   /** Open third-level subgroups, keyed `group:label`. Independent toggles. */
   private readonly openSubs = new Set<string>();
   /** Pending downline confirmations awaiting this member (upline inbox badge). */

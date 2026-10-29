@@ -393,6 +393,36 @@ export class ManageContactsAnalyticsComponent implements OnInit {
     return items.sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime());
   }
 
+  /**
+   * Survey answer fields that prove a response was actually given.
+   * `country` is deliberately excluded: the survey schema defaults it
+   * to 'Nigeria', so a snapshot of `{ socialMedia: [], country: 'Nigeria' }`
+   * carries zero answers yet is truthy — exactly the empty-record case.
+   */
+  private static readonly SURVEY_ANSWER_FIELDS = [
+    'ageRange', 'referral', 'referralCode', 'socialMedia',
+    'onlinePurchaseSchedule', 'primaryOnlineBusinessMotivation',
+    'importanceOfPassiveIncome', 'employedStatus', 'comfortWithTech',
+    'onlineBusinessTimeDedication', 'state',
+  ];
+
+  /**
+   * True only when the embedded survey snapshot holds at least one
+   * answer. An empty-but-truthy `{}` (manual/imported contacts) hides
+   * the button instead of opening an all-"No record found" dialog.
+   */
+  hasSurveyResponse(): boolean {
+    const s = this.prospectData?.survey;
+    if (!s || typeof s !== 'object') return false;
+    return ManageContactsAnalyticsComponent.SURVEY_ANSWER_FIELDS.some((f) => {
+      const v = (s as Record<string, unknown>)[f];
+      if (v === null || v === undefined) return false;
+      if (typeof v === 'string') return v.trim().length > 0;
+      if (Array.isArray(v)) return v.length > 0;
+      return true;
+    });
+  }
+
   ViewResponse(prospect: ProspectListInterface) {
     this.dialog.open(ProspectResponseComponent, {
       data: prospect

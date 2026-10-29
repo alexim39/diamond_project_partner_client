@@ -10,6 +10,7 @@ export interface ManagedPartner {
   phone?: string;
   profileImage?: string | null;
   role: UserRole;
+  permissions?: string[];
   suspended?: boolean;
   suspendReason?: string | null;
   subscription?: { plan?: string; status?: string };

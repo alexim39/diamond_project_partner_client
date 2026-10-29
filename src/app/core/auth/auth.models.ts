@@ -29,6 +29,7 @@ export interface AuthUser {
   email: string;
   phone?: string;
   role?: UserRole | string;
+  permissions?: string[];
   [key: string]: unknown;
 }
 

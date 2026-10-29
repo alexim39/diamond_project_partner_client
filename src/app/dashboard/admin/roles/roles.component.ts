@@ -18,7 +18,9 @@ import { ApiError, userError } from '../../../core/http/api-error';
 import { UserRole } from '../../../core/auth/auth.models';
 import { MatDialog } from '@angular/material/dialog';
 import { Member360DialogComponent } from './member-360-dialog.component';
+import { FeatureAccessDialogComponent } from './feature-access-dialog.component';
 import { AvatarComponent } from '../../../_common/avatar.component';
+import { APP_PERMISSIONS } from '../../../core/auth/permissions';
 
 const ROLE_META: Record<UserRole, { label: string; color: string; text: string }> = {
   user: { label: 'Partner', color: '#e0e0e0', text: '#424242' },
@@ -203,6 +205,19 @@ const RANK_ORDER = [
                 }
               </td>
             </ng-container>
+            <ng-container matColumnDef="features">
+              <th mat-header-cell *matHeaderCellDef>Features</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="features-cell">
+                  @if (hasProlificAccess(row)) {
+                    <span class="dp-status dp-status--ok">Prolific leads</span>
+                  }
+                  <button mat-button (click)="openFeatureAccess(row)" [disabled]="actingId() === row.id">
+                    Feature access
+                  </button>
+                </div>
+              </td>
+            </ng-container>
             <ng-container matColumnDef="plan">
               <th mat-header-cell *matHeaderCellDef>Plan</th>
               <td mat-cell *matCellDef="let row">{{ row.subscription?.plan ?? '—' }}</td>
@@ -333,6 +348,7 @@ const RANK_ORDER = [
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .error { color: var(--dp-error); display: flex; align-items: center; gap: 0.5em; }
     .empty { color: var(--dp-muted); }
+    .features-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2em; }
     .pager { display: flex; align-items: center; gap: 1em; }
   `],
 })
@@ -364,7 +380,7 @@ export class ManageRolesComponent implements OnInit {
   protected readonly uplineId = signal<string | null>(null);
   protected readonly uplineUsername = signal('');
 
-  protected readonly displayedColumns = ['name', 'contact', 'login', 'role', 'plan', 'action'];
+  protected readonly displayedColumns = ['name', 'contact', 'login', 'role', 'features', 'plan', 'action'];
 
   /** Journey-rank bars (ladder order, nonzero only) with proportional widths. */
   protected rankBars(): Array<{ level: string; label: string; count: number; width: number }> {
@@ -493,6 +509,43 @@ export class ManageRolesComponent implements OnInit {
     if (mins <= 5) return 'online';
     if (mins <= 60) return 'recent';
     return null;
+  }
+
+  protected hasProlificAccess(row: ManagedPartner): boolean {
+    return (row.permissions ?? []).includes(
+      APP_PERMISSIONS.PROLIFIC_WOMAN_LEADS_VIEW,
+    );
+  }
+
+  protected openFeatureAccess(row: ManagedPartner): void {
+    this.dialog
+      .open(FeatureAccessDialogComponent, { data: { partner: row } })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((permissions: string[] | undefined) => {
+        if (permissions === undefined) return;
+        this.actingId.set(row.id);
+        this.admin
+          .setPermissions(row.id, permissions)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (res) => {
+              this.actingId.set(null);
+              this.rows.set(
+                this.rows().map((item) => (item.id === row.id ? res.data : item)),
+              );
+              this.notice.set(
+                permissions.length > 0
+                  ? `Prolific Woman lead access granted to ${this.displayName(row)}.`
+                  : `Prolific Woman lead access removed from ${this.displayName(row)}.`,
+              );
+            },
+            error: (err: ApiError) => {
+              this.actingId.set(null);
+              this.error.set(userError(err));
+            },
+          });
+      });
   }
 
   /** Row → 360 dialog; dialog actions drive the row's own handlers. */

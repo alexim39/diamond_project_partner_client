@@ -21,6 +21,28 @@ template: `
       <a mat-stroked-button routerLink="partner/signup" (click)="scrollToTop()">Create account</a>
     </div>
     <p class="hint">New here? You need a reservation code from your inviter to sign up.</p>
+    <p class="contact">
+      Need help getting started?
+      <a
+        href="https://wa.me/2348080386208?text=Hello%20Diamond%20Project%20admin%2C%20I%20need%20help%20getting%20started."
+        target="_blank"
+        rel="noopener"
+        aria-label="Chat with a Diamond Project admin on WhatsApp at 0808 038 6208"
+      ><mat-icon aria-hidden="true">chat</mat-icon> Chat with an admin on WhatsApp</a>
+    </p>
+    <div class="video-card">
+      <div class="video-frame">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/5CFRMTxm_F4?rel=0"
+          title="Diamond Project platform introduction video"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <p class="video-caption">Watch this short introduction before you sign in or create an account.</p>
+    </div>
     <div class="trust">
       <span><mat-icon>person_search</mat-icon> Prospect pipeline</span>
       <span><mat-icon>groups</mat-icon> Team coaching</span>
@@ -82,6 +104,40 @@ styles: `
 .cta-row a { min-height: 48px; }
 a[mat-stroked-button] { border-color: var(--dp-nav-icon, #d9b36a); color: var(--dp-sidenav-text, #f3ecdd); }
 .hint { margin: 0; font-size: 0.85em; opacity: 0.7; }
+.contact { margin: 0; font-size: 0.9em; opacity: 0.9; }
+.contact a { display: inline-flex; align-items: center; gap: 0.35em; color: var(--dp-nav-icon, #d9b36a); font-weight: 700; }
+.contact mat-icon { font-size: 18px; height: 18px; width: 18px; }
+.video-card {
+  width: min(860px, 100%);
+  margin: 1.5em auto 0;
+  padding: 1em;
+  border: 1px solid rgba(217, 179, 106, 0.35);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+.video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #000;
+}
+.video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.video-caption { margin: 0.8em auto 0; font-size: 0.88em; opacity: 0.75; max-width: 36em; }
+@media only screen and (max-width: 600px) {
+  .hero { padding: 3em 1em 2.5em; }
+  .video-card { padding: 0.65em; border-radius: 14px; }
+  .video-frame { border-radius: 10px; }
+}
 .trust {
   display: flex;
   gap: 1.25em;

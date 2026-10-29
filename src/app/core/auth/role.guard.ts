@@ -26,6 +26,24 @@ export function requireRoleGuard(...roles: UserRole[]): CanActivateFn {
 /** Shorthand for the admin console. */
 export const adminGuard: CanActivateFn = requireRoleGuard('admin');
 
+/** Explicit capability gate; admin role does not imply this permission. */
+export function requirePermissionGuard(permission: string): CanActivateFn {
+  return () => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+    return auth.resolve().pipe(
+      switchMap((ok) => {
+        if (!ok) return of(router.createUrlTree(['/']));
+        return of(
+          auth.hasPermission(permission)
+            ? true
+            : router.createUrlTree(['/dashboard']),
+        );
+      }),
+    );
+  };
+}
+
 /**
  * Ladder-aware gate for G8 oversight. Admins pass on role; everyone else
  * must hold ladder level `g8` (G8 is a journey level, not a user role).

@@ -49,7 +49,7 @@
             <div><dt>Pre-approach</dt><dd>Downloaded the document</dd></div>
           }
         </dl>
-        @if (prospectData.survey) {
+        @if (hasSurveyResponse()) {
           <button mat-button (click)="ViewResponse(prospectData.survey)"><mat-icon>quiz</mat-icon> View survey response</button>
         }
       </div>

@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { GeneralProspectListContainerComponent } from './general-prospect-list/general-prospect-list-container.component';
 import { MyProspectListContainerComponent } from './personal-prospect-list/personal-prospect-list-container.component';
+import { ProlificWomanLeadsComponent } from './prolific-woman-leads/prolific-woman-leads.component';
+import { requirePermissionGuard } from '../../../core/auth/role.guard';
+import { APP_PERMISSIONS } from '../../../core/auth/permissions';
 import { ProspectBookingContainerComponent } from './prospect-booking/prospect-booking-container.component';
 import { LeadPipelineComponent } from './lead-pipeline/lead-pipeline.component';
 import { PipelineBoardComponent } from './pipeline-board/board.component';
@@ -43,6 +46,12 @@ export const ProspectsRoutes: Routes = [
             path: 'personal-list',
             component: MyProspectListContainerComponent,
             title: "My Page Leads - Leads from your public page",
+        },
+        {
+            path: 'prolific-woman-leads',
+            component: ProlificWomanLeadsComponent,
+            canActivate: [requirePermissionGuard(APP_PERMISSIONS.PROLIFIC_WOMAN_LEADS_VIEW)],
+            title: "Prolific Woman Leads - Website applications",
         },
         {
             path: 'pipeline',

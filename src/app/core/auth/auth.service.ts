@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import { AuthUser, ErasureScheduleResponse, ApiEnvelope, MeResponse, SigninRequest, SigninResponse, SignupRequest, UserRole } from './auth.models';
+import { APP_PERMISSIONS } from './permissions';
 
 /** Canonical roles — absorbs legacy 'User'/'admin' casing from the API. */
 export function normalizeRole(value: unknown): UserRole {
@@ -39,9 +40,25 @@ export class AuthService {
   readonly role = computed(() => normalizeRole(this.userSignal()?.role));
   readonly isAdmin = computed(() => this.role() === 'admin');
   readonly isLeader = computed(() => this.role() === 'leader' || this.role() === 'g8' || this.role() === 'admin');
+  readonly permissions = computed(() => this.userSignal()?.permissions ?? []);
+  readonly canViewProlificWomanLeads = computed(() =>
+    this.hasPermission(APP_PERMISSIONS.PROLIFIC_WOMAN_LEADS_VIEW),
+  );
+
+  hasPermission(permission: string): boolean {
+    return this.permissions().includes(permission);
+  }
 
   private track(user: AuthUser | null | undefined): void {
-    if (user) user = { ...user, role: normalizeRole(user.role) };
+    if (user) {
+      user = {
+        ...user,
+        role: normalizeRole(user.role),
+        permissions: Array.isArray(user.permissions)
+          ? [...new Set(user.permissions.map(String))]
+          : [],
+      };
+    }
     this.userSignal.set(user ?? null);
     this.hydrated = true;
   }

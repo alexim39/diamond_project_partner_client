@@ -28,10 +28,10 @@ export class CommunityService {
     return this.api.delete(`v1/community/${postId}`);
   }
 
-  /** Upload one image; returns the attachment ref for the composer. */
-  uploadImage(file: File): Observable<AttachmentEnvelope> {
+  /** Upload one photo or video; returns the attachment ref for the composer. */
+  uploadMedia(file: File): Observable<AttachmentEnvelope> {
     const form = new FormData();
-    form.append('image', file, file.name);
+    form.append('media', file, file.name);
     return this.api.upload<AttachmentEnvelope>('v1/community/attachments', form);
   }
 

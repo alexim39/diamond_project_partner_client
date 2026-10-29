@@ -42,10 +42,12 @@
               </button>
               <div [@submenuToggle]="isSubOpen(group.key, child.label) ? 'open' : 'closed'" class="subsubmenu">
                 @for (leaf of child.children; track leaf.label) {
-                  @if (leaf.external) {
-                    <a mat-list-item class="nav-leaf" [title]="leaf.title ?? leaf.label" target="_blank" rel="noopener" [href]="leaf.external" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span></a>
-                  } @else {
-                    <a mat-list-item class="nav-leaf" [routerLink]="leaf.link ?? ''" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" [title]="leaf.title ?? leaf.label" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span>@if (needsProfilePill(group.key, leaf.link)) { <span class="nav-pill">!</span> }@if (group.key === 'team' && leaf.link === 'mentorship/team/confirmations' && (pendingConfirmations() ?? 0) > 0) { <span class="nav-pill">{{ pendingConfirmations() }}</span> }</a>
+                  @if (canSee(leaf.permission)) {
+                    @if (leaf.external) {
+                      <a mat-list-item class="nav-leaf" [title]="leaf.title ?? leaf.label" target="_blank" rel="noopener" [href]="leaf.external" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span></a>
+                    } @else {
+                      <a mat-list-item class="nav-leaf" [routerLink]="leaf.link ?? ''" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" [title]="leaf.title ?? leaf.label" (click)="onNavigate(drawer)"><span class="nav-label">{{ leaf.label }}</span>@if (needsProfilePill(group.key, leaf.link)) { <span class="nav-pill">!</span> }@if (group.key === 'team' && leaf.link === 'mentorship/team/confirmations' && (pendingConfirmations() ?? 0) > 0) { <span class="nav-pill">{{ pendingConfirmations() }}</span> }</a>
+                    }
                   }
                 }
               </div>
@@ -174,6 +176,7 @@
   <a mat-menu-item routerLink="admin/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>campaign</mat-icon> Ad campaigns</a>
   <a mat-menu-item routerLink="admin/leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>groups</mat-icon> Lead pool</a>
   <a mat-menu-item routerLink="admin/page-leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>inbox</mat-icon> Page leads</a>
+  <a mat-menu-item routerLink="admin/prolific-woman-leads" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>assignment_ind</mat-icon> Prolific Woman leads</a>
   <a mat-menu-item routerLink="admin/partner-pipeline" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>person_search</mat-icon> Partner pipeline</a>
   <a mat-menu-item routerLink="admin/pages" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>public</mat-icon> Public pages</a>
   <a mat-menu-item routerLink="admin/reservations" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()"><mat-icon>confirmation_number</mat-icon> Reservation codes</a>

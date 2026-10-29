@@ -11,6 +11,8 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeTogglerService } from '../../../_common/services/theme-toggler.service';
 import { ApiError } from '../../../core/http/api-error';
+import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
+import { API_BASE_URL } from '../../../core/config/api-tokens';
 import { NetworkService } from './network.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
 import { NetworkNode, NetworkTreeMeta, PositionedNode } from './network.models';
@@ -159,6 +161,11 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
             role="img"
             aria-label="Downline network tree"
           >
+            <defs>
+              <clipPath id="tree-avatar-clip">
+                <circle cx="0" cy="0" r="16" />
+              </clipPath>
+            </defs>
             <g [attr.transform]="'translate(' + panX() + ' ' + panY() + ') scale(' + zoom() + ')'">
             @for (edge of layout.edges; track $index) {
               <path [attr.d]="edge.d" class="edge" />
@@ -173,7 +180,7 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
                 (keydown.space)="toggle(node); $event.preventDefault()"
                 tabindex="0"
                 role="button"
-                [attr.aria-label]="names(node)"
+                [attr.aria-label]="nodeLabel(node)"
               >
                 <rect
                   [attr.x]="node.x"
@@ -183,11 +190,30 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
                   rx="10"
                   [attr.fill]="fill(node)"
                 />
-                <text [attr.x]="node.x + nodeWidth / 2" [attr.y]="node.y + 22" text-anchor="middle" class="t-name">
+                <g [attr.transform]="'translate(' + (node.x + 26) + ' ' + (node.y + 31) + ')'">
+                  @if (avatarUrl(node.profileImage); as photo) {
+                    <image
+                      x="-16"
+                      y="-16"
+                      width="32"
+                      height="32"
+                      preserveAspectRatio="xMidYMid slice"
+                      clip-path="url(#tree-avatar-clip)"
+                      [attr.href]="photo"
+                    />
+                  } @else {
+                    <circle r="16" class="avatar-fallback" />
+                    <text text-anchor="middle" dominant-baseline="central" class="avatar-initial">{{ avatarInitial(node) }}</text>
+                  }
+                  @if (presenceOf(node.id); as presence) {
+                    <circle cx="11" cy="11" r="5.5" class="presence-dot" [attr.fill]="presenceFill(presence)" />
+                  }
+                </g>
+                <text [attr.x]="node.x + 50" [attr.y]="node.y + 27" text-anchor="start" class="t-name">
                   {{ shortName(node) }}
                 </text>
-                <text [attr.x]="node.x + nodeWidth / 2" [attr.y]="node.y + 40" text-anchor="middle" class="t-sub">
-                  @{{ node.username }} · {{ node.childCount }}
+                <text [attr.x]="node.x + 50" [attr.y]="node.y + 45" text-anchor="start" class="t-sub">
+                  {{ shortSub(node) }}
                 </text>
                 @if (node.children.length > 0) {
                   <circle
@@ -211,7 +237,7 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
 
         @if (selected(); as detail) {
           <div class="details" role="status">
-            <async-avatar [photo]="detail.profileImage" [name]="names(detail)" size="sm" />
+            <async-avatar [photo]="detail.profileImage" [name]="names(detail)" size="sm" [presence]="presenceOf(detail.id)" />
             <div>
               <strong>{{ names(detail) }}</strong>
               <span class="muted">@{{ detail.username }} · {{ detail.plan }} plan</span>
@@ -255,6 +281,9 @@ const ROLE_FILL: Record<string, Record<string, string>> = {
     .node.match rect { stroke: var(--dp-success); stroke-width: 3; stroke-dasharray: 5 3; }
     .t-name { font-size: 13px; font-weight: 600; fill: var(--dp-text); }
     .t-sub { font-size: 12px; fill: var(--dp-muted); }
+    .avatar-fallback { fill: var(--dp-sidenav); stroke: rgba(243,236,221,0.32); stroke-width: 1.5; }
+    .avatar-initial { font-size: 13px; font-weight: 800; fill: var(--dp-sidenav-text); pointer-events: none; }
+    .presence-dot { stroke: var(--dp-surface, #fff); stroke-width: 2; }
     .toggle { fill: var(--dp-surface); stroke: var(--dp-muted); stroke-width: 2; }
     .t-toggle { font-size: 13px; font-weight: 700; fill: var(--dp-text); pointer-events: none; }
     .details { display: flex; align-items: center; gap: 1em; background: var(--dp-info-bg); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.75em 1em; flex-wrap: wrap; }
@@ -268,6 +297,8 @@ export class NetworkTreeComponent implements OnInit {
   private readonly network = inject(NetworkService);
   private readonly auth = inject(AuthService);
   private readonly themes = inject(ThemeTogglerService);
+  private readonly presence = inject(PresenceService);
+  private readonly baseUrl = inject(API_BASE_URL);
   private readonly destroyRef = inject(DestroyRef);
   private readonly canvasWrap = viewChild<ElementRef<HTMLDivElement>>('canvasWrap');
 
@@ -281,6 +312,8 @@ export class NetworkTreeComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly collapsed = signal<ReadonlySet<string>>(new Set());
   protected readonly selectedId = signal<string | null>(null);
+  /** memberId → lastSeenAt (null = offline/stranger); drives avatar dots. */
+  protected readonly presenceMap = signal<Record<string, string | null>>({});
   protected readonly zoom = signal(1);
   protected readonly panX = signal(0);
   protected readonly panY = signal(0);
@@ -391,6 +424,7 @@ export class NetworkTreeComponent implements OnInit {
           this.panY.set(0);
           this.needsFit = true;
           this.loading.set(false);
+          this.refreshPresence(res.data.tree);
         },
         error: (err: ApiError) => {
           this.error.set(err.message);
@@ -526,7 +560,58 @@ export class NetworkTreeComponent implements OnInit {
 
   protected shortName(node: PositionedNode): string {
     const full = this.names(node);
-    return full.length > 20 ? `${full.slice(0, 19)}…` : full;
+    return full.length > 15 ? `${full.slice(0, 14)}…` : full;
+  }
+
+  protected shortSub(node: PositionedNode): string {
+    const suffix = ` · ${node.childCount}`;
+    const base = `@${node.username}${suffix}`;
+    if (base.length <= 18) return base;
+    return `@${node.username.slice(0, Math.max(0, 18 - suffix.length - 2))}…${suffix}`;
+  }
+
+  /** Same photo resolution as the shared avatar (absolute or legacy uploads). */
+  protected avatarUrl(photo: string | null | undefined): string | null {
+    const raw = String(photo ?? '').trim();
+    if (!raw) return null;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    return `${this.baseUrl}/uploads/${raw.replace(/^\/+/, '')}`;
+  }
+
+  protected avatarInitial(node: PositionedNode): string {
+    const full = this.names(node).trim();
+    return full ? full.charAt(0).toUpperCase() : '?';
+  }
+
+  /** One bulk presence lookup over every loaded member (cached 60s). */
+  protected refreshPresence(root: NetworkNode | null): void {
+    if (!root) return;
+    const ids: string[] = [];
+    const queue: NetworkNode[] = [root];
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      ids.push(node.id);
+      for (const child of node.children ?? []) queue.push(child);
+    }
+    this.presence
+      .lookup(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((map) => this.presenceMap.set({ ...this.presenceMap(), ...map }));
+  }
+
+  protected presenceOf(id: string | null | undefined): PresenceStatus {
+    if (!id) return null;
+    return this.presence.statusOf(this.presenceMap()[id] ?? null);
+  }
+
+  protected presenceFill(status: PresenceStatus): string {
+    return status === 'online' ? '#2e7d32' : '#d9a406';
+  }
+
+  protected nodeLabel(node: PositionedNode): string {
+    const presence = this.presenceOf(node.id);
+    const suffix = presence === 'online' ? ', online now' : presence === 'recent' ? ', active recently' : '';
+    return `${this.names(node)}${suffix}`;
   }
 
   protected fill(node: PositionedNode): string {
