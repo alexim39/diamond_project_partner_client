@@ -15,7 +15,7 @@ import { RouterModule } from '@angular/router';
 import { AdminCampaignRow, AdminCampaignService } from './admin-campaign.service';
 import { ApiError } from '../../../core/http/api-error';
 
-type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'All';
+type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'Cancelled' | 'All';
 
 /**
  * @title Ad campaigns — admin fulfillment queue.
@@ -87,7 +87,7 @@ type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'All';
               <th mat-header-cell *matHeaderCellDef>Campaign</th>
               <td mat-cell *matCellDef="let row" class="name-cell">
                 {{ row.campaignName }}
-                <span class="muted">{{ targetSummary(row) }}</span>
+                <span class="muted">{{ row.category || 'No category' }} · {{ targetSummary(row) }}</span>
               </td>
             </ng-container>
             <ng-container matColumnDef="owner">
@@ -100,6 +100,10 @@ type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'All';
             <ng-container matColumnDef="budget">
               <th mat-header-cell *matHeaderCellDef>Held</th>
               <td mat-cell *matCellDef="let row" class="num-cell">{{ row.budget?.budgetAmount | number }}</td>
+            </ng-container>
+            <ng-container matColumnDef="leads">
+              <th mat-header-cell *matHeaderCellDef>Leads</th>
+              <td mat-cell *matCellDef="let row" class="num-cell">{{ row.allocated ?? 0 }}</td>
             </ng-container>
             <ng-container matColumnDef="age">
               <th mat-header-cell *matHeaderCellDef>Waiting</th>
@@ -121,6 +125,16 @@ type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'All';
                       <input matInput [ngModel]="rejectReason()" (ngModelChange)="rejectReason.set($event)" maxlength="500" placeholder="e.g. Budget below channel minimum" />
                     </mat-form-field>
                   }
+                  @if (confirming()?.kind === 'end') {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="reason-field">
+                      <mat-label>Amount spent (₦)</mat-label>
+                      <input matInput type="number" min="0" [ngModel]="spentAmount()" (ngModelChange)="spentAmount.set($event)" placeholder="e.g. 50000" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="reason-field">
+                      <mat-label>Spend note (partner sees this)</mat-label>
+                      <input matInput [ngModel]="spendNote()" (ngModelChange)="spendNote.set($event)" maxlength="500" placeholder="e.g. Meta ads 12–19 Jun, reach 8.4k" />
+                    </mat-form-field>
+                  }
                   <button
                     mat-flat-button
                     [color]="confirming()?.kind === 'run' ? 'primary' : 'warn'"
@@ -134,6 +148,8 @@ type QueueFilter = 'Pending' | 'Active' | 'Ended' | 'Rejected' | 'All';
                     <button mat-button color="warn" (click)="arm(row._id, 'reject')" [disabled]="actingId() === row._id">Reject</button>
                   }
                   @if (row.deliveryStatus === 'Active') {
+                    <button mat-button (click)="allocate(row)" [disabled]="actingId() === row._id" title="Match pool leads now">Allocate now</button>
+                    <button mat-button (click)="togglePaused(row)" [disabled]="actingId() === row._id" title="Pause or resume lead matching">{{ row.allocation?.paused ? 'Resume leads' : 'Pause leads' }}</button>
                     <button mat-button (click)="arm(row._id, 'end')" [disabled]="actingId() === row._id">End</button>
                   }
                   <a mat-icon-button [routerLink]="['/dashboard/tools/campaigns/detail', row._id]" title="Full record" aria-label="Full record">
@@ -189,6 +205,8 @@ export class AdminCampaignsComponent implements OnInit {
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirming = signal<{ id: string; kind: 'run' | 'reject' | 'end' } | null>(null);
   protected readonly rejectReason = signal('');
+  protected readonly spentAmount = signal('');
+  protected readonly spendNote = signal('');
   protected readonly notice = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<AdminCampaignRow[]>([]);
@@ -197,8 +215,8 @@ export class AdminCampaignsComponent implements OnInit {
   protected readonly pageIndex = signal(0);
   protected readonly pageSize = signal(25);
 
-  protected readonly filters: QueueFilter[] = ['Pending', 'Active', 'Ended', 'Rejected', 'All'];
-  protected readonly displayedColumns = ['campaign', 'owner', 'budget', 'age', 'status', 'action'];
+  protected readonly filters: QueueFilter[] = ['Pending', 'Active', 'Ended', 'Rejected', 'Cancelled', 'All'];
+  protected readonly displayedColumns = ['campaign', 'owner', 'budget', 'leads', 'age', 'status', 'action'];
 
   ngOnInit(): void {
     this.reload();
@@ -270,6 +288,8 @@ export class AdminCampaignsComponent implements OnInit {
   protected arm(id: string, kind: 'run' | 'reject' | 'end'): void {
     this.confirming.set({ id, kind });
     this.rejectReason.set('');
+    this.spentAmount.set('');
+    this.spendNote.set('');
     this.notice.set(null);
   }
 
@@ -285,22 +305,72 @@ export class AdminCampaignsComponent implements OnInit {
     const c = this.confirming();
     if (!c || this.actingId()) return;
     const status = c.kind === 'run' ? 'Active' : c.kind === 'reject' ? 'Rejected' : 'Ended';
+    const spend = c.kind === 'end'
+      ? { spentAmount: Number(this.spentAmount()), spendNote: this.spendNote() }
+      : undefined;
     this.actingId.set(row._id);
     this.admin
-      .setStatus(row._id, status, this.rejectReason())
+      .setStatus(row._id, status, this.rejectReason(), spend)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.actingId.set(null);
           this.confirming.set(null);
           this.rejectReason.set('');
+          this.spentAmount.set('');
+          this.spendNote.set('');
           this.notice.set(
             status === 'Rejected'
               ? 'Rejected — held budget refunded, partner notified.'
               : status === 'Active'
                 ? 'Campaign is live — partner notified.'
-                : 'Campaign ended.',
+                : 'Campaign ended — spend accounted, partner notified.',
           );
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  /** Pause/resume lead matching without ending the ad run. */
+  protected togglePaused(row: AdminCampaignRow): void {
+    if (this.actingId()) return;
+    const paused = !row.allocation?.paused;
+    this.actingId.set(row._id);
+    this.notice.set(null);
+    this.error.set(null);
+    this.admin
+      .updateAllocation(row._id, { paused })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.actingId.set(null);
+          this.notice.set(paused ? 'Lead matching paused.' : 'Lead matching resumed.');
+          this.reload();
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.error.set(err.message);
+        },
+      });
+  }
+
+  /** Manual top-up: run the matcher for one campaign now. */
+  protected allocate(row: AdminCampaignRow): void {
+    if (this.actingId()) return;
+    this.actingId.set(row._id);
+    this.notice.set(null);
+    this.error.set(null);
+    this.admin
+      .allocateNow(row._id, 10)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          this.actingId.set(null);
+          this.notice.set(res?.message ?? 'Allocation run finished.');
           this.reload();
         },
         error: (err: ApiError) => {

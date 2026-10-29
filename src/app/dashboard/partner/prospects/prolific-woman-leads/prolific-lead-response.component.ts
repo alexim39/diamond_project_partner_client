@@ -70,7 +70,7 @@ import {
         <section>
           <h4>Location</h4>
           <div class="qa"><span>City / state</span><strong>{{ lead.location }}</strong></div>
-          <div class="qa"><span>Source</span><strong>Prolific Woman website</strong></div>
+          <div class="qa"><span>Source</span><strong>Prolific Women website</strong></div>
         </section>
       </div>
 

@@ -536,8 +536,8 @@ export class ManageRolesComponent implements OnInit {
               );
               this.notice.set(
                 permissions.length > 0
-                  ? `Prolific Woman lead access granted to ${this.displayName(row)}.`
-                  : `Prolific Woman lead access removed from ${this.displayName(row)}.`,
+                  ? `Prolific Women lead access granted to ${this.displayName(row)}.`
+                  : `Prolific Women lead access removed from ${this.displayName(row)}.`,
               );
             },
             error: (err: ApiError) => {

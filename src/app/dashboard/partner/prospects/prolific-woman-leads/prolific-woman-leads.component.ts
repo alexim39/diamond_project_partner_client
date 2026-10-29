@@ -52,22 +52,22 @@ import {
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
         <a>Prospects</a> &gt;
-        <span>Prolific Woman leads</span>
+        <span>Prolific Women leads</span>
       </div>
     </section>
 
     <section class="inbox-page">
       <div class="page-head">
         <div>
-          <h2>Prolific Woman leads</h2>
+          <h2>Prolific Women leads</h2>
           <p class="subtitle">
-            Applications from the Prolific Woman website. Accept a lead to move it
+            Applications from the Prolific Women website. Accept a lead to move it
             into My follow-ups.
           </p>
         </div>
         <mat-button-toggle-group>
           <mat-button-toggle routerLink="../prolific-woman-leads" [checked]="true">
-            <mat-icon>assignment_ind</mat-icon> Prolific Woman
+            <mat-icon>assignment_ind</mat-icon> Prolific Women
           </mat-button-toggle>
           <mat-button-toggle routerLink="../personal-list" title="My Page Leads">
             <mat-icon>inbox</mat-icon> My Page Leads
@@ -121,7 +121,7 @@ import {
       @if (filtered().length === 0) {
         <div class="empty-card">
           <mat-icon>inbox</mat-icon>
-          <p>No pending Prolific Woman applications.</p>
+          <p>No pending Prolific Women applications.</p>
           <a mat-flat-button color="primary" routerLink="../pipeline">Open My follow-ups</a>
         </div>
       } @else {

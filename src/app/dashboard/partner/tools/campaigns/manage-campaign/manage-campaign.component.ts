@@ -1,4 +1,4 @@
-﻿import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router, RouterModule, } from '@angular/router';
 import { PartnerInterface } from '../../../../../_common/services/partner.service';
-import { CampaignInterface } from './manage-campaign.service';
+import { CampaignInterface, CampaignService } from './manage-campaign.service';
 import { CommonModule } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
@@ -95,6 +95,7 @@ styles: `
         .empty-card mat-icon { font-size: 40px; height: 40px; width: 40px; opacity: 0.6; }
         .empty-card p { margin: 0; max-width: 34em; }
         .empty-card a { min-height: 44px; }
+        .notice { margin: 0 0 0.5em; color: var(--dp-gold-ink); font-size: 0.9em; }
     }
 }
 
@@ -107,13 +108,17 @@ export class ManageCampaignComponent implements OnInit {
 
   @Input() partner!: PartnerInterface;
   @Input() campaigns!: CampaignInterface[];
+  @Input() allocationSummaries: Record<string, any> = {};
+
+  private readonly campaignService = inject(CampaignService);
+  protected notice: string | null = null;
   
   dataSource = new MatTableDataSource<any>([]);  
   isEmptyRecord = false;
 
   filterText: string = '';
 
-  displayedColumns: string[] = ['transactionId',  'deliveryStatus', 'budget', 'campaignDates', 'targets', 'visits', 'progression', 'publishDate', 'action'];
+  displayedColumns: string[] = ['transactionId',  'deliveryStatus', 'budget', 'campaignDates', 'targets', 'visits', 'allocated', 'converted', 'progression', 'publishDate', 'action'];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -146,13 +151,42 @@ export class ManageCampaignComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
   }
 
-  getProgression(campaign: any): number {  
-    if (campaign.deliveryStatus === 'Active' && campaign.budget.budgetAmount > 0) {  
-      //return (campaign.reach / campaign.adsBudget) * 100;  
-      return (campaign.visits / campaign.budget.budgetAmount) * 100;  
-    }  
-    return 0; // Return 0% if the campaign is not active or budget is not defined  
-  } 
+  getProgression(campaign: any): number {
+    // Allocation funnel first (accepted share of delivered leads); the old
+    // visits-over-budget ratio survives only until a campaign delivers.
+    const summary = this.summaryOf(campaign);
+    if (summary && Number(summary.allocated) > 0) {
+      return Math.min(100, (Number(summary.accepted) / Number(summary.allocated)) * 100);
+    }
+    if (campaign.deliveryStatus === 'Active' && campaign.budget.budgetAmount > 0) {
+      return Math.min(100, (campaign.visits / campaign.budget.budgetAmount) * 100);
+    }
+    return 0; // Return 0% if the campaign is not active or budget is not defined
+  }
+
+  /** Owner-only actions (cancel a held Pending campaign for a refund). */
+  protected isOwner(element: any): boolean {
+    try {
+      return String(element?.createdBy ?? '') === String(this.partner?._id ?? '');
+    } catch {
+      return false;
+    }
+  }
+
+  protected cancel(element: any): void {
+    if (!window.confirm(`Cancel "${element.campaignName}"? The held budget returns to your wallet.`)) return;
+    this.notice = null;
+    this.campaignService.cancelCampaign(String(element._id)).subscribe({
+      next: (res: any) => {
+        this.notice = res?.message ?? 'Campaign cancelled — budget refunded.';
+        element.deliveryStatus = 'Cancelled';
+        this.dataSource.data = [...this.dataSource.data];
+      },
+      error: (err: any) => {
+        this.notice = err?.error?.message ?? 'Cancel failed — try again.';
+      },
+    });
+  }
 
   statusTone(status: string): string {
     switch (String(status ?? '').toLowerCase()) {
@@ -171,6 +205,12 @@ export class ManageCampaignComponent implements OnInit {
       return targets.length > 2 ? `${targets.length} places` : targets.join(', ');
     }
     return String(element?.targetAudience?.locationTarget ?? '—');
+  }
+
+  /** Allocation funnel for a row (best-effort — renders '—' until loaded). */
+  summaryOf(element: any): any {
+    const id = String(element?._id ?? '');
+    return (this.allocationSummaries ?? {})[id] ?? null;
   }
 
 

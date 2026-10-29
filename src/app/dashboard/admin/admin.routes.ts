@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { ManageRolesComponent } from './roles/roles.component';
 import { PayoutQueueComponent } from './payouts/payouts.component';
 import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
+import { AdminReportedLeadsComponent } from './reported-leads/admin-reported-leads.component';
 import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
 import { AdminDepositsComponent } from './deposits/admin-deposits.component';
 import { AdminLeadsComponent } from './leads/admin-leads.component';
@@ -47,6 +48,11 @@ export const AdminRoutes: Routes = [
         title: 'Ad Campaigns - Run or refund held campaigns',
       },
       {
+        path: 'reported-leads',
+        component: AdminReportedLeadsComponent,
+        title: 'Reported Leads - Review bad campaign allocations',
+      },
+      {
         path: 'withdrawals',
         component: AdminWithdrawalsComponent,
         title: 'Withdrawals - Pay or refund requests',
@@ -84,7 +90,7 @@ export const AdminRoutes: Routes = [
       {
         path: 'prolific-woman-leads',
         component: AdminProlificWomanLeadsComponent,
-        title: 'Prolific Woman Leads - Website applications',
+        title: 'Prolific Women Leads - Website applications',
       },
       {
         path: 'reservations',

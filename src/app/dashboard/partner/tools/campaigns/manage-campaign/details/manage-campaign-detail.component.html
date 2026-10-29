@@ -8,17 +8,20 @@
 </section>
 
 <section class="async-background">
-  <div class="page-head">
-    <div class="back" (click)="back()" title="Back to My campaigns">
-      <mat-icon>arrow_back</mat-icon>
+    <div class="page-head">
+      <div class="back" (click)="back()" title="Back to My campaigns">
+        <mat-icon>arrow_back</mat-icon>
+      </div>
+      <div>
+        <h2>{{ campaignData.campaignName | titlecase }}</h2>
+        <p class="page-sub">Created {{ campaignData.updatedAt | date }}</p>
+      </div>
+      <span class="spacer"></span>
+      @if (isOwner()) {
+        <button mat-button (click)="duplicate()" [disabled]="acting()" title="Start a copy as a new Pending campaign">Duplicate</button>
+      }
+      <span class="dp-status {{ statusTone(campaignData.deliveryStatus) }}">{{ campaignData.deliveryStatus | titlecase }}</span>
     </div>
-    <div>
-      <h2>{{ campaignData.campaignName | titlecase }}</h2>
-      <p class="page-sub">Created {{ campaignData.updatedAt | date }}</p>
-    </div>
-    <span class="spacer"></span>
-    <span class="dp-status {{ statusTone(campaignData.deliveryStatus) }}">{{ campaignData.deliveryStatus | titlecase }}</span>
-  </div>
 
   <section class="cards">
     <article class="dp-card flex-item">
@@ -85,6 +88,13 @@
         </div>
         <mat-divider></mat-divider>
       }
+      @if (campaignData.targetAudience.industryTarget) {
+        <div class="list">
+          <h5>Industry</h5>
+          <span class="data">{{ campaignData.targetAudience.industryTarget }}</span>
+        </div>
+        <mat-divider></mat-divider>
+      }
       @if (campaignData.targetAudience.relationshipTarget) {
         <div class="list">
           <h5>Marital status</h5>
@@ -95,6 +105,13 @@
 
     <article class="dp-card flex-item">
       <h3>Objective</h3>
+      @if (campaignData.category) {
+        <div class="list">
+          <h5>Category</h5>
+          <span class="data">{{ campaignData.category }}</span>
+        </div>
+        <mat-divider></mat-divider>
+      }
       <div class="list">
         <h5>Primary objective</h5>
         <span class="data">{{ campaignData.marketingObjectives.adObjective }}</span>
@@ -139,4 +156,79 @@
       }
     </article>
   </section>
+
+  @if (campaignData.closeout?.closedAt) {
+    <section class="dp-card alloc-card" aria-label="Spend close-out">
+      <h3>Spend close-out</h3>
+      <p class="muted">Admin account of the held budget · {{ campaignData.closeout.closedAt | date }}</p>
+      <div class="funnel">
+        <div><strong>₦{{ campaignData.closeout.spentAmount | number }}</strong><span>Reported spend</span></div>
+      </div>
+      @if (campaignData.closeout.spendNote) {
+        <p class="muted">{{ campaignData.closeout.spendNote }}</p>
+      }
+    </section>
+  }
+
+  @if (summary(); as s) {
+    <section class="dp-card alloc-card" aria-label="Lead allocation">
+      <div class="alloc-head">
+        <h3>Lead allocation · ₦{{ s.caps.perLeadPrice | number }} per delivered lead</h3>
+        @if (s.caps.paused) {
+          <span class="dp-status dp-status--warn">Paused</span>
+        } @else if (s.status === 'Active') {
+          <span class="dp-status dp-status--ok">Matching</span>
+        }
+      </div>
+      @if (notice(); as note) {
+        <p class="alloc-notice" role="status">{{ note }}</p>
+      }
+      <div class="funnel">
+        <div><strong>{{ s.delivered }}</strong><span>Allocated</span></div>
+        <div><strong>{{ s.accepted }}</strong><span>In follow-up</span></div>
+        <div><strong>{{ s.worked }}</strong><span>Worked</span></div>
+        <div><strong>{{ s.converted }}</strong><span>Converted</span></div>
+        <div><strong>₦{{ s.spent | number }}</strong><span>Lead spend</span></div>
+      </div>
+      <p class="muted">
+        Same-state {{ s.byTier[1] }} · Nearby {{ s.byTier[2] }} · Out-of-area {{ s.byTier[3] }}
+        · Today {{ s.deliveredToday }}/{{ s.caps.dailyCap }} · Total cap {{ s.caps.totalCap }}
+        @if (s.reportedBad > 0) { · Reported {{ s.reportedBad }} }
+        @if (s.replaced > 0) { · Replaced {{ s.replaced }} }
+      </p>
+      @if (isOwner() || isAdmin()) {
+        <div class="alloc-actions">
+          <button mat-flat-button color="primary" (click)="allocateNow()" [disabled]="acting() || s.status !== 'Active'">Allocate now</button>
+          <button mat-button (click)="togglePaused()" [disabled]="acting()">{{ s.caps.paused ? 'Resume' : 'Pause' }} allocation</button>
+        </div>
+      }
+      @if (ledger().length > 0) {
+        <ul class="ledger">
+          @for (row of ledger(); track row._id) {
+            <li>
+              <div>
+                <strong>{{ row.accepted?.name ?? 'Newly matched' }}</strong>
+                <span class="muted">{{ tierLabel(row.tier) }} · {{ row.createdAt | date:'mediumDate' }} · ₦{{ row.costDebited | number }}</span>
+                @if (row.status === 'reported-bad') {
+                  <span class="dp-status dp-status--warn">Reported</span>
+                } @else if (row.status === 'replaced') {
+                  <span class="dp-status dp-status--bad">Replaced</span>
+                }
+              </div>
+              <span class="spacer"></span>
+              @if (isOwner() && (row.status === 'assigned' || row.status === 'accepted')) {
+                <button mat-button (click)="reportLead(row._id)" [disabled]="acting()">Report bad lead</button>
+              }
+              @if (isAdmin() && row.status === 'reported-bad') {
+                <button mat-flat-button color="primary" (click)="verdict(row._id, 'replace')" [disabled]="acting()">Replace + credit</button>
+                <button mat-button (click)="verdict(row._id, 'reject')" [disabled]="acting()">Dismiss</button>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">No leads allocated yet — matching runs automatically while the campaign is Active.</p>
+      }
+    </section>
+  }
 </section>

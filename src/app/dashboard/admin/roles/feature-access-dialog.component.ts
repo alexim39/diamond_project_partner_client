@@ -35,7 +35,7 @@ import { APP_PERMISSIONS } from '../../../core/auth/permissions';
 
       <label class="feature">
         <mat-slide-toggle [checked]="prolificLeads()" (change)="prolificLeads.set($event.checked)">
-          Prolific Woman leads
+          Prolific Women leads
         </mat-slide-toggle>
         <span class="muted">
           View website applications and accept a lead into their own pipeline.

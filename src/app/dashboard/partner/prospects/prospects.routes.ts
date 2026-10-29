@@ -51,7 +51,7 @@ export const ProspectsRoutes: Routes = [
             path: 'prolific-woman-leads',
             component: ProlificWomanLeadsComponent,
             canActivate: [requirePermissionGuard(APP_PERMISSIONS.PROLIFIC_WOMAN_LEADS_VIEW)],
-            title: "Prolific Woman Leads - Website applications",
+            title: "Prolific Women Leads - Website applications",
         },
         {
             path: 'pipeline',

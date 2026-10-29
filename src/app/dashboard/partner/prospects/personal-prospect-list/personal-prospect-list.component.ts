@@ -32,6 +32,7 @@ interface InboxRow extends ProspectListInterface {
   referral?: string;
   referralCode?: string;
   state?: string;
+  campaignId?: string;
 }
 
 /**
@@ -128,6 +129,9 @@ interface InboxRow extends ProspectListInterface {
                   {{ row.name }} {{ row.surname }}
                 </button>
                 <div class="muted">{{ row.state || '' }}</div>
+                @if (row.campaignId) {
+                  <div><span class="dp-status dp-status--info">Campaign lead</span></div>
+                }
               </td>
             </ng-container>
             <ng-container matColumnDef="contact">
@@ -160,6 +164,9 @@ interface InboxRow extends ProspectListInterface {
                   <button mat-button (click)="confirmId.set(null)">Back</button>
                 } @else {
                   <button mat-flat-button color="primary" (click)="confirmId.set(row._id)" [disabled]="accepting()">Accept</button>
+                  @if (row.campaignId) {
+                    <button mat-button (click)="report(row)" [disabled]="accepting()" title="Flag this allocated lead as bad">Report</button>
+                  }
                 }
               </td>
             </ng-container>
@@ -295,6 +302,27 @@ export class MyProspectListComponent implements OnInit, OnChanges {
           this.accepting.set(false);
           this.rows.set(this.rows().filter((r) => r._id !== row._id));
           this.notice.set(res.message ?? 'Lead accepted — find it in My follow-ups.');
+        },
+        error: (err: ApiError) => {
+          this.accepting.set(false);
+          this.error.set(userError(err));
+        },
+      });
+  }
+
+  /** Flag an allocated inbox lead as bad — admin reviews for credit/replacement. */
+  protected report(row: InboxRow): void {
+    const reason = window.prompt('Why is this lead bad? (dead line, wrong person, …)');
+    if (!reason || !reason.trim() || this.accepting()) return;
+    this.accepting.set(true);
+    this.error.set(null);
+    this.leads
+      .reportAllocatedLead(row._id, reason.trim())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.accepting.set(false);
+          this.notice.set(res.message ?? 'Lead reported — an admin will review it.');
         },
         error: (err: ApiError) => {
           this.accepting.set(false);

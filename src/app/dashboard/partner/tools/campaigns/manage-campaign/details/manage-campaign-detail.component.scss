@@ -74,6 +74,27 @@ article.flex-item {
     padding-left: 1.2em;
 }
 
+.alloc-card {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    h3 { margin: 0; font-size: 1.1em; }
+}
+.alloc-head { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; }
+.alloc-notice { margin: 0; color: var(--dp-gold-ink); font-size: 0.9em; }
+.funnel { display: grid; grid-template-columns: repeat(auto-fit, minmax(7em, 1fr)); gap: 0.5em; }
+.funnel > div { background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em; display: flex; flex-direction: column; }
+.funnel strong { font-size: 1.25em; }
+.funnel span { color: var(--dp-muted); font-size: 0.8em; }
+.muted { color: var(--dp-muted); font-size: 0.85em; }
+.alloc-actions { display: flex; gap: 0.5em; flex-wrap: wrap; }
+.alloc-actions button { min-height: 44px; }
+.ledger { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5em; }
+.ledger li { display: flex; align-items: center; gap: 0.6em; flex-wrap: wrap; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 8px; padding: 0.6em 0.8em; }
+.ledger .spacer { flex: 1; }
+.ledger button { min-height: 44px; }
+
 .breadcrumb-wrapper {
     margin-bottom: 1em;
 }

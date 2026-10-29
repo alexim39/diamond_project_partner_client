@@ -23,6 +23,22 @@ const CHANNELS: Array<{ value: Channel; label: string; minimum: number; hint: st
   { value: 'linkedin', label: 'LinkedIn', minimum: 10500, hint: 'Professional audience and decision makers' },
 ];
 
+/** Campaign theme — picks the ad angle and matches leads with affinity. */
+const CATEGORIES = [
+  'Health optimization',
+  'Financial leverage system',
+  'Network marketing',
+  'Online business opportunity',
+  'Personal development',
+  'Wealth & investing',
+  'Fitness & wellness',
+  'Beauty & skincare',
+  'Business & entrepreneurship',
+  'Education & skills',
+  'Real estate',
+  'Youth empowerment',
+];
+
 const OBJECTIVES = ['Brand awareness', 'Reach', 'Messages', 'Conversions', 'Traffic', 'Engagement', 'Video views', 'Lead generation'];
 const MEASURES = ['Return on Ad Spend (ROAS)', 'Cost per Click (CPC)', 'Cost per Thousand Impressions (CPM)', 'Cost per Acquisition (CPA)', 'Engagement rate'];
 const AGES = ['All', '18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
@@ -36,6 +52,11 @@ const NIGERIAN_STATES = [
   'Taraba', 'Yobe', 'Zamfara',
 ];
 const EDUCATION = ['All', 'High School', 'College', 'Graduate School'];
+const INDUSTRIES = [
+  'All', 'Health & Wellness', 'Finance & Investing', 'Technology', 'Education',
+  'Agriculture', 'Real Estate', 'Fashion & Beauty', 'Food & Beverage',
+  'Transport & Logistics', 'Entertainment', 'Professional Services',
+];
 const RELATIONSHIPS = ['All', 'Single', 'Married', 'In a Relationship'];
 const BUDGET_TYPES = ['Daily budget', 'Lifetime budget'];
 const FORMATS = ['Single Image Ad', 'Video Ad', 'Carousel Ad (multiple images or videos)', 'Stories Ad'];
@@ -73,7 +94,7 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
       <div class="page-head">
         <div>
           <h2>Start a campaign</h2>
-          <p class="subtitle">Describe what you want — our admin team runs the ad, leads land in your general contact list.</p>
+          <p class="subtitle">Describe what you want — our admin team runs the ad, matched leads land in your personal-list.</p>
         </div>
         <a mat-button routerLink="../manage">My campaigns</a>
       </div>
@@ -97,8 +118,17 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
               }
             </mat-select>
           </mat-form-field>
-          <p class="hint">{{ channelHint() }}</p>
+          <mat-form-field appearance="outline">
+            <mat-label>Campaign category</mat-label>
+            <mat-select formControlName="category">
+              @for (c of categories; track c) {
+                <mat-option [value]="c">{{ c }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Theme for the ad angle and lead matching</mat-hint>
+          </mat-form-field>
         </div>
+        <p class="hint">{{ channelHint() }}</p>
         <div class="two-col">
           <mat-form-field appearance="outline">
             <mat-label>Primary objective</mat-label>
@@ -137,7 +167,7 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
             </mat-select>
           </mat-form-field>
         </div>
-        <div class="three-col">
+        <div class="two-col">
           <mat-form-field appearance="outline">
             <mat-label>Location</mat-label>
             <mat-select formControlName="locationTarget">
@@ -154,6 +184,8 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
               }
             </mat-select>
           </mat-form-field>
+        </div>
+        <div class="two-col">
           <mat-form-field appearance="outline">
             <mat-label>Relationship status</mat-label>
             <mat-select formControlName="relationshipTarget">
@@ -161,6 +193,15 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
                 <mat-option [value]="r">{{ r }}</mat-option>
               }
             </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Industry</mat-label>
+            <mat-select formControlName="industryTarget">
+              @for (i of industries; track i) {
+                <mat-option [value]="i">{{ i }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Where should the ad angle lean?</mat-hint>
           </mat-form-field>
         </div>
         @if (form.get('locationTarget')?.value === 'States') {
@@ -256,10 +297,18 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
         <p class="form-section-label">5 · Review</p>
         <div class="dp-card review" aria-label="Campaign summary">
           <div><strong>{{ reviewTitle() }}</strong> <span class="muted">· {{ channelLabel() }}</span></div>
-          <div class="muted">{{ form.get('adObjective')?.value }} · {{ form.get('budgetType')?.value }} {{ budgetAmount() | currency:'₦':'symbol':'1.0-0' }}</div>
+          <div class="muted">{{ form.get('category')?.value }} · {{ form.get('adObjective')?.value }} · {{ form.get('budgetType')?.value }} {{ budgetAmount() | currency:'₦':'symbol':'1.0-0' }}</div>
           <div class="muted">Targets: {{ reviewTargets() }}</div>
-          <div class="muted">Leads land in your general contact list · held from wallet now, run by admin</div>
+          <div class="muted">Leads land in your personal-list (My Page Leads) · held from wallet now, run by admin</div>
           <div class="muted">Landing page: diamondproject.c21fg.online/{{ partner?.username ?? '' }}</div>
+          <div class="supply-row">
+            <button mat-button type="button" (click)="checkSupply()" [disabled]="estimating() || supplyTargets().length === 0">
+              {{ estimating() ? 'Checking…' : 'Check available leads' }}
+            </button>
+            @if (estimate(); as e) {
+              <span class="muted" role="status">{{ e.matched }} leads match ({{ e.byTier[1] }} same-state · {{ e.byTier[2] }} nearby) — of {{ e.scanned }} fresh pool rows.</span>
+            }
+          </div>
         </div>
 
         <div class="form-actions">
@@ -292,6 +341,7 @@ const FB_PLACEMENTS = ['FacebookFeed', 'InstagramFeed', 'InstagramStories', 'Fac
       .two-col, .three-col { grid-template-columns: 1fr; }
     }
     .hint { margin: 0; align-self: center; color: var(--dp-muted); font-size: 0.85em; }
+    .supply-row { display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; margin-top: 0.4em; }
     .placements { display: flex; gap: 0.75em; flex-wrap: wrap; align-items: center; }
     .review { padding: 0.9em 1em; display: flex; flex-direction: column; gap: 0.3em; background: var(--dp-paper); }
     .form-actions { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
@@ -310,6 +360,7 @@ export class CampaignWizardComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly channels = CHANNELS;
+  protected readonly categories = CATEGORIES;
   protected readonly objectives = OBJECTIVES;
   protected readonly measures = MEASURES;
   protected readonly ages = AGES;
@@ -317,6 +368,7 @@ export class CampaignWizardComponent implements OnInit {
   protected readonly locations = LOCATIONS;
   protected readonly nigerianStates = NIGERIAN_STATES;
   protected readonly education = EDUCATION;
+  protected readonly industries = INDUSTRIES;
   protected readonly relationships = RELATIONSHIPS;
   protected readonly budgetTypes = BUDGET_TYPES;
   protected readonly formats = FORMATS;
@@ -326,10 +378,13 @@ export class CampaignWizardComponent implements OnInit {
 
   protected readonly saving = signal(false);
   protected readonly formError = signal<string | null>(null);
+  protected readonly estimating = signal(false);
+  protected readonly estimate = signal<{ matched: number; byTier: { 1: number; 2: number; 3: number }; scanned: number } | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     title: [''],
     channel: ['facebook' as Channel, Validators.required],
+    category: ['', Validators.required],
     adObjective: ['Lead generation', Validators.required],
     successMeasurement: ['Cost per Acquisition (CPA)', Validators.required],
     ageRangeTarget: ['All', Validators.required],
@@ -338,6 +393,7 @@ export class CampaignWizardComponent implements OnInit {
     locationStates: [<string[]>[], Validators.required],
     locationCountries: [''],
     educationTarget: ['All', Validators.required],
+    industryTarget: ['All', Validators.required],
     relationshipTarget: ['All', Validators.required],
     budgetType: ['Lifetime budget', Validators.required],
     budgetAmount: [6500, [Validators.required, Validators.min(1)]],
@@ -451,6 +507,42 @@ export class CampaignWizardComponent implements OnInit {
     return states.join(', ');
   }
 
+  /** Explicit state/country picks backing the supply estimate + matcher. */
+  protected supplyTargets(): string[] {
+    const scope = this.form.get('locationTarget')?.value ?? 'States';
+    if (scope === 'Countries') {
+      return String(this.form.get('locationCountries')?.value ?? '')
+        .split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [...(this.form.get('locationStates')?.value ?? []) as string[]];
+  }
+
+  /** Count-only preview of matchable pool leads (nothing moves, nothing charges). */
+  protected checkSupply(): void {
+    if (this.estimating()) return;
+    this.estimating.set(true);
+    const scope = this.form.get('locationTarget')?.value ?? 'States';
+    const params = new URLSearchParams({
+      scope,
+      targets: this.supplyTargets().join(','),
+      category: String(this.form.get('category')?.value ?? ''),
+      ageRange: String(this.form.get('ageRangeTarget')?.value ?? ''),
+    });
+    this.campaigns
+      .estimateSupply(params.toString())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          this.estimating.set(false);
+          this.estimate.set(res?.data ?? null);
+        },
+        error: () => {
+          this.estimating.set(false);
+          this.estimate.set(null);
+        },
+      });
+  }
+
   protected placementLabel(key: string): string {
     return key.replace(/([A-Z])/g, ' $1').trim();
   }
@@ -476,12 +568,14 @@ export class CampaignWizardComponent implements OnInit {
       .create({
         title: v.title.trim(),
         channel: v.channel,
+        category: String(v.category ?? '').trim(),
         targetAudience: {
           ageRangeTarget: v.ageRangeTarget,
           genderTarget: v.genderTarget,
           locationTarget: scope,
           locationTargets,
           educationTarget: v.educationTarget,
+          industryTarget: v.industryTarget,
           relationshipTarget: v.relationshipTarget,
         },
         marketingObjectives: {

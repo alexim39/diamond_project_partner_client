@@ -29,9 +29,9 @@ template: `
      <button mat-flat-button (click)="back()"><mat-icon>arrow_back</mat-icon>Go back</button>
    </div>
  } @else {
-   @if (partner && campaigns) {
-     <async-manage-campaign [partner]="partner" [campaigns]="campaigns"/>
-     } }
+    @if (partner && campaigns) {
+      <async-manage-campaign [partner]="partner" [campaigns]="campaigns" [allocationSummaries]="allocationSummaries"/>
+      } }
  
  `,
 changeDetection: ChangeDetectionStrategy.Eager,
@@ -54,6 +54,7 @@ export class ManageCampaignContainerComponent implements OnInit {
 
   partner!: PartnerInterface;
   campaigns!: CampaignInterface[];
+  allocationSummaries: Record<string, any> = {};
   isEmptyRecord = false;
   serverErrorMessage = '';
   private readonly destroyRef = inject(DestroyRef);
@@ -77,6 +78,11 @@ export class ManageCampaignContainerComponent implements OnInit {
         next: (response) => {
           if (response.success) {
             this.campaigns = response.data;
+            // Allocation funnels ride along (best-effort — the table renders without them).
+            this.campaignService.getMyAllocationSummaries().subscribe({
+              next: (res: any) => { this.allocationSummaries = res?.data ?? {}; },
+              error: () => { this.allocationSummaries = {}; },
+            });
           }
         },
         error: (error: HttpErrorResponse) => {

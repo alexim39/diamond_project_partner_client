@@ -97,5 +97,12 @@ export class CreateCampaignService {
       .pipe(retry(1), catchError(this.handleError));
   }
 
+  /** Count-only preview of matchable pool leads for the chosen targets. */
+  estimateSupply(query: string): Observable<any> {
+    return this.http
+      .get<any>(`${this.apiURL}/campaign/estimate-supply?${query}`, { withCredentials: true })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
    
 }

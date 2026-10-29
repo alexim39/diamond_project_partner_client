@@ -5,6 +5,9 @@ import { ApiService } from '../../../_common/services/api.service';
 export interface AdminCampaignRow {
   _id: string;
   campaignName: string;
+  category?: string;
+  allocated?: number;
+  allocation?: { paused?: boolean; enabled?: boolean; delivered?: number; spent?: number };
   deliveryStatus: string;
   budget: { budgetAmount: number; budgetType: string };
   targetAudience: { locationTarget?: string; locationTargets?: string[] };
@@ -27,7 +30,27 @@ export class AdminCampaignService {
     );
   }
 
-  setStatus(id: string, status: 'Active' | 'Rejected' | 'Ended', reason = ''): Observable<any> {
-    return this.apiService.patch<any>(`campaign/${id}/status`, { status, reason }, undefined, true);
+  setStatus(id: string, status: 'Active' | 'Rejected' | 'Ended', reason = '', spend?: { spentAmount: number; spendNote?: string }): Observable<any> {
+    return this.apiService.patch<any>(`campaign/${id}/status`, { status, reason, ...(spend ?? {}) }, undefined, true);
+  }
+
+  /** Run the matcher for one campaign now (admin top-up). */
+  allocateNow(id: string, limit = 10): Observable<any> {
+    return this.apiService.post<any>(`campaign/${id}/allocate`, { limit }, undefined, true);
+  }
+
+  /** Pause/resume allocation or tune caps (admin). */
+  updateAllocation(id: string, patch: Record<string, unknown>): Observable<any> {
+    return this.apiService.patch<any>(`campaign/${id}/allocation`, patch, undefined, true);
+  }
+
+  /** Reported-but-undecided allocations (admin desk). */
+  reportedAllocations(): Observable<any> {
+    return this.apiService.get<any>(`campaign/allocations/reported`, undefined, undefined, true);
+  }
+
+  /** Admin verdict on a reported allocation (replace = credit + refill slot). */
+  verdictAllocation(id: string, decision: 'replace' | 'reject', note = ''): Observable<any> {
+    return this.apiService.patch<any>(`campaign/allocations/${id}/verdict`, { decision, note }, undefined, true);
   }
 }

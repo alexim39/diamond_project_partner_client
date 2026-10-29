@@ -37,16 +37,16 @@ import { timeAgo } from '../../../_common/date-util';
       <div class="breadcrumb">
         <a routerLink="/dashboard">Dashboard</a> &gt;
         <a>Admin</a> &gt;
-        <span>Prolific Woman leads</span>
+        <span>Prolific Women leads</span>
       </div>
     </section>
 
     <section class="page">
       <div class="page-head">
         <div>
-          <h2>Prolific Woman leads</h2>
+          <h2>Prolific Women leads</h2>
           <p class="subtitle">
-            Applications submitted through the Prolific Woman website — mentorship
+            Applications submitted through the Prolific Women website — mentorship
             readiness, location and contact preferences.
           </p>
         </div>

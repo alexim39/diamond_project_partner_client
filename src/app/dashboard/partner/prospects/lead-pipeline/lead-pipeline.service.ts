@@ -84,6 +84,11 @@ export class LeadPipelineService {
     return this.api.post<{ message: string; success: boolean; data: { prospectId: string } }>('v1/prospects/accept-page-lead', { surveyId });
   }
 
+  /** Flag one system-allocated inbox lead as bad (admin reviews for credit/replacement). */
+  reportAllocatedLead(surveyId: string, reason = ''): Observable<{ message: string; success: boolean }> {
+    return this.api.post(`campaign/allocations/by-survey/${encodeURIComponent(surveyId)}/report`, { reason });
+  }
+
   /** 1–5 star quality vote on a worked lead (feeds pool prioritization). */
   rateLead(prospectId: string, score: number, note = ''): Observable<{ message: string; success: boolean }> {
     return this.api.post(`v1/prospects/${prospectId}/rate`, { score, note });
