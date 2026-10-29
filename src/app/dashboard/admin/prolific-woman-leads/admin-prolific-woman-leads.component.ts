@@ -13,6 +13,7 @@ import { RouterModule } from '@angular/router';
 import {
   AdminProlificWomanLeadsService,
   ProlificWomanLead,
+  ProlificWomanLeadStatus,
 } from './admin-prolific-woman-leads.service';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { timeAgo } from '../../../_common/date-util';
@@ -60,6 +61,12 @@ import { timeAgo } from '../../../_common/date-util';
         <mat-progress-bar mode="indeterminate" />
       }
 
+      @if (notice(); as note) {
+        <p class="notice" role="status">
+          <mat-icon>check_circle</mat-icon> {{ note }}
+        </p>
+      }
+
       @if (error(); as err) {
         <p class="error" role="alert">
           {{ err }}
@@ -85,6 +92,14 @@ import { timeAgo } from '../../../_common/date-util';
             <mat-option [value]="25">25</mat-option>
             <mat-option [value]="50">50</mat-option>
             <mat-option [value]="100">100</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Status</mat-label>
+          <mat-select [value]="statusFilter()" (selectionChange)="setStatus($event.value)">
+            <mat-option value="all">All statuses</mat-option>
+            <mat-option value="new">New</mat-option>
+            <mat-option value="accepted">Accepted</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
@@ -155,6 +170,27 @@ import { timeAgo } from '../../../_common/date-util';
               </td>
             </ng-container>
 
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let row">
+                @if (confirmingId() === row.id) {
+                  <button mat-flat-button color="warn" (click)="remove(row)" [disabled]="actingId() === row.id">
+                    {{ actingId() === row.id ? 'Deleting…' : 'Confirm delete' }}
+                  </button>
+                  <button mat-button (click)="confirmingId.set(null)">Keep</button>
+                } @else {
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    title="Hard delete this application"
+                    [attr.aria-label]="'Delete application from ' + row.name"
+                    (click)="confirmingId.set(row.id)"
+                    [disabled]="actingId() === row.id || row.status === 'accepted'"
+                  ><mat-icon>delete</mat-icon></button>
+                }
+              </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
             <tr mat-row *matRowDef="let row; columns: columns;"></tr>
           </table>
@@ -215,6 +251,7 @@ import { timeAgo } from '../../../_common/date-util';
       color: var(--dp-success);
     }
     .pager { display: flex; align-items: center; gap: 1em; flex-wrap: wrap; }
+    .notice { display: flex; align-items: center; gap: 0.5em; background: var(--dp-success-bg); color: var(--dp-success); border-radius: 8px; padding: 0.7em 1em; margin: 0; }
     .empty { color: var(--dp-muted); }
     button { min-height: 44px; }
   `],
@@ -232,13 +269,18 @@ export class AdminProlificWomanLeadsComponent implements OnInit {
     'availability',
     'status',
     'submitted',
+    'action',
   ];
   protected readonly rows = signal<ProlificWomanLead[]>([]);
   protected readonly total = signal(0);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly notice = signal<string | null>(null);
+  protected readonly actingId = signal<string | null>(null);
+  protected readonly confirmingId = signal<string | null>(null);
   protected readonly limit = signal(25);
   protected readonly skip = signal(0);
+  protected readonly statusFilter = signal<ProlificWomanLeadStatus>('all');
   protected query = '';
 
   ngOnInit(): void {
@@ -246,6 +288,12 @@ export class AdminProlificWomanLeadsComponent implements OnInit {
   }
 
   protected applyFilters(): void {
+    this.skip.set(0);
+    this.reload();
+  }
+
+  protected setStatus(status: ProlificWomanLeadStatus): void {
+    this.statusFilter.set(status);
     this.skip.set(0);
     this.reload();
   }
@@ -264,6 +312,7 @@ export class AdminProlificWomanLeadsComponent implements OnInit {
         ...(this.query.trim() ? { q: this.query.trim() } : {}),
         limit: this.limit(),
         skip: this.skip(),
+        status: this.statusFilter(),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -283,6 +332,31 @@ export class AdminProlificWomanLeadsComponent implements OnInit {
     if (this.loading()) return;
     this.skip.set(Math.max(0, this.skip() + direction * this.limit()));
     this.reload();
+  }
+
+  /** Hard delete one unaccepted application (two-step confirm). */
+  protected remove(row: ProlificWomanLead): void {
+    if (this.actingId()) return;
+    this.actingId.set(row.id);
+    this.notice.set(null);
+    this.error.set(null);
+    this.leads
+      .remove(row.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.actingId.set(null);
+          this.confirmingId.set(null);
+          this.notice.set(res?.message ?? 'Application deleted.');
+          this.rows.set(this.rows().filter((r) => r.id !== row.id));
+          this.total.set(Math.max(0, this.total() - 1));
+        },
+        error: (err: ApiError) => {
+          this.actingId.set(null);
+          this.confirmingId.set(null);
+          this.error.set(userError(err));
+        },
+      });
   }
 
   protected readinessLabel(row: ProlificWomanLead): string {
