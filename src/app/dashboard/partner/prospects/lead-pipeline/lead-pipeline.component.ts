@@ -270,7 +270,13 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
             </ng-container>
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let lead" class="name-cell" data-label="Prospect"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a></td>
+              <td mat-cell *matCellDef="let lead" class="name-cell" data-label="Prospect"><a [routerLink]="['../detail', lead.id]" class="name-link">{{ names(lead) }}</a>
+                @if (lead.campaignId) {
+                  <a class="camp-badge" [routerLink]="['/dashboard/tools/campaigns/detail', lead.campaignId]" [title]="'Allocated by ' + (campaignNames()[lead.campaignId] ?? 'campaign') + ' — view campaign'">
+                    <mat-icon>campaign</mat-icon><span>{{ campaignNames()[lead.campaignId] ?? 'Campaign lead' }}</span>
+                  </a>
+                }
+              </td>
             </ng-container>
             <ng-container matColumnDef="contact">
               <th mat-header-cell *matHeaderCellDef>Contact</th>
@@ -403,6 +409,10 @@ function parseImportCsv(text: string): Array<Record<string, string>> {
     .name-cell { font-weight: 600; text-transform: capitalize; }
     .name-link { text-decoration: none; color: inherit; }
     .name-link:hover { color: var(--dp-gold-ink); }
+    .camp-badge { display: inline-flex; align-items: center; gap: 0.25em; margin-top: 0.3em; padding: 0.1em 0.6em; border: 1px solid var(--dp-gold); border-radius: 999px; color: var(--dp-gold-ink); font-size: 0.75em; font-weight: 600; text-decoration: none; max-width: 100%; }
+    .camp-badge mat-icon { font-size: 15px; height: 15px; width: 15px; }
+    .camp-badge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .camp-badge:hover { background: var(--dp-gold-soft); }
     .stuck-badge { color: var(--dp-error); font-size: 0.85em; font-weight: 600; margin-top: 0.25em; }
     .muted { color: var(--dp-muted); font-size: 0.85em; }
     .interest-cell { text-transform: capitalize; }
@@ -457,6 +467,7 @@ export class LeadPipelineComponent implements OnInit {
   protected readonly pageSize = signal(50);
   protected readonly pageIndex = signal(0);
   protected readonly stuckDays = signal<Record<string, StuckEntry>>({});
+  protected readonly campaignNames = signal<Record<string, string>>({});
   protected readonly actingId = signal<string | null>(null);
   protected readonly confirmId = signal<string | null>(null);
   protected readonly issuedCode = signal<{ name: string; code: string } | null>(null);
@@ -633,6 +644,7 @@ export class LeadPipelineComponent implements OnInit {
           this.stuckDays.set(Object.fromEntries((stuck.data ?? []).map((s) => [s.prospectId, s])));
           this.selected.set(new Set());
           this.loading.set(false);
+          this.resolveCampaignNames();
         },
         error: (err: ApiError) => {
           this.error.set(userError(err));
@@ -645,6 +657,21 @@ export class LeadPipelineComponent implements OnInit {
     this.search.set(value);
     this.pageIndex.set(0);
     this.reload();
+  }
+
+  /** Batch-resolve owning campaign names for allocated rows (one round trip). */
+  protected resolveCampaignNames(): void {
+    const ids = [...new Set(
+      this.rows().map((r) => String((r as ProspectLead & { campaignId?: unknown }).campaignId ?? '').trim()).filter(Boolean),
+    )].filter((id) => !(id in this.campaignNames()));
+    if (ids.length === 0) return;
+    this.leads
+      .campaignNames(ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.campaignNames.set({ ...this.campaignNames(), ...(res?.data ?? {}) }),
+        error: () => null,
+      });
   }
 
   /** Downloadable CSV template — exact headers the importer accepts. */

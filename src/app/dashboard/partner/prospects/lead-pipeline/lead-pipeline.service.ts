@@ -89,6 +89,13 @@ export class LeadPipelineService {
     return this.api.post(`campaign/allocations/by-survey/${encodeURIComponent(surveyId)}/report`, { reason });
   }
 
+  /** Batch campaign names for pipeline badges (owner/upline/admin per row). */
+  campaignNames(ids: string[]): Observable<{ message: string; success: boolean; data: Record<string, string> }> {
+    const clean = [...new Set((ids ?? []).map((id) => String(id ?? '').trim()).filter(Boolean))];
+    const params = new URLSearchParams({ ids: clean.slice(0, 50).join(',') });
+    return this.api.get(`campaign/names?${params.toString()}`);
+  }
+
   /** 1–5 star quality vote on a worked lead (feeds pool prioritization). */
   rateLead(prospectId: string, score: number, note = ''): Observable<{ message: string; success: boolean }> {
     return this.api.post(`v1/prospects/${prospectId}/rate`, { score, note });

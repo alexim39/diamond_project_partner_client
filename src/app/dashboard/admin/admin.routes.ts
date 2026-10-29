@@ -3,6 +3,7 @@ import { ManageRolesComponent } from './roles/roles.component';
 import { PayoutQueueComponent } from './payouts/payouts.component';
 import { AdminCampaignsComponent } from './campaigns/admin-campaigns.component';
 import { AdminReportedLeadsComponent } from './reported-leads/admin-reported-leads.component';
+import { AdminAutomationComponent } from './automation/job-health.component';
 import { AdminWithdrawalsComponent } from './withdrawals/admin-withdrawals.component';
 import { AdminDepositsComponent } from './deposits/admin-deposits.component';
 import { AdminLeadsComponent } from './leads/admin-leads.component';
@@ -51,6 +52,11 @@ export const AdminRoutes: Routes = [
         path: 'reported-leads',
         component: AdminReportedLeadsComponent,
         title: 'Reported Leads - Review bad campaign allocations',
+      },
+      {
+        path: 'automation',
+        component: AdminAutomationComponent,
+        title: 'Automation - Background sweep health',
       },
       {
         path: 'withdrawals',

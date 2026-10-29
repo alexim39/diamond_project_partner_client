@@ -92,6 +92,20 @@ import { ApiError } from '../../../core/http/api-error';
           </mat-card>
           <mat-card>
             <mat-card-content>
+              <mat-icon>group_add</mat-icon>
+              <span class="stat-value">{{ (t.allocatedLeads ?? 0) | number }}</span>
+              <span class="stat-label">Allocated leads</span>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <mat-icon>payments</mat-icon>
+              <span class="stat-value">{{ (t.allocationSpend ?? 0) | number }}</span>
+              <span class="stat-label">Lead spend</span>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
               <mat-icon>person_add</mat-icon>
               <span class="stat-value">{{ t.prospects | number }}</span>
               <span class="stat-label">Attributed recruits</span>
@@ -146,6 +160,10 @@ import { ApiError } from '../../../core/http/api-error';
               <th mat-header-cell *matHeaderCellDef>SMS</th>
               <td mat-cell *matCellDef="let c" class="num-cell">{{ (c.outreachSpend ?? 0) | number }}</td>
             </ng-container>
+            <ng-container matColumnDef="leads">
+              <th mat-header-cell *matHeaderCellDef title="System-allocated leads in window">Leads</th>
+              <td mat-cell *matCellDef="let c" class="num-cell">{{ (c.allocatedLeads ?? 0) | number }}</td>
+            </ng-container>
             <ng-container matColumnDef="prospects">
               <th mat-header-cell *matHeaderCellDef>Recruits</th>
               <td mat-cell *matCellDef="let c" class="num-cell">{{ c.windowProspects | number }}</td>
@@ -163,7 +181,7 @@ import { ApiError } from '../../../core/http/api-error';
           </table>
           <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons (page)="onPage($event)"></mat-paginator>
         </div>
-        <p class="muted">Estimated rows count link-tagged recruits created while the campaign flew. Stamp a campaign on creation for exact numbers.</p>
+        <p class="muted">Estimated rows count link-tagged recruits created while the campaign flew. Stamp a campaign on creation for exact numbers. Unit costs use full spend (budget + SMS + allocated leads).</p>
       } @else if (!loading() && !error()) {
         <p class="empty">No campaigns yet — start one, then come back for the numbers.</p>
       }
@@ -209,7 +227,7 @@ export class CampaignRoiComponent implements OnInit {
   protected readonly totals = signal<RoiTotals | null>(null);
 
   protected readonly dayOptions = [7, 30, 90];
-  protected readonly displayedColumns = ['name', 'visits', 'budget', 'sms', 'prospects', 'conversions', 'cpp'];
+  protected readonly displayedColumns = ['name', 'visits', 'budget', 'sms', 'leads', 'prospects', 'conversions', 'cpp'];
   protected readonly pageSize = signal(10);
   protected readonly pageIndex = signal(0);
 

@@ -48,6 +48,8 @@ export interface ProspectLead {
   /** Buy Prospect origin (pool restores need it) + pickup time (7-day return window). */
   surverId?: string | null;
   claimedAt?: string | null;
+  /** Owning campaign for system-allocated leads (drives the pipeline badge). */
+  campaignId?: string | null;
 }
 
 export interface ProspectListEnvelope extends ApiEnvelope<ProspectLead[]> {

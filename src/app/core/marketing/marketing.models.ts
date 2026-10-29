@@ -6,6 +6,9 @@ export interface CampaignRoi {
   visits: number;
   budget: number;
   outreachSpend?: number;
+  allocationSpend?: number;
+  allocatedLeads?: number;
+  totalSpend?: number;
   windowProspects: number;
   windowConversions: number;
   conversionRate: number | null;
@@ -18,6 +21,8 @@ export interface RoiTotals {
   visits: number;
   budget: number;
   outreachSpend?: number;
+  allocationSpend?: number;
+  allocatedLeads?: number;
   prospects: number;
   conversions: number;
   conversionRate: number | null;
