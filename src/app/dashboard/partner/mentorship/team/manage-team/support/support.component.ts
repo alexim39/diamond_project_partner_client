@@ -103,6 +103,14 @@ export class TeamSupportComponent implements OnDestroy {
     return { ...(id ? { team: id } : {}), ...(name ? { teamName: name } : {}) };
   }
 
+  /** Group-chat handoff for Message — the messages page resolves (or creates)
+   * the team's group conversation from this id. Kept separate from teamQuery
+   * because community events still consume ?team= for prefilling. */
+  protected groupTeamQuery(): Record<string, string> {
+    const id = String(this.team?._id ?? '').trim();
+    return id ? { teamGroup: id } : {};
+  }
+
   protected leaveTeam(): void {
     if (!this.team?._id || !this.partner?._id) return;
     this.removeMember(String(this.partner._id), String(this.team._id), true);

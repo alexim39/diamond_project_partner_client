@@ -32,7 +32,7 @@
 
   @if (team) {
     <div class="work-row" aria-label="Work with this team">
-      <a mat-button routerLink="/dashboard/messages" [queryParams]="teamQuery()" title="Message about this team — address it to your teammates"><mat-icon>chat</mat-icon>Message</a>
+      <a mat-button routerLink="/dashboard/messages" [queryParams]="groupTeamQuery()" title="Chat with this team as a group"><mat-icon>chat</mat-icon>Message</a>
       <a mat-button routerLink="/dashboard/community/events" [queryParams]="teamQuery()" title="Create an event for this team"><mat-icon>event</mat-icon>Create event</a>
       @if (isOwner()) {
         <a mat-button routerLink="/dashboard/mentorship/team/activation" title="See members needing support"><mat-icon>priority_high</mat-icon>Activation</a>

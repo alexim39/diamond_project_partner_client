@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { Observable, Subject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { API_BASE_URL } from '../config/api-tokens';
-import type { GroupMessage, Message } from './message.models';
+import type { GroupAttachment, GroupMessage, Message } from './message.models';
 
 export interface SocketAck<T = unknown> {
   ok: boolean;
@@ -157,12 +157,12 @@ export class ChatSocketService {
   }
 
   /** Group send over the live channel (membership-checked server-side). */
-  sendGroup(groupId: string, body: string, clientId: string): Promise<{ message: GroupMessage; clientId: string }> {
+  sendGroup(groupId: string, body: string, clientId: string, attachments: GroupAttachment[] = []): Promise<{ message: GroupMessage; clientId: string }> {
     const socket = this.socket;
     if (!socket?.connected) return Promise.reject(new Error('offline'));
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('send timed out')), 12000);
-      socket.emit('message:send', { groupId, body, clientId }, (ack: SocketAck<GroupMessage>) => {
+      socket.emit('message:send', { groupId, body, attachments, clientId }, (ack: SocketAck<GroupMessage>) => {
         clearTimeout(timer);
         if (ack?.ok && ack.message) {
           resolve({ message: ack.message, clientId: String(ack['clientId'] ?? clientId) });

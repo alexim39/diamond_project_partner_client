@@ -2,10 +2,10 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
-  AnnounceEnvelope, Contact, ContactsEnvelope, GroupBan, GroupBansEnvelope, GroupEnvelope, GroupMessageEnvelope,
+  AnnounceEnvelope, Contact, ContactsEnvelope, GroupAttachment, GroupBan, GroupBansEnvelope, GroupEnvelope, GroupMessageEnvelope,
   GroupMessagesEnvelope, GroupPhotoEnvelope, GroupReportsEnvelope, GroupRequestsEnvelope, GroupsEnvelope,
-  MessageEnvelope, MessagesEnvelope, PeopleEnvelope,
-  RouteEnvelope, SmsFallbackEnvelope, TeamAnnounceEnvelope, UnreadEnvelope,
+  MessageEnvelope, MessagesEnvelope, PeopleEnvelope, GroupInviteEnvelope,
+  RouteEnvelope, SmsFallbackEnvelope, TeamAnnounceEnvelope, TeamGroupEnvelope, UnreadEnvelope,
 } from './message.models';
 
 /** Group chat payloads for create/update. */
@@ -102,6 +102,16 @@ export class MessageService {
     return this.api.upload<GroupPhotoEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/photo`, form);
   }
 
+  /** Invite preview — directory-safe fields for rendering a shared-link join card. */
+  groupInvite(groupId: string): Observable<GroupInviteEnvelope> {
+    return this.api.get<GroupInviteEnvelope>(`${this.groupsBase}/invite/${encodeURIComponent(groupId)}`);
+  }
+
+  /** Team chat bridge — resolves (or creates on first visit) the group for a purpose team. */
+  teamGroup(teamId: string): Observable<TeamGroupEnvelope> {
+    return this.api.get<TeamGroupEnvelope>(`${this.groupsBase}/by-team/${encodeURIComponent(teamId)}`);
+  }
+
   deleteGroup(groupId: string): Observable<{ data: { deleted: boolean } }> {
     return this.api.delete<{ data: { deleted: boolean } }>(`${this.groupsBase}/${encodeURIComponent(groupId)}`);
   }
@@ -154,8 +164,8 @@ export class MessageService {
     return this.api.get<GroupMessagesEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages?limit=${limit}`);
   }
 
-  sendGroupMessage(groupId: string, body: string): Observable<GroupMessageEnvelope> {
-    return this.api.post<GroupMessageEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages`, { body });
+  sendGroupMessage(groupId: string, body: string, attachments: GroupAttachment[] = []): Observable<GroupMessageEnvelope> {
+    return this.api.post<GroupMessageEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages`, { body, attachments });
   }
 
   editGroupMessage(groupId: string, messageId: string, body: string): Observable<GroupMessageEnvelope> {

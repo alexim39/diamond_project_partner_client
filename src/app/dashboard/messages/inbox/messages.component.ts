@@ -13,16 +13,24 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { forkJoin, interval, fromEvent, Observable } from 'rxjs';
 import { MessageService } from '../../../core/messaging/message.service';
+import { CommunityService } from '../../../core/community/community.service';
 import { ChatSocketService } from '../../../core/messaging/chat-socket.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { AnnounceEnvelope, ChatRouteInfo, Contact, GroupBan, GroupDetail, GroupHit, GroupJoinRequest, GroupMember, GroupMessage, GroupReport, GroupSummary, Message, MessageEnvelope, PersonHit, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
+import { AnnounceEnvelope, ChatRouteInfo, Contact, GroupAttachment, GroupBan, GroupDetail, GroupHit, GroupInvite, GroupJoinRequest, GroupMember, GroupMessage, GroupReport, GroupSummary, Message, MessageEnvelope, PersonHit, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { SmsApprovalDialogComponent } from './sms-approval-dialog.component';
 
 type ComposeKind = 'direct' | 'announcement' | 'team';
 type ChatMsg = Message & { clientId?: string; pending?: boolean; failed?: boolean };
+
+/** Newest-activity-first ordering shared by every group list refresh. */
+function sortGroupSummaries(rows: GroupSummary[]): GroupSummary[] {
+  return [...rows].sort((a, b) =>
+    new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
+    - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime());
+}
 
 const POLL_THREAD_MS = 8000;
 const POLL_LISTS_MS = 24000;
@@ -57,8 +65,8 @@ const TYPING_CLEAR_MS = 3500;
       <div class="page-head">
         <div>
           <h2>Messages
-            @if (unread() > 0) {
-              <span class="unread-count">{{ unread() }} unread</span>
+            @if (totalUnread() > 0) {
+              <span class="unread-count">{{ totalUnread() }} unread</span>
             }
           </h2>
           <p class="subtitle">
@@ -431,7 +439,20 @@ const TYPING_CLEAR_MS = 3500;
                             <button mat-button (click)="editingGroupMsg.set(null)">Cancel</button>
                           </span>
                         } @else {
-                          <p>{{ m.body }}</p>
+                          @if (m.attachments?.length) {
+                            <span class="attach-grid">
+                              @for (a of m.attachments!; track a.url) {
+                                @if (a.mime.startsWith('image/')) {
+                                  <a [href]="a.url" target="_blank" rel="noopener"><img [src]="a.url" alt="Shared photo" loading="lazy" /></a>
+                                } @else {
+                                  <video [src]="a.url" controls preload="metadata"></video>
+                                }
+                              }
+                            </span>
+                          }
+                          @if (m.body?.trim()) {
+                            <p>{{ m.body }}</p>
+                          }
                           @if (m.editedAt) {
                             <span class="muted edited-tag">(edited)</span>
                           }
@@ -446,7 +467,7 @@ const TYPING_CLEAR_MS = 3500;
                                 <mat-icon>error_outline</mat-icon>
                               </button>
                             } @else {
-                              <mat-icon class="ticks ticks--read" aria-label="Sent">done_all</mat-icon>
+                              <mat-icon class="ticks" [class.ticks--read]="isSeenByAll(m)" [title]="seenTitle(m)" aria-label="Delivered">done_all</mat-icon>
                             }
                           }
                           @if (canModifyGroupMsg(m)) {
@@ -494,6 +515,33 @@ const TYPING_CLEAR_MS = 3500;
               }
 
               <div class="composer">
+                @if (groupFiles().length > 0 || groupUploading()) {
+                  <div class="attach-preview" aria-label="Attachments to send">
+                    @for (f of groupFiles(); track f.url; let i = $index) {
+                      <span class="attach-thumb">
+                        @if (f.mime.startsWith('image/')) {
+                          <img [src]="f.url" [alt]="f.name" />
+                        } @else {
+                          <mat-icon>movie</mat-icon>
+                        }
+                        <button mat-icon-button class="attach-remove" (click)="removeGroupFile(i)" aria-label="Remove attachment">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </span>
+                    }
+                    @if (groupUploading()) {
+                      <mat-progress-bar mode="indeterminate" class="attach-progress" />
+                    }
+                  </div>
+                }
+                <input
+                  #groupFileInput hidden type="file" multiple accept="image/*,video/*"
+                  (change)="onGroupFilesSelected($any($event.target).files); $any($event.target).value = ''"
+                  aria-label="Attach photos or videos"
+                />
+                <button mat-icon-button (click)="groupFileInput.click()" [disabled]="groupFiles().length >= 4 || groupUploading()" title="Attach photos or videos" aria-label="Attach photos or videos">
+                  <mat-icon>attach_file</mat-icon>
+                </button>
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
                   <mat-label>Message {{ grp.name }}…</mat-label>
                   <textarea
@@ -505,15 +553,34 @@ const TYPING_CLEAR_MS = 3500;
                     maxlength="2000"
                   ></textarea>
                 </mat-form-field>
-                <button mat-fab color="primary" class="send-btn" (click)="sendGroupReply()" [disabled]="!groupDraft().trim() || groupSending()" aria-label="Send message">
+                <button mat-fab color="primary" class="send-btn" (click)="sendGroupReply()" [disabled]="(!groupDraft().trim() && groupFiles().length === 0) || groupSending() || groupUploading()" aria-label="Send message">
                   <mat-icon>{{ groupSending() ? 'more_horiz' : 'send' }}</mat-icon>
                 </button>
               </div>
-            } @else {
-              <div class="chat-empty">
-                <mat-icon>groups</mat-icon>
-                <p>Pick a group — or create one. Approvals land with the admins.</p>
+            } @else if (groupInvite(); as inv) {
+              <div class="invite-card" role="region" aria-label="Group invite">
+                <async-avatar [name]="inv.name" size="md" [photo]="inv.photo ?? null" />
+                <h3>{{ inv.name }}</h3>
+                <p class="muted">{{ inv.memberCount ?? 0 }} member{{ (inv.memberCount ?? 0) === 1 ? '' : 's' }} · {{ inv.joinPolicy === 'open' ? 'Open group' : 'Approval required' }}</p>
+                @if (inv.description) {
+                  <p>{{ inv.description }}</p>
+                }
+                <div class="row-actions">
+                  <button mat-flat-button color="primary" (click)="joinInvite()">Join group</button>
+                  <button mat-button (click)="dismissInvite()">Dismiss</button>
+                </div>
               </div>
+            } @else {
+              @if (inviteLoading()) {
+                <div class="chat-empty">
+                  <mat-progress-bar mode="indeterminate" />
+                </div>
+              } @else {
+                <div class="chat-empty">
+                  <mat-icon>groups</mat-icon>
+                  <p>Pick a group — or create one. Approvals land with the admins.</p>
+                </div>
+              }
             }
           </div>
 
@@ -653,6 +720,9 @@ const TYPING_CLEAR_MS = 3500;
 
               @if (groupPanel() === 'settings') {
                 <div class="settings-stack">
+                  <button mat-stroked-button (click)="copyInviteLink()">
+                    <mat-icon>link</mat-icon> Copy invite link
+                  </button>
                   @if (isGroupAdmin()) {
                     <div class="photo-row">
                       <async-avatar [name]="grp.name" size="md" [photo]="grp.photo ?? null" />
@@ -904,11 +974,23 @@ const TYPING_CLEAR_MS = 3500;
     @media (prefers-reduced-motion: reduce) {
       .typing-bubble span { animation: none; opacity: 0.8; }
     }
-    .composer { display: flex; gap: 0.5em; align-items: flex-end; padding: 0.6em 0.9em; border-top: 1px solid var(--dp-line); background: var(--dp-paper); flex: none; }
+    .composer { display: flex; gap: 0.5em; align-items: flex-end; padding: 0.6em 0.9em; border-top: 1px solid var(--dp-line); background: var(--dp-paper); flex: none; flex-wrap: wrap; }
     .composer mat-form-field { flex: 1; }
+    .attach-preview { flex: 1 1 100%; display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; }
+    .attach-thumb { position: relative; width: 56px; height: 56px; border-radius: 10px; border: 1px solid var(--dp-line); background: var(--dp-paper); display: inline-flex; align-items: center; justify-content: center; color: var(--dp-muted); }
+    .attach-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+    .attach-remove { position: absolute; top: -12px; right: -12px; width: 24px; height: 24px; background: var(--dp-paper); border: 1px solid var(--dp-line); }
+    .attach-remove mat-icon { font-size: 14px; height: 14px; width: 14px; }
+    .attach-progress { flex: 1 1 100%; }
+    .attach-grid { display: flex; gap: 0.35em; flex-wrap: wrap; margin-bottom: 0.3em; }
+    .attach-grid img { max-width: 180px; max-height: 140px; border-radius: 8px; border: 1px solid var(--dp-line); }
+    .attach-grid video { max-width: 220px; max-height: 160px; border-radius: 8px; background: #000; }
     .send-btn { flex: none; }
     .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5em; color: var(--dp-muted); text-align: center; padding: 2em; }
     .chat-empty mat-icon { font-size: 48px; height: 48px; width: 48px; opacity: 0.4; }
+    .invite-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5em; text-align: center; padding: 2em; }
+    .invite-card h3 { margin: 0.4em 0 0; }
+    .invite-card p { margin: 0; max-width: 36em; }
 
     .compose-wrap { display: flex; flex-direction: column; gap: 0.75em; }
     .compose-form { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 1em; display: flex; flex-direction: column; gap: 0.75em; }
@@ -991,6 +1073,7 @@ const TYPING_CLEAR_MS = 3500;
 })
 export class MessagesComponent implements OnInit {
   private readonly messages = inject(MessageService);
+  private readonly community = inject(CommunityService);
   private readonly auth = inject(AuthService);
   private readonly presence = inject(PresenceService);
   private readonly route = inject(ActivatedRoute);
@@ -1055,6 +1138,8 @@ export class MessagesComponent implements OnInit {
   protected readonly groupSending = signal(false);
   protected readonly groupSendError = signal<string | null>(null);
   protected readonly groupDraft = signal('');
+  protected readonly groupFiles = signal<Array<GroupAttachment & { name: string }>>([]);
+  protected readonly groupUploading = signal(false);
   protected readonly creatingGroup = signal(false);
   protected readonly groupCreating = signal(false);
   protected readonly groupName = signal('');
@@ -1071,6 +1156,8 @@ export class MessagesComponent implements OnInit {
   protected readonly groupReportsList = signal<GroupReport[]>([]);
   protected readonly reportsLoaded = signal(false);
   protected readonly groupBansList = signal<GroupBan[]>([]);
+  protected readonly groupInvite = signal<GroupInvite | null>(null);
+  protected readonly inviteLoading = signal(false);
   protected readonly editingGroupMsg = signal<string | null>(null);
   protected readonly editDraft = signal('');
   protected readonly reportingGroupMsg = signal<string | null>(null);
@@ -1130,16 +1217,29 @@ export class MessagesComponent implements OnInit {
         if (id) this.loadThreadSilent(id);
         this.refreshListsSilent();
       });
-    // Team handoff (?team=&teamName=): open the team channel prefilled.
-    const team = this.route.snapshot.queryParamMap.get('team')?.trim() ?? '';
-    const teamName = this.route.snapshot.queryParamMap.get('teamName')?.trim() ?? '';
-    if (team && teamName) {
-      this.teamId.set(team);
-      this.teamName.set(teamName);
-      this.composeKind.set('team');
-      this.form.patchValue({ title: `[${teamName}] ` });
-      this.view.set('channels');
-      this.showCompose.set(true);
+    // Invite-link handoff (?joinGroup=): members land straight in, everyone
+    // else gets a join card. Independent of the team handoffs below.
+    const joinGroupId = this.route.snapshot.queryParamMap.get('joinGroup')?.trim() ?? '';
+    // Team group handoff (?teamGroup=): open the team's group conversation,
+    // creating it on first visit. Takes precedence over the ?team= channel
+    // prefill below (different intent: chat vs broadcast).
+    const teamGroupId = this.route.snapshot.queryParamMap.get('teamGroup')?.trim() ?? '';
+    if (teamGroupId) {
+      this.openTeamGroupChat(teamGroupId);
+    } else if (joinGroupId) {
+      this.openJoinGroupCard(joinGroupId);
+    } else {
+      // Team handoff (?team=&teamName=): open the team channel prefilled.
+      const team = this.route.snapshot.queryParamMap.get('team')?.trim() ?? '';
+      const teamName = this.route.snapshot.queryParamMap.get('teamName')?.trim() ?? '';
+      if (team && teamName) {
+        this.teamId.set(team);
+        this.teamName.set(teamName);
+        this.composeKind.set('team');
+        this.form.patchValue({ title: `[${teamName}] ` });
+        this.view.set('channels');
+        this.showCompose.set(true);
+      }
     }
   }
 
@@ -1231,14 +1331,16 @@ export class MessagesComponent implements OnInit {
       sent: this.messages.sent(),
       contacts: this.messages.contacts(),
       unread: this.messages.unreadCount(),
+      groups: this.messages.myGroups(),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ inbox, sent, contacts, unread }) => {
+        next: ({ inbox, sent, contacts, unread, groups }) => {
           this.inbox.set(inbox.data ?? []);
           this.sent.set(sent.data ?? []);
           this.contacts.set(contacts.data ?? []);
           this.unread.set(unread.data?.unread ?? 0);
+          this.groups.set(sortGroupSummaries(groups.data ?? []));
           this.loading.set(false);
           this.refreshPresence();
         },
@@ -1256,19 +1358,26 @@ export class MessagesComponent implements OnInit {
       sent: this.messages.sent(),
       contacts: this.messages.contacts(),
       unread: this.messages.unreadCount(),
+      groups: this.messages.myGroups(),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ inbox, sent, contacts, unread }) => {
+        next: ({ inbox, sent, contacts, unread, groups }) => {
           this.inbox.set(inbox.data ?? []);
           this.sent.set(sent.data ?? []);
           this.contacts.set(contacts.data ?? []);
           this.unread.set(unread.data?.unread ?? 0);
+          this.groups.set(sortGroupSummaries(groups.data ?? []));
           this.refreshPresence();
         },
         error: () => {},
       });
   }
+
+  /** Header badge: DM unreads plus per-group unreads. */
+  protected readonly groupUnreadTotal = computed(() =>
+    this.groups().reduce((sum, g) => sum + (g.unread ?? 0), 0));
+  protected readonly totalUnread = computed(() => this.unread() + this.groupUnreadTotal());
 
   protected toggleCompose(): void {
     this.showCompose.set(!this.showCompose());
@@ -1845,9 +1954,7 @@ export class MessagesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.groups.set([...(res.data ?? [])].sort((a, b) =>
-            new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
-            - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime()));
+          this.groups.set(sortGroupSummaries(res.data ?? []));
           this.groupsLoading.set(false);
         },
         error: (err: ApiError) => {
@@ -1863,9 +1970,7 @@ export class MessagesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.groups.set([...(res.data ?? [])].sort((a, b) =>
-            new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
-            - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime()));
+          this.groups.set(sortGroupSummaries(res.data ?? []));
         },
         error: () => {},
       });
@@ -1891,6 +1996,7 @@ export class MessagesComponent implements OnInit {
     this.groupError.set(null);
     this.groupSendError.set(null);
     this.groupDraft.set('');
+    this.groupFiles.set([]);
     this.groupNotice.set(null);
     this.reportsLoaded.set(false);
     this.groupReportsList.set([]);
@@ -1931,6 +2037,41 @@ export class MessagesComponent implements OnInit {
     this.openGroup.set(null);
     this.groupMsgs.set([]);
     this.showGroupPanel.set(false);
+  }
+
+  /** Team entry point (?teamGroup=): resolve-or-create the team's group chat
+   * and land in it. Approval groups the clicker hasn't joined yet are
+   * requested on their behalf — the click already expressed the intent. */
+  protected openTeamGroupChat(teamId: string): void {
+    this.switchView('groups');
+    this.groupNotice.set(null);
+    this.groupSearch.set('');
+    this.groupHits.set([]);
+    this.messages
+      .teamGroup(teamId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const d = res.data;
+          if (!d?.groupId) {
+            this.groupNotice.set('Team chat is unavailable right now.');
+            return;
+          }
+          this.loadGroups();
+          if (d.joined) {
+            if (d.created) this.groupNotice.set('Team group chat created — teammates land here from the team page.');
+            this.openGroupChat(String(d.groupId));
+          } else if (d.pending) {
+            this.groupNotice.set('Your request to join the team chat is pending review.');
+          } else {
+            this.joinGroup(String(d.groupId));
+          }
+        },
+        error: (err: ApiError) => {
+          this.switchView('groups');
+          this.groupNotice.set(userError(err));
+        },
+      });
   }
 
   private loadGroupThreadSilent(groupId: string): void {
@@ -2059,6 +2200,29 @@ export class MessagesComponent implements OnInit {
     return String(r.id ?? r._id ?? '');
   }
 
+  /** Other member ids of the open group (read-tick audience). */
+  protected otherMemberIds(): string[] {
+    const me = this.myId();
+    return (this.openGroup()?.members ?? []).map((m) => String(m.id)).filter((id) => id !== me);
+  }
+
+  /** Gold ticks only when every other member's read watermark passed the message. */
+  protected isSeenByAll(m: GroupMessage): boolean {
+    const others = this.otherMemberIds();
+    if (others.length === 0) return true;
+    const seen = new Set((m.seenBy ?? []).map(String));
+    return others.every((id) => seen.has(id));
+  }
+
+  protected seenTitle(m: GroupMessage): string {
+    const names = (m.seenBy ?? [])
+      .map((id) => this.senderNameOf(String(id)))
+      .filter((n) => !!n && n !== 'Teammate');
+    if (names.length === 0) return 'Sent — not seen yet';
+    if (this.isSeenByAll(m)) return 'Seen by everyone';
+    return `Seen by ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} others` : ''}`;
+  }
+
   /** Request key tolerant of raw store shapes (backend now maps `id`, this is belt-and-braces). */
   protected requestKey(r: GroupJoinRequest): string {
     return String(r.id ?? r._id ?? '');
@@ -2135,28 +2299,80 @@ export class MessagesComponent implements OnInit {
   protected sendGroupReply(): void {
     const gid = this.openGroupId();
     const body = this.groupDraft().trim();
-    if (!gid || !body || this.groupSending()) return;
+    const files = this.groupFiles().map(({ url, mime, size }) => ({ url, mime, size }));
+    if (!gid || (!body && files.length === 0) || this.groupSending() || this.groupUploading()) return;
     const clientId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const temp: GroupMessage = {
       id: `pending-${clientId}`,
       groupId: gid,
       senderId: this.myId(),
       body,
+      attachments: files,
       createdAt: new Date().toISOString(),
       clientId,
       pending: true,
     };
     this.groupMsgs.set([...this.groupMsgs(), temp]);
     this.groupDraft.set('');
+    this.groupFiles.set([]);
     this.groupTypingStop();
     this.scrollGroupSoon();
-    this.deliverGroup(gid, body, clientId);
+    this.deliverGroup(gid, body, clientId, files);
   }
 
-  private deliverGroup(groupId: string, body: string, clientId: string): void {
+  /** Staged attachments: validated server-side on upload, capped at 4 per message. */
+  protected onGroupFilesSelected(files: FileList | null | undefined): void {
+    if (!files || files.length === 0) return;
+    const room = 4 - this.groupFiles().length;
+    if (room <= 0) {
+      this.groupSendError.set('At most 4 photos or videos per message.');
+      return;
+    }
+    const picked = [...files].slice(0, room);
+    for (const f of picked) {
+      const isVideo = f.type.startsWith('video/');
+      const max = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
+      if (f.size > max) {
+        this.groupSendError.set(`"${f.name}" is too large (max ${isVideo ? '100MB' : '5MB'}).`);
+        return;
+      }
+    }
+    this.groupSendError.set(null);
+    this.groupUploading.set(true);
+    const staged: Array<GroupAttachment & { name: string }> = [];
+    const queue = [...picked];
+    const pump = (): void => {
+      const file = queue.shift();
+      if (!file) {
+        this.groupUploading.set(false);
+        this.groupFiles.set([...this.groupFiles(), ...staged]);
+        return;
+      }
+      this.community
+        .uploadMedia(file)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            if (res.data?.url) staged.push({ url: res.data.url, mime: res.data.mime, size: res.data.size, name: file.name });
+            pump();
+          },
+          error: (err: ApiError) => {
+            this.groupUploading.set(false);
+            this.groupSendError.set(userError(err));
+          },
+        });
+    };
+    pump();
+  }
+
+  protected removeGroupFile(index: number): void {
+    this.groupFiles.set(this.groupFiles().filter((_, i) => i !== index));
+  }
+
+  private deliverGroup(groupId: string, body: string, clientId: string, attachments: GroupAttachment[] = []): void {
     if (this.chat.connected()) {
       this.groupSending.set(true);
-      this.chat.sendGroup(groupId, body, clientId).then(
+      this.chat.sendGroup(groupId, body, clientId, attachments).then(
         ({ message }) => {
           this.groupSending.set(false);
           this.replaceGroupTemp(clientId, message);
@@ -2172,7 +2388,7 @@ export class MessagesComponent implements OnInit {
     this.groupSending.set(true);
     this.groupSendError.set(null);
     this.messages
-      .sendGroupMessage(groupId, body)
+      .sendGroupMessage(groupId, body, attachments)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
@@ -2218,7 +2434,7 @@ export class MessagesComponent implements OnInit {
       m.clientId === clientId ? { ...m, failed: false, pending: true } : m,
     ));
     this.groupSendError.set(null);
-    this.deliverGroup(String(temp.groupId), temp.body, clientId);
+    this.deliverGroup(String(temp.groupId), temp.body, clientId, temp.attachments ?? []);
   }
 
   /** Group reads are REST-only — fire, forget, and fix the badge locally. */
@@ -2228,6 +2444,71 @@ export class MessagesComponent implements OnInit {
   }
 
   /* ---------- Discover / create / join ---------- */
+
+  /** Shared-link handoff (?joinGroup=): members land straight in, everyone
+   * else gets a join card with directory-safe basics (no roster leak). */
+  protected openJoinGroupCard(groupId: string): void {
+    this.switchView('groups');
+    this.groupNotice.set(null);
+    this.groupInvite.set(null);
+    this.messages
+      .getGroup(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.data) {
+            this.loadGroups();
+            this.openGroupChat(String(res.data.id ?? groupId));
+          } else {
+            this.loadInviteCard(groupId);
+          }
+        },
+        error: () => this.loadInviteCard(groupId),
+      });
+  }
+
+  private loadInviteCard(groupId: string): void {
+    this.inviteLoading.set(true);
+    this.messages
+      .groupInvite(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.inviteLoading.set(false);
+          this.groupInvite.set(res.data ?? null);
+          if (!res.data) this.groupNotice.set('This invite link is no longer valid.');
+        },
+        error: (err: ApiError) => {
+          this.inviteLoading.set(false);
+          this.groupNotice.set(userError(err));
+        },
+      });
+  }
+
+  protected joinInvite(): void {
+    const inv = this.groupInvite();
+    if (!inv) return;
+    this.groupInvite.set(null);
+    this.joinGroup(String(inv.id));
+  }
+
+  protected dismissInvite(): void {
+    this.groupInvite.set(null);
+  }
+
+  protected copyInviteLink(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    const url = `${window.location.origin}/dashboard/messages?joinGroup=${encodeURIComponent(gid)}`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => this.groupNotice.set('Invite link copied — share it with anyone on the platform.'),
+        () => this.groupNotice.set(url),
+      );
+    } else {
+      this.groupNotice.set(url);
+    }
+  }
 
   protected onGroupSearch(value: string): void {
     this.groupSearch.set(value);

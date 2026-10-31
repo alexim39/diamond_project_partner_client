@@ -134,7 +134,8 @@ export interface GroupMessage {
   groupId: string;
   senderId: string;
   body: string;
-  attachments?: Array<{ url: string; mime: string; size: number }>;
+  attachments?: GroupAttachment[];
+  seenBy?: string[];
   editedAt?: string | null;
   createdAt: string;
   sender?: { name?: string; username?: string; photo?: string | null } | null;
@@ -142,6 +143,12 @@ export interface GroupMessage {
   clientId?: string;
   pending?: boolean;
   failed?: boolean;
+}
+
+export interface GroupAttachment {
+  url: string;
+  mime: string;
+  size: number;
 }
 
 export interface GroupDetail {
@@ -195,6 +202,31 @@ export interface GroupBansEnvelope extends ApiEnvelope<GroupBan[]> {
 
 export interface GroupPhotoEnvelope extends ApiEnvelope<{ id: string; photo: string | null }> {
   data: { id: string; photo: string | null };
+}
+
+export interface TeamGroupResult {
+  groupId: string;
+  joined: boolean;
+  pending: boolean;
+  created: boolean;
+}
+
+export interface TeamGroupEnvelope extends ApiEnvelope<TeamGroupResult> {
+  data: TeamGroupResult;
+}
+
+export interface GroupInvite {
+  id: string;
+  name: string;
+  description?: string | null;
+  photo?: string | null;
+  joinPolicy?: 'open' | 'approval';
+  memberCount?: number;
+  createdAt?: string | null;
+}
+
+export interface GroupInviteEnvelope extends ApiEnvelope<GroupInvite> {
+  data: GroupInvite;
 }
 
 export interface GroupsEnvelope extends ApiEnvelope<GroupSummary[]> {
