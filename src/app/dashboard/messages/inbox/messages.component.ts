@@ -481,15 +481,17 @@ const TYPING_CLEAR_MS = 3500;
                     }
                   </ol>
                 }
-                @if (groupTypingNow().length > 0) {
-                  <div class="bubble typing-bubble" aria-live="polite">
-                    <span class="muted">{{ groupTypingNow().join(', ') }} typing…</span>
-                  </div>
-                }
                 @if (groupSendError(); as err) {
                   <p class="error" role="alert">{{ err }}</p>
                 }
               </div>
+
+              @if (groupTypingText(); as typingText) {
+                <div class="typing-bar" aria-live="polite">
+                  <span class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                  <span class="typing-text">{{ typingText }}</span>
+                </div>
+              }
 
               <div class="composer">
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -892,6 +894,12 @@ const TYPING_CLEAR_MS = 3500;
     .typing-bubble span { width: 7px; height: 7px; border-radius: 50%; background: var(--dp-muted); animation: typing-bounce 1.2s infinite; }
     .typing-bubble span:nth-child(2) { animation-delay: 0.15s; }
     .typing-bubble span:nth-child(3) { animation-delay: 0.3s; }
+    .typing-bar { display: flex; align-items: center; gap: 0.55em; flex: none; padding: 0.35em 1em; font-size: 0.8em; color: var(--dp-muted); background: var(--dp-paper); border-top: 1px solid var(--dp-line); }
+    .typing-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .typing-dots { display: inline-flex; gap: 3px; flex: none; }
+    .typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--dp-gold-ink); animation: typing-bounce 1.2s infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
     @keyframes typing-bounce { 0%, 60%, 100% { transform: none; opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
     @media (prefers-reduced-motion: reduce) {
       .typing-bubble span { animation: none; opacity: 0.8; }
@@ -1997,6 +2005,16 @@ export class MessagesComponent implements OnInit {
       if (g === String(gid) && from !== this.myId()) names.add(this.senderNameOf(from));
     }
     return [...names].slice(0, 3);
+  });
+
+  /** Professional typing line: "Ada is typing" / "Ada and Musa are typing" / "Ada, Musa and 2 others are typing". */
+  protected readonly groupTypingText = computed(() => {
+    const names = this.groupTypingNow();
+    if (names.length === 0) return null;
+    if (names.length === 1) return `${names[0]} is typing`;
+    if (names.length === 2) return `${names[0]} and ${names[1]} are typing`;
+    const rest = names.length - 2;
+    return `${names[0]}, ${names[1]} and ${rest} other${rest === 1 ? '' : 's'} are typing`;
   });
 
   protected senderNameOf(partnerId: string): string {
