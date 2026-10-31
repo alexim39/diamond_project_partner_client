@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { Observable, Subject } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { API_BASE_URL } from '../config/api-tokens';
-import type { Message } from './message.models';
+import type { GroupMessage, Message } from './message.models';
 
 export interface SocketAck<T = unknown> {
   ok: boolean;
@@ -15,6 +15,15 @@ export interface SocketAck<T = unknown> {
 export interface TypingEvent {
   from: string;
   typing: boolean;
+}
+
+export interface GroupTypingEvent extends TypingEvent {
+  groupId: string;
+}
+
+export interface GroupIncoming {
+  message: GroupMessage;
+  groupId: string;
 }
 
 export interface PresenceEvent {
@@ -48,14 +57,20 @@ export class ChatSocketService {
   readonly connected = signal(false);
 
   private readonly incoming = new Subject<Message>();
+  private readonly groupIncoming = new Subject<GroupIncoming>();
   private readonly reads = new Subject<ReadEvent>();
   private readonly typingEvents = new Subject<TypingEvent>();
+  private readonly groupTypingEvents = new Subject<GroupTypingEvent>();
   private readonly presenceEvents = new Subject<PresenceEvent>();
   private readonly reconnects = new Subject<void>();
 
   readonly message$: Observable<Message> = this.incoming.asObservable();
+  /** Group messages arrive on their own stream (never leak into DM threads). */
+  readonly groupMessage$: Observable<GroupIncoming> = this.groupIncoming.asObservable();
   readonly read$: Observable<ReadEvent> = this.reads.asObservable();
   readonly typing$: Observable<TypingEvent> = this.typingEvents.asObservable();
+  /** Group typing carries the groupId so indicators stay per-room. */
+  readonly groupTyping$: Observable<GroupTypingEvent> = this.groupTypingEvents.asObservable();
   readonly presence$: Observable<PresenceEvent> = this.presenceEvents.asObservable();
   readonly reconnected$: Observable<void> = this.reconnects.asObservable();
 
@@ -86,16 +101,25 @@ export class ChatSocketService {
       this.connecting = false;
       this.connected.set(false);
     });
-    socket.on('message:new', (payload: { message?: Message }) => {
-      if (payload?.message && typeof payload.message === 'object') {
-        this.incoming.next(payload.message as Message);
+    socket.on('message:new', (payload: { message?: Message; groupId?: string }) => {
+      if (!payload?.message || typeof payload.message !== 'object') return;
+      const gid = payload.groupId ?? (payload.message as Partial<GroupMessage>).groupId;
+      if (gid) {
+        this.groupIncoming.next({ message: payload.message as unknown as GroupMessage, groupId: String(gid) });
+        return;
       }
+      this.incoming.next(payload.message as Message);
     });
     socket.on('message:read', (payload: ReadEvent) => {
       if (payload?.messageId) this.reads.next(payload);
     });
-    socket.on('typing', (payload: TypingEvent) => {
-      if (payload?.from) this.typingEvents.next(payload);
+    socket.on('typing', (payload: TypingEvent & { groupId?: string }) => {
+      if (!payload?.from) return;
+      if (payload.groupId) {
+        this.groupTypingEvents.next({ from: String(payload.from), typing: !!payload.typing, groupId: String(payload.groupId) });
+        return;
+      }
+      this.typingEvents.next(payload);
     });
     socket.on('presence', (payload: PresenceEvent) => {
       if (payload?.userId) this.presenceEvents.next(payload);
@@ -130,6 +154,42 @@ export class ChatSocketService {
     try {
       this.socket?.connected && this.socket.emit('message:read', { messageId });
     } catch { /* REST path already marks reads */ }
+  }
+
+  /** Group send over the live channel (membership-checked server-side). */
+  sendGroup(groupId: string, body: string, clientId: string): Promise<{ message: GroupMessage; clientId: string }> {
+    const socket = this.socket;
+    if (!socket?.connected) return Promise.reject(new Error('offline'));
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('send timed out')), 12000);
+      socket.emit('message:send', { groupId, body, clientId }, (ack: SocketAck<GroupMessage>) => {
+        clearTimeout(timer);
+        if (ack?.ok && ack.message) {
+          resolve({ message: ack.message, clientId: String(ack['clientId'] ?? clientId) });
+        } else {
+          reject(new Error(ack?.error ?? 'send failed'));
+        }
+      });
+    });
+  }
+
+  /** Join/leave the socket room for a group (server re-checks membership). */
+  joinGroupRoom(groupId: string): void {
+    try {
+      this.socket?.connected && this.socket.emit('group:join', { groupId });
+    } catch { /* REST polling still covers the thread */ }
+  }
+
+  leaveGroupRoom(groupId: string): void {
+    try {
+      this.socket?.connected && this.socket.emit('group:leave', { groupId });
+    } catch { /* ephemeral — never fail */ }
+  }
+
+  groupTyping(groupId: string, on: boolean): void {
+    try {
+      this.socket?.connected && this.socket.emit(on ? 'typing:start' : 'typing:stop', { groupId });
+    } catch { /* ephemeral — never fail */ }
   }
 
   typing(to: string, on: boolean): void {

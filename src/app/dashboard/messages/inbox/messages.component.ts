@@ -17,7 +17,7 @@ import { ChatSocketService } from '../../../core/messaging/chat-socket.service';
 import { PresenceService, PresenceStatus } from '../../../core/presence/presence.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AvatarComponent } from '../../../_common/avatar.component';
-import { AnnounceEnvelope, ChatRouteInfo, Contact, Message, MessageEnvelope, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
+import { AnnounceEnvelope, ChatRouteInfo, Contact, GroupBan, GroupDetail, GroupHit, GroupJoinRequest, GroupMember, GroupMessage, GroupReport, GroupSummary, Message, MessageEnvelope, PersonHit, TeamAnnounceEnvelope } from '../../../core/messaging/message.models';
 import { ApiError, userError } from '../../../core/http/api-error';
 import { SmsApprovalDialogComponent } from './sms-approval-dialog.component';
 
@@ -69,8 +69,9 @@ const TYPING_CLEAR_MS = 3500;
           </p>
         </div>
         <div class="head-actions">
-          <button mat-button [class.active-tab]="view() === 'chats'" (click)="view.set('chats')">Chats</button>
-          <button mat-button [class.active-tab]="view() === 'channels'" (click)="view.set('channels')">Channels</button>
+          <button mat-button [class.active-tab]="view() === 'chats'" (click)="switchView('chats')">Chats</button>
+          <button mat-button [class.active-tab]="view() === 'groups'" (click)="switchView('groups')">Groups</button>
+          <button mat-button [class.active-tab]="view() === 'channels'" (click)="switchView('channels')">Channels</button>
         </div>
       </div>
 
@@ -266,6 +267,438 @@ const TYPING_CLEAR_MS = 3500;
               </div>
             }
           </div>
+        </div>
+      } @else if (view() === 'groups') {
+        <div class="chat-shell group-shell" [class.thread-open]="!!openGroupId()" [class.panel-open]="showGroupPanel() && !!openGroup()">
+          <aside class="chat-side" aria-label="Groups">
+            <div class="side-tools">
+              @if (creatingGroup()) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Group name</mat-label>
+                  <input matInput [value]="groupName()" (input)="groupName.set($any($event.target).value)" maxlength="80" placeholder="e.g. Lagos hustlers" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>What is it about? (optional)</mat-label>
+                  <input matInput [value]="groupDescription()" (input)="groupDescription.set($any($event.target).value)" maxlength="500" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Who can join</mat-label>
+                  <mat-select [value]="groupPolicy()" (selectionChange)="groupPolicy.set($event.value)">
+                    <mat-option value="approval">Approval — admins admit members</mat-option>
+                    <mat-option value="open">Open — anyone can join instantly</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                @if (groupFormError(); as err) {
+                  <p class="error" role="alert">{{ err }}</p>
+                }
+                <div class="row-actions">
+                  <button mat-flat-button color="primary" (click)="createGroup()" [disabled]="groupCreating() || groupName().trim().length < 2">
+                    {{ groupCreating() ? 'Creating…' : 'Create group' }}
+                  </button>
+                  <button mat-button (click)="creatingGroup.set(false)">Cancel</button>
+                </div>
+              } @else {
+                <button mat-stroked-button (click)="creatingGroup.set(true)">
+                  <mat-icon>group_add</mat-icon> New group
+                </button>
+              }
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="side-search">
+                <mat-label>Discover groups</mat-label>
+                <input matInput type="search" [value]="groupSearch()" (input)="onGroupSearch($any($event.target).value)" placeholder="Name, min 2 letters" />
+                <mat-icon matSuffix>travel_explore</mat-icon>
+              </mat-form-field>
+              @if (groupSearching()) {
+                <mat-progress-bar mode="indeterminate" />
+              }
+              @if (groupHits().length > 0) {
+                <ul class="people-list group-hits">
+                  @for (h of groupHits(); track h.id) {
+                    <li>
+                      <async-avatar [name]="h.name" size="xs" [photo]="h.photo ?? null" />
+                      <span class="people-name">
+                        <strong>{{ h.name }}</strong>
+                        <span class="muted">{{ h.memberCount ?? 0 }} members · {{ h.joinPolicy === 'open' ? 'Open' : 'Approval' }}</span>
+                      </span>
+                      <button mat-button (click)="joinGroup(h.id)" [disabled]="groupActionBusy() === h.id">
+                        {{ groupActionBusy() === h.id ? '…' : 'Join' }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+            @if (groupsLoading()) {
+              <mat-progress-bar mode="indeterminate" />
+            }
+            <ul class="convo-list">
+              @for (g of groups(); track g.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="convo"
+                    [class.active]="openGroupId() === g.id"
+                    (click)="openGroupChat(g.id)"
+                    [attr.aria-current]="openGroupId() === g.id"
+                  >
+                    <async-avatar [name]="g.name" size="sm" [photo]="g.photo ?? null" />
+                    <span class="convo-main">
+                      <span class="convo-top">
+                        <strong>{{ g.name }}</strong>
+                        <span class="muted">{{ groupLastAt(g) }}</span>
+                      </span>
+                      <span class="convo-sub">
+                        <span class="muted convo-snippet">{{ groupSnippet(g) }}</span>
+                        @if (g.muted) {
+                          <mat-icon class="muted-ic" aria-label="Muted">notifications_off</mat-icon>
+                        }
+                        @if ((g.unread ?? 0) > 0) {
+                          <span class="unread-badge" aria-label="{{ g.unread }} unread">{{ g.unread }}</span>
+                        }
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+            @if (groups().length === 0 && !groupsLoading()) {
+              <p class="empty side-empty">No groups yet — create one or discover communities to join.</p>
+            }
+            @if (groupNotice(); as note) {
+              <p class="notice side-empty" role="status">{{ note }}</p>
+            }
+            @if (groupsError(); as err) {
+              <p class="error side-empty" role="alert">{{ err }} <button mat-button (click)="loadGroups()">Retry</button></p>
+            }
+          </aside>
+
+          <div class="chat-main" aria-label="Group conversation">
+            @if (openGroup(); as grp) {
+              <header class="chat-head">
+                <button mat-icon-button class="back-btn" (click)="closeGroupChat()" aria-label="Back to groups">
+                  <mat-icon>arrow_back</mat-icon>
+                </button>
+                <async-avatar [name]="grp.name" size="sm" [photo]="grp.photo ?? null" />
+                <span class="chat-peer group-peer" (click)="toggleGroupPanel(true)" role="button" tabindex="0" title="Group info">
+                  <strong>{{ grp.name }}</strong>
+                  <span class="muted">{{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}{{ grp.muted ? ' · Muted' : '' }}</span>
+                </span>
+                <span class="spacer"></span>
+                <button mat-icon-button (click)="toggleMuteGroup()" [title]="grp.muted ? 'Unmute' : 'Mute'" [attr.aria-label]="grp.muted ? 'Unmute group' : 'Mute group'">
+                  <mat-icon>{{ grp.muted ? 'notifications_off' : 'notifications' }}</mat-icon>
+                </button>
+                <button mat-icon-button (click)="toggleGroupPanel()" title="Group info" aria-label="Group info">
+                  <mat-icon>info</mat-icon>
+                </button>
+              </header>
+
+              @if (grp.pinnedMessage; as pinned) {
+                <div class="pinned-bar" role="note">
+                  <mat-icon>push_pin</mat-icon>
+                  <span class="convo-snippet">{{ senderNameOf(pinned.senderId) }}: {{ snippet(pinned.body) }}</span>
+                  @if (isGroupAdmin()) {
+                    <button mat-icon-button (click)="unpinMessage()" title="Unpin" aria-label="Unpin message">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  }
+                </div>
+              }
+
+              <div class="thread-scroll" #groupScroll>
+                @if (groupLoading()) {
+                  <mat-progress-bar mode="indeterminate" />
+                }
+                @if (groupError(); as err) {
+                  <p class="error" role="alert">{{ err }} <button mat-button (click)="openGroupChat(openGroupId()!)">Retry</button></p>
+                }
+                @for (day of groupDays(); track day.key) {
+                  <div class="day-chip" aria-hidden="true"><span>{{ day.label }}</span></div>
+                  <ol class="bubble-list">
+                    @for (m of day.msgs; track m.clientId ?? m.id) {
+                      <li class="bubble" [class.bubble--mine]="m.senderId === myId()" [class.bubble--pending]="m.pending">
+                        @if (m.senderId !== myId()) {
+                          <span class="bubble-sender">{{ senderNameOf(m.senderId) }}
+                            @if (memberRoleOf(m.senderId) === 'admin') {
+                              <span class="admin-badge">admin</span>
+                            }
+                          </span>
+                        }
+                        @if (editingGroupMsg() === m.id) {
+                          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="edit-field">
+                            <input matInput [value]="editDraft()" (input)="editDraft.set($any($event.target).value)" maxlength="2000" />
+                          </mat-form-field>
+                          <span class="msg-actions">
+                            <button mat-button (click)="saveEditGroupMsg()">Save</button>
+                            <button mat-button (click)="editingGroupMsg.set(null)">Cancel</button>
+                          </span>
+                        } @else {
+                          <p>{{ m.body }}</p>
+                          @if (m.editedAt) {
+                            <span class="muted edited-tag">(edited)</span>
+                          }
+                        }
+                        <span class="bubble-meta">
+                          <span class="muted">{{ m.createdAt | date:'shortTime' }}</span>
+                          @if (m.senderId === myId()) {
+                            @if (m.pending) {
+                              <mat-icon class="ticks" aria-label="Sending">schedule</mat-icon>
+                            } @else if (m.failed) {
+                              <button mat-icon-button class="retry" (click)="retryGroupTemp(m.clientId!)" title="Retry send" aria-label="Retry send">
+                                <mat-icon>error_outline</mat-icon>
+                              </button>
+                            } @else {
+                              <mat-icon class="ticks ticks--read" aria-label="Sent">done_all</mat-icon>
+                            }
+                          }
+                          @if (canModifyGroupMsg(m)) {
+                            <button mat-icon-button class="mini-btn" (click)="startEditGroupMsg(m)" title="Edit" aria-label="Edit message">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                          }
+                          @if (canDeleteGroupMsg(m)) {
+                            <button mat-icon-button class="mini-btn" (click)="deleteGroupMsg(m.id)" title="Delete" aria-label="Delete message">
+                              <mat-icon>delete_outline</mat-icon>
+                            </button>
+                          }
+                          @if (isGroupAdmin() && m.senderId !== myId()) {
+                            <button mat-icon-button class="mini-btn" (click)="pinMessage(m.id)" title="Pin" aria-label="Pin message">
+                              <mat-icon>push_pin</mat-icon>
+                            </button>
+                          }
+                          @if (m.senderId !== myId()) {
+                            <button mat-icon-button class="mini-btn" (click)="toggleReportGroupMsg(m.id)" title="Report" aria-label="Report message">
+                              <mat-icon>flag</mat-icon>
+                            </button>
+                          }
+                        </span>
+                        @if (reportingGroupMsg() === m.id) {
+                          <span class="report-row">
+                            <input [value]="reportReason()" (input)="reportReason.set($any($event.target).value)" maxlength="300" placeholder="Reason (optional)" aria-label="Report reason" />
+                            <button mat-button (click)="reportGroupMsg(m.id)">Report</button>
+                            <button mat-button (click)="reportingGroupMsg.set(null)">Cancel</button>
+                          </span>
+                        }
+                      </li>
+                    }
+                  </ol>
+                }
+                @if (groupTypingNow().length > 0) {
+                  <div class="bubble typing-bubble" aria-live="polite">
+                    <span class="muted">{{ groupTypingNow().join(', ') }} typing…</span>
+                  </div>
+                }
+                @if (groupSendError(); as err) {
+                  <p class="error" role="alert">{{ err }}</p>
+                }
+              </div>
+
+              <div class="composer">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Message {{ grp.name }}…</mat-label>
+                  <textarea
+                    matInput rows="2"
+                    [value]="groupDraft()"
+                    (input)="onGroupDraftInput($any($event.target).value)"
+                    (keydown.enter)="onGroupComposerKey($any($event))"
+                    (blur)="groupTypingStop()"
+                    maxlength="2000"
+                  ></textarea>
+                </mat-form-field>
+                <button mat-fab color="primary" class="send-btn" (click)="sendGroupReply()" [disabled]="!groupDraft().trim() || groupSending()" aria-label="Send message">
+                  <mat-icon>{{ groupSending() ? 'more_horiz' : 'send' }}</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <div class="chat-empty">
+                <mat-icon>groups</mat-icon>
+                <p>Pick a group — or create one. Approvals land with the admins.</p>
+              </div>
+            }
+          </div>
+
+          @if (showGroupPanel() && openGroup(); as grp) {
+            <aside class="group-panel" aria-label="Group info">
+              <div class="panel-head">
+                <strong>Group info</strong>
+                <button mat-icon-button (click)="toggleGroupPanel(false)" aria-label="Close panel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <div class="panel-tabs" role="tablist">
+                <button mat-button [class.active-tab]="groupPanel() === 'members'" (click)="groupPanel.set('members')">Members</button>
+                @if (isGroupAdmin()) {
+                  <button mat-button [class.active-tab]="groupPanel() === 'requests'" (click)="switchGroupPanel('requests')">
+                    Requests @if ((grp.pendingRequests?.length ?? 0) > 0) { ({{ grp.pendingRequests!.length }}) }
+                  </button>
+                  <button mat-button [class.active-tab]="groupPanel() === 'reports'" (click)="switchGroupPanel('reports')">Reports</button>
+                }
+                <button mat-button [class.active-tab]="groupPanel() === 'settings'" (click)="groupPanel.set('settings')">Settings</button>
+              </div>
+
+              @if (groupPanel() === 'members') {
+                @if (isGroupAdmin()) {
+                  <p class="muted add-hint">Add anyone on the platform — search by name or username.</p>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Find anyone…</mat-label>
+                    <input matInput [value]="memberSearch()" (input)="onMemberSearch($any($event.target).value)" placeholder="Name or username, min 2 letters" />
+                    <mat-icon matSuffix>person_search</mat-icon>
+                  </mat-form-field>
+                  @if (memberSearching()) {
+                    <mat-progress-bar mode="indeterminate" />
+                  }
+                  @if (memberHits().length > 0) {
+                    <ul class="people-list">
+                      @for (p of memberHits(); track p.id) {
+                        <li>
+                          <async-avatar [name]="p.name" size="xs" [photo]="p.photo ?? null" />
+                          <span class="people-name">
+                            <strong>{{ p.name }}</strong>
+                            <span class="muted">@{{ p.username }}</span>
+                          </span>
+                          <button mat-button (click)="addMember(p.id)">Add</button>
+                        </li>
+                      }
+                    </ul>
+                  }
+                }
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Filter members</mat-label>
+                  <input matInput [value]="groupMemberFilter()" (input)="groupMemberFilter.set($any($event.target).value)" />
+                </mat-form-field>
+                <ul class="member-list">
+                  @for (m of filteredGroupMembers(); track m.id) {
+                    <li>
+                      <async-avatar [name]="m.name" size="xs" [photo]="m.photo ?? null" [presence]="avatarPresence(m.id)" />
+                      <span class="people-name">
+                        <strong>{{ m.name }}</strong>
+                        <span class="muted">{{ memberRoleOf(m.id) === 'admin' ? 'Admin' : 'Member' }}</span>
+                      </span>
+                      @if (isGroupAdmin() && m.id !== myId() && m.id !== grp.createdBy) {
+                        <button mat-icon-button [title]="memberRoleOf(m.id) === 'admin' ? 'Demote' : 'Make admin'" (click)="toggleAdmin(m)">
+                          <mat-icon>{{ memberRoleOf(m.id) === 'admin' ? 'star' : 'star_outline' }}</mat-icon>
+                        </button>
+                        <button mat-icon-button title="Remove" aria-label="Remove member" (click)="removeMember(m.id)">
+                          <mat-icon>person_remove</mat-icon>
+                        </button>
+                        <button mat-icon-button title="Ban" aria-label="Ban member" (click)="banMember(m.id)">
+                          <mat-icon>block</mat-icon>
+                        </button>
+                      }
+                    </li>
+                  }
+                </ul>
+                @if (isGroupAdmin()) {
+                  <div class="banned-block">
+                    <p class="muted banned-title">Banned ({{ groupBansList().length }}) — bans block re-entry until lifted.</p>
+                    @if (groupBansList().length === 0) {
+                      <p class="empty">Nobody banned.</p>
+                    } @else {
+                      <ul class="member-list">
+                        @for (b of groupBansList(); track b.partnerId) {
+                          <li>
+                            <async-avatar [name]="b.name ?? 'Member'" size="xs" [photo]="b.photo ?? null" />
+                            <span class="people-name">
+                              <strong>{{ b.name ?? 'Former member' }}</strong>
+                              <span class="muted">{{ b.reason || 'No reason given' }}</span>
+                            </span>
+                            <button mat-button (click)="unbanMember(b.partnerId)">Unban</button>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                }
+              }
+
+              @if (groupPanel() === 'requests' && isGroupAdmin()) {
+                @if ((grp.pendingRequests?.length ?? 0) === 0) {
+                  <p class="empty">No pending requests.</p>
+                } @else {
+                  <ul class="member-list">
+                    @for (r of grp.pendingRequests!; track requestKey(r)) {
+                      <li>
+                        <async-avatar [name]="r.requester?.name ?? 'Teammate'" size="xs" [photo]="r.requester?.photo ?? null" />
+                        <span class="people-name">
+                          <strong>{{ r.requester?.name ?? 'Teammate' }}</strong>
+                          <span class="muted">@{{ r.requester?.username ?? 'member' }}</span>
+                        </span>
+                        <button mat-button (click)="decideRequest(requestKey(r), 'approve')">Approve</button>
+                        <button mat-button (click)="decideRequest(requestKey(r), 'reject')">Decline</button>
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+
+              @if (groupPanel() === 'reports' && isGroupAdmin()) {
+                @if (groupReportsList().length === 0) {
+                  <p class="empty">No open reports. @if (!reportsLoaded()) { <button mat-button (click)="loadReports()">Check now</button> }</p>
+                } @else {
+                  <ul class="report-list">
+                    @for (r of groupReportsList(); track reportKey(r)) {
+                      <li>
+                        <p class="report-body">{{ r.message?.body ?? '(message removed)' }}</p>
+                        <p class="muted">Reason: {{ r.reason || '—' }}</p>
+                        <span class="msg-actions">
+                          <button mat-button (click)="decideReport(reportKey(r), 'dismiss')">Dismiss</button>
+                          <button mat-button color="warn" (click)="decideReport(reportKey(r), 'remove')">Remove</button>
+                          <button mat-button color="warn" (click)="decideReport(reportKey(r), 'remove', true)">Remove + ban</button>
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+
+              @if (groupPanel() === 'settings') {
+                <div class="settings-stack">
+                  @if (isGroupAdmin()) {
+                    <div class="photo-row">
+                      <async-avatar [name]="grp.name" size="md" [photo]="grp.photo ?? null" />
+                      <span class="photo-actions">
+                        <input
+                          #groupPhotoInput
+                          type="file" accept="image/jpeg,image/png,image/webp" hidden
+                          (change)="onGroupPhotoSelected($any($event.target).files?.[0]); $any($event.target).value = ''"
+                          [disabled]="groupPhotoBusy()"
+                          aria-label="Upload group photo"
+                        />
+                        <button mat-stroked-button type="button" (click)="groupPhotoInput.click()" [disabled]="groupPhotoBusy()">
+                          {{ groupPhotoBusy() ? 'Uploading…' : 'Change photo' }}
+                        </button>
+                        @if (groupPhotoError(); as err) {
+                          <span class="error" role="alert">{{ err }}</span>
+                        }
+                      </span>
+                    </div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>Group name</mat-label>
+                      <input matInput [value]="groupSettingsName()" (input)="groupSettingsName.set($any($event.target).value)" maxlength="80" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>Description</mat-label>
+                      <input matInput [value]="groupSettingsDesc()" (input)="groupSettingsDesc.set($any($event.target).value)" maxlength="500" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>Join policy</mat-label>
+                      <mat-select [value]="groupSettingsPolicy()" (selectionChange)="groupSettingsPolicy.set($event.value)">
+                        <mat-option value="approval">Approval</mat-option>
+                        <mat-option value="open">Open</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <button mat-stroked-button (click)="saveGroupSettings()" [disabled]="groupActionBusy() === 'settings'">Save settings</button>
+                  }
+                  <button mat-stroked-button (click)="toggleMuteGroup()">{{ grp.muted ? 'Unmute this group' : 'Mute this group' }}</button>
+                  <button mat-stroked-button color="warn" (click)="leaveGroup()">Leave group</button>
+                  @if (isGroupCreator() || isGroupAdmin()) {
+                    <button mat-stroked-button color="warn" (click)="deleteGroup()" [disabled]="groupActionBusy() === 'delete'">Delete group</button>
+                  }
+                  @if (groupNotice(); as note) {
+                    <p class="notice" role="status">{{ note }}</p>
+                  }
+                </div>
+              }
+            </aside>
+          }
         </div>
       } @else {
         <div class="compose-wrap">
@@ -487,7 +920,54 @@ const TYPING_CLEAR_MS = 3500;
     .notice { color: var(--dp-success); }
     .empty { color: var(--dp-muted); }
 
+    .group-shell { grid-template-columns: 300px 1fr; }
+    .group-shell.panel-open { grid-template-columns: 280px 1fr 300px; }
+    .group-hits { max-height: 220px; }
+    .row-actions { display: flex; gap: 0.5em; }
+    .muted-ic { font-size: 16px; height: 16px; width: 16px; color: var(--dp-muted); flex: none; }
+    .group-peer { cursor: pointer; }
+    .pinned-bar { display: flex; align-items: center; gap: 0.5em; margin: 0.6em 0.9em 0; padding: 0.5em 0.8em; border-radius: 10px; background: var(--dp-gold-soft); border: 1px solid var(--dp-gold); font-size: 0.85em; }
+    .pinned-bar mat-icon { font-size: 18px; height: 18px; width: 18px; color: var(--dp-gold-ink); }
+    .pinned-bar .convo-snippet { flex: 1; }
+    .bubble-sender { display: block; font-size: 0.75em; font-weight: 700; color: var(--dp-gold-ink); margin-bottom: 0.15em; }
+    .admin-badge { font-weight: 400; font-size: 0.9em; background: var(--dp-gold-soft); border: 1px solid var(--dp-gold); border-radius: 999px; padding: 0 0.5em; margin-left: 0.3em; }
+    .edited-tag { font-style: italic; }
+    .mini-btn { width: 28px; height: 28px; line-height: 28px; }
+    .mini-btn mat-icon { font-size: 16px; height: 16px; width: 16px; }
+    .msg-actions { display: inline-flex; gap: 0.25em; }
+    .msg-actions button { min-height: 36px; }
+    .edit-field { width: 100%; }
+    .report-row { display: flex; gap: 0.4em; align-items: center; margin-top: 0.3em; }
+    .report-row input { flex: 1; min-height: 36px; border: 1px solid var(--dp-line); border-radius: 8px; padding: 0 0.6em; font: inherit; background: var(--dp-paper); color: inherit; }
+    .group-panel { border-left: 1px solid var(--dp-line); background: var(--dp-paper); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 0.6em 0.9em; border-bottom: 1px solid var(--dp-line); }
+    .panel-tabs { display: flex; flex-wrap: wrap; gap: 0.15em; padding: 0.4em 0.6em; border-bottom: 1px solid var(--dp-line); }
+    .panel-tabs button { min-height: 40px; }
+    .panel-tabs button.active-tab { background: var(--dp-gold-soft); font-weight: 700; }
+    .group-panel mat-form-field { margin: 0.6em 0.9em 0; width: calc(100% - 1.8em); }
+    .member-list { list-style: none; margin: 0.4em 0 0; padding: 0.4em 0.6em 0.8em; overflow-y: auto; display: flex; flex-direction: column; gap: 0.15em; flex: 1; min-height: 0; }
+    .member-list li { display: flex; align-items: center; gap: 0.6em; padding: 0.4em 0.5em; border-radius: 8px; }
+    .member-list li:hover { background: var(--dp-info-bg); }
+    .member-list button { flex: none; }
+    .member-list .mat-icon-button, .member-list button[mat-icon-button] { width: 36px; height: 36px; }
+    .add-hint { margin: 0.6em 0.9em 0; font-size: 0.8em; }
+    .banned-block { border-top: 1px solid var(--dp-line); margin-top: 0.4em; padding: 0.4em 0.9em 0.8em; }
+    .banned-title { margin: 0.2em 0 0.4em; font-size: 0.8em; }
+    .banned-block .member-list { padding: 0; }
+    .report-list { list-style: none; margin: 0; padding: 0.6em 0.9em; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6em; }
+    .report-list li { border: 1px solid var(--dp-line); border-radius: 10px; padding: 0.6em 0.8em; display: flex; flex-direction: column; gap: 0.3em; }
+    .report-list p { margin: 0; }
+    .report-body { white-space: pre-wrap; word-break: break-word; }
+    .settings-stack { display: flex; flex-direction: column; gap: 0.6em; padding: 0.8em 0.9em; }
+    .settings-stack mat-form-field { margin: 0; width: 100%; }
+    .photo-row { display: flex; align-items: center; gap: 0.8em; }
+    .photo-actions { display: flex; flex-direction: column; gap: 0.3em; align-items: flex-start; }
+
     @media only screen and (max-width: 760px) {
+      .group-shell.panel-open { grid-template-columns: 1fr; }
+      .group-shell.panel-open .chat-side,
+      .group-shell.panel-open .chat-main { display: none; }
+      .group-panel { border-left: none; }
       .chat-shell { grid-template-columns: 1fr; height: calc(100vh - 190px); height: calc(100dvh - 190px); min-height: 0; max-height: none; }
       .chat-side { border-right: none; overflow: hidden; }
       .chat-shell.thread-open .chat-side { display: none; }
@@ -529,7 +1009,7 @@ export class MessagesComponent implements OnInit {
   protected readonly teamId = signal<string | null>(null);
   protected readonly teamName = signal('');
   protected readonly replyingTo = signal<Message | null>(null);
-  protected readonly view = signal<'chats' | 'channels'>('chats');
+  protected readonly view = signal<'chats' | 'channels' | 'groups'>('chats');
   protected readonly inbox = signal<Message[]>([]);
   protected readonly sent = signal<Message[]>([]);
   protected readonly contacts = signal<Contact[]>([]);
@@ -554,6 +1034,54 @@ export class MessagesComponent implements OnInit {
   private peopleTimer: ReturnType<typeof setTimeout> | null = null;
   private typingTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
+  /* ---------- Group chat state ---------- */
+  protected readonly groups = signal<GroupSummary[]>([]);
+  protected readonly groupsLoading = signal(false);
+  protected readonly groupsError = signal<string | null>(null);
+  protected readonly groupNotice = signal<string | null>(null);
+  protected readonly openGroupId = signal<string | null>(null);
+  protected readonly openGroup = signal<GroupDetail | null>(null);
+  protected readonly groupMsgs = signal<GroupMessage[]>([]);
+  protected readonly groupLoading = signal(false);
+  protected readonly groupError = signal<string | null>(null);
+  protected readonly groupSending = signal(false);
+  protected readonly groupSendError = signal<string | null>(null);
+  protected readonly groupDraft = signal('');
+  protected readonly creatingGroup = signal(false);
+  protected readonly groupCreating = signal(false);
+  protected readonly groupName = signal('');
+  protected readonly groupDescription = signal('');
+  protected readonly groupPolicy = signal<'open' | 'approval'>('approval');
+  protected readonly groupFormError = signal<string | null>(null);
+  protected readonly groupSearch = signal('');
+  protected readonly groupHits = signal<GroupHit[]>([]);
+  protected readonly groupSearching = signal(false);
+  protected readonly groupActionBusy = signal<string | null>(null);
+  protected readonly showGroupPanel = signal(false);
+  protected readonly groupPanel = signal<'members' | 'requests' | 'reports' | 'settings'>('members');
+  protected readonly groupMemberFilter = signal('');
+  protected readonly groupReportsList = signal<GroupReport[]>([]);
+  protected readonly reportsLoaded = signal(false);
+  protected readonly groupBansList = signal<GroupBan[]>([]);
+  protected readonly editingGroupMsg = signal<string | null>(null);
+  protected readonly editDraft = signal('');
+  protected readonly reportingGroupMsg = signal<string | null>(null);
+  protected readonly reportReason = signal('');
+  protected readonly groupSettingsName = signal('');
+  protected readonly groupSettingsDesc = signal('');
+  protected readonly groupSettingsPolicy = signal<'open' | 'approval'>('approval');
+  protected readonly groupPhotoBusy = signal(false);
+  protected readonly groupPhotoError = signal<string | null>(null);
+  /** Composite `${groupId}:${senderId}` → last typing stamp. */
+  protected readonly groupTyping = signal<Record<string, number>>({});
+  /** Global platform search for adding members (admins) — not network-limited. */
+  protected readonly memberSearch = signal('');
+  protected readonly memberHits = signal<PersonHit[]>([]);
+  protected readonly memberSearching = signal(false);
+  private memberSearchTimer: ReturnType<typeof setTimeout> | null = null;
+  private groupSearchTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastGroupTypingSent: Record<string, number> = {};
+
   @ViewChild('threadScroll') private threadScroll?: ElementRef<HTMLDivElement>;
 
   protected readonly form = this.fb.nonNullable.group({
@@ -575,12 +1103,15 @@ export class MessagesComponent implements OnInit {
         if (this.chat.connected() || document.hidden) return;
         const id = this.openThreadId();
         if (id) this.loadThreadSilent(id);
+        const gid = this.openGroupId();
+        if (gid && this.view() === 'groups') this.loadGroupThreadSilent(gid);
       });
     interval(POLL_LISTS_MS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.chat.connected() || document.hidden) return;
         this.refreshListsSilent();
+        if (this.view() === 'groups') this.loadGroupsSilent();
       });
     // Returning tabs catch up immediately instead of waiting for a poll.
     fromEvent(window, 'focus')
@@ -607,6 +1138,21 @@ export class MessagesComponent implements OnInit {
   /** Socket → view-state bridges (all guarded, never throw into the socket). */
   private wireSocket(): void {
     this.chat.message$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((m) => this.onSocketMessage(m));
+    this.chat.groupMessage$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ message, groupId }) => this.onGroupSocketMessage(message, groupId));
+    this.chat.groupTyping$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ from, typing, groupId }) => {
+      const key = `${groupId}:${from}`;
+      if (String(from) === this.myId()) return;
+      if (typing) {
+        this.groupTyping.set({ ...this.groupTyping(), [key]: Date.now() });
+        clearTimeout(this.typingTimers[key]);
+        this.typingTimers[key] = setTimeout(() => {
+          this.groupTyping.set(Object.fromEntries(Object.entries(this.groupTyping()).filter(([k]) => k !== key)));
+        }, TYPING_CLEAR_MS);
+      } else {
+        clearTimeout(this.typingTimers[key]);
+        this.groupTyping.set(Object.fromEntries(Object.entries(this.groupTyping()).filter(([k]) => k !== key)));
+      }
+    });
     this.chat.read$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ messageId }) => {
       this.threadMsgs.set(this.threadMsgs().map((x) => (x.id === messageId ? { ...x, readAt: x.readAt ?? new Date().toISOString() } : x)));
     });
@@ -632,6 +1178,12 @@ export class MessagesComponent implements OnInit {
       this.refreshListsSilent();
       const id = this.openThreadId();
       if (id) this.loadThreadSilent(id);
+      if (this.view() === 'groups' || this.groups().length > 0) this.loadGroupsSilent();
+      const gid = this.openGroupId();
+      if (gid) {
+        this.chat.joinGroupRoom(gid);
+        this.loadGroupThreadSilent(gid);
+      }
     });
   }
 
@@ -1267,5 +1819,859 @@ export class MessagesComponent implements OnInit {
         this.sendError.set(userError(err));
       },
     });
+  }
+
+  /* ================= Group chat ================= */
+
+  protected switchView(v: 'chats' | 'channels' | 'groups'): void {
+    this.view.set(v);
+    if (v === 'groups' && this.groups().length === 0 && !this.groupsLoading()) this.loadGroups();
+  }
+
+  /** Sidebar rows (name + snippet + unread), most-recent-first. */
+  protected loadGroups(): void {
+    this.groupsLoading.set(true);
+    this.groupsError.set(null);
+    this.messages
+      .myGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groups.set([...(res.data ?? [])].sort((a, b) =>
+            new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
+            - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime()));
+          this.groupsLoading.set(false);
+        },
+        error: (err: ApiError) => {
+          this.groupsLoading.set(false);
+          this.groupsError.set(userError(err));
+        },
+      });
+  }
+
+  private loadGroupsSilent(): void {
+    this.messages
+      .myGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groups.set([...(res.data ?? [])].sort((a, b) =>
+            new Date(b.lastMessage?.createdAt ?? b.createdAt ?? 0).getTime()
+            - new Date(a.lastMessage?.createdAt ?? a.createdAt ?? 0).getTime()));
+        },
+        error: () => {},
+      });
+  }
+
+  protected groupSnippet(g: GroupSummary): string {
+    const last = g.lastMessage;
+    if (!last?.body) return `${g.memberCount ?? 0} member${(g.memberCount ?? 0) === 1 ? '' : 's'}`;
+    const who = last.senderName ? `${last.senderName}: ` : '';
+    return this.snippet(`${who}${last.body}`);
+  }
+
+  protected groupLastAt(g: GroupSummary): string {
+    return String(g.lastMessage?.createdAt ?? g.createdAt ?? '');
+  }
+
+  protected openGroupChat(groupId: string): void {
+    this.groupSearch.set('');
+    this.groupHits.set([]);
+    this.openGroupId.set(groupId);
+    this.openGroup.set(null);
+    this.groupMsgs.set([]);
+    this.groupError.set(null);
+    this.groupSendError.set(null);
+    this.groupDraft.set('');
+    this.groupNotice.set(null);
+    this.reportsLoaded.set(false);
+    this.groupReportsList.set([]);
+    this.groupLoading.set(true);
+    this.showGroupPanel.set(false);
+    this.groupPanel.set('members');
+    this.chat.joinGroupRoom(groupId);
+    this.messages
+      .getGroup(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (!res.data) {
+            this.groupLoading.set(false);
+            this.groupError.set('Group not found.');
+            return;
+          }
+          this.openGroup.set(res.data);
+          this.groupSettingsName.set(res.data.name ?? '');
+          this.groupSettingsDesc.set(res.data.description ?? '');
+          this.groupSettingsPolicy.set(res.data.joinPolicy ?? 'approval');
+          this.loadGroupThreadSilent(groupId);
+          this.groupLoading.set(false);
+          this.markGroupRead(groupId);
+        },
+        error: (err: ApiError) => {
+          this.groupLoading.set(false);
+          this.groupError.set(userError(err));
+        },
+      });
+  }
+
+  protected closeGroupChat(): void {
+    const gid = this.openGroupId();
+    if (gid) this.chat.leaveGroupRoom(gid);
+    this.groupTypingStop();
+    this.openGroupId.set(null);
+    this.openGroup.set(null);
+    this.groupMsgs.set([]);
+    this.showGroupPanel.set(false);
+  }
+
+  private loadGroupThreadSilent(groupId: string): void {
+    this.messages
+      .groupThread(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const pending = this.groupMsgs().filter((m) => m.pending || m.failed);
+          const rows = [...(res.data ?? [])].sort(
+            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
+          if (String(this.openGroupId()) !== String(groupId)) return;
+          this.groupMsgs.set([...rows, ...pending]);
+          this.scrollGroupSoon();
+        },
+        error: () => {},
+      });
+  }
+
+  /** Live group message: open thread absorbs it, otherwise bump the badge. */
+  private onGroupSocketMessage(message: GroupMessage, groupId: string): void {
+    const gid = String(message?.groupId ?? groupId ?? '');
+    if (!gid) return;
+    if (String(this.openGroupId()) === gid) {
+      const me = this.myId();
+      if (String(message.senderId) === me) {
+        const tempIdx = this.groupMsgs().findIndex((x) => x.pending);
+        if (tempIdx >= 0) {
+          const rows = [...this.groupMsgs()];
+          rows[tempIdx] = { ...message };
+          this.groupMsgs.set(rows.sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          this.scrollGroupSoon();
+          return;
+        }
+      }
+      if (!this.groupMsgs().some((x) => x.id === message.id)) {
+        this.groupMsgs.set([...this.groupMsgs(), message]);
+        this.scrollGroupSoon();
+      }
+      this.markGroupRead(gid);
+    } else {
+      this.groups.set(this.groups().map((g) =>
+        String(g.id) === gid ? { ...g, unread: (g.unread ?? 0) + 1 } : g));
+    }
+  }
+
+  /** Group an open group thread into day sections for dividers. */
+  protected readonly groupDays = computed(() => {
+    const days = new Map<string, { key: string; label: string; msgs: GroupMessage[] }>();
+    for (const m of this.groupMsgs()) {
+      const d = new Date(m.createdAt ?? 0);
+      const key = Number.isNaN(d.getTime()) ? 'undated' : d.toDateString();
+      if (!days.has(key)) {
+        days.set(key, {
+          key,
+          label: key === 'undated' ? '' : d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' }),
+          msgs: [],
+        });
+      }
+      days.get(key)!.msgs.push(m);
+    }
+    return [...days.values()];
+  });
+
+  /** Names of other members currently typing in the open group. */
+  protected readonly groupTypingNow = computed(() => {
+    const gid = this.openGroupId();
+    if (!gid) return [];
+    const names = new Set<string>();
+    for (const [key] of Object.entries(this.groupTyping())) {
+      const [g, from] = key.split(':');
+      if (g === String(gid) && from !== this.myId()) names.add(this.senderNameOf(from));
+    }
+    return [...names].slice(0, 3);
+  });
+
+  protected senderNameOf(partnerId: string): string {
+    const id = String(partnerId ?? '');
+    const member = this.openGroup()?.members.find((m) => String(m.id) === id);
+    if (member) return member.name || member.username || 'Teammate';
+    if (id === this.myId()) return 'You';
+    return 'Teammate';
+  }
+
+  protected memberRoleOf(partnerId: string): 'admin' | 'member' {
+    const member = this.openGroup()?.members.find((m) => String(m.id) === String(partnerId));
+    return member?.role ?? 'member';
+  }
+
+  protected filteredGroupMembers(): GroupMember[] {
+    const q = this.groupMemberFilter().trim().toLowerCase();
+    const members = this.openGroup()?.members ?? [];
+    if (!q) return members;
+    return members.filter((m) => `${m.name ?? ''} ${m.username ?? ''}`.toLowerCase().includes(q));
+  }
+
+  protected isGroupAdmin(): boolean {
+    return this.openGroup()?.myRole === 'admin';
+  }
+
+  protected isGroupCreator(): boolean {
+    return String(this.openGroup()?.createdBy ?? '') === this.myId();
+  }
+
+  protected canModifyGroupMsg(m: GroupMessage): boolean {
+    return String(m.senderId) === this.myId() && !m.pending && !m.failed;
+  }
+
+  protected canDeleteGroupMsg(m: GroupMessage): boolean {
+    if (m.pending || m.failed) return false;
+    if (String(m.senderId) === this.myId()) return true;
+    return this.isGroupAdmin();
+  }
+
+  protected reportKey(r: GroupReport): string {
+    return String(r.id ?? r._id ?? '');
+  }
+
+  /** Request key tolerant of raw store shapes (backend now maps `id`, this is belt-and-braces). */
+  protected requestKey(r: GroupJoinRequest): string {
+    return String(r.id ?? r._id ?? '');
+  }
+
+  /** Global platform search for adding members — any partner, not just the network. */
+  protected onMemberSearch(value: string): void {
+    this.memberSearch.set(value);
+    const q = value.trim();
+    if (this.memberSearchTimer) clearTimeout(this.memberSearchTimer);
+    if (q.length < 2) {
+      this.memberHits.set([]);
+      this.memberSearching.set(false);
+      return;
+    }
+    this.memberSearching.set(true);
+    this.memberSearchTimer = setTimeout(() => {
+      this.messages
+        .people(q)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            const me = this.myId();
+            const memberIds = new Set((this.openGroup()?.members ?? []).map((m) => String(m.id)));
+            this.memberHits.set(
+              (res.data ?? [])
+                .filter((p) => String(p.id) !== me && !memberIds.has(String(p.id)))
+                .slice(0, 10),
+            );
+            this.memberSearching.set(false);
+          },
+          error: () => this.memberSearching.set(false),
+        });
+    }, 300);
+  }
+
+  /* ---------- Group send flow (socket-first, REST fallback) ---------- */
+
+  @ViewChild('groupScroll') private groupScroll?: ElementRef<HTMLDivElement>;
+
+  private scrollGroupSoon(): void {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      try {
+        const el = this.groupScroll?.nativeElement;
+        if (el) el.scrollTop = el.scrollHeight;
+      } catch { /* layout not ready yet */ }
+    }));
+  }
+
+  protected onGroupDraftInput(value: string): void {
+    this.groupDraft.set(value);
+    const gid = this.openGroupId();
+    if (!gid || !this.chat.connected()) return;
+    const now = Date.now();
+    if (value.trim() && now - (this.lastGroupTypingSent[gid] ?? 0) > 3000) {
+      this.lastGroupTypingSent[gid] = now;
+      this.chat.groupTyping(gid, true);
+    }
+    if (!value.trim()) this.groupTypingStop();
+  }
+
+  protected groupTypingStop(): void {
+    const gid = this.openGroupId();
+    if (gid) this.chat.groupTyping(gid, false);
+  }
+
+  protected onGroupComposerKey(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendGroupReply();
+    }
+  }
+
+  protected sendGroupReply(): void {
+    const gid = this.openGroupId();
+    const body = this.groupDraft().trim();
+    if (!gid || !body || this.groupSending()) return;
+    const clientId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const temp: GroupMessage = {
+      id: `pending-${clientId}`,
+      groupId: gid,
+      senderId: this.myId(),
+      body,
+      createdAt: new Date().toISOString(),
+      clientId,
+      pending: true,
+    };
+    this.groupMsgs.set([...this.groupMsgs(), temp]);
+    this.groupDraft.set('');
+    this.groupTypingStop();
+    this.scrollGroupSoon();
+    this.deliverGroup(gid, body, clientId);
+  }
+
+  private deliverGroup(groupId: string, body: string, clientId: string): void {
+    if (this.chat.connected()) {
+      this.groupSending.set(true);
+      this.chat.sendGroup(groupId, body, clientId).then(
+        ({ message }) => {
+          this.groupSending.set(false);
+          this.replaceGroupTemp(clientId, message);
+        },
+        () => {
+          this.groupSending.set(false);
+          this.failGroupTemp(clientId);
+          this.groupSendError.set('Send failed — tap retry on the message.');
+        },
+      );
+      return;
+    }
+    this.groupSending.set(true);
+    this.groupSendError.set(null);
+    this.messages
+      .sendGroupMessage(groupId, body)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupSending.set(false);
+          if (res.data) this.replaceGroupTemp(clientId, res.data);
+          else this.failGroupTemp(clientId);
+          this.loadGroupsSilent();
+        },
+        error: (err: ApiError) => {
+          this.groupSending.set(false);
+          this.failGroupTemp(clientId);
+          this.groupSendError.set(userError(err));
+        },
+      });
+  }
+
+  private replaceGroupTemp(clientId: string, message: GroupMessage): void {
+    const rows = this.groupMsgs();
+    if (rows.some((m) => m.clientId === clientId)) {
+      this.groupMsgs.set(
+        rows
+          .map((m) => (m.clientId === clientId ? { ...message } : m))
+          .sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()),
+      );
+    } else if (!rows.some((m) => m.id === message.id)) {
+      this.groupMsgs.set(
+        [...rows, { ...message }].sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()),
+      );
+    }
+    this.scrollGroupSoon();
+  }
+
+  private failGroupTemp(clientId: string): void {
+    this.groupMsgs.set(this.groupMsgs().map((m) =>
+      m.clientId === clientId ? { ...m, pending: false, failed: true } : m,
+    ));
+  }
+
+  protected retryGroupTemp(clientId: string): void {
+    const temp = this.groupMsgs().find((m) => m.clientId === clientId && m.failed);
+    if (!temp || this.groupSending()) return;
+    this.groupMsgs.set(this.groupMsgs().map((m) =>
+      m.clientId === clientId ? { ...m, failed: false, pending: true } : m,
+    ));
+    this.groupSendError.set(null);
+    this.deliverGroup(String(temp.groupId), temp.body, clientId);
+  }
+
+  /** Group reads are REST-only — fire, forget, and fix the badge locally. */
+  private markGroupRead(groupId: string): void {
+    this.groups.set(this.groups().map((g) => (String(g.id) === String(groupId) ? { ...g, unread: 0 } : g)));
+    this.messages.markGroupRead(groupId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ error: () => {} });
+  }
+
+  /* ---------- Discover / create / join ---------- */
+
+  protected onGroupSearch(value: string): void {
+    this.groupSearch.set(value);
+    const q = value.trim();
+    if (this.groupSearchTimer) clearTimeout(this.groupSearchTimer);
+    if (q.length < 2) {
+      this.groupHits.set([]);
+      this.groupSearching.set(false);
+      return;
+    }
+    this.groupSearching.set(true);
+    this.groupSearchTimer = setTimeout(() => {
+      this.messages
+        .searchGroups(q)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            const mine = new Set(this.groups().map((g) => String(g.id)));
+            this.groupHits.set((res.data ?? []).filter((h) => !mine.has(String(h.id))).slice(0, 10));
+            this.groupSearching.set(false);
+          },
+          error: () => this.groupSearching.set(false),
+        });
+    }, 300);
+  }
+
+  protected createGroup(): void {
+    const name = this.groupName().trim();
+    if (name.length < 2) {
+      this.groupFormError.set('Give the group a name (2+ characters).');
+      return;
+    }
+    this.groupCreating.set(true);
+    this.groupFormError.set(null);
+    this.messages
+      .createGroup({ name, description: this.groupDescription().trim(), joinPolicy: this.groupPolicy() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupCreating.set(false);
+          this.creatingGroup.set(false);
+          this.groupName.set('');
+          this.groupDescription.set('');
+          this.loadGroups();
+          if (res.data?.id) this.openGroupChat(String(res.data.id));
+          else this.groupNotice.set('Group created.');
+        },
+        error: (err: ApiError) => {
+          this.groupCreating.set(false);
+          this.groupFormError.set(userError(err));
+        },
+      });
+  }
+
+  protected joinGroup(groupId: string): void {
+    this.groupActionBusy.set(groupId);
+    this.groupNotice.set(null);
+    this.messages
+      .joinGroup(groupId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupActionBusy.set(null);
+          const data = res.data;
+          if (data?.joined) {
+            this.groupHits.set(this.groupHits().filter((h) => String(h.id) !== String(groupId)));
+            this.loadGroups();
+            this.openGroupChat(groupId);
+          } else {
+            this.groupNotice.set('Request sent — an admin will review it.');
+          }
+        },
+        error: (err: ApiError) => {
+          this.groupActionBusy.set(null);
+          this.groupNotice.set(userError(err));
+        },
+      });
+  }
+
+  protected leaveGroup(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.groupActionBusy.set('leave');
+    this.messages
+      .leaveGroup(gid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupActionBusy.set(null);
+          this.closeGroupChat();
+          this.loadGroups();
+          this.groupNotice.set(res.data?.dissolved ? 'Left — the group dissolved with no members left.' : 'Left the group.');
+        },
+        error: (err: ApiError) => {
+          this.groupActionBusy.set(null);
+          this.groupNotice.set(userError(err));
+        },
+      });
+  }
+
+  protected toggleMuteGroup(): void {
+    const grp = this.openGroup();
+    const gid = this.openGroupId();
+    if (!grp || !gid) return;
+    const muted = !grp.muted;
+    this.messages
+      .muteGroup(gid, muted)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.openGroup.set({ ...grp, muted });
+          this.groups.set(this.groups().map((g) => (String(g.id) === String(gid) ? { ...g, muted } : g)));
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  /* ---------- Members / moderation (admins) ---------- */
+
+  private refreshOpenGroup(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .getGroup(gid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          if (res.data && String(this.openGroupId()) === String(gid)) {
+            this.openGroup.set(res.data);
+            this.groupSettingsName.set(res.data.name ?? '');
+            this.groupSettingsDesc.set(res.data.description ?? '');
+            this.groupSettingsPolicy.set(res.data.joinPolicy ?? 'approval');
+          }
+        },
+        error: () => {},
+      });
+  }
+
+  protected addMember(userId: string): void {
+    const gid = this.openGroupId();
+    if (!gid || !userId) return;
+    this.messages
+      .addGroupMember(gid, userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set('Member added.');
+          this.memberSearch.set('');
+          this.memberHits.set([]);
+          this.refreshOpenGroup();
+          this.loadGroupsSilent();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected removeMember(userId: string): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .removeGroupMember(gid, userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set('Member removed.');
+          this.refreshOpenGroup();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected toggleAdmin(member: GroupMember): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    const isAdmin = this.memberRoleOf(member.id) !== 'admin';
+    this.messages
+      .setGroupAdmin(gid, String(member.id), isAdmin)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set(isAdmin ? `${member.name} is now an admin.` : `${member.name} is no longer an admin.`);
+          this.refreshOpenGroup();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected banMember(userId: string): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .banGroupMember(gid, userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set('Member banned.');
+          this.refreshOpenGroup();
+          this.loadBans();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected loadBans(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .groupBans(gid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.groupBansList.set(res.data ?? []),
+        error: () => this.groupBansList.set([]),
+      });
+  }
+
+  protected unbanMember(userId: string): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .unbanGroupMember(gid, userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set('Member unbanned — they can join again.');
+          this.loadBans();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected toggleGroupPanel(force?: boolean): void {
+    const next = force ?? !this.showGroupPanel();
+    this.showGroupPanel.set(next);
+    if (next && this.groupPanel() === 'members' && this.isGroupAdmin()) this.loadBans();
+  }
+
+  protected switchGroupPanel(tab: 'members' | 'requests' | 'reports' | 'settings'): void {
+    this.groupPanel.set(tab);
+    if (tab === 'reports' && !this.reportsLoaded()) this.loadReports();
+    if (tab === 'members' && this.isGroupAdmin()) this.loadBans();
+  }
+
+  protected loadReports(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .groupReports(gid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupReportsList.set(res.data ?? []);
+          this.reportsLoaded.set(true);
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected decideRequest(requestId: string, decision: 'approve' | 'reject'): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .decideJoinRequest(gid, requestId, decision)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set(decision === 'approve' ? 'Request approved.' : 'Request declined.');
+          this.refreshOpenGroup();
+          this.loadGroupsSilent();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected decideReport(reportId: string, decision: 'dismiss' | 'remove', banMember = false): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .decideGroupReport(gid, reportId, decision, banMember)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupNotice.set(decision === 'remove' ? 'Message removed.' : 'Report dismissed.');
+          this.loadReports();
+          this.loadGroupThreadSilent(gid);
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  /* ---------- Message edit / delete / pin / report ---------- */
+
+  protected startEditGroupMsg(m: GroupMessage): void {
+    this.editingGroupMsg.set(m.id);
+    this.editDraft.set(m.body ?? '');
+  }
+
+  protected saveEditGroupMsg(): void {
+    const gid = this.openGroupId();
+    const mid = this.editingGroupMsg();
+    const body = this.editDraft().trim();
+    if (!gid || !mid || !body) return;
+    this.messages
+      .editGroupMessage(gid, mid, body)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.editingGroupMsg.set(null);
+          this.loadGroupThreadSilent(gid);
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected deleteGroupMsg(messageId: string): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .deleteGroupMessage(gid, messageId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupMsgs.set(this.groupMsgs().filter((m) => m.id !== messageId));
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected pinMessage(messageId: string): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .pinGroupMessage(gid, messageId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          const pinned = this.groupMsgs().find((m) => m.id === messageId) ?? null;
+          const grp = this.openGroup();
+          if (grp) this.openGroup.set({ ...grp, pinnedMessage: pinned });
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected unpinMessage(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .pinGroupMessage(gid, null)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          const grp = this.openGroup();
+          if (grp) this.openGroup.set({ ...grp, pinnedMessage: null });
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  protected toggleReportGroupMsg(messageId: string): void {
+    this.reportReason.set('');
+    this.reportingGroupMsg.set(this.reportingGroupMsg() === messageId ? null : messageId);
+  }
+
+  protected reportGroupMsg(messageId: string): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.messages
+      .reportGroupMessage(gid, messageId, this.reportReason().trim())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.reportingGroupMsg.set(null);
+          this.groupNotice.set('Reported — group admins were notified.');
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
+  }
+
+  /* ---------- Group settings (admins) ---------- */
+
+  protected onGroupPhotoSelected(file: File | null | undefined): void {
+    const gid = this.openGroupId();
+    if (!gid || !file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      this.groupPhotoError.set('Only JPEG, PNG or WebP images are allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.groupPhotoError.set('Photo is too large (max 5MB).');
+      return;
+    }
+    this.groupPhotoBusy.set(true);
+    this.groupPhotoError.set(null);
+    this.messages
+      .uploadGroupPhoto(gid, file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupPhotoBusy.set(false);
+          const photo = res.data?.photo ?? null;
+          const grp = this.openGroup();
+          if (grp) this.openGroup.set({ ...grp, photo });
+          this.groups.set(this.groups().map((g) => (String(g.id) === String(gid) ? { ...g, photo } : g)));
+          this.groupNotice.set('Group photo updated.');
+        },
+        error: (err: ApiError) => {
+          this.groupPhotoBusy.set(false);
+          this.groupPhotoError.set(userError(err));
+        },
+      });
+  }
+
+  protected saveGroupSettings(): void {
+    const gid = this.openGroupId();
+    const grp = this.openGroup();
+    if (!gid || !grp) return;
+    const patch: { name?: string; description?: string; joinPolicy?: 'open' | 'approval' } = {};
+    const name = this.groupSettingsName().trim();
+    const desc = this.groupSettingsDesc().trim();
+    if (name && name !== grp.name) patch.name = name;
+    if (desc !== (grp.description ?? '')) patch.description = desc;
+    if (this.groupSettingsPolicy() !== (grp.joinPolicy ?? 'approval')) patch.joinPolicy = this.groupSettingsPolicy();
+    if (Object.keys(patch).length === 0) {
+      this.groupNotice.set('Nothing to update.');
+      return;
+    }
+    this.groupActionBusy.set('settings');
+    this.messages
+      .updateGroup(gid, patch)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupActionBusy.set(null);
+          this.groupNotice.set('Group updated.');
+          this.refreshOpenGroup();
+          this.loadGroupsSilent();
+        },
+        error: (err: ApiError) => {
+          this.groupActionBusy.set(null);
+          this.groupNotice.set(userError(err));
+        },
+      });
+  }
+
+  protected deleteGroup(): void {
+    const gid = this.openGroupId();
+    if (!gid) return;
+    this.groupActionBusy.set('delete');
+    this.messages
+      .deleteGroup(gid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.groupActionBusy.set(null);
+          this.closeGroupChat();
+          this.loadGroups();
+          this.groupNotice.set('Group deleted.');
+        },
+        error: (err: ApiError) => {
+          this.groupActionBusy.set(null);
+          this.groupNotice.set(userError(err));
+        },
+      });
   }
 }

@@ -2,9 +2,19 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
-  AnnounceEnvelope, Contact, ContactsEnvelope, MessageEnvelope, MessagesEnvelope, PeopleEnvelope,
+  AnnounceEnvelope, Contact, ContactsEnvelope, GroupBan, GroupBansEnvelope, GroupEnvelope, GroupMessageEnvelope,
+  GroupMessagesEnvelope, GroupPhotoEnvelope, GroupReportsEnvelope, GroupRequestsEnvelope, GroupsEnvelope,
+  MessageEnvelope, MessagesEnvelope, PeopleEnvelope,
   RouteEnvelope, SmsFallbackEnvelope, TeamAnnounceEnvelope, UnreadEnvelope,
 } from './message.models';
+
+/** Group chat payloads for create/update. */
+export interface GroupPayload {
+  name: string;
+  description?: string;
+  photo?: string;
+  joinPolicy?: 'open' | 'approval';
+}
 
 /** Team communication → backend `/v1/messages/*`. Fully typed. */
 @Injectable({ providedIn: 'root' })
@@ -60,5 +70,122 @@ export class MessageService {
   /** Global people search for starting chats (safe fields only). */
   people(q: string): Observable<PeopleEnvelope> {
     return this.api.get<PeopleEnvelope>(`v1/messages/people?q=${encodeURIComponent(q)}`);
+  }
+
+  /* ---------- Group chat → `v1/messages/groups/*` ---------- */
+  private readonly groupsBase = 'v1/messages/groups';
+
+  myGroups(): Observable<GroupsEnvelope> {
+    return this.api.get<GroupsEnvelope>(`${this.groupsBase}/mine`);
+  }
+
+  searchGroups(q: string, limit = 10): Observable<GroupsEnvelope> {
+    return this.api.get<GroupsEnvelope>(`${this.groupsBase}/search?q=${encodeURIComponent(q)}&limit=${limit}`);
+  }
+
+  createGroup(input: GroupPayload): Observable<GroupEnvelope> {
+    return this.api.post<GroupEnvelope>(this.groupsBase, input);
+  }
+
+  getGroup(groupId: string): Observable<GroupEnvelope> {
+    return this.api.get<GroupEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}`);
+  }
+
+  updateGroup(groupId: string, patch: Partial<GroupPayload>): Observable<GroupEnvelope> {
+    return this.api.patch<GroupEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}`, patch);
+  }
+
+  /** Group avatar upload (admins) — multipart `photo`, returns the updated photo URL. */
+  uploadGroupPhoto(groupId: string, file: File): Observable<GroupPhotoEnvelope> {
+    const form = new FormData();
+    form.append('photo', file, file.name);
+    return this.api.upload<GroupPhotoEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/photo`, form);
+  }
+
+  deleteGroup(groupId: string): Observable<{ data: { deleted: boolean } }> {
+    return this.api.delete<{ data: { deleted: boolean } }>(`${this.groupsBase}/${encodeURIComponent(groupId)}`);
+  }
+
+  joinGroup(groupId: string): Observable<{ data: { joined: boolean; pending: boolean } }> {
+    return this.api.post<{ data: { joined: boolean; pending: boolean } }>(`${this.groupsBase}/${encodeURIComponent(groupId)}/join`, {});
+  }
+
+  leaveGroup(groupId: string): Observable<{ data: { left: boolean; dissolved: boolean } }> {
+    return this.api.post<{ data: { left: boolean; dissolved: boolean } }>(`${this.groupsBase}/${encodeURIComponent(groupId)}/leave`, {});
+  }
+
+  muteGroup(groupId: string, muted: boolean): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/mute`, { muted });
+  }
+
+  addGroupMember(groupId: string, userId: string): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/members`, { userId });
+  }
+
+  removeGroupMember(groupId: string, userId: string): Observable<unknown> {
+    return this.api.delete(`${this.groupsBase}/${encodeURIComponent(groupId)}/members/${encodeURIComponent(userId)}`);
+  }
+
+  setGroupAdmin(groupId: string, userId: string, isAdmin: boolean): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/admins`, { userId, isAdmin });
+  }
+
+  banGroupMember(groupId: string, userId: string, reason = ''): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/ban`, { userId, reason });
+  }
+
+  unbanGroupMember(groupId: string, userId: string): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/unban`, { userId });
+  }
+
+  groupBans(groupId: string): Observable<GroupBansEnvelope> {
+    return this.api.get<GroupBansEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/bans`);
+  }
+
+  groupRequests(groupId: string): Observable<GroupRequestsEnvelope> {
+    return this.api.get<GroupRequestsEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/requests`);
+  }
+
+  decideJoinRequest(groupId: string, requestId: string, decision: 'approve' | 'reject'): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/requests/${encodeURIComponent(requestId)}/decision`, { decision });
+  }
+
+  groupThread(groupId: string, limit = 100): Observable<GroupMessagesEnvelope> {
+    return this.api.get<GroupMessagesEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages?limit=${limit}`);
+  }
+
+  sendGroupMessage(groupId: string, body: string): Observable<GroupMessageEnvelope> {
+    return this.api.post<GroupMessageEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages`, { body });
+  }
+
+  editGroupMessage(groupId: string, messageId: string, body: string): Observable<GroupMessageEnvelope> {
+    return this.api.patch<GroupMessageEnvelope>(
+      `${this.groupsBase}/${encodeURIComponent(groupId)}/messages/${encodeURIComponent(messageId)}`, { body });
+  }
+
+  deleteGroupMessage(groupId: string, messageId: string): Observable<unknown> {
+    return this.api.delete(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages/${encodeURIComponent(messageId)}`);
+  }
+
+  markGroupRead(groupId: string): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/read`, {});
+  }
+
+  pinGroupMessage(groupId: string, messageId: string | null): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/pin`, { messageId });
+  }
+
+  reportGroupMessage(groupId: string, messageId: string, reason = ''): Observable<unknown> {
+    return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/report`, { messageId, reason });
+  }
+
+  groupReports(groupId: string): Observable<GroupReportsEnvelope> {
+    return this.api.get<GroupReportsEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/reports`);
+  }
+
+  decideGroupReport(groupId: string, reportId: string, decision: 'dismiss' | 'remove', banMember = false): Observable<unknown> {
+    return this.api.post(
+      `${this.groupsBase}/${encodeURIComponent(groupId)}/reports/${encodeURIComponent(reportId)}/decision`,
+      { decision, banMember });
   }
 }
