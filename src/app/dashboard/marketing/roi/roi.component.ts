@@ -168,10 +168,14 @@ import { ApiError } from '../../../core/http/api-error';
               <th mat-header-cell *matHeaderCellDef>Recruits</th>
               <td mat-cell *matCellDef="let c" class="num-cell">{{ c.windowProspects | number }}</td>
             </ng-container>
-            <ng-container matColumnDef="conversions">
-              <th mat-header-cell *matHeaderCellDef>Converted</th>
-              <td mat-cell *matCellDef="let c" class="num-cell">{{ c.windowConversions | number }}</td>
-            </ng-container>
+    <ng-container matColumnDef="worked">
+          <th mat-header-cell *matHeaderCellDef title="Recruits with logged touches">Worked</th>
+          <td mat-cell *matCellDef="let c" class="num-cell">{{ (c.windowWorked ?? 0) | number }}</td>
+        </ng-container>
+        <ng-container matColumnDef="conversions">
+          <th mat-header-cell *matHeaderCellDef> Converted </th>
+          <td mat-cell *matCellDef="let c" class="num-cell">{{ c.windowConversions | number }}</td>
+        </ng-container>
             <ng-container matColumnDef="cpp">
               <th mat-header-cell *matHeaderCellDef>Cost/recruit</th>
               <td mat-cell *matCellDef="let c" class="num-cell">{{ c.costPerProspect === null ? '—' : (c.costPerProspect | number) }}</td>
@@ -227,7 +231,7 @@ export class CampaignRoiComponent implements OnInit {
   protected readonly totals = signal<RoiTotals | null>(null);
 
   protected readonly dayOptions = [7, 30, 90];
-  protected readonly displayedColumns = ['name', 'visits', 'budget', 'sms', 'leads', 'prospects', 'conversions', 'cpp'];
+  protected readonly displayedColumns = ['name', 'visits', 'budget', 'sms', 'leads', 'prospects', 'worked', 'conversions', 'cpp'];
   protected readonly pageSize = signal(10);
   protected readonly pageIndex = signal(0);
 

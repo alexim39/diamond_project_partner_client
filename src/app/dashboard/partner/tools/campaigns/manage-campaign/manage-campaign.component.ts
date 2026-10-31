@@ -151,17 +151,14 @@ export class ManageCampaignComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
   }
 
-  getProgression(campaign: any): number {
-    // Allocation funnel first (accepted share of delivered leads); the old
-    // visits-over-budget ratio survives only until a campaign delivers.
+  getProgression(campaign: any): number | null {
+    // Allocation funnel only (accepted share of delivered leads). No
+    // allocation yet means no funnel to measure — dash, not a guess.
     const summary = this.summaryOf(campaign);
     if (summary && Number(summary.allocated) > 0) {
       return Math.min(100, (Number(summary.accepted) / Number(summary.allocated)) * 100);
     }
-    if (campaign.deliveryStatus === 'Active' && campaign.budget.budgetAmount > 0) {
-      return Math.min(100, (campaign.visits / campaign.budget.budgetAmount) * 100);
-    }
-    return 0; // Return 0% if the campaign is not active or budget is not defined
+    return null;
   }
 
   /** Owner-only actions (cancel a held Pending campaign for a refund). */

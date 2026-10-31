@@ -10,6 +10,7 @@ export interface CampaignRoi {
   allocatedLeads?: number;
   totalSpend?: number;
   windowProspects: number;
+  windowWorked?: number;
   windowConversions: number;
   conversionRate: number | null;
   costPerProspect: number | null;
@@ -24,6 +25,7 @@ export interface RoiTotals {
   allocationSpend?: number;
   allocatedLeads?: number;
   prospects: number;
+  worked?: number;
   conversions: number;
   conversionRate: number | null;
   costPerProspect: number | null;

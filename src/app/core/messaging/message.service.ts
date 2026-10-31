@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from '../http/api-client.service';
 import {
-  AnnounceEnvelope, ContactsEnvelope, MessageEnvelope,
-  MessagesEnvelope, TeamAnnounceEnvelope, UnreadEnvelope,
+  AnnounceEnvelope, Contact, ContactsEnvelope, MessageEnvelope, MessagesEnvelope, PeopleEnvelope,
+  RouteEnvelope, SmsFallbackEnvelope, TeamAnnounceEnvelope, UnreadEnvelope,
 } from './message.models';
 
 /** Team communication → backend `/v1/messages/*`. Fully typed. */
@@ -45,5 +45,20 @@ export class MessageService {
 
   contacts(): Observable<ContactsEnvelope> {
     return this.api.get<ContactsEnvelope>('v1/messages/contacts');
+  }
+
+  /** Live-chat routing intel: presence, masked number, per-page SMS rate. */
+  routeInfo(counterpartId: string): Observable<RouteEnvelope> {
+    return this.api.get<RouteEnvelope>(`v1/messages/route/${encodeURIComponent(counterpartId)}`);
+  }
+
+  /** Approved SMS fallback to an offline counterpart (wallet-charged server-side). */
+  sendSmsFallback(to: string, body: string): Observable<SmsFallbackEnvelope> {
+    return this.api.post<SmsFallbackEnvelope>('v1/messages/sms-fallback', { to, body });
+  }
+
+  /** Global people search for starting chats (safe fields only). */
+  people(q: string): Observable<PeopleEnvelope> {
+    return this.api.get<PeopleEnvelope>(`v1/messages/people?q=${encodeURIComponent(q)}`);
   }
 }

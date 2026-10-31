@@ -73,8 +73,8 @@
             <td mat-cell *matCellDef="let element"> {{ summaryOf(element)?.converted ?? '—' }} </td>
           </ng-container>
           <ng-container matColumnDef="progression">
-            <th mat-header-cell *matHeaderCellDef title="Share of allocated leads accepted into follow-ups (visits ÷ budget before first delivery)"> Progression (%) </th>
-            <td mat-cell *matCellDef="let element"> {{ getProgression(element) | number: '1.0-2' }}% </td>
+            <th mat-header-cell *matHeaderCellDef title="Accepted share of allocated leads"> Progression (%) </th>
+            <td mat-cell *matCellDef="let element"> {{ getProgression(element) === null ? '—' : (getProgression(element) | number: '1.0-2') + '%' }} </td>
           </ng-container>
           <ng-container matColumnDef="publishDate">
             <th mat-header-cell *matHeaderCellDef> Publish Date </th>
