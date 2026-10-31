@@ -1343,6 +1343,16 @@ export class MessagesComponent implements OnInit {
     }
   }
 
+  /** True when the user sits at the live edge (or layout unknown). */
+  private scrollerPinned(el: HTMLElement | null | undefined): boolean {
+    if (!el) return true;
+    try {
+      return el.scrollHeight - el.scrollTop - el.clientHeight < 200;
+    } catch {
+      return true;
+    }
+  }
+
   /** Socket → view-state bridges (all guarded, never throw into the socket). */
   private wireSocket(): void {
     this.chat.message$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((m) => this.onSocketMessage(m));
@@ -1400,6 +1410,7 @@ export class MessagesComponent implements OnInit {
     const me = this.myId();
     const counterpart = String(m.senderId) === me ? String(m.recipientId) : String(m.senderId);
     if (this.openThreadId() && counterpart === this.openThreadId()) {
+      const pinned = this.scrollerPinned(this.threadScroll?.nativeElement);
       if (String(m.senderId) === me) {
         // Own echo: fold into the oldest pending bubble instead of duplicating.
         const tempIdx = this.threadMsgs().findIndex((x) => x.pending && String(x.recipientId) === counterpart);
@@ -1407,13 +1418,13 @@ export class MessagesComponent implements OnInit {
           const rows = [...this.threadMsgs()];
           rows[tempIdx] = { ...m };
           this.threadMsgs.set(rows.sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
-          this.scrollSoon();
+          if (pinned) this.scrollSoon();
           return;
         }
       }
       if (!this.threadMsgs().some((x) => x.id === m.id)) {
         this.threadMsgs.set([...this.threadMsgs(), m]);
-        this.scrollSoon();
+        if (pinned) this.scrollSoon();
       }
       if (String(m.senderId) !== me && !m.readAt) this.markReadBoth(m);
       this.refreshRoute(counterpart);
@@ -1905,10 +1916,17 @@ export class MessagesComponent implements OnInit {
           if (String(this.openThreadId()) !== String(counterpartId)) return;
           const fresh = [...(res.data ?? [])].sort(
             (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
-          const freshIds = new Set(fresh.map((m) => m.id));
-          const keep = this.threadMsgs().filter((m) => m.pending || m.failed || !freshIds.has(m.id));
-          this.threadMsgs.set([...fresh, ...keep].sort(
-            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          if (this.scrollerPinned(this.threadScroll?.nativeElement)) {
+            // Watching live: full refresh heals edits/deletes too.
+            const pending = this.threadMsgs().filter((m) => m.pending || m.failed);
+            this.threadMsgs.set([...fresh, ...pending]);
+          } else {
+            // Reading history: merge so the viewport never collapses.
+            const freshIds = new Set(fresh.map((m) => m.id));
+            const keep = this.threadMsgs().filter((m) => m.pending || m.failed || !freshIds.has(m.id));
+            this.threadMsgs.set([...fresh, ...keep].sort(
+              (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          }
           this.threadHasMore.set(fresh.length >= 100);
         },
         error: () => {},
@@ -2235,16 +2253,22 @@ export class MessagesComponent implements OnInit {
       .subscribe({
         next: (res) => {
           if (String(this.openGroupId()) !== String(groupId)) return;
-          // Merge, don't replace: the fresh latest-window updates what it
-          // covers while previously loaded older history stays in place.
           const fresh = [...(res.data ?? [])].sort(
             (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
-          const freshIds = new Set(fresh.map((m) => m.id));
-          const keep = this.groupMsgs().filter((m) => m.pending || m.failed || !freshIds.has(m.id));
-          this.groupMsgs.set([...fresh, ...keep].sort(
-            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          const pinned = this.scrollerPinned(this.groupScroll?.nativeElement);
+          if (pinned) {
+            // Watching live: full refresh heals edits/deletes too.
+            const pending = this.groupMsgs().filter((m) => m.pending || m.failed);
+            this.groupMsgs.set([...fresh, ...pending]);
+          } else {
+            // Reading history: merge so the viewport never collapses.
+            const freshIds = new Set(fresh.map((m) => m.id));
+            const keep = this.groupMsgs().filter((m) => m.pending || m.failed || !freshIds.has(m.id));
+            this.groupMsgs.set([...fresh, ...keep].sort(
+              (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          }
           this.groupHasMore.set(fresh.length >= 100);
-          this.scrollGroupSoon();
+          if (pinned) this.scrollGroupSoon();
         },
         error: () => {},
       });
@@ -2289,6 +2313,7 @@ export class MessagesComponent implements OnInit {
     const gid = String(message?.groupId ?? groupId ?? '');
     if (!gid) return;
     if (String(this.openGroupId()) === gid) {
+      const pinned = this.scrollerPinned(this.groupScroll?.nativeElement);
       const me = this.myId();
       if (String(message.senderId) === me) {
         const tempIdx = this.groupMsgs().findIndex((x) => x.pending);
@@ -2296,13 +2321,13 @@ export class MessagesComponent implements OnInit {
           const rows = [...this.groupMsgs()];
           rows[tempIdx] = { ...message };
           this.groupMsgs.set(rows.sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
-          this.scrollGroupSoon();
+          if (pinned) this.scrollGroupSoon();
           return;
         }
       }
       if (!this.groupMsgs().some((x) => x.id === message.id)) {
         this.groupMsgs.set([...this.groupMsgs(), message]);
-        this.scrollGroupSoon();
+        if (pinned) this.scrollGroupSoon();
       }
       this.markGroupRead(gid);
     } else {
