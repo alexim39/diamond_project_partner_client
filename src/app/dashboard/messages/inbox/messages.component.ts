@@ -186,12 +186,32 @@ const TYPING_CLEAR_MS = 3500;
                   <span class="muted">{{ peerStatus(peer.id) }}</span>
                 </span>
                 <span class="spacer"></span>
+                    <button mat-icon-button (click)="toggleFind()" [title]="findOpen() ? 'Close find' : 'Find in conversation'" aria-label="Find in conversation">
+                      <mat-icon>search</mat-icon>
+                    </button>
                     @if (isOffline(peer.id) && isNetwork(peer.id)) {
                       <button mat-stroked-button (click)="openSmsDialog()" [disabled]="smsSending()">
                         <mat-icon>sms</mat-icon> SMS
                       </button>
                     }
               </header>
+
+              @if (findOpen()) {
+                <div class="find-bar" role="search">
+                  <mat-icon>search</mat-icon>
+                  <input [value]="findQuery()" (input)="onFindInput($any($event.target).value)" (keydown.enter)="jumpFind(1)" (keydown.escape)="closeFind()" placeholder="Find in conversation…" aria-label="Find in conversation" />
+                  <span class="muted">{{ findPosition() }}</span>
+                  <button mat-icon-button (click)="jumpFind(-1)" [disabled]="findMatches().length === 0" aria-label="Previous match">
+                    <mat-icon>arrow_upward</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="jumpFind(1)" [disabled]="findMatches().length === 0" aria-label="Next match">
+                    <mat-icon>arrow_downward</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="closeFind()" aria-label="Close find">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
 
               @if (routeInfo()[peer.id]; as route) {
                 @if (!route.online && isNetwork(peer.id)) {
@@ -212,6 +232,11 @@ const TYPING_CLEAR_MS = 3500;
               }
 
               <div class="thread-scroll" #threadScroll>
+                @if (threadLoadingMore()) {
+                  <mat-progress-bar mode="indeterminate" />
+                } @else if (threadHasMore() && !threadLoading()) {
+                  <button mat-button class="load-older" (click)="loadOlderThread()">Load older messages</button>
+                }
                 @if (threadLoading()) {
                   <mat-progress-bar mode="indeterminate" />
                 }
@@ -222,7 +247,7 @@ const TYPING_CLEAR_MS = 3500;
                   <div class="day-chip" aria-hidden="true"><span>{{ day.label }}</span></div>
                   <ol class="bubble-list">
                     @for (m of day.msgs; track m.clientId ?? m.id) {
-                      <li class="bubble" [class.bubble--mine]="m.senderId === myId()" [class.bubble--pending]="m.pending">
+                      <li class="bubble" [class.bubble--mine]="m.senderId === myId()" [class.bubble--pending]="m.pending" [attr.data-mid]="m.clientId ?? m.id">
                         <p>{{ m.body }}</p>
                         <span class="bubble-meta">
                           <span class="muted">{{ m.createdAt | date:'shortTime' }}</span>
@@ -338,8 +363,13 @@ const TYPING_CLEAR_MS = 3500;
             @if (groupsLoading()) {
               <mat-progress-bar mode="indeterminate" />
             }
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="side-search">
+              <mat-label>Filter my groups</mat-label>
+              <input matInput type="search" [value]="groupFilter()" (input)="groupFilter.set($any($event.target).value)" placeholder="Group name" />
+              <mat-icon matSuffix>filter_list</mat-icon>
+            </mat-form-field>
             <ul class="convo-list">
-              @for (g of groups(); track g.id) {
+              @for (g of filteredGroups(); track g.id) {
                 <li>
                   <button
                     type="button"
@@ -368,8 +398,8 @@ const TYPING_CLEAR_MS = 3500;
                 </li>
               }
             </ul>
-            @if (groups().length === 0 && !groupsLoading()) {
-              <p class="empty side-empty">No groups yet — create one or discover communities to join.</p>
+            @if (filteredGroups().length === 0 && !groupsLoading()) {
+              <p class="empty side-empty">{{ groups().length === 0 ? 'No groups yet — create one or discover communities to join.' : 'No groups match that filter.' }}</p>
             }
             @if (groupNotice(); as note) {
               <p class="notice side-empty" role="status">{{ note }}</p>
@@ -391,6 +421,9 @@ const TYPING_CLEAR_MS = 3500;
                   <span class="muted">{{ grp.members.length }} member{{ grp.members.length === 1 ? '' : 's' }}{{ grp.muted ? ' · Muted' : '' }}</span>
                 </span>
                 <span class="spacer"></span>
+                <button mat-icon-button (click)="toggleFind()" [title]="findOpen() ? 'Close find' : 'Find in conversation'" aria-label="Find in conversation">
+                  <mat-icon>search</mat-icon>
+                </button>
                 <button mat-icon-button (click)="toggleMuteGroup()" [title]="grp.muted ? 'Unmute' : 'Mute'" [attr.aria-label]="grp.muted ? 'Unmute group' : 'Mute group'">
                   <mat-icon>{{ grp.muted ? 'notifications_off' : 'notifications' }}</mat-icon>
                 </button>
@@ -398,6 +431,23 @@ const TYPING_CLEAR_MS = 3500;
                   <mat-icon>info</mat-icon>
                 </button>
               </header>
+
+              @if (findOpen()) {
+                <div class="find-bar" role="search">
+                  <mat-icon>search</mat-icon>
+                  <input [value]="findQuery()" (input)="onFindInput($any($event.target).value)" (keydown.enter)="jumpFind(1)" (keydown.escape)="closeFind()" placeholder="Find in conversation…" aria-label="Find in conversation" />
+                  <span class="muted">{{ findPosition() }}</span>
+                  <button mat-icon-button (click)="jumpFind(-1)" [disabled]="findMatches().length === 0" aria-label="Previous match">
+                    <mat-icon>arrow_upward</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="jumpFind(1)" [disabled]="findMatches().length === 0" aria-label="Next match">
+                    <mat-icon>arrow_downward</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="closeFind()" aria-label="Close find">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
 
               @if (grp.pinnedMessage; as pinned) {
                 <div class="pinned-bar" role="note">
@@ -412,6 +462,11 @@ const TYPING_CLEAR_MS = 3500;
               }
 
               <div class="thread-scroll" #groupScroll>
+                @if (groupLoadingMore()) {
+                  <mat-progress-bar mode="indeterminate" />
+                } @else if (groupHasMore() && !groupLoading()) {
+                  <button mat-button class="load-older" (click)="loadOlderGroupMessages()">Load older messages</button>
+                }
                 @if (groupLoading()) {
                   <mat-progress-bar mode="indeterminate" />
                 }
@@ -422,7 +477,7 @@ const TYPING_CLEAR_MS = 3500;
                   <div class="day-chip" aria-hidden="true"><span>{{ day.label }}</span></div>
                   <ol class="bubble-list">
                     @for (m of day.msgs; track m.clientId ?? m.id) {
-                      <li class="bubble" [class.bubble--mine]="m.senderId === myId()" [class.bubble--pending]="m.pending">
+                      <li class="bubble" [class.bubble--mine]="m.senderId === myId()" [class.bubble--pending]="m.pending" [attr.data-mid]="m.clientId ?? m.id">
                         @if (m.senderId !== myId()) {
                           <span class="bubble-sender">{{ senderNameOf(m.senderId) }}
                             @if (memberRoleOf(m.senderId) === 'admin') {
@@ -488,6 +543,11 @@ const TYPING_CLEAR_MS = 3500;
                           @if (m.senderId !== myId()) {
                             <button mat-icon-button class="mini-btn" (click)="toggleReportGroupMsg(m.id)" title="Report" aria-label="Report message">
                               <mat-icon>flag</mat-icon>
+                            </button>
+                          }
+                          @if (!m.pending && !m.failed) {
+                            <button mat-icon-button class="mini-btn" (click)="startForward(m)" title="Forward to another group" aria-label="Forward message">
+                              <mat-icon>forward</mat-icon>
                             </button>
                           }
                         </span>
@@ -557,6 +617,24 @@ const TYPING_CLEAR_MS = 3500;
                   <mat-icon>{{ groupSending() ? 'more_horiz' : 'send' }}</mat-icon>
                 </button>
               </div>
+
+              @if (forwardingMsg(); as fwd) {
+                <div class="forward-bar" role="region" aria-label="Forward message">
+                  <span class="muted">Forward to:</span>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Group</mat-label>
+                    <mat-select [value]="''" (selectionChange)="sendForward($event.value)" aria-label="Target group">
+                      @for (g of groups(); track g.id) {
+                        @if (g.id !== openGroupId()) {
+                          <mat-option [value]="g.id">{{ g.name }}</mat-option>
+                        }
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <span class="muted forward-preview">{{ snippet(fwd.body) }}</span>
+                  <button mat-button (click)="cancelForward()">Cancel</button>
+                </div>
+              }
             } @else if (groupInvite(); as inv) {
               <div class="invite-card" role="region" aria-label="Group invite">
                 <async-avatar [name]="inv.name" size="md" [photo]="inv.photo ?? null" />
@@ -949,6 +1027,12 @@ const TYPING_CLEAR_MS = 3500;
     .thread-scroll > * { flex: none; }
     .thread-scroll > .bubble-list { align-self: stretch; }
     .day-chip { display: flex; justify-content: center; margin: 0.3em 0; }
+    .load-older { align-self: center; flex: none; }
+    .find-bar { display: flex; align-items: center; gap: 0.4em; flex: none; padding: 0.35em 0.9em; font-size: 0.85em; background: var(--dp-paper); border-bottom: 1px solid var(--dp-line); }
+    .find-bar mat-icon { color: var(--dp-muted); }
+    .find-bar input { flex: 1; min-width: 0; min-height: 36px; border: 1px solid var(--dp-line); border-radius: 8px; padding: 0 0.6em; font: inherit; background: var(--dp-surface); color: inherit; }
+    .find-bar button { width: 32px; height: 32px; }
+    .find-hit { outline: 2px solid var(--dp-gold); outline-offset: 1px; border-radius: 8px; }
     .day-chip span { font-size: 0.75em; color: var(--dp-muted); background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 999px; padding: 0.15em 0.8em; }
     .bubble-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35em; }
     .bubble { align-self: flex-start; max-width: 82%; background: var(--dp-paper); border: 1px solid var(--dp-line); border-radius: 4px 14px 14px 14px; padding: 0.55em 0.8em; }
@@ -976,6 +1060,9 @@ const TYPING_CLEAR_MS = 3500;
     }
     .composer { display: flex; gap: 0.5em; align-items: flex-end; padding: 0.6em 0.9em; border-top: 1px solid var(--dp-line); background: var(--dp-paper); flex: none; flex-wrap: wrap; }
     .composer mat-form-field { flex: 1; }
+    .forward-bar { display: flex; gap: 0.5em; align-items: center; padding: 0.5em 0.9em; border-top: 1px solid var(--dp-line); background: var(--dp-paper); flex: none; }
+    .forward-bar mat-form-field { flex: 1; }
+    .forward-preview { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .attach-preview { flex: 1 1 100%; display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap; }
     .attach-thumb { position: relative; width: 56px; height: 56px; border-radius: 10px; border: 1px solid var(--dp-line); background: var(--dp-paper); display: inline-flex; align-items: center; justify-content: center; color: var(--dp-muted); }
     .attach-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
@@ -1112,6 +1199,8 @@ export class MessagesComponent implements OnInit {
   protected readonly threadMsgs = signal<ChatMsg[]>([]);
   protected readonly threadLoading = signal(false);
   protected readonly threadError = signal<string | null>(null);
+  protected readonly threadHasMore = signal(false);
+  protected readonly threadLoadingMore = signal(false);
   protected readonly threadSending = signal(false);
   protected readonly threadSendError = signal<string | null>(null);
   protected readonly replyDraft = signal('');
@@ -1140,6 +1229,8 @@ export class MessagesComponent implements OnInit {
   protected readonly groupDraft = signal('');
   protected readonly groupFiles = signal<Array<GroupAttachment & { name: string }>>([]);
   protected readonly groupUploading = signal(false);
+  protected readonly groupHasMore = signal(false);
+  protected readonly groupLoadingMore = signal(false);
   protected readonly creatingGroup = signal(false);
   protected readonly groupCreating = signal(false);
   protected readonly groupName = signal('');
@@ -1162,11 +1253,18 @@ export class MessagesComponent implements OnInit {
   protected readonly editDraft = signal('');
   protected readonly reportingGroupMsg = signal<string | null>(null);
   protected readonly reportReason = signal('');
+  /** Staged outgoing forward (picked from a bubble, target chosen below the composer). */
+  protected readonly forwardingMsg = signal<GroupMessage | null>(null);
   protected readonly groupSettingsName = signal('');
   protected readonly groupSettingsDesc = signal('');
   protected readonly groupSettingsPolicy = signal<'open' | 'approval'>('approval');
   protected readonly groupPhotoBusy = signal(false);
   protected readonly groupPhotoError = signal<string | null>(null);
+  /** In-thread find state (shared: only one thread visible at a time). */
+  protected readonly findOpen = signal(false);
+  protected readonly findQuery = signal('');
+  protected readonly findMatches = signal<string[]>([]);
+  protected readonly findIdx = signal(0);
   /** Composite `${groupId}:${senderId}` → last typing stamp. */
   protected readonly groupTyping = signal<Record<string, number>>({});
   /** Global platform search for adding members (admins) — not network-limited. */
@@ -1174,6 +1272,8 @@ export class MessagesComponent implements OnInit {
   protected readonly memberHits = signal<PersonHit[]>([]);
   protected readonly memberSearching = signal(false);
   private memberSearchTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Filter for my groups in the sidebar. */
+  protected readonly groupFilter = signal('');
   private groupSearchTimer: ReturnType<typeof setTimeout> | null = null;
   private lastGroupTypingSent: Record<string, number> = {};
 
@@ -1632,6 +1732,9 @@ export class MessagesComponent implements OnInit {
     this.threadMsgs.set([]);
     this.threadError.set(null);
     this.threadSendError.set(null);
+    this.threadHasMore.set(false);
+    this.threadLoadingMore.set(false);
+    this.closeFind();
     this.replyDraft.set('');
     this.smsNotice.set(null);
     this.smsError.set(null);
@@ -1645,6 +1748,7 @@ export class MessagesComponent implements OnInit {
           const rows = [...(res.data ?? [])].sort(
             (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
           this.threadMsgs.set(rows);
+          this.threadHasMore.set(rows.length >= 100);
           this.threadLoading.set(false);
           this.scrollSoon();
           // Reading the thread clears its unread flags (counts stay truthful).
@@ -1798,12 +1902,50 @@ export class MessagesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          const pending = this.threadMsgs().filter((m) => m.pending || m.failed);
-          const rows = [...(res.data ?? [])].sort(
+          if (String(this.openThreadId()) !== String(counterpartId)) return;
+          const fresh = [...(res.data ?? [])].sort(
             (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
-          this.threadMsgs.set([...rows, ...pending]);
+          const freshIds = new Set(fresh.map((m) => m.id));
+          const keep = this.threadMsgs().filter((m) => m.pending || m.failed || !freshIds.has(m.id));
+          this.threadMsgs.set([...fresh, ...keep].sort(
+            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          this.threadHasMore.set(fresh.length >= 100);
         },
         error: () => {},
+      });
+  }
+
+  /** Paged history: fetch the window before the oldest loaded message and
+   * pin the viewport so the first visible row stays put. */
+  protected loadOlderThread(): void {
+    const id = this.openThreadId();
+    if (!id || this.threadLoadingMore() || !this.threadHasMore()) return;
+    const settled = this.threadMsgs().filter((m) => !m.pending && !m.failed && m.createdAt);
+    if (settled.length === 0) return;
+    const oldest = settled.reduce((a, b) => (new Date(a.createdAt) <= new Date(b.createdAt) ? a : b));
+    const el = this.threadScroll?.nativeElement;
+    const prevHeight = el?.scrollHeight ?? 0;
+    const prevTop = el?.scrollTop ?? 0;
+    this.threadLoadingMore.set(true);
+    this.messages
+      .thread(id, 100, String(oldest.createdAt))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.threadLoadingMore.set(false);
+          if (String(this.openThreadId()) !== String(id)) return;
+          const existing = new Set(this.threadMsgs().map((m) => m.id));
+          const older = [...(res.data ?? [])].filter((m) => !existing.has(m.id));
+          this.threadMsgs.set([...older, ...this.threadMsgs()].sort(
+            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          this.threadHasMore.set((res.data ?? []).length >= 100);
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            try {
+              if (el) el.scrollTop = el.scrollHeight - prevHeight + prevTop;
+            } catch { /* layout not ready yet */ }
+          }));
+        },
+        error: () => this.threadLoadingMore.set(false),
       });
   }
 
@@ -1945,6 +2087,13 @@ export class MessagesComponent implements OnInit {
     if (v === 'groups' && this.groups().length === 0 && !this.groupsLoading()) this.loadGroups();
   }
 
+  /** Sidebar rows filtered by name (discover search stays separate). */
+  protected readonly filteredGroups = computed(() => {
+    const q = this.groupFilter().trim().toLowerCase();
+    if (!q) return this.groups();
+    return this.groups().filter((g) => (g.name ?? '').toLowerCase().includes(q));
+  });
+
   /** Sidebar rows (name + snippet + unread), most-recent-first. */
   protected loadGroups(): void {
     this.groupsLoading.set(true);
@@ -1997,6 +2146,9 @@ export class MessagesComponent implements OnInit {
     this.groupSendError.set(null);
     this.groupDraft.set('');
     this.groupFiles.set([]);
+    this.groupHasMore.set(false);
+    this.groupLoadingMore.set(false);
+    this.closeFind();
     this.groupNotice.set(null);
     this.reportsLoaded.set(false);
     this.groupReportsList.set([]);
@@ -2033,6 +2185,7 @@ export class MessagesComponent implements OnInit {
     const gid = this.openGroupId();
     if (gid) this.chat.leaveGroupRoom(gid);
     this.groupTypingStop();
+    this.closeFind();
     this.openGroupId.set(null);
     this.openGroup.set(null);
     this.groupMsgs.set([]);
@@ -2059,7 +2212,8 @@ export class MessagesComponent implements OnInit {
           }
           this.loadGroups();
           if (d.joined) {
-            if (d.created) this.groupNotice.set('Team group chat created — teammates land here from the team page.');
+            if (d.teamGone) this.groupNotice.set('The team was deleted, but its group chat lives on.');
+            else if (d.created) this.groupNotice.set('Team group chat created — teammates land here from the team page.');
             this.openGroupChat(String(d.groupId));
           } else if (d.pending) {
             this.groupNotice.set('Your request to join the team chat is pending review.');
@@ -2080,14 +2234,53 @@ export class MessagesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          const pending = this.groupMsgs().filter((m) => m.pending || m.failed);
-          const rows = [...(res.data ?? [])].sort(
-            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
           if (String(this.openGroupId()) !== String(groupId)) return;
-          this.groupMsgs.set([...rows, ...pending]);
+          // Merge, don't replace: the fresh latest-window updates what it
+          // covers while previously loaded older history stays in place.
+          const fresh = [...(res.data ?? [])].sort(
+            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
+          const freshIds = new Set(fresh.map((m) => m.id));
+          const keep = this.groupMsgs().filter((m) => m.pending || m.failed || !freshIds.has(m.id));
+          this.groupMsgs.set([...fresh, ...keep].sort(
+            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          this.groupHasMore.set(fresh.length >= 100);
           this.scrollGroupSoon();
         },
         error: () => {},
+      });
+  }
+
+  /** Paged history: fetch the window before the oldest loaded message and
+   * pin the viewport so the first visible row stays put. */
+  protected loadOlderGroupMessages(): void {
+    const gid = this.openGroupId();
+    if (!gid || this.groupLoadingMore() || !this.groupHasMore()) return;
+    const settled = this.groupMsgs().filter((m) => !m.pending && !m.failed && m.createdAt);
+    if (settled.length === 0) return;
+    const oldest = settled.reduce((a, b) => (new Date(a.createdAt) <= new Date(b.createdAt) ? a : b));
+    const el = this.groupScroll?.nativeElement;
+    const prevHeight = el?.scrollHeight ?? 0;
+    const prevTop = el?.scrollTop ?? 0;
+    this.groupLoadingMore.set(true);
+    this.messages
+      .groupThread(gid, 100, String(oldest.createdAt))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.groupLoadingMore.set(false);
+          if (String(this.openGroupId()) !== String(gid)) return;
+          const existing = new Set(this.groupMsgs().map((m) => m.id));
+          const older = [...(res.data ?? [])].filter((m) => !existing.has(m.id));
+          this.groupMsgs.set([...older, ...this.groupMsgs()].sort(
+            (a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime()));
+          this.groupHasMore.set((res.data ?? []).length >= 100);
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            try {
+              if (el) el.scrollTop = el.scrollHeight - prevHeight + prevTop;
+            } catch { /* layout not ready yet */ }
+          }));
+        },
+        error: () => this.groupLoadingMore.set(false),
       });
   }
 
@@ -2221,6 +2414,95 @@ export class MessagesComponent implements OnInit {
     if (names.length === 0) return 'Sent — not seen yet';
     if (this.isSeenByAll(m)) return 'Seen by everyone';
     return `Seen by ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} others` : ''}`;
+  }
+
+  /* ---------- In-thread find (DM + group) ---------- */
+
+  /** "2/7" position readout, empty unless searching with matches. */
+  protected readonly findPosition = computed(() => {
+    const len = this.findMatches().length;
+    if (len === 0) return '';
+    return `${this.findIdx() + 1}/${len}`;
+  });
+
+  protected toggleFind(): void {
+    if (this.findOpen()) {
+      this.closeFind();
+    } else {
+      this.findOpen.set(true);
+      this.refreshFindMatches();
+    }
+  }
+
+  protected closeFind(): void {
+    this.findOpen.set(false);
+    this.findQuery.set('');
+    this.findMatches.set([]);
+    this.findIdx.set(0);
+    this.clearFindHit();
+  }
+
+  protected onFindInput(value: string): void {
+    this.findQuery.set(value);
+    this.refreshFindMatches();
+  }
+
+  protected jumpFind(dir: 1 | -1): void {
+    const len = this.findMatches().length;
+    if (len === 0) return;
+    this.findIdx.set((this.findIdx() + dir + len) % len);
+    this.applyFindHit();
+  }
+
+  private findRows(): Array<{ clientId?: string | null; id: string; body?: string | null }> {
+    const rows = this.openGroupId() ? [...this.groupMsgs()] : [...this.threadMsgs()];
+    return rows as Array<{ clientId?: string | null; id: string; body?: string | null }>;
+  }
+
+  private refreshFindMatches(): void {
+    const q = this.findQuery().trim().toLowerCase();
+    const matches = !q
+      ? []
+      : this.findRows()
+        .filter((m) => (m.body ?? '').toLowerCase().includes(q))
+        .map((m) => String(m.clientId ?? m.id));
+    this.findMatches.set(matches);
+    this.findIdx.set(0);
+    this.clearFindHit();
+    if (matches.length > 0) this.applyFindHit();
+  }
+
+  private findContainer(): HTMLElement | null {
+    try {
+      return (this.openGroupId() ? this.groupScroll : this.threadScroll)?.nativeElement ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  private clearFindHit(): void {
+    try {
+      this.findContainer()?.querySelectorAll('.find-hit').forEach((el) => el.classList.remove('find-hit'));
+    } catch { /* ephemeral — never fail */ }
+  }
+
+  private applyFindHit(): void {
+    const id = this.findMatches()[this.findIdx()];
+    if (id == null) return;
+    const el = this.findContainer();
+    if (!el) return;
+    let node: Element | null = null;
+    try {
+      node = el.querySelector(`[data-mid="${id.replace(/["\\]/g, '')}"]`);
+    } catch { /* bad selector — skip */ }
+    if (!node) return;
+    this.clearFindHit();
+    node.classList.add('find-hit');
+    try {
+      node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    } catch {
+      try { node.scrollIntoView(); } catch { /* layout not ready yet */ }
+    }
   }
 
   /** Request key tolerant of raw store shapes (backend now maps `id`, this is belt-and-braces). */
@@ -2870,6 +3152,33 @@ export class MessagesComponent implements OnInit {
   protected toggleReportGroupMsg(messageId: string): void {
     this.reportReason.set('');
     this.reportingGroupMsg.set(this.reportingGroupMsg() === messageId ? null : messageId);
+  }
+
+  protected startForward(m: GroupMessage): void {
+    this.reportingGroupMsg.set(null);
+    this.forwardingMsg.set(m);
+  }
+
+  protected cancelForward(): void {
+    this.forwardingMsg.set(null);
+  }
+
+  protected sendForward(targetGroupId: string): void {
+    const fwd = this.forwardingMsg();
+    if (!targetGroupId || !fwd) return;
+    const target = this.groups().find((g) => String(g.id) === String(targetGroupId));
+    const files = (fwd.attachments ?? []).map(({ url, mime, size }) => ({ url, mime, size }));
+    this.messages
+      .sendGroupMessage(targetGroupId, fwd.body ?? '', files)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.forwardingMsg.set(null);
+          this.groupNotice.set(`Forwarded to ${target?.name ?? 'group'}.`);
+          this.loadGroupsSilent();
+        },
+        error: (err: ApiError) => this.groupNotice.set(userError(err)),
+      });
   }
 
   protected reportGroupMsg(messageId: string): void {

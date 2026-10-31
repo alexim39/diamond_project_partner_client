@@ -243,6 +243,11 @@ const withDetail = (err: ApiError): string => {
                   <mat-icon>comment</mat-icon>
                   Discussion{{ event.commentCount ? ' (' + event.commentCount + ')' : '' }}
                 </button>
+                @if (event.teamId) {
+                  <a mat-button routerLink="/dashboard/messages" [queryParams]="{ teamGroup: event.teamId }" title="Discuss in the team group chat">
+                    <mat-icon>forum</mat-icon>Team chat
+                  </a>
+                }
               </div>
               @if (shareEventId() === event.id) {
                 <div class="share-panel" role="region" aria-label="Invite to this event">

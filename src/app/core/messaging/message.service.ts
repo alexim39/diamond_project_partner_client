@@ -45,8 +45,11 @@ export class MessageService {
     return this.api.post<MessageEnvelope>(`v1/messages/${messageId}/read`, {});
   }
 
-  thread(counterpartId: string, limit = 100): Observable<MessagesEnvelope> {
-    return this.api.get<MessagesEnvelope>(`v1/messages/thread/${counterpartId}?limit=${limit}`);
+  thread(counterpartId: string, limit = 100, before?: string): Observable<MessagesEnvelope> {
+    const params = before
+      ? `?limit=${limit}&before=${encodeURIComponent(before)}`
+      : `?limit=${limit}`;
+    return this.api.get<MessagesEnvelope>(`v1/messages/thread/${counterpartId}${params}`);
   }
 
   unreadCount(): Observable<UnreadEnvelope> {
@@ -160,8 +163,11 @@ export class MessageService {
     return this.api.post(`${this.groupsBase}/${encodeURIComponent(groupId)}/requests/${encodeURIComponent(requestId)}/decision`, { decision });
   }
 
-  groupThread(groupId: string, limit = 100): Observable<GroupMessagesEnvelope> {
-    return this.api.get<GroupMessagesEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages?limit=${limit}`);
+  groupThread(groupId: string, limit = 100, before?: string): Observable<GroupMessagesEnvelope> {
+    const params = before
+      ? `?limit=${limit}&before=${encodeURIComponent(before)}`
+      : `?limit=${limit}`;
+    return this.api.get<GroupMessagesEnvelope>(`${this.groupsBase}/${encodeURIComponent(groupId)}/messages${params}`);
   }
 
   sendGroupMessage(groupId: string, body: string, attachments: GroupAttachment[] = []): Observable<GroupMessageEnvelope> {

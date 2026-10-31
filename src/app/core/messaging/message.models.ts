@@ -209,6 +209,7 @@ export interface TeamGroupResult {
   joined: boolean;
   pending: boolean;
   created: boolean;
+  teamGone?: boolean;
 }
 
 export interface TeamGroupEnvelope extends ApiEnvelope<TeamGroupResult> {
